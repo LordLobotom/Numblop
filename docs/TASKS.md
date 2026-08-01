@@ -16,31 +16,46 @@ Status values: `TODO`, `WIP(@agent)`, `BLOCKED(reason)`, `DONE`.
 
 ## M1 tasks
 
-- `A1 TODO` Session runtime/result model and per-answer audit records. Depends: A0.
+- `A1 DONE` Session runtime/result model and per-answer audit records. Depends: A0.
   Owns: `scripts/core/SessionResult.gd`, `tests/core/test_session_result.gd`.
-- `A2 TODO` Distractor-quality rules and edge-case tests for ×0, ×1, and repeated products.
+- `A2 DONE` Distractor-quality rules and edge-case tests for ×0, ×1, and repeated products.
   Depends: A0. Owns: `scripts/core/SessionGenerator.gd`, `tests/core/test_distractors.gd`.
-- `B1 TODO` Opening/logo scene, remembered language choice, bundled Fredoka font, and license.
+- `B1 DONE` Opening/logo scene, remembered language choice, bundled Fredoka font, and license.
   Depends: B0. Owns: opening scene/script, `ui/fonts/`, localization keys, UI tests.
-- `B2 TODO` Interactive blob home, idle/petting reactions, hearts, and coin/XP/level display.
+- `B2 DONE` Interactive blob home, idle/petting reactions, hearts, and coin/XP/level display.
   Depends: B1. Owns: home/blob scenes and scripts, UI tests.
-- `B3 TODO` Practice screen for four- and six-choice modes. Depends: A0, B1.
+- `B3 DONE` Practice screen for four- and six-choice modes. Depends: A0, B1.
   Owns: `scenes/screens/PracticeScreen.tscn`, `scripts/ui/PracticeScreen.gd`, UI tests.
-- `B4 TODO` Custom numeric keypad and calm answer feedback, including the complete equation after
+- `B4 DONE` Custom numeric keypad and calm answer feedback, including the complete equation after
   a wrong answer. Depends: B3.
   Owns: keypad scene/script and UI tests.
-- `B5 TODO` Five-tap chest, shake/open sequence, reward count-up, and return-home flow.
+- `B5 DONE` Single-tap chest, shake/open sequence, reward count-up, and automatic return-home flow.
   Depends: A1, B2, B4, C2. Owns: reward scenes/scripts, translation keys, UI tests.
-- `C1 TODO` Session controller, per-answer mastery saves, and discard-on-interruption behavior.
+- `B6 DONE` Home crest navigation, stage map, bold Play label, and audible music/SFX.
+  Depends: B5, C4. Owns: home/map scenes and scripts, main UI flow, audio presentation,
+  translation keys, and UI tests.
+- `B7 DONE` Settings screen, four-crest navigation, and expanded interaction sound palette.
+  Depends: B6, C5. Owns: settings scene/script, home/map navigation changes, audio-player
+  presentation, localization keys, audio provenance, and UI tests.
+- `C1 DONE` Session controller, per-answer mastery saves, and discard-on-interruption behavior.
   Depends: A1. Owns: `scripts/app/SessionController.gd`, autoload changes, state tests.
-- `C2 TODO` Local coin/XP/level persistence and atomic application of the fixed provisional M1
+- `C2 DONE` Local coin/XP/level persistence and atomic application of the fixed provisional M1
   reward. Depends: A1, C1. Owns: app state/save changes and state tests.
-- `C3 TODO` Android pause/resume/back lifecycle handling. Depends: C1.
+- `C3 DONE` Android pause/resume/back lifecycle handling. Depends: C1.
   Owns: app controller/autoload changes and state tests.
-- `D1 TODO` Responsive screenshot smoke harness at 390×844 and 450×900. Depends: B3.
+- `C4 DONE` Read-only map stage presentation state for the UI. Depends: C1.
+  Owns: `scripts/autoload/AppState.gd` map-state contract and state tests.
+- `C5 DONE` Persistent music/SFX volume and mute preferences with audio-bus application.
+  Depends: C0. Owns: `SettingsManager`, audio settings signal/bus contract, and state tests.
+- `D1 DONE` Responsive screenshot smoke harness at 390×844 and 450×900. Depends: B3.
   Owns: QA scripts, smoke scenes/tests, `artifacts/` output contract.
-- `D2 TODO` Physical Android install/run/log smoke command and checklist. Depends: C3.
+- `D2 BLOCKED(no authorized physical Android device connected)` Physical Android install/run/log
+  smoke command and checklist. Depends: C3.
   Owns: `tools/`, `docs/RELEASES.md`, smoke tests.
+- `D3 DONE` Add the stage map to responsive portrait capture coverage. Depends: B6.
+  Owns: responsive capture script, command, and harness test.
+- `D4 DONE` Add Settings to responsive portrait capture coverage. Depends: B7.
+  Owns: responsive capture script, command, and harness test.
 
 Claim the lowest-numbered unblocked task in your track. Only the stated owner changes the task's
 owned files; coordinate contract changes through the owning track.

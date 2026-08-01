@@ -1,12 +1,12 @@
-# Didaktický algoritmus hry – MVP
+# Didactic Algorithm – MVP
 
-## 1. Učení násobilek
+## 1. Learning Multiplication Tables
 
-Násobilky se učí postupně:
+Multiplication tables are learned progressively:
 
 > 2 → 3 → 4 → 5 → 6 → 7 → 8 → 9
 
-Každá násobilka obsahuje 10 spojů:
+Each multiplication table contains 10 facts:
 
 - ×0
 - ×1
@@ -19,191 +19,197 @@ Každá násobilka obsahuje 10 spojů:
 - ×8
 - ×9
 
-Každý spoj má vlastní hodnotu zvládnutí v rozsahu **0–100 bodů**.
+Each fact has its own mastery value in the range of **0–100 points**.
 
 ---
 
-## 2. Odemčení další násobilky
+## 2. Unlocking the Next Multiplication Table
 
-Další násobilka se odemkne ve chvíli, kdy všech 10 spojů aktuální násobilky dosáhne alespoň hodnoty **80**.
+The next multiplication table is unlocked when all 10 facts in the current table reach a value
+of at least **80**.
 
-Tím je zajištěno, že dítě zvládá celou násobilku, nikoliv pouze některé spoje.
-
----
-
-## 3. Automatizace
-
-Po odemčení další násobilky se starší spoje nepřestanou procvičovat.
-
-Rozlišujeme dvě hranice:
-
-- **80 bodů** – spoj je dostatečně zvládnutý pro pokračování.
-- **90 bodů** – spoj je považován za automatizovaný.
-
-Automatizované spoje se stále občas objevují, aby se upevnily v dlouhodobé paměti.
+This ensures that the child has mastered the entire multiplication table, not only some of its
+facts.
 
 ---
 
-## 4. Typ úlohy podle zvládnutí
+## 3. Automaticity
 
-| Hodnota spoje | Typ úlohy |
+Older facts continue to be practiced after the next multiplication table is unlocked.
+
+There are two thresholds:
+
+- **80 points** – the fact is sufficiently mastered to continue.
+- **90 points** – the fact is considered automated.
+
+Automated facts still appear occasionally to reinforce them in long-term memory.
+
+---
+
+## 4. Question Type by Mastery
+
+| Fact value | Question type |
 |---|---|
-| 0–59 | Výběr ze 4 možností |
-| 60–89 | Výběr ze 6 možností |
-| 90–100 | Zadání výsledku z klávesnice |
+| 0–59 | Choice of 4 answers |
+| 60–89 | Choice of 6 answers |
+| 90–100 | Entering the result using a keyboard |
 
-Použití přesných hranic 0–59, 60–89 a 90–100 zabraňuje nejasnostem při implementaci.
-
----
-
-## 5. Jedna hra
-
-Jedna hra obsahuje **10 úloh**:
-
-- **7 úloh** z aktuálně učené násobilky,
-- **2 úlohy** ze starších spojů s hodnotou pod 90,
-- **1 úlohu** z již automatizovaných spojů s hodnotou 90 a více.
-
-### Výběr konkrétního spoje
-
-V rámci každé skupiny mají přednost spoje s nejnižší hodnotou zvládnutí.
-
-Pokud má více spojů stejnou hodnotu, vybírají se náhodně.
+Using the exact ranges of 0–59, 60–89, and 90–100 prevents ambiguity during implementation.
 
 ---
 
-## 6. Vyhodnocení odpovědi
+## 5. One Game
 
-Každá odpověď se hodnotí podle:
+One game contains **10 questions**:
 
-- správnosti,
-- rychlosti.
+- **7 questions** from the multiplication table currently being learned,
+- **2 questions** from older facts with a value below 90,
+- **1 question** from already automated facts with a value of 90 or more.
 
-### Změna hodnoty spoje
+### Selecting a Specific Fact
 
-| Výsledek | Změna |
+Within each group, facts with the lowest mastery value have priority.
+
+If multiple facts have the same value, they are selected randomly.
+
+---
+
+## 6. Evaluating an Answer
+
+Each answer is evaluated according to:
+
+- correctness,
+- speed.
+
+### Changing a Fact's Mastery Value
+
+| Result | Change |
 |---|---:|
-| Správně a rychle | +5 |
-| Správně, ale pomaleji | +3 |
-| Špatně | −2 |
+| Correct and fast | +5 |
+| Correct, but slower | +3 |
+| Incorrect | −2 |
 
-Po změně se hodnota vždy omezí na rozsah **0–100**.
+After every change, the value is clamped to the range of **0–100**.
 
 ---
 
-## 7. Limity pro rychlou odpověď
+## 7. Fast-Answer Time Limits
 
-| Typ úlohy | Rychlá odpověď |
+| Question type | Fast answer |
 |---|---:|
-| Výběr ze 4 možností | do 2,5 s |
-| Výběr ze 6 možností | do 3 s |
-| Zadání výsledku | do 4 s |
+| Choice of 4 answers | within 2.5 s |
+| Choice of 6 answers | within 3 s |
+| Entering the result | within 4 s |
 
-Odpověď po překročení limitu je stále správná, ale započítává se jako správná pomalá odpověď.
-
----
-
-## 8. Návrat mezi jednodušší úlohy
-
-Pokud dítě začne dělat chyby, spoj se automaticky vrací na jednodušší typ procvičování.
-
-- Pokles pod **90**
-  → místo zadání výsledku se opět používá výběr odpovědi.
-
-- Pokles pod **60**
-  → spoj se vrací na výběr ze 4 možností.
-
-- Pokles pod **80**
-  → spoj se znovu zařazuje mezi běžně procvičované spoje.
-
-Jedna chyba nesmí výrazně ovlivnit dlouhodobé zvládnutí spoje. Opakované chyby však hodnotu postupně snižují.
+An answer submitted after the time limit is still correct, but it is counted as a correct slow
+answer.
 
 ---
 
-## 9. Priorita procvičování
+## 8. Returning to Easier Questions
 
-Při výběru další úlohy platí:
+If the child starts making mistakes, the fact automatically returns to an easier practice type.
 
-1. Spoje s nejnižší hodnotou mají nejvyšší prioritu.
-2. Spoje pod 80 se objevují nejčastěji.
-3. Spoje v rozsahu 80–89 se objevují méně často.
-4. Spoje s hodnotou 90 a více se objevují pouze občas jako kontrolní opakování.
+- Falling below **90**
+  → answer choices are used again instead of entering the result.
+
+- Falling below **60**
+  → the fact returns to a choice of 4 answers.
+
+- Falling below **80**
+  → the fact is placed back among the regularly practiced facts.
+
+One mistake must not significantly affect the long-term mastery of a fact. Repeated mistakes,
+however, gradually reduce its value.
 
 ---
 
-## Schéma algoritmu
+## 9. Practice Priority
+
+The following rules apply when selecting the next question:
+
+1. Facts with the lowest values have the highest priority.
+2. Facts below 80 appear most frequently.
+3. Facts in the range of 80–89 appear less frequently.
+4. Facts with a value of 90 or more appear only occasionally for review.
+
+---
+
+## Algorithm Diagram
 
 ```text
-              Začátek hry
+              Start of game
                     │
                     ▼
-        Vyber spoj podle priority
+        Select a fact by priority
                     │
                     ▼
-      Urči typ úlohy podle hodnoty
+      Determine question type by value
 
-      0–59  → 4 možnosti
-      60–89 → 6 možností
-      90+   → psaní výsledku
+      0–59  → 4 choices
+      60–89 → 6 choices
+      90+   → enter the result
 
                     │
                     ▼
-          Dítě odpoví na příklad
+        The child answers the question
                     │
         ┌───────────┴───────────┐
         │                       │
-     Správně                 Špatně
+      Correct                Incorrect
         │                       │
         ▼                       ▼
- Změří se čas                −2 body
+  Measure time               −2 points
         │
    ┌────┴────┐
    │         │
-Rychle   Pomaleji
+ Fast      Slower
    │         │
  +5        +3
    │         │
    └────┬────┘
         ▼
- Aktualizace hodnoty (0–100)
+  Update value (0–100)
         │
         ▼
- Změna typu úlohy podle nové hodnoty
+ Change question type by the new value
         │
         ▼
- Všech 10 spojů ≥ 80?
+ Are all 10 facts ≥ 80?
         │
-    Ano │ Ne
+    Yes │ No
         │
         ▼
- Odemkni další násobilku
+ Unlock the next multiplication table
 ```
 
 ---
 
-## Poznámka k MVP
+## MVP Note
 
-Lineární změna hodnoty spoje pomocí `+5`, `+3` a `−2` je pro první verzi vhodná, protože je jednoduchá, předvídatelná a snadno implementovatelná.
+Changing a fact's value linearly by `+5`, `+3`, and `−2` is suitable for the first version because
+it is simple, predictable, and easy to implement.
 
-V budoucnu lze algoritmus rozšířit například o:
+In the future, the algorithm can be expanded with features such as:
 
-- zpomalování postupu při vyšší hodnotě zvládnutí,
-- zohlednění série správných nebo chybných odpovědí,
-- časový rozestup od posledního procvičení,
-- adaptivní limity podle konkrétního dítěte,
-- rozložené opakování.
+- slowing progress at higher mastery values,
+- considering streaks of correct or incorrect answers,
+- time elapsed since the fact was last practiced,
+- adaptive limits for each individual child,
+- spaced repetition.
 
 ---
 
-## Potvrzená implementační rozhodnutí
+## Confirmed Implementation Decisions
 
-Tato pravidla jsou součástí MVP a odstraňují nejasnosti při implementaci:
+These rules are part of the MVP and remove ambiguity during implementation:
 
-- Jednou odemčená násobilka se již nikdy znovu nezamkne, ani když hodnota staršího spoje
-  později klesne pod 80.
-- Pokud pro skupinu opakovacích úloh není dost vhodných spojů, chybějící místa se doplní
-  spoji z aktuálně učené násobilky. Jedna hra má vždy 10 úloh.
-- Stejný spoj se nesmí objevit ve dvou bezprostředně po sobě jdoucích úlohách.
-- Čas odpovědi se měří pro výpočet změny zvládnutí, ale dítě během odpovídání nevidí
-  stresující odpočet.
-- V MVP se spoje `a × b` a `b × a` evidují podle příslušné násobilky samostatně.
+- Once a multiplication table is unlocked, it never locks again, even if the value of an older
+  fact later falls below 80.
+- If there are not enough suitable facts for a review group, the missing slots are filled with
+  facts from the multiplication table currently being learned. One game always has 10 questions.
+- The same fact must not appear in two immediately consecutive questions.
+- Answer time is measured to calculate the mastery change, but the child does not see a stressful
+  countdown while answering.
+- In the MVP, the facts `a × b` and `b × a` are tracked separately according to their respective
+  multiplication tables.

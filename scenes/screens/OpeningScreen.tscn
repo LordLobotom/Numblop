@@ -1,0 +1,140 @@
+[gd_scene load_steps=7 format=3]
+
+[ext_resource type="Script" path="res://scripts/ui/OpeningScreen.gd" id="1_script"]
+[ext_resource type="Texture2D" path="res://assets/backgrounds/mianscreen_background.png" id="2_background"]
+[ext_resource type="Texture2D" path="res://ui/branding/numblop_wordmark.png" id="3_logo"]
+[ext_resource type="Texture2D" path="res://ui/buttons/button_language_english.png" id="4_english"]
+[ext_resource type="Texture2D" path="res://ui/buttons/button_language_czech.png" id="5_czech"]
+[ext_resource type="AudioStream" path="res://audio/sfx/button.mp3" id="6_button"]
+
+[node name="OpeningScreen" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 0
+script = ExtResource("1_script")
+
+[node name="Background" type="TextureRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+texture = ExtResource("2_background")
+expand_mode = 1
+stretch_mode = 6
+
+[node name="LightWash" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(1, 1, 1, 0.08)
+
+[node name="SafeMargin" type="MarginContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 20
+theme_override_constants/margin_top = 36
+theme_override_constants/margin_right = 20
+theme_override_constants/margin_bottom = 36
+
+[node name="Content" type="VBoxContainer" parent="SafeMargin"]
+layout_mode = 2
+theme_override_constants/separation = 18
+alignment = 1
+
+[node name="TopSpacer" type="Control" parent="SafeMargin/Content"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="LogoCenter" type="CenterContainer" parent="SafeMargin/Content"]
+layout_mode = 2
+
+[node name="Logo" type="TextureRect" parent="SafeMargin/Content/LogoCenter"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(350, 234)
+layout_mode = 2
+mouse_filter = 2
+modulate = Color(1, 1, 1, 0)
+texture = ExtResource("3_logo")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="LoadingLabel" type="Label" parent="SafeMargin/Content"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.14, 0.38, 0.42, 1)
+theme_override_colors/font_outline_color = Color(1, 1, 1, 0.9)
+theme_override_constants/outline_size = 5
+theme_override_font_sizes/font_size = 22
+text = "OPENING_LOADING"
+horizontal_alignment = 1
+autowrap_mode = 2
+
+[node name="LanguagePanel" type="VBoxContainer" parent="SafeMargin/Content"]
+unique_name_in_owner = true
+visible = false
+modulate = Color(1, 1, 1, 0)
+layout_mode = 2
+theme_override_constants/separation = 14
+
+[node name="LanguagePrompt" type="Label" parent="SafeMargin/Content/LanguagePanel"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.18, 0.3, 0.45, 1)
+theme_override_colors/font_outline_color = Color(1, 1, 1, 0.9)
+theme_override_constants/outline_size = 5
+theme_override_font_sizes/font_size = 24
+text = "OPENING_LANGUAGE_PROMPT"
+horizontal_alignment = 1
+autowrap_mode = 2
+
+[node name="LanguageButtons" type="HBoxContainer" parent="SafeMargin/Content/LanguagePanel"]
+layout_mode = 2
+theme_override_constants/separation = 32
+alignment = 1
+
+[node name="EnglishButton" type="TextureButton" parent="SafeMargin/Content/LanguagePanel/LanguageButtons"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(104, 104)
+layout_mode = 2
+focus_mode = 2
+mouse_default_cursor_shape = 2
+disabled = true
+texture_normal = ExtResource("4_english")
+ignore_texture_size = true
+stretch_mode = 0
+
+[node name="CzechButton" type="TextureButton" parent="SafeMargin/Content/LanguagePanel/LanguageButtons"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(104, 104)
+layout_mode = 2
+focus_mode = 2
+mouse_default_cursor_shape = 2
+disabled = true
+texture_normal = ExtResource("5_czech")
+ignore_texture_size = true
+stretch_mode = 0
+
+[node name="BottomSpacer" type="Control" parent="SafeMargin/Content"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="SelectPlayer" type="AudioStreamPlayer" parent="."]
+unique_name_in_owner = true
+stream = ExtResource("6_button")
+volume_db = 2.0
+bus = &"SFX"

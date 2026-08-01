@@ -1,5 +1,10 @@
 ; Engine configuration file.
-; Prefer changing non-obvious values through the Godot editor.
+; It's best edited using the editor UI and not directly,
+; since the parameters that go here are not all obvious.
+;
+; Format:
+;   [section] ; section goes between []
+;   param=value ; assign values to parameters
 
 config_version=5
 
@@ -23,14 +28,12 @@ window/size/viewport_width=390
 window/size/viewport_height=844
 window/size/window_width_override=450
 window/size/window_height_override=900
-window/size/resizable=true
 window/stretch/mode="canvas_items"
 window/stretch/aspect="expand"
 window/handheld/orientation=1
 
 [internationalization]
 
-locale/fallback="en"
 locale/translations=PackedStringArray("res://localization/strings.en.translation", "res://localization/strings.cs.translation")
 
 [rendering]

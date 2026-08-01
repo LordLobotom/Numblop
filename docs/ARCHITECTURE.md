@@ -37,7 +37,8 @@ Core scripts never access nodes, singletons, files, time, locale, or platform AP
 ## Application state
 
 - `EventBus` contains cross-screen domain signals only.
-- `SettingsManager` owns `user://settings.cfg` and applies `system`, `en`, or `cs` locale.
+- `SettingsManager` owns `user://settings.cfg`, applies `system`, `en`, or `cs` locale, and applies
+  persisted music/SFX volume and global mute through separate `Music` and `SFX` audio buses.
 - `SaveManager` owns versioned `user://profile.json` serialization.
 - `AppState` owns the loaded `LearningProfile` and active question session. Runtime random
   seeds are chosen here, outside the deterministic generator.

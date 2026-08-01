@@ -17,7 +17,7 @@ reward chest make completing practice feel positive without distracting from the
 ## Main repeating flow
 
 Open the game → loading screen → main screen with the blob → press Play → answer 10 adaptive
-questions → complete the series → tap the chest five times → receive coins and experience →
+questions → complete the series → tap the chest once → receive coins and experience →
 tap to continue → return to the main screen.
 
 No additional game modes are part of the MVP.
@@ -37,7 +37,12 @@ No additional game modes are part of the MVP.
 - Let touch and mouse input pet or scratch the blob. It responds happily with animation,
   small hearts, and optionally a short positive sound.
 - Show the local totals for coins, experience points, and player level.
-- The primary action is Play. Settings are available; cosmetic access is deferred.
+- The primary action is Play. The bottom navigation uses Outfit, Map, Home, Trophies, and Settings
+  crests, with Home fixed in the middle and returning directly to the blob screen.
+- Map opens a read-only winding trail for the eight multiplication-table stages. Outfit and
+  Trophies remain visible entry points for later milestones and do not change learning state.
+- Settings provides English/Czech crest choices, separate background-music and sound-effect
+  volume controls, a global mute, and a confirmed Close game action. Cosmetic access is deferred.
 
 Coins will later buy cosmetic items. Experience represents general progress. For the playable
 MVP, every completed series grants a fixed 10 coins and 10 experience points, independent of
@@ -63,12 +68,12 @@ simple values are provisional and may be tuned from play evidence without changi
   The fixed reward keeps mistakes non-punitive; later milestones may tune the values from play
   evidence.
 - Present a closed chest with a short celebratory sound or fanfare.
-- The player taps the chest exactly five times. Every accepted tap shakes the chest and briefly
-  vibrates a supported mobile device.
-- The fifth tap opens the chest with a sound effect.
+- The player taps the chest once. The tap shakes the chest and briefly vibrates a supported mobile
+  device.
+- That tap opens the chest with a sound effect.
 - Count the earned coins and experience points up visually and show the updated totals.
-- After the count finishes, one more tap returns the player to the main screen, where the blob
-  may play a short happy reaction.
+- After the count finishes, keep the totals visible briefly and return automatically to the main
+  screen, where the blob may play a short happy reaction. Do not show a continue button.
 
 ## Interrupted series
 

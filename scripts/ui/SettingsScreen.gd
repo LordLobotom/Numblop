@@ -1,0 +1,208 @@
+class_name SettingsScreen
+extends Control
+
+signal home_requested
+signal map_requested
+signal outfit_requested
+signal trophy_requested
+signal exit_requested
+
+@onready var title_label: Label = %TitleLabel
+@onready var subtitle_label: Label = %SubtitleLabel
+@onready var language_label: Label = %LanguageLabel
+@onready var english_button: TextureButton = %EnglishButton
+@onready var czech_button: TextureButton = %CzechButton
+@onready var english_label: Label = %EnglishLabel
+@onready var czech_label: Label = %CzechLabel
+@onready var english_check: Label = %EnglishCheck
+@onready var czech_check: Label = %CzechCheck
+@onready var music_label: Label = %MusicLabel
+@onready var music_value: Label = %MusicValue
+@onready var music_slider: HSlider = %MusicSlider
+@onready var sfx_label: Label = %SfxLabel
+@onready var sfx_value: Label = %SfxValue
+@onready var sfx_slider: HSlider = %SfxSlider
+@onready var mute_button: CheckButton = %MuteButton
+@onready var hint_label: Label = %HintLabel
+@onready var exit_button: Button = %ExitButton
+@onready var exit_dialog: ConfirmationDialog = %ExitDialog
+@onready var outfit_button: TextureButton = %OutfitButton
+@onready var map_button: TextureButton = %MapButton
+@onready var home_button: TextureButton = %HomeButton
+@onready var trophy_button: TextureButton = %TrophyButton
+@onready var settings_button: TextureButton = %SettingsButton
+@onready var outfit_label: Label = %OutfitLabel
+@onready var map_label: Label = %MapLabel
+@onready var home_label: Label = %HomeLabel
+@onready var trophy_label: Label = %TrophyLabel
+@onready var settings_label: Label = %SettingsLabel
+@onready var preview_player: AudioStreamPlayer = %PreviewPlayer
+@onready var save_timer: Timer = %SaveTimer
+
+var _syncing_controls := false
+
+
+func _ready() -> void:
+    english_button.pressed.connect(_select_language.bind("en"))
+    czech_button.pressed.connect(_select_language.bind("cs"))
+    music_slider.value_changed.connect(_on_audio_value_changed)
+    sfx_slider.value_changed.connect(_on_audio_value_changed)
+    sfx_slider.drag_ended.connect(_on_sfx_drag_ended)
+    mute_button.toggled.connect(_on_mute_toggled)
+    exit_button.pressed.connect(_show_exit_confirmation)
+    exit_dialog.confirmed.connect(_confirm_exit)
+    outfit_button.pressed.connect(_request_future_feature.bind(outfit_requested))
+    map_button.pressed.connect(_request_map)
+    home_button.pressed.connect(_request_home)
+    trophy_button.pressed.connect(_request_future_feature.bind(trophy_requested))
+    save_timer.timeout.connect(_save_audio_preferences)
+    _sync_controls_from_settings()
+    _refresh_text()
+
+
+func _notification(what: int) -> void:
+    if what == NOTIFICATION_TRANSLATION_CHANGED and is_node_ready():
+        _refresh_text()
+        _refresh_language_selection()
+
+
+func show_future_feature() -> void:
+    hint_label.text = tr("HOME_FEATURE_LATER")
+
+
+func refresh_from_settings() -> void:
+    _sync_controls_from_settings()
+    _refresh_text()
+
+
+func _sync_controls_from_settings() -> void:
+    _syncing_controls = true
+    music_slider.value = SettingsManager.music_volume * 100.0
+    sfx_slider.value = SettingsManager.sfx_volume * 100.0
+    mute_button.button_pressed = SettingsManager.audio_muted
+    _syncing_controls = false
+    _refresh_volume_values()
+    _refresh_language_selection()
+
+
+func _refresh_text() -> void:
+    title_label.text = tr("SETTINGS_TITLE")
+    subtitle_label.text = tr("SETTINGS_SUBTITLE")
+    language_label.text = tr("SETTINGS_LANGUAGE")
+    english_label.text = tr("LANGUAGE_ENGLISH")
+    czech_label.text = tr("LANGUAGE_CZECH")
+    music_label.text = tr("SETTINGS_MUSIC")
+    sfx_label.text = tr("SETTINGS_SFX")
+    mute_button.text = tr("SETTINGS_MUTE_ALL")
+    exit_button.text = tr("SETTINGS_EXIT")
+    exit_dialog.title = tr("SETTINGS_EXIT_TITLE")
+    exit_dialog.dialog_text = tr("SETTINGS_EXIT_CONFIRM")
+    exit_dialog.get_ok_button().text = tr("SETTINGS_EXIT_YES")
+    exit_dialog.get_cancel_button().text = tr("SETTINGS_EXIT_CANCEL")
+    hint_label.text = tr("SETTINGS_HINT")
+    outfit_label.text = tr("NAV_OUTFIT")
+    map_label.text = tr("NAV_MAP")
+    home_label.text = tr("NAV_HOME")
+    trophy_label.text = tr("NAV_TROPHY")
+    settings_label.text = tr("NAV_SETTINGS")
+    english_button.tooltip_text = tr("LANGUAGE_ENGLISH")
+    czech_button.tooltip_text = tr("LANGUAGE_CZECH")
+    outfit_button.tooltip_text = tr("NAV_OUTFIT")
+    map_button.tooltip_text = tr("NAV_MAP")
+    home_button.tooltip_text = tr("NAV_HOME")
+    trophy_button.tooltip_text = tr("NAV_TROPHY")
+    settings_button.tooltip_text = tr("NAV_SETTINGS")
+    _refresh_volume_values()
+
+
+func _refresh_volume_values() -> void:
+    music_value.text = tr("SETTINGS_VOLUME_VALUE").format({
+        "value": roundi(music_slider.value),
+    })
+    sfx_value.text = tr("SETTINGS_VOLUME_VALUE").format({
+        "value": roundi(sfx_slider.value),
+    })
+
+
+func _refresh_language_selection() -> void:
+    var locale := SettingsManager.effective_locale()
+    english_check.visible = locale == "en"
+    czech_check.visible = locale == "cs"
+    english_button.modulate = Color.WHITE if locale == "en" else Color(1, 1, 1, 0.58)
+    czech_button.modulate = Color.WHITE if locale == "cs" else Color(1, 1, 1, 0.58)
+
+
+func _select_language(locale: String) -> void:
+    var result := SettingsManager.set_locale_preference(locale)
+    if result != OK:
+        push_error("Could not save the selected settings language")
+        return
+    _refresh_language_selection()
+    preview_player.play()
+
+
+func _on_audio_value_changed(_value: float) -> void:
+    if _syncing_controls:
+        return
+    _preview_audio_preferences()
+    _refresh_volume_values()
+    save_timer.start()
+
+
+func _on_sfx_drag_ended(value_changed: bool) -> void:
+    if value_changed and not SettingsManager.audio_muted:
+        preview_player.play()
+
+
+func _on_mute_toggled(muted: bool) -> void:
+    if _syncing_controls:
+        return
+    _preview_audio_preferences()
+    _save_audio_preferences()
+    if not muted:
+        preview_player.play()
+
+
+func _preview_audio_preferences() -> void:
+    SettingsManager.preview_audio_preferences(
+        music_slider.value / 100.0,
+        sfx_slider.value / 100.0,
+        mute_button.button_pressed
+    )
+
+
+func _save_audio_preferences() -> void:
+    save_timer.stop()
+    var result := SettingsManager.save_audio_preferences()
+    if result != OK:
+        push_error("Could not save audio settings")
+
+
+func _flush_audio_preferences() -> void:
+    _preview_audio_preferences()
+    _save_audio_preferences()
+
+
+func _request_home() -> void:
+    _flush_audio_preferences()
+    home_requested.emit()
+
+
+func _request_map() -> void:
+    _flush_audio_preferences()
+    map_requested.emit()
+
+
+func _request_future_feature(feature_signal: Signal) -> void:
+    _flush_audio_preferences()
+    feature_signal.emit()
+
+
+func _show_exit_confirmation() -> void:
+    _flush_audio_preferences()
+    exit_dialog.popup_centered()
+
+
+func _confirm_exit() -> void:
+    _flush_audio_preferences()
+    exit_requested.emit()

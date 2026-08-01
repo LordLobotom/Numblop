@@ -96,24 +96,33 @@ static func _create_choices(
     var required := 4 if mode == LearningRules.QuestionMode.CHOICE_FOUR else 6
     var correct := table_value * multiplier
     var values: Array[int] = [correct]
-    var candidates: Array[int] = []
-    for nearby_multiplier in range(maxi(0, multiplier - 3), mini(12, multiplier + 3) + 1):
-        candidates.append(table_value * nearby_multiplier)
-    for offset in [-10, -table_value, -2, -1, 1, 2, table_value, 10]:
-        candidates.append(correct + offset)
-    _shuffle(candidates, rng)
-
+    var candidates := _nearby_fact_products(table_value, multiplier, rng)
     for candidate in candidates:
-        if candidate >= 0 and candidate <= 100 and not values.has(candidate):
+        if not values.has(candidate):
             values.append(candidate)
         if values.size() == required:
             break
-    while values.size() < required:
-        var candidate := rng.randi_range(0, 81)
-        if not values.has(candidate):
-            values.append(candidate)
     _shuffle(values, rng)
     return values
+
+
+static func _nearby_fact_products(
+    table_value: int,
+    multiplier: int,
+    rng: RandomNumberGenerator
+) -> Array[int]:
+    var candidates: Array[int] = []
+    for distance in range(1, LearningRules.MULTIPLIERS.size()):
+        var same_distance: Array[int] = []
+        var lower := multiplier - distance
+        var upper := multiplier + distance
+        if LearningRules.MULTIPLIERS.has(lower):
+            same_distance.append(table_value * lower)
+        if LearningRules.MULTIPLIERS.has(upper):
+            same_distance.append(table_value * upper)
+        _shuffle(same_distance, rng)
+        candidates.append_array(same_distance)
+    return candidates
 
 
 static func _shuffle(values: Array[int], rng: RandomNumberGenerator) -> void:

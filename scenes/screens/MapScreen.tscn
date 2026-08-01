@@ -1,0 +1,277 @@
+[gd_scene load_steps=12 format=3]
+
+[ext_resource type="Script" path="res://scripts/ui/MapScreen.gd" id="1_script"]
+[ext_resource type="Script" path="res://scripts/ui/MapPath.gd" id="2_path"]
+[ext_resource type="Texture2D" path="res://assets/backgrounds/mianscreen_background.png" id="3_background"]
+[ext_resource type="Texture2D" path="res://ui/crests/crest_outfit.png" id="4_outfit"]
+[ext_resource type="Texture2D" path="res://ui/crests/crest_map.png" id="5_map"]
+[ext_resource type="Texture2D" path="res://ui/crests/crest_trophy.png" id="6_trophy"]
+[ext_resource type="Font" path="res://ui/fonts/FredokaBold.tres" id="7_bold"]
+[ext_resource type="Texture2D" path="res://ui/crests/crest_settings.png" id="8_settings"]
+[ext_resource type="Texture2D" path="res://ui/crests/crest_home.png" id="9_home"]
+
+[sub_resource type="StyleBoxFlat" id="HeaderPanel"]
+bg_color = Color(1, 1, 1, 0.9)
+corner_radius_top_left = 24
+corner_radius_top_right = 24
+corner_radius_bottom_right = 24
+corner_radius_bottom_left = 24
+content_margin_left = 12.0
+content_margin_top = 8.0
+content_margin_right = 12.0
+content_margin_bottom = 8.0
+shadow_color = Color(0.1, 0.3, 0.26, 0.18)
+shadow_size = 6
+
+[sub_resource type="StyleBoxFlat" id="NavPanel"]
+bg_color = Color(1, 1, 1, 0.9)
+corner_radius_top_left = 24
+corner_radius_top_right = 24
+corner_radius_bottom_right = 24
+corner_radius_bottom_left = 24
+content_margin_left = 10.0
+content_margin_top = 4.0
+content_margin_right = 10.0
+content_margin_bottom = 4.0
+shadow_color = Color(0.1, 0.3, 0.26, 0.18)
+shadow_size = 5
+
+[node name="MapScreen" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_script")
+
+[node name="Background" type="TextureRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+texture = ExtResource("3_background")
+expand_mode = 1
+stretch_mode = 6
+
+[node name="Tint" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0.87, 1, 0.94, 0.18)
+
+[node name="SafeArea" type="MarginContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 14
+theme_override_constants/margin_top = 18
+theme_override_constants/margin_right = 14
+theme_override_constants/margin_bottom = 14
+
+[node name="Content" type="VBoxContainer" parent="SafeArea"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="Header" type="PanelContainer" parent="SafeArea/Content"]
+layout_mode = 2
+theme_override_styles/panel = SubResource("HeaderPanel")
+
+[node name="HeaderRow" type="HBoxContainer" parent="SafeArea/Content/Header"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="Heading" type="VBoxContainer" parent="SafeArea/Content/Header/HeaderRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 0
+alignment = 1
+
+[node name="TitleLabel" type="Label" parent="SafeArea/Content/Header/HeaderRow/Heading"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.19, 0.34, 0.24, 1)
+theme_override_fonts/font = ExtResource("7_bold")
+theme_override_font_sizes/font_size = 30
+text = "MAP_TITLE"
+horizontal_alignment = 1
+
+[node name="SubtitleLabel" type="Label" parent="SafeArea/Content/Header/HeaderRow/Heading"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.27, 0.45, 0.31, 1)
+theme_override_font_sizes/font_size = 15
+text = "MAP_SUBTITLE"
+horizontal_alignment = 1
+autowrap_mode = 2
+
+[node name="Scroll" type="ScrollContainer" parent="SafeArea/Content"]
+layout_mode = 2
+size_flags_vertical = 3
+horizontal_scroll_mode = 0
+
+[node name="MapCanvas" type="Control" parent="SafeArea/Content/Scroll"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(350, 1180)
+layout_mode = 2
+size_flags_horizontal = 3
+mouse_filter = 1
+script = ExtResource("2_path")
+
+[node name="FeatureHint" type="Label" parent="SafeArea/Content"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 26)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.18, 0.35, 0.28, 1)
+theme_override_colors/font_outline_color = Color(1, 1, 1, 0.9)
+theme_override_constants/outline_size = 3
+theme_override_font_sizes/font_size = 15
+text = "MAP_HINT"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Navigation" type="PanelContainer" parent="SafeArea/Content"]
+custom_minimum_size = Vector2(0, 104)
+layout_mode = 2
+theme_override_styles/panel = SubResource("NavPanel")
+
+[node name="NavigationRow" type="HBoxContainer" parent="SafeArea/Content/Navigation"]
+layout_mode = 2
+theme_override_constants/separation = 3
+alignment = 1
+
+[node name="OutfitItem" type="VBoxContainer" parent="SafeArea/Content/Navigation/NavigationRow"]
+custom_minimum_size = Vector2(64, 0)
+layout_mode = 2
+theme_override_constants/separation = -5
+alignment = 1
+
+[node name="OutfitButton" type="TextureButton" parent="SafeArea/Content/Navigation/NavigationRow/OutfitItem"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(56, 56)
+layout_mode = 2
+size_flags_horizontal = 4
+focus_mode = 2
+mouse_default_cursor_shape = 2
+texture_normal = ExtResource("4_outfit")
+ignore_texture_size = true
+stretch_mode = 0
+
+[node name="OutfitLabel" type="Label" parent="SafeArea/Content/Navigation/NavigationRow/OutfitItem"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.2, 0.33, 0.27, 1)
+theme_override_font_sizes/font_size = 12
+text = "NAV_OUTFIT"
+horizontal_alignment = 1
+
+[node name="MapItem" type="VBoxContainer" parent="SafeArea/Content/Navigation/NavigationRow"]
+custom_minimum_size = Vector2(64, 0)
+layout_mode = 2
+theme_override_constants/separation = -5
+alignment = 1
+
+[node name="MapButton" type="TextureButton" parent="SafeArea/Content/Navigation/NavigationRow/MapItem"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(62, 62)
+layout_mode = 2
+size_flags_horizontal = 4
+focus_mode = 2
+mouse_default_cursor_shape = 2
+texture_normal = ExtResource("5_map")
+ignore_texture_size = true
+stretch_mode = 0
+
+[node name="MapLabel" type="Label" parent="SafeArea/Content/Navigation/NavigationRow/MapItem"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.28, 0.58, 0.09, 1)
+theme_override_fonts/font = ExtResource("7_bold")
+theme_override_font_sizes/font_size = 12
+text = "NAV_MAP"
+horizontal_alignment = 1
+
+[node name="HomeItem" type="VBoxContainer" parent="SafeArea/Content/Navigation/NavigationRow"]
+custom_minimum_size = Vector2(64, 0)
+layout_mode = 2
+theme_override_constants/separation = -5
+alignment = 1
+
+[node name="HomeButton" type="TextureButton" parent="SafeArea/Content/Navigation/NavigationRow/HomeItem"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(56, 56)
+layout_mode = 2
+size_flags_horizontal = 4
+focus_mode = 2
+mouse_default_cursor_shape = 2
+texture_normal = ExtResource("9_home")
+ignore_texture_size = true
+stretch_mode = 0
+
+[node name="HomeLabel" type="Label" parent="SafeArea/Content/Navigation/NavigationRow/HomeItem"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.2, 0.33, 0.27, 1)
+theme_override_font_sizes/font_size = 12
+text = "NAV_HOME"
+horizontal_alignment = 1
+
+[node name="TrophyItem" type="VBoxContainer" parent="SafeArea/Content/Navigation/NavigationRow"]
+custom_minimum_size = Vector2(64, 0)
+layout_mode = 2
+theme_override_constants/separation = -5
+alignment = 1
+
+[node name="TrophyButton" type="TextureButton" parent="SafeArea/Content/Navigation/NavigationRow/TrophyItem"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(56, 56)
+layout_mode = 2
+size_flags_horizontal = 4
+focus_mode = 2
+mouse_default_cursor_shape = 2
+texture_normal = ExtResource("6_trophy")
+ignore_texture_size = true
+stretch_mode = 0
+
+[node name="TrophyLabel" type="Label" parent="SafeArea/Content/Navigation/NavigationRow/TrophyItem"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.2, 0.33, 0.27, 1)
+theme_override_font_sizes/font_size = 12
+text = "NAV_TROPHY"
+horizontal_alignment = 1
+
+[node name="SettingsItem" type="VBoxContainer" parent="SafeArea/Content/Navigation/NavigationRow"]
+custom_minimum_size = Vector2(64, 0)
+layout_mode = 2
+theme_override_constants/separation = -5
+alignment = 1
+
+[node name="SettingsButton" type="TextureButton" parent="SafeArea/Content/Navigation/NavigationRow/SettingsItem"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(56, 56)
+layout_mode = 2
+size_flags_horizontal = 4
+focus_mode = 2
+mouse_default_cursor_shape = 2
+texture_normal = ExtResource("8_settings")
+ignore_texture_size = true
+stretch_mode = 0
+
+[node name="SettingsLabel" type="Label" parent="SafeArea/Content/Navigation/NavigationRow/SettingsItem"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.2, 0.33, 0.27, 1)
+theme_override_font_sizes/font_size = 12
+text = "NAV_SETTINGS"
+horizontal_alignment = 1

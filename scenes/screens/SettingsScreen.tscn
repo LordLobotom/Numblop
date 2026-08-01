@@ -1,0 +1,507 @@
+[gd_scene load_steps=16 format=3]
+
+[ext_resource type="Script" path="res://scripts/ui/SettingsScreen.gd" id="1_script"]
+[ext_resource type="Texture2D" path="res://assets/backgrounds/mianscreen_background.png" id="2_background"]
+[ext_resource type="Texture2D" path="res://ui/buttons/button_language_english.png" id="3_english"]
+[ext_resource type="Texture2D" path="res://ui/buttons/button_language_czech.png" id="4_czech"]
+[ext_resource type="Texture2D" path="res://ui/crests/crest_outfit.png" id="5_outfit"]
+[ext_resource type="Texture2D" path="res://ui/crests/crest_map.png" id="6_map"]
+[ext_resource type="Texture2D" path="res://ui/crests/crest_trophy.png" id="7_trophy"]
+[ext_resource type="Texture2D" path="res://ui/crests/crest_settings.png" id="8_settings"]
+[ext_resource type="Font" path="res://ui/fonts/FredokaBold.tres" id="9_bold"]
+[ext_resource type="AudioStream" path="res://audio/sfx/Menu_Select_00.wav" id="10_preview"]
+[ext_resource type="Texture2D" path="res://ui/crests/crest_home.png" id="11_home"]
+
+[sub_resource type="StyleBoxFlat" id="HeaderPanel"]
+bg_color = Color(1, 1, 1, 0.92)
+corner_radius_top_left = 24
+corner_radius_top_right = 24
+corner_radius_bottom_right = 24
+corner_radius_bottom_left = 24
+content_margin_left = 12.0
+content_margin_top = 8.0
+content_margin_right = 12.0
+content_margin_bottom = 8.0
+shadow_color = Color(0.1, 0.3, 0.26, 0.18)
+shadow_size = 6
+
+[sub_resource type="StyleBoxFlat" id="SettingsPanel"]
+bg_color = Color(1, 1, 1, 0.94)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(1, 1, 1, 0.8)
+corner_radius_top_left = 28
+corner_radius_top_right = 28
+corner_radius_bottom_right = 28
+corner_radius_bottom_left = 28
+content_margin_left = 22.0
+content_margin_top = 18.0
+content_margin_right = 22.0
+content_margin_bottom = 18.0
+shadow_color = Color(0.1, 0.3, 0.26, 0.18)
+shadow_size = 8
+
+[sub_resource type="StyleBoxFlat" id="NavPanel"]
+bg_color = Color(1, 1, 1, 0.92)
+corner_radius_top_left = 24
+corner_radius_top_right = 24
+corner_radius_bottom_right = 24
+corner_radius_bottom_left = 24
+content_margin_left = 8.0
+content_margin_top = 4.0
+content_margin_right = 8.0
+content_margin_bottom = 4.0
+shadow_color = Color(0.1, 0.3, 0.26, 0.18)
+shadow_size = 5
+
+[sub_resource type="StyleBoxFlat" id="SliderBackground"]
+bg_color = Color(0.8, 0.82, 0.75, 1)
+content_margin_top = 7.0
+content_margin_bottom = 7.0
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+
+[sub_resource type="StyleBoxFlat" id="SliderFill"]
+bg_color = Color(0.42, 0.78, 0.18, 1)
+content_margin_top = 7.0
+content_margin_bottom = 7.0
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+
+[node name="SettingsScreen" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_script")
+
+[node name="Background" type="TextureRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+texture = ExtResource("2_background")
+expand_mode = 1
+stretch_mode = 6
+
+[node name="Tint" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0.91, 1, 0.95, 0.12)
+
+[node name="SafeArea" type="MarginContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 14
+theme_override_constants/margin_top = 18
+theme_override_constants/margin_right = 14
+theme_override_constants/margin_bottom = 14
+
+[node name="Content" type="VBoxContainer" parent="SafeArea"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="Header" type="PanelContainer" parent="SafeArea/Content"]
+layout_mode = 2
+theme_override_styles/panel = SubResource("HeaderPanel")
+
+[node name="HeaderRow" type="HBoxContainer" parent="SafeArea/Content/Header"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="Heading" type="VBoxContainer" parent="SafeArea/Content/Header/HeaderRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 0
+alignment = 1
+
+[node name="TitleLabel" type="Label" parent="SafeArea/Content/Header/HeaderRow/Heading"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.19, 0.34, 0.24, 1)
+theme_override_fonts/font = ExtResource("9_bold")
+theme_override_font_sizes/font_size = 30
+text = "SETTINGS_TITLE"
+horizontal_alignment = 1
+
+[node name="SubtitleLabel" type="Label" parent="SafeArea/Content/Header/HeaderRow/Heading"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.27, 0.45, 0.31, 1)
+theme_override_font_sizes/font_size = 15
+text = "SETTINGS_SUBTITLE"
+horizontal_alignment = 1
+autowrap_mode = 2
+
+[node name="Scroll" type="ScrollContainer" parent="SafeArea/Content"]
+layout_mode = 2
+size_flags_vertical = 3
+horizontal_scroll_mode = 0
+
+[node name="SettingsPanel" type="PanelContainer" parent="SafeArea/Content/Scroll"]
+custom_minimum_size = Vector2(350, 500)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_styles/panel = SubResource("SettingsPanel")
+
+[node name="SettingsContent" type="VBoxContainer" parent="SafeArea/Content/Scroll/SettingsPanel"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="LanguageLabel" type="Label" parent="SafeArea/Content/Scroll/SettingsPanel/SettingsContent"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.19, 0.34, 0.24, 1)
+theme_override_fonts/font = ExtResource("9_bold")
+theme_override_font_sizes/font_size = 23
+text = "SETTINGS_LANGUAGE"
+horizontal_alignment = 1
+
+[node name="LanguageButtons" type="HBoxContainer" parent="SafeArea/Content/Scroll/SettingsPanel/SettingsContent"]
+layout_mode = 2
+theme_override_constants/separation = 42
+alignment = 1
+
+[node name="EnglishItem" type="VBoxContainer" parent="SafeArea/Content/Scroll/SettingsPanel/SettingsContent/LanguageButtons"]
+layout_mode = 2
+alignment = 1
+
+[node name="EnglishButton" type="TextureButton" parent="SafeArea/Content/Scroll/SettingsPanel/SettingsContent/LanguageButtons/EnglishItem"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(96, 96)
+layout_mode = 2
+focus_mode = 2
+mouse_default_cursor_shape = 2
+texture_normal = ExtResource("3_english")
+ignore_texture_size = true
+stretch_mode = 0
+
+[node name="EnglishCheck" type="Label" parent="SafeArea/Content/Scroll/SettingsPanel/SettingsContent/LanguageButtons/EnglishItem/EnglishButton"]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -34.0
+offset_bottom = 36.0
+grow_horizontal = 0
+mouse_filter = 2
+theme_override_colors/font_color = Color(0.27, 0.72, 0.08, 1)
+theme_override_colors/font_outline_color = Color(1, 1, 1, 1)
+theme_override_constants/outline_size = 5
+theme_override_fonts/font = ExtResource("9_bold")
+theme_override_font_sizes/font_size = 28
+text = "✓"
+horizontal_alignment = 1
+
+[node name="EnglishLabel" type="Label" parent="SafeArea/Content/Scroll/SettingsPanel/SettingsContent/LanguageButtons/EnglishItem"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.22, 0.36, 0.26, 1)
+theme_override_font_sizes/font_size = 16
+text = "LANGUAGE_ENGLISH"
+horizontal_alignment = 1
+
+[node name="CzechItem" type="VBoxContainer" parent="SafeArea/Content/Scroll/SettingsPanel/SettingsContent/LanguageButtons"]
+layout_mode = 2
+alignment = 1
+
+[node name="CzechButton" type="TextureButton" parent="SafeArea/Content/Scroll/SettingsPanel/SettingsContent/LanguageButtons/CzechItem"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(96, 96)
+layout_mode = 2
+focus_mode = 2
+mouse_default_cursor_shape = 2
+texture_normal = ExtResource("4_czech")
+ignore_texture_size = true
+stretch_mode = 0
+
+[node name="CzechCheck" type="Label" parent="SafeArea/Content/Scroll/SettingsPanel/SettingsContent/LanguageButtons/CzechItem/CzechButton"]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -34.0
+offset_bottom = 36.0
+grow_horizontal = 0
+mouse_filter = 2
+theme_override_colors/font_color = Color(0.27, 0.72, 0.08, 1)
+theme_override_colors/font_outline_color = Color(1, 1, 1, 1)
+theme_override_constants/outline_size = 5
+theme_override_fonts/font = ExtResource("9_bold")
+theme_override_font_sizes/font_size = 28
+text = "✓"
+horizontal_alignment = 1
+
+[node name="CzechLabel" type="Label" parent="SafeArea/Content/Scroll/SettingsPanel/SettingsContent/LanguageButtons/CzechItem"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.22, 0.36, 0.26, 1)
+theme_override_font_sizes/font_size = 16
+text = "LANGUAGE_CZECH"
+horizontal_alignment = 1
+
+[node name="Divider" type="HSeparator" parent="SafeArea/Content/Scroll/SettingsPanel/SettingsContent"]
+layout_mode = 2
+
+[node name="MusicHeader" type="HBoxContainer" parent="SafeArea/Content/Scroll/SettingsPanel/SettingsContent"]
+layout_mode = 2
+
+[node name="MusicLabel" type="Label" parent="SafeArea/Content/Scroll/SettingsPanel/SettingsContent/MusicHeader"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.19, 0.34, 0.24, 1)
+theme_override_fonts/font = ExtResource("9_bold")
+theme_override_font_sizes/font_size = 20
+text = "SETTINGS_MUSIC"
+
+[node name="MusicValue" type="Label" parent="SafeArea/Content/Scroll/SettingsPanel/SettingsContent/MusicHeader"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.32, 0.54, 0.16, 1)
+theme_override_font_sizes/font_size = 18
+text = "75%"
+
+[node name="MusicSlider" type="HSlider" parent="SafeArea/Content/Scroll/SettingsPanel/SettingsContent"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 48)
+layout_mode = 2
+mouse_default_cursor_shape = 2
+theme_override_styles/slider = SubResource("SliderBackground")
+theme_override_styles/grabber_area = SubResource("SliderFill")
+theme_override_styles/grabber_area_highlight = SubResource("SliderFill")
+max_value = 100.0
+step = 1.0
+value = 75.0
+
+[node name="SfxHeader" type="HBoxContainer" parent="SafeArea/Content/Scroll/SettingsPanel/SettingsContent"]
+layout_mode = 2
+
+[node name="SfxLabel" type="Label" parent="SafeArea/Content/Scroll/SettingsPanel/SettingsContent/SfxHeader"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.19, 0.34, 0.24, 1)
+theme_override_fonts/font = ExtResource("9_bold")
+theme_override_font_sizes/font_size = 20
+text = "SETTINGS_SFX"
+
+[node name="SfxValue" type="Label" parent="SafeArea/Content/Scroll/SettingsPanel/SettingsContent/SfxHeader"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.32, 0.54, 0.16, 1)
+theme_override_font_sizes/font_size = 18
+text = "90%"
+
+[node name="SfxSlider" type="HSlider" parent="SafeArea/Content/Scroll/SettingsPanel/SettingsContent"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 48)
+layout_mode = 2
+mouse_default_cursor_shape = 2
+theme_override_styles/slider = SubResource("SliderBackground")
+theme_override_styles/grabber_area = SubResource("SliderFill")
+theme_override_styles/grabber_area_highlight = SubResource("SliderFill")
+max_value = 100.0
+step = 1.0
+value = 90.0
+
+[node name="MuteButton" type="CheckButton" parent="SafeArea/Content/Scroll/SettingsPanel/SettingsContent"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 56)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.19, 0.34, 0.24, 1)
+theme_override_colors/font_pressed_color = Color(0.19, 0.34, 0.24, 1)
+theme_override_font_sizes/font_size = 19
+text = "SETTINGS_MUTE_ALL"
+
+[node name="ExitButton" type="Button" parent="SafeArea/Content/Scroll/SettingsPanel/SettingsContent"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 58)
+layout_mode = 2
+theme_override_font_sizes/font_size = 20
+text = "SETTINGS_EXIT"
+
+[node name="HintLabel" type="Label" parent="SafeArea/Content/Scroll/SettingsPanel/SettingsContent"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.29, 0.44, 0.32, 1)
+theme_override_font_sizes/font_size = 14
+text = "SETTINGS_HINT"
+horizontal_alignment = 1
+autowrap_mode = 2
+
+[node name="Navigation" type="PanelContainer" parent="SafeArea/Content"]
+custom_minimum_size = Vector2(0, 104)
+layout_mode = 2
+theme_override_styles/panel = SubResource("NavPanel")
+
+[node name="NavigationRow" type="HBoxContainer" parent="SafeArea/Content/Navigation"]
+layout_mode = 2
+theme_override_constants/separation = 3
+alignment = 1
+
+[node name="OutfitItem" type="VBoxContainer" parent="SafeArea/Content/Navigation/NavigationRow"]
+custom_minimum_size = Vector2(64, 0)
+layout_mode = 2
+theme_override_constants/separation = -5
+alignment = 1
+
+[node name="OutfitButton" type="TextureButton" parent="SafeArea/Content/Navigation/NavigationRow/OutfitItem"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(56, 56)
+layout_mode = 2
+size_flags_horizontal = 4
+focus_mode = 2
+mouse_default_cursor_shape = 2
+texture_normal = ExtResource("5_outfit")
+ignore_texture_size = true
+stretch_mode = 0
+
+[node name="OutfitLabel" type="Label" parent="SafeArea/Content/Navigation/NavigationRow/OutfitItem"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.2, 0.33, 0.27, 1)
+theme_override_font_sizes/font_size = 12
+text = "NAV_OUTFIT"
+horizontal_alignment = 1
+
+[node name="MapItem" type="VBoxContainer" parent="SafeArea/Content/Navigation/NavigationRow"]
+custom_minimum_size = Vector2(64, 0)
+layout_mode = 2
+theme_override_constants/separation = -5
+alignment = 1
+
+[node name="MapButton" type="TextureButton" parent="SafeArea/Content/Navigation/NavigationRow/MapItem"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(56, 56)
+layout_mode = 2
+size_flags_horizontal = 4
+focus_mode = 2
+mouse_default_cursor_shape = 2
+texture_normal = ExtResource("6_map")
+ignore_texture_size = true
+stretch_mode = 0
+
+[node name="MapLabel" type="Label" parent="SafeArea/Content/Navigation/NavigationRow/MapItem"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.2, 0.33, 0.27, 1)
+theme_override_font_sizes/font_size = 12
+text = "NAV_MAP"
+horizontal_alignment = 1
+
+[node name="HomeItem" type="VBoxContainer" parent="SafeArea/Content/Navigation/NavigationRow"]
+custom_minimum_size = Vector2(64, 0)
+layout_mode = 2
+theme_override_constants/separation = -5
+alignment = 1
+
+[node name="HomeButton" type="TextureButton" parent="SafeArea/Content/Navigation/NavigationRow/HomeItem"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(56, 56)
+layout_mode = 2
+size_flags_horizontal = 4
+focus_mode = 2
+mouse_default_cursor_shape = 2
+texture_normal = ExtResource("11_home")
+ignore_texture_size = true
+stretch_mode = 0
+
+[node name="HomeLabel" type="Label" parent="SafeArea/Content/Navigation/NavigationRow/HomeItem"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.2, 0.33, 0.27, 1)
+theme_override_font_sizes/font_size = 12
+text = "NAV_HOME"
+horizontal_alignment = 1
+
+[node name="TrophyItem" type="VBoxContainer" parent="SafeArea/Content/Navigation/NavigationRow"]
+custom_minimum_size = Vector2(64, 0)
+layout_mode = 2
+theme_override_constants/separation = -5
+alignment = 1
+
+[node name="TrophyButton" type="TextureButton" parent="SafeArea/Content/Navigation/NavigationRow/TrophyItem"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(56, 56)
+layout_mode = 2
+size_flags_horizontal = 4
+focus_mode = 2
+mouse_default_cursor_shape = 2
+texture_normal = ExtResource("7_trophy")
+ignore_texture_size = true
+stretch_mode = 0
+
+[node name="TrophyLabel" type="Label" parent="SafeArea/Content/Navigation/NavigationRow/TrophyItem"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.2, 0.33, 0.27, 1)
+theme_override_font_sizes/font_size = 12
+text = "NAV_TROPHY"
+horizontal_alignment = 1
+
+[node name="SettingsItem" type="VBoxContainer" parent="SafeArea/Content/Navigation/NavigationRow"]
+custom_minimum_size = Vector2(64, 0)
+layout_mode = 2
+theme_override_constants/separation = -5
+alignment = 1
+
+[node name="SettingsButton" type="TextureButton" parent="SafeArea/Content/Navigation/NavigationRow/SettingsItem"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(62, 62)
+layout_mode = 2
+size_flags_horizontal = 4
+focus_mode = 2
+mouse_default_cursor_shape = 2
+texture_normal = ExtResource("8_settings")
+ignore_texture_size = true
+stretch_mode = 0
+
+[node name="SettingsLabel" type="Label" parent="SafeArea/Content/Navigation/NavigationRow/SettingsItem"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.28, 0.58, 0.09, 1)
+theme_override_fonts/font = ExtResource("9_bold")
+theme_override_font_sizes/font_size = 12
+text = "NAV_SETTINGS"
+horizontal_alignment = 1
+
+[node name="PreviewPlayer" type="AudioStreamPlayer" parent="."]
+unique_name_in_owner = true
+stream = ExtResource("10_preview")
+volume_db = -5.0
+bus = &"SFX"
+
+[node name="SaveTimer" type="Timer" parent="."]
+unique_name_in_owner = true
+wait_time = 0.35
+one_shot = true
+
+[node name="ExitDialog" type="ConfirmationDialog" parent="."]
+unique_name_in_owner = true
+title = "SETTINGS_EXIT_TITLE"
+dialog_text = "SETTINGS_EXIT_CONFIRM"
+ok_button_text = "SETTINGS_EXIT_YES"
+cancel_button_text = "SETTINGS_EXIT_CANCEL"

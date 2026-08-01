@@ -10,3 +10,57 @@ LANGUAGE_LABEL,Language,Jazyk
 LANGUAGE_SYSTEM,System language,Jazyk systému
 LANGUAGE_ENGLISH,English,Angličtina
 LANGUAGE_CZECH,Czech,Čeština
+OPENING_LOADING,Getting things ready…,Připravujeme hru…
+OPENING_LANGUAGE_PROMPT,Choose your language,Vyber si jazyk
+HOME_COINS,Coins: {count},Mince: {count}
+HOME_XP,Experience: {count},Zkušenosti: {count}
+HOME_LEVEL,Level {level},Úroveň {level}
+HOME_PET_HINT,Tap the blob to say hello!,Klepni na Numblopa a pozdrav ho!
+HOME_PET_REACTION,Numblop is happy to see you!,Numblop tě rád vidí!
+HOME_PET_ACCESSIBLE,Pet Numblop,Pohladit Numblopa
+HOME_REWARD_REACTION,Great practice! Numblop is proud of you.,Skvělé procvičování! Numblop je na tebe pyšný.
+PRACTICE_PROGRESS,Question {current} of {total},Příklad {current} z {total}
+PRACTICE_CHOOSE_ANSWER,Choose the answer,Vyber výsledek
+PRACTICE_EXIT,×,×
+PRACTICE_EXIT_ACCESSIBLE,Leave this practice,Ukončit procvičování
+PRACTICE_ENTER_ANSWER,Enter the answer,Zadej výsledek
+PRACTICE_CORRECT,Nice work!,Výborně!
+PRACTICE_INCORRECT,Let's look at it together.,Podíváme se na to spolu.
+PRACTICE_CONTINUE,Continue,Pokračovat
+KEYPAD_DELETE,Delete the last digit,Smazat poslední číslici
+KEYPAD_SUBMIT,Submit the answer,Potvrdit výsledek
+REWARD_TITLE,You found a reward chest!,Našel jsi truhlu s odměnou!
+REWARD_TAP_PROGRESS,Tap the chest to open it!,Klepni na truhlu a otevři ji!
+REWARD_OPENED,Your reward!,Tvoje odměna!
+REWARD_COINS_TOTAL,{count} coins total,Celkem {count} mincí
+REWARD_XP_TOTAL,{count} experience total,Celkem {count} zkušeností
+REWARD_CHEST_ACCESSIBLE,Tap the reward chest,Klepnout na truhlu s odměnou
+NAV_OUTFIT,Outfit,Oblečení
+NAV_MAP,Map,Mapa
+NAV_TROPHY,Trophies,Poháry
+HOME_FEATURE_LATER,Coming in a later update!,Připravujeme do další aktualizace!
+MAP_TITLE,Map,Mapa
+MAP_SUBTITLE,Follow the multiplication trail!,Postupuj násobilkami!
+MAP_HINT,Swipe to explore every stage.,Tažením prozkoumej všechny etapy.
+MAP_BACK_ACCESSIBLE,Return home,Zpět domů
+MAP_TABLE,{table}×,{table}×
+MAP_STAGE_CURRENT,Learning now,Právě se učíš
+MAP_STAGE_COMPLETE,Trail cleared,Cesta splněna
+MAP_STAGE_LOCKED,Locked,Zamčeno
+MAP_STAGE_PROGRESS,{count}/10 facts,{count}/10 spojů
+NAV_SETTINGS,Settings,Nastavení
+NAV_HOME,Home,Domů
+SETTINGS_TITLE,Settings,Nastavení
+SETTINGS_SUBTITLE,Make Numblop feel just right.,Nastav si Numblopa podle sebe.
+SETTINGS_LANGUAGE,Language,Jazyk
+SETTINGS_MUSIC,Background music,Hudba na pozadí
+SETTINGS_SFX,Sound effects,Zvukové efekty
+SETTINGS_MUTE_ALL,Mute all sound,Vypnout všechny zvuky
+SETTINGS_VOLUME_VALUE,{value}%,{value}%
+SETTINGS_HINT,Changes are saved on this device.,Změny se ukládají v tomto zařízení.
+SETTINGS_BACK_ACCESSIBLE,Return to the previous screen,Zpět na předchozí obrazovku
+SETTINGS_EXIT,Close game,Ukončit hru
+SETTINGS_EXIT_TITLE,Close Numblop?,Ukončit Numblopa?
+SETTINGS_EXIT_CONFIRM,Do you want to close the game?,Chceš ukončit hru?
+SETTINGS_EXIT_YES,Close,Ukončit
+SETTINGS_EXIT_CANCEL,Keep playing,Pokračovat ve hře

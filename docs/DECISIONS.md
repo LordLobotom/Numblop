@@ -24,7 +24,8 @@
 - A series has exactly 10 questions: 7 current-table, 2 older weak, and 1 older automated
   review question. Selection within those groups remains adaptive.
 - The MVP loop includes the interactive blob home screen, local coins/experience/level totals,
-  a guaranteed reward chest, five chest taps, reward count-up, and return home.
+  a guaranteed reward chest, one chest tap, reward count-up, and automatic return home without a
+  separate continue button.
 - An unfinished series is discarded and grants no reward. Mastery already recorded for answered
   questions remains saved, but the unfinished question list is not resumed.
 - Reward calculation and cosmetic purchasing rules remain intentionally undefined.
@@ -38,3 +39,25 @@
 - The displayed level is `1 + floor(total experience / 100)` and therefore starts at level 1.
 - These values are intentionally simple M1 defaults. M3 may tune the reward and level pacing from
   observed play evidence, but reward calculation remains outside the learning/mastery core.
+
+## 2026-08-01 — M1 home navigation and stage map
+
+- The language chooser appears in the remembered opening flow and the Settings screen; it does
+  not occupy the main-screen content area.
+- The footer uses Outfit, Map, Home, Trophies, and Settings crests. Home is always centered and
+  returns directly to the blob screen, replacing top-level green back arrows. Map and Settings are
+  functional in M1, while Outfit and Trophies are honest later-feature placeholders.
+- The map is a read-only presentation of all eight table stages and never changes mastery,
+  unlocking, or adaptive session selection.
+- Background music starts with the main scene and loops. Settings persists separate Music/SFX
+  volumes and global mute; friendly cues reinforce petting, navigation, answers, and rewards.
+- Close game is available from Settings behind a confirmation and flushes pending preferences.
+
+## 2026-08-01 — Future Endless trail concept
+
+- Clearing every multiplication island may unlock a post-campaign Endless mode with gradually
+  higher factors beyond `9×`.
+- Endless mode is not part of MVP and does not alter the canonical eight-table learning profile,
+  mastery thresholds, or exact 10-question adaptive mix.
+- Its factor growth, question selection, difficulty, persistence, and completion semantics require
+  a dedicated didactic design decision before implementation.

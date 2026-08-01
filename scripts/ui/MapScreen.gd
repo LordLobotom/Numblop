@@ -1,0 +1,210 @@
+class_name MapScreen
+extends Control
+
+signal return_home_requested
+signal outfit_requested
+signal trophy_requested
+signal settings_requested
+
+const OPEN_STAGE_TEXTURE: Texture2D = preload(
+    "res://ui/crests/crest_map_island_open.png"
+)
+const CLOSED_STAGE_TEXTURE: Texture2D = preload(
+    "res://ui/crests/crest_map_islan_closed.png"
+)
+const BOLD_FONT: Font = preload("res://ui/fonts/FredokaBold.tres")
+const STAGE_SIZE := Vector2(132.0, 132.0)
+const STAGE_STEP := 145.0
+
+@onready var title_label: Label = %TitleLabel
+@onready var subtitle_label: Label = %SubtitleLabel
+@onready var map_canvas: MapPath = %MapCanvas
+@onready var outfit_button: TextureButton = %OutfitButton
+@onready var map_button: TextureButton = %MapButton
+@onready var home_button: TextureButton = %HomeButton
+@onready var trophy_button: TextureButton = %TrophyButton
+@onready var settings_button: TextureButton = %SettingsButton
+@onready var outfit_label: Label = %OutfitLabel
+@onready var map_label: Label = %MapLabel
+@onready var home_label: Label = %HomeLabel
+@onready var trophy_label: Label = %TrophyLabel
+@onready var settings_label: Label = %SettingsLabel
+@onready var feature_hint: Label = %FeatureHint
+
+var _stage_states: Array[Dictionary] = []
+
+
+func _ready() -> void:
+    home_button.pressed.connect(return_home_requested.emit)
+    outfit_button.pressed.connect(outfit_requested.emit)
+    trophy_button.pressed.connect(trophy_requested.emit)
+    settings_button.pressed.connect(settings_requested.emit)
+    _refresh_text()
+    _rebuild_stages()
+
+
+func _notification(what: int) -> void:
+    if what == NOTIFICATION_TRANSLATION_CHANGED and is_node_ready():
+        _refresh_text()
+        _rebuild_stages()
+
+
+func set_stage_states(stage_states: Array[Dictionary]) -> void:
+    _stage_states.clear()
+    for stage_state in stage_states:
+        _stage_states.append(stage_state.duplicate(true))
+    if is_node_ready():
+        _rebuild_stages()
+
+
+func show_future_feature() -> void:
+    feature_hint.text = tr("HOME_FEATURE_LATER")
+
+
+func _refresh_text() -> void:
+    title_label.text = tr("MAP_TITLE")
+    subtitle_label.text = tr("MAP_SUBTITLE")
+    outfit_label.text = tr("NAV_OUTFIT")
+    map_label.text = tr("NAV_MAP")
+    home_label.text = tr("NAV_HOME")
+    trophy_label.text = tr("NAV_TROPHY")
+    settings_label.text = tr("NAV_SETTINGS")
+    feature_hint.text = tr("MAP_HINT")
+    outfit_button.tooltip_text = tr("NAV_OUTFIT")
+    map_button.tooltip_text = tr("NAV_MAP")
+    home_button.tooltip_text = tr("NAV_HOME")
+    trophy_button.tooltip_text = tr("NAV_TROPHY")
+    settings_button.tooltip_text = tr("NAV_SETTINGS")
+
+
+func _rebuild_stages() -> void:
+    for child in map_canvas.get_children():
+        map_canvas.remove_child(child)
+        child.queue_free()
+    if _stage_states.is_empty():
+        map_canvas.set_stage_centers(PackedVector2Array())
+        return
+
+    var canvas_width := maxf(map_canvas.size.x, 350.0)
+    map_canvas.custom_minimum_size.y = STAGE_STEP * _stage_states.size() + 20.0
+    var stage_centers := PackedVector2Array()
+    for index in _stage_states.size():
+        var stage_state := _stage_states[index]
+        var stage_x := 8.0 if index % 2 == 0 else canvas_width - STAGE_SIZE.x - 8.0
+        var stage_y := 6.0 + index * STAGE_STEP
+        _add_stage(stage_state, Vector2(stage_x, stage_y), index % 2 == 0)
+        stage_centers.append(Vector2(stage_x, stage_y) + Vector2(66.0, 72.0))
+    map_canvas.set_stage_centers(stage_centers)
+
+
+func _add_stage(stage_state: Dictionary, stage_position: Vector2, stage_on_left: bool) -> void:
+    var unlocked := bool(stage_state.get("unlocked", false))
+    var completed := bool(stage_state.get("completed", false))
+    var current := bool(stage_state.get("current", false))
+
+    var crest := TextureRect.new()
+    crest.name = "Stage%d" % int(stage_state.get("table", 0))
+    crest.position = stage_position
+    crest.size = STAGE_SIZE
+    crest.mouse_filter = Control.MOUSE_FILTER_IGNORE
+    crest.texture = OPEN_STAGE_TEXTURE if unlocked else CLOSED_STAGE_TEXTURE
+    crest.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+    crest.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+    map_canvas.add_child(crest)
+
+    var table_label := Label.new()
+    table_label.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+    table_label.offset_bottom = -16.0
+    table_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+    table_label.add_theme_font_override("font", BOLD_FONT)
+    table_label.add_theme_font_size_override("font_size", 32)
+    table_label.add_theme_color_override(
+        "font_color",
+        Color(0.28, 0.53, 0.08) if unlocked else Color(0.38, 0.38, 0.38)
+    )
+    table_label.add_theme_color_override("font_outline_color", Color(1, 1, 1, 0.9))
+    table_label.add_theme_constant_override("outline_size", 4)
+    table_label.text = tr("MAP_TABLE").format({"table": int(stage_state["table"])})
+    table_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+    table_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+    crest.add_child(table_label)
+
+    var card := PanelContainer.new()
+    card.position = Vector2(
+        150.0 if stage_on_left else 8.0,
+        stage_position.y + 25.0
+    )
+    card.size = Vector2(158.0, 84.0)
+    card.add_theme_stylebox_override("panel", _stage_card_style(current))
+    map_canvas.add_child(card)
+
+    var card_content := VBoxContainer.new()
+    card_content.alignment = BoxContainer.ALIGNMENT_CENTER
+    card_content.add_theme_constant_override("separation", 4)
+    card.add_child(card_content)
+
+    var status := Label.new()
+    status.add_theme_font_override("font", BOLD_FONT)
+    status.add_theme_font_size_override("font_size", 17)
+    status.add_theme_color_override("font_color", Color(0.22, 0.33, 0.25))
+    status.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+    status.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+    if completed:
+        status.text = tr("MAP_STAGE_COMPLETE")
+    elif current:
+        status.text = tr("MAP_STAGE_CURRENT")
+    else:
+        status.text = tr("MAP_STAGE_LOCKED")
+    card_content.add_child(status)
+
+    var progress := ProgressBar.new()
+    progress.custom_minimum_size = Vector2(0.0, 18.0)
+    progress.max_value = LearningRules.MULTIPLIERS.size()
+    progress.value = int(stage_state.get("mastered_facts", 0))
+    progress.show_percentage = false
+    progress.add_theme_stylebox_override("background", _progress_style(Color(0.84, 0.84, 0.8)))
+    progress.add_theme_stylebox_override(
+        "fill",
+        _progress_style(Color(0.42, 0.78, 0.18) if unlocked else Color(0.64, 0.64, 0.62))
+    )
+    card_content.add_child(progress)
+
+    var progress_label := Label.new()
+    progress_label.add_theme_font_size_override("font_size", 13)
+    progress_label.add_theme_color_override("font_color", Color(0.3, 0.35, 0.31))
+    progress_label.text = tr("MAP_STAGE_PROGRESS").format({
+        "count": int(stage_state.get("mastered_facts", 0)),
+    })
+    progress_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+    card_content.add_child(progress_label)
+
+
+func _stage_card_style(current: bool) -> StyleBoxFlat:
+    var style := StyleBoxFlat.new()
+    style.bg_color = Color(1.0, 1.0, 1.0, 0.94)
+    style.border_width_left = 3 if current else 0
+    style.border_width_top = 3 if current else 0
+    style.border_width_right = 3 if current else 0
+    style.border_width_bottom = 3 if current else 0
+    style.border_color = Color(0.43, 0.79, 0.19)
+    style.corner_radius_top_left = 18
+    style.corner_radius_top_right = 18
+    style.corner_radius_bottom_right = 18
+    style.corner_radius_bottom_left = 18
+    style.content_margin_left = 10.0
+    style.content_margin_top = 8.0
+    style.content_margin_right = 10.0
+    style.content_margin_bottom = 8.0
+    style.shadow_color = Color(0.12, 0.24, 0.2, 0.18)
+    style.shadow_size = 5
+    return style
+
+
+func _progress_style(color: Color) -> StyleBoxFlat:
+    var style := StyleBoxFlat.new()
+    style.bg_color = color
+    style.corner_radius_top_left = 8
+    style.corner_radius_top_right = 8
+    style.corner_radius_bottom_right = 8
+    style.corner_radius_bottom_left = 8
+    return style

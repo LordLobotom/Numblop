@@ -17,6 +17,35 @@ powershell -ExecutionPolicy Bypass -File tools/export.ps1 -Target android-debug
 Outputs are `build/Numblop.exe` (+ PCK) and `build/Numblop-debug.apk`. Build products are ignored.
 The debug APK uses Godot's local debug keystore and must never be uploaded as a store release.
 
+## Physical Android smoke test
+
+Connect one unlocked Android phone with USB debugging authorized, then run:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File tools/android-smoke.ps1
+```
+
+The command exports the debug APK, installs it with update-compatible flags, force-stops any old
+process, launches `cz.gutcloud.numblop`, verifies the activity and process, and writes PID-filtered
+logs to ignored `artifacts/android-smoke/`. Pass `-DeviceSerial <serial>` when several devices are
+connected, or `-SkipExport -ApkPath <path>` to validate an existing debug APK.
+
+Complete this checklist on the phone while it remains disconnected from Wi-Fi and mobile data:
+
+1. Confirm the opening and home remain portrait, fill the safe area, and show no clipped text.
+2. Select English, relaunch, then select Czech and relaunch; each remembered choice must persist.
+3. Pet the blob and confirm the happy face, heart, and animation respond without requiring sound.
+4. Open Settings; switch languages, adjust both volume bars, verify mute, cancel one Close game
+   confirmation, then confirm Close game and relaunch.
+5. Complete one 10-question series, including four choices, six choices, and the numeric keypad.
+6. Make one intentional mistake; confirm the full correct equation remains until Continue is tapped.
+7. Tap the chest once; confirm one shake/haptic, one opening, a +10 coin/+10 XP count-up,
+   and the final tap back to the updated home totals.
+8. Start another series, answer at least once, switch apps, and return; the unfinished series must
+   be gone while the processed mastery remains saved and no reward is added.
+9. Force-stop and relaunch; mastery, language, audio preferences, coins, experience, and level must
+   remain intact.
+
 ## Release AAB signing
 
 Generate the production keystore once, outside the repository, and back it up securely. Losing
@@ -41,7 +70,7 @@ Godot and Gradle settings are not changed.
 
 1. Full tests pass; both translations and version values are reviewed.
 2. Windows and debug APK export without script/export errors.
-3. Debug APK installs and runs on a physical phone with networking disabled.
+3. `tools/android-smoke.ps1` passes and the physical checklist above passes with networking disabled.
 4. Save survives pause, force-stop, relaunch, and application update.
 5. Signed AAB is verified and uploaded to an internal Play test track.
 6. Store listing, screenshots, content rating, data-safety answers, and privacy text match the

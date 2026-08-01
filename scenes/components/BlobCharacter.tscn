@@ -1,0 +1,258 @@
+[gd_scene load_steps=18 format=3]
+
+[ext_resource type="Script" path="res://scripts/ui/BlobCharacter.gd" id="1_script"]
+[ext_resource type="Texture2D" path="res://assets/characters/numblop/leg_left/leg_left_bare_idle.png" id="2_leg_left"]
+[ext_resource type="Texture2D" path="res://assets/characters/numblop/leg_right/leg_right_bare_idle.png" id="3_leg_right"]
+[ext_resource type="Texture2D" path="res://assets/characters/numblop/body/body.png" id="4_body"]
+[ext_resource type="Texture2D" path="res://assets/characters/numblop/hand_left/hand_left_idle.png" id="5_hand_left"]
+[ext_resource type="Texture2D" path="res://assets/characters/numblop/hand_left/hand_lef_vawe.png" id="6_hand_wave"]
+[ext_resource type="Texture2D" path="res://assets/characters/numblop/hand_right/hand_right_idle.png" id="7_hand_right"]
+[ext_resource type="Texture2D" path="res://assets/characters/numblop/cheeks/cheeks_happy.png" id="8_cheeks_happy"]
+[ext_resource type="Texture2D" path="res://assets/characters/numblop/cheeks/cheeks_shy.png" id="9_cheeks_shy"]
+[ext_resource type="Texture2D" path="res://assets/characters/numblop/eyes/eye_left/eye_left_open.png" id="10_left_open"]
+[ext_resource type="Texture2D" path="res://assets/characters/numblop/eyes/eye_left/eye_left_close.png" id="11_left_closed"]
+[ext_resource type="Texture2D" path="res://assets/characters/numblop/eyes/eye_right/eye_right_open.png" id="12_right_open"]
+[ext_resource type="Texture2D" path="res://assets/characters/numblop/eyes/eye_right/eye_right_close.png" id="13_right_closed"]
+[ext_resource type="Texture2D" path="res://assets/characters/numblop/eyes/eyebrow/eye_brow.png" id="14_brow"]
+[ext_resource type="Texture2D" path="res://assets/characters/numblop/mouth/mouth_smile_close.png" id="15_smile_closed"]
+[ext_resource type="Texture2D" path="res://assets/characters/numblop/mouth/mouth_smile_open.png" id="16_smile_open"]
+[ext_resource type="AudioStream" path="res://audio/sfx/giggle.mp3" id="17_giggle"]
+
+[node name="BlobCharacter" type="Control"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(320, 320)
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_default_cursor_shape = 2
+script = ExtResource("1_script")
+
+[node name="Visual" type="Control" parent="."]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="LeftLeg" type="TextureRect" parent="Visual"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+texture = ExtResource("2_leg_left")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="RightLeg" type="TextureRect" parent="Visual"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+texture = ExtResource("3_leg_right")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Body" type="TextureRect" parent="Visual"]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+texture = ExtResource("4_body")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="LeftHandIdle" type="TextureRect" parent="Visual"]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+texture = ExtResource("5_hand_left")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="LeftHandWave" type="TextureRect" parent="Visual"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+texture = ExtResource("6_hand_wave")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="RightHand" type="TextureRect" parent="Visual"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+texture = ExtResource("7_hand_right")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="HappyCheeks" type="TextureRect" parent="Visual"]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+texture = ExtResource("8_cheeks_happy")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="ShyCheeks" type="TextureRect" parent="Visual"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+texture = ExtResource("9_cheeks_shy")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="LeftEyeOpen" type="TextureRect" parent="Visual"]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+texture = ExtResource("10_left_open")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="LeftEyeClosed" type="TextureRect" parent="Visual"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+texture = ExtResource("11_left_closed")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="RightEyeOpen" type="TextureRect" parent="Visual"]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+texture = ExtResource("12_right_open")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="RightEyeClosed" type="TextureRect" parent="Visual"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+texture = ExtResource("13_right_closed")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Eyebrows" type="TextureRect" parent="Visual"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+texture = ExtResource("14_brow")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="SmileClosed" type="TextureRect" parent="Visual"]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+texture = ExtResource("15_smile_closed")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="SmileOpen" type="TextureRect" parent="Visual"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+texture = ExtResource("16_smile_open")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="HeartLayer" type="Control" parent="."]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="IdleTimer" type="Timer" parent="."]
+unique_name_in_owner = true
+wait_time = 2.8
+autostart = true
+
+[node name="GigglePlayer" type="AudioStreamPlayer" parent="."]
+unique_name_in_owner = true
+stream = ExtResource("17_giggle")
+volume_db = -3.0
+bus = &"SFX"
