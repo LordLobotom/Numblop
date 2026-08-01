@@ -2,8 +2,10 @@ extends Node
 
 signal session_started(question_count: int)
 signal answer_recorded(fact_key: String, correct: bool, mastery: int)
+signal table_unlocked(completed_table: int, new_table: int)
 signal progress_changed(coins: int, experience: int, level: int)
 signal reward_applied(coins: int, experience: int)
+signal cosmetics_changed(state: Dictionary)
 signal session_interrupted
 signal application_resumed
 signal back_requested

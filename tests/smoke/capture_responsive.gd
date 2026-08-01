@@ -2,7 +2,19 @@ extends Node
 
 const CAPTURE_SIZES: Array[Vector2i] = [Vector2i(390, 844), Vector2i(450, 900)]
 const LOCALES: Array[String] = ["en", "cs"]
-const SCREENS: Array[String] = ["home", "map", "settings", "choice", "keypad", "reward"]
+const SCREENS: Array[String] = [
+    "home",
+    "home_accessories",
+    "cosmetics",
+    "cosmetics_color",
+    "cosmetics_buy",
+    "map",
+    "map_unlock",
+    "settings",
+    "choice",
+    "keypad",
+    "reward",
+]
 const OUTPUT_DIRECTORY := "res://artifacts/responsive"
 
 var _failed := false
@@ -48,6 +60,8 @@ func _capture_screen(locale: String, capture_size: Vector2i, screen_name: String
     _configure_screen(screen, screen_name, locale)
     await get_tree().process_frame
     await get_tree().process_frame
+    if screen_name == "map_unlock":
+        await get_tree().create_timer(0.7).timeout
     RenderingServer.force_draw()
     await get_tree().process_frame
 
@@ -76,7 +90,9 @@ func _create_screen(screen_name: String) -> Control:
     var scene_path := "res://scenes/screens/HomeScreen.tscn"
     if screen_name == "choice" or screen_name == "keypad":
         scene_path = "res://scenes/screens/PracticeScreen.tscn"
-    elif screen_name == "map":
+    elif screen_name in ["cosmetics", "cosmetics_color", "cosmetics_buy"]:
+        scene_path = "res://scenes/screens/CosmeticsScreen.tscn"
+    elif screen_name == "map" or screen_name == "map_unlock":
         scene_path = "res://scenes/screens/MapScreen.tscn"
     elif screen_name == "settings":
         scene_path = "res://scenes/screens/SettingsScreen.tscn"
@@ -88,12 +104,55 @@ func _create_screen(screen_name: String) -> Control:
 
 func _configure_screen(screen: Control, screen_name: String, locale: String) -> void:
     match screen_name:
-        "home":
+        "home", "home_accessories":
             var home := screen as HomeScreen
             home.set_progress_totals(120, 240, 3)
-        "map":
+            if screen_name == "home_accessories":
+                var colors := _cosmetic_capture_items(
+                    CosmeticCatalog.CATEGORY_BODY_COLOR,
+                    CosmeticCatalog.DEFAULT_BODY_COLOR_ID
+                )
+                home.blob.apply_cosmetics({
+                    "selected_body_color": CosmeticCatalog.DEFAULT_BODY_COLOR_ID,
+                    "selected_hat": "hat_crown",
+                    "selected_glasses": "glasses_green",
+                    "colors": colors,
+                })
+        "cosmetics", "cosmetics_color", "cosmetics_buy":
+            var cosmetics_screen := screen as CosmeticsScreen
+            var selected_id := (
+                "blue" if screen_name == "cosmetics_color" else "green"
+            )
+            var colors: Array[Dictionary] = []
+            for catalog_item in CosmeticCatalog.body_colors():
+                var item := catalog_item.duplicate(true)
+                var color_id := String(item["id"])
+                item["owned"] = color_id == "green" or color_id == selected_id
+                item["selected"] = color_id == selected_id
+                colors.append(item)
+            var hats := _cosmetic_capture_items(
+                CosmeticCatalog.CATEGORY_HAT,
+                CosmeticCatalog.DEFAULT_HAT_ID
+            )
+            var glasses := _cosmetic_capture_items(
+                CosmeticCatalog.CATEGORY_GLASSES,
+                CosmeticCatalog.DEFAULT_GLASSES_ID
+            )
+            cosmetics_screen.set_presentation_state({
+                "coins": 240,
+                "selected_body_color": selected_id,
+                "selected_hat": CosmeticCatalog.DEFAULT_HAT_ID,
+                "selected_glasses": CosmeticCatalog.DEFAULT_GLASSES_ID,
+                "colors": colors,
+                "hats": hats,
+                "glasses": glasses,
+            })
+            if screen_name == "cosmetics_buy":
+                cosmetics_screen.preview_body_color("pink")
+        "map", "map_unlock":
             var map_screen := screen as MapScreen
             var stage_states: Array[Dictionary] = []
+            var progress_max := LearningRules.UNLOCK_MASTERY * LearningRules.MULTIPLIERS.size()
             for index in LearningRules.TABLES.size():
                 stage_states.append({
                     "table": LearningRules.TABLES[index],
@@ -101,7 +160,12 @@ func _configure_screen(screen: Control, screen_name: String, locale: String) -> 
                     "current": index == 2,
                     "completed": index < 2,
                     "mastered_facts": 10 if index < 2 else (4 if index == 2 else 0),
+                    "progress_points": progress_max if index < 2 else (430 if index == 2 else 0),
+                    "progress_max": progress_max,
+                    "progress_percent": 100 if index < 2 else (54 if index == 2 else 0),
                 })
+            if screen_name == "map_unlock":
+                map_screen.show_table_unlocked(4)
             map_screen.set_stage_states(stage_states)
         "settings":
             SettingsManager.locale_preference = locale
@@ -135,3 +199,14 @@ func _configure_screen(screen: Control, screen_name: String, locale: String) -> 
                 "total_experience": 250,
                 "level": 3,
             })
+
+
+func _cosmetic_capture_items(category: String, selected_id: String) -> Array[Dictionary]:
+    var items: Array[Dictionary] = []
+    for catalog_item in CosmeticCatalog.items(category):
+        var item := catalog_item.duplicate(true)
+        var item_id := String(item["id"])
+        item["owned"] = item_id == selected_id
+        item["selected"] = item_id == selected_id
+        items.append(item)
+    return items

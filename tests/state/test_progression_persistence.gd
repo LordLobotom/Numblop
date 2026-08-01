@@ -31,17 +31,17 @@ func test_legacy_profile_loads_with_safe_progress_defaults() -> void:
     _remove_test_file()
 
 
-func test_completed_session_reward_is_fixed_atomic_and_applied_once() -> void:
+func test_completed_session_reward_is_accuracy_based_atomic_and_applied_once() -> void:
     _remove_test_file()
     var profile := LearningProfile.new()
     var progress := LocalProgress.new()
     var result := _completed_result()
     var reward := progress.apply_completed_session(result, profile, _save_test_state)
 
-    equal(reward["coins"], 10, "Reward coins")
-    equal(reward["experience"], 10, "Reward experience")
-    equal(progress.coins, 10, "Coin total")
-    equal(progress.experience, 10, "Experience total")
+    equal(reward["coins"], 5, "One coin per correct answer")
+    equal(reward["experience"], 5, "One experience per correct answer")
+    equal(progress.coins, 5, "Coin total")
+    equal(progress.experience, 5, "Experience total")
     equal(progress.level(), 1, "Initial level band")
     equal(
         progress.apply_completed_session(result, profile, _save_test_state),
@@ -49,9 +49,29 @@ func test_completed_session_reward_is_fixed_atomic_and_applied_once() -> void:
         "The same session cannot pay twice"
     )
     var saved := SaveManager.load_progress(TEST_PATH)
-    equal(saved["coins"], 10, "Atomically saved coins")
-    equal(saved["experience"], 10, "Atomically saved experience")
+    equal(saved["coins"], 5, "Atomically saved coins")
+    equal(saved["experience"], 5, "Atomically saved experience")
     _remove_test_file()
+
+
+func test_completed_session_reward_has_a_one_point_minimum_and_ten_point_maximum() -> void:
+    var minimum_progress := LocalProgress.new()
+    var minimum_reward := minimum_progress.apply_completed_session(
+        _completed_result(0),
+        LearningProfile.new(),
+        Callable()
+    )
+    equal(minimum_reward["coins"], 1, "An empty chest is avoided")
+    equal(minimum_reward["experience"], 1, "Completion still earns experience")
+
+    var perfect_progress := LocalProgress.new()
+    var perfect_reward := perfect_progress.apply_completed_session(
+        _completed_result(10),
+        LearningProfile.new(),
+        Callable()
+    )
+    equal(perfect_reward["coins"], 10, "Perfect coin reward")
+    equal(perfect_reward["experience"], 10, "Perfect experience reward")
 
 
 func test_abandoned_session_never_changes_progression() -> void:
@@ -70,7 +90,7 @@ func test_level_advances_at_each_hundred_experience() -> void:
     var progress := LocalProgress.new({"experience": 99})
     equal(progress.level(), 1, "Level before threshold")
     var reward := progress.apply_completed_session(
-        _completed_result(),
+        _completed_result(10),
         LearningProfile.new(),
         Callable()
     )
@@ -87,22 +107,33 @@ func test_map_stage_state_exposes_progress_without_changing_learning_rules() -> 
     equal(initial_states.size(), LearningRules.TABLES.size(), "Every table has a stage")
     check(initial_states[0]["current"], "The two-times table starts current")
     check(not initial_states[1]["unlocked"], "The next table starts locked")
+    equal(initial_states[0]["progress_points"], 0, "Initial island progress")
+    equal(initial_states[0]["progress_max"], 800, "Documented 10 facts times 80 gate")
+    equal(initial_states[0]["progress_percent"], 0, "Initial visible percentage")
+
+    map_profile.set_mastery(2, 0, 40)
+    var partial_states := AppState.map_stage_states()
+    equal(partial_states[0]["mastered_facts"], 0, "No fact has crossed the gate yet")
+    equal(partial_states[0]["progress_points"], 40, "Partial mastery remains visible")
+    equal(partial_states[0]["progress_percent"], 5, "Partial progress is a percentage")
 
     for multiplier in LearningRules.MULTIPLIERS:
         map_profile.set_mastery(2, multiplier, LearningRules.UNLOCK_MASTERY)
     var advanced_states := AppState.map_stage_states()
     check(advanced_states[0]["completed"], "Unlocked trail is complete")
     equal(advanced_states[0]["mastered_facts"], 10, "Completed fact count")
+    equal(advanced_states[0]["progress_points"], 800, "Completed island progress")
+    equal(advanced_states[0]["progress_percent"], 100, "Completed visible percentage")
     check(advanced_states[1]["current"], "The three-times table becomes current")
 
     AppState.profile = original_profile
 
 
-func _completed_result() -> SessionResult:
+func _completed_result(correct_answers: int = 5) -> SessionResult:
     var result := SessionResult.new(_questions())
     for index in LearningRules.SESSION_LENGTH:
         var question := result.current_question()
-        var submitted := question.answer() if index % 2 == 0 else -1
+        var submitted := question.answer() if index < correct_answers else -1
         result.record_answer(submitted, 5.0, 0)
     return result
 

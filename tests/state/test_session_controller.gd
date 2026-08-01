@@ -34,6 +34,30 @@ func test_every_answer_updates_mastery_and_saves_immediately() -> void:
     _remove_test_file()
 
 
+func test_answer_crossing_the_mastery_gate_unlocks_the_next_table() -> void:
+    var profile := LearningProfile.new()
+    var last_multiplier: int = LearningRules.MULTIPLIERS.back()
+    for multiplier in LearningRules.MULTIPLIERS:
+        var mastery := 75 if multiplier == last_multiplier else LearningRules.UNLOCK_MASTERY
+        profile.set_mastery(2, multiplier, mastery)
+    var controller := SessionController.new(profile)
+    var unlocks: Array[Vector2i] = []
+    controller.table_unlocked.connect(
+        func(completed_table: int, new_table: int) -> void:
+            unlocks.append(Vector2i(completed_table, new_table))
+    )
+    controller.begin_session(31415)
+    var question := controller.current_question()
+
+    equal(question.table_value, 2, "Current table before unlock")
+    equal(question.multiplier, last_multiplier, "Lowest-mastery fact is selected")
+    controller.submit_answer(question.answer(), 1.0)
+
+    equal(profile.get_mastery(2, last_multiplier), 80, "Answer reaches unlock mastery")
+    equal(profile.current_table(), 3, "Profile advances using the didactic rule")
+    equal(unlocks, [Vector2i(2, 3)], "Unlock event identifies both islands")
+
+
 func test_interruption_discards_runtime_but_keeps_processed_mastery() -> void:
     _remove_test_file()
     var profile := LearningProfile.new()

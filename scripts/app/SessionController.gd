@@ -3,6 +3,7 @@ extends RefCounted
 
 signal session_started(question_count: int)
 signal answer_recorded(record: SessionResult.AnswerRecord)
+signal table_unlocked(completed_table: int, new_table: int)
 signal session_completed(result: SessionResult)
 signal session_abandoned
 
@@ -40,6 +41,7 @@ func submit_answer(
         return null
 
     var mastery_before := profile.get_mastery(question.table_value, question.multiplier)
+    var unlocked_index_before := profile.highest_unlocked_index
     var record := active_result.record_answer(
         submitted_answer,
         elapsed_seconds,
@@ -48,6 +50,14 @@ func submit_answer(
     profile.set_mastery(question.table_value, question.multiplier, record.mastery_after)
     _save_after_answer()
     answer_recorded.emit(record)
+    for unlocked_index in range(
+        unlocked_index_before + 1,
+        profile.highest_unlocked_index + 1
+    ):
+        table_unlocked.emit(
+            LearningRules.TABLES[unlocked_index - 1],
+            LearningRules.TABLES[unlocked_index]
+        )
     if active_result.is_complete():
         session_completed.emit(active_result)
     return record

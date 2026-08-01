@@ -1,8 +1,7 @@
 class_name LocalProgress
 extends RefCounted
 
-const SESSION_REWARD_COINS := 10
-const SESSION_REWARD_EXPERIENCE := 10
+const MINIMUM_SESSION_REWARD := 1
 const EXPERIENCE_PER_LEVEL := 100
 
 var coins := 0
@@ -36,8 +35,9 @@ func apply_completed_session(
     if result == null or not result.can_receive_reward() or result == _rewarded_result:
         return {}
 
-    var updated_coins := coins + SESSION_REWARD_COINS
-    var updated_experience := experience + SESSION_REWARD_EXPERIENCE
+    var reward_amount := maxi(MINIMUM_SESSION_REWARD, result.correct_count())
+    var updated_coins := coins + reward_amount
+    var updated_experience := experience + reward_amount
     if save_state.is_valid():
         var save_result: Variant = save_state.call(profile, updated_coins, updated_experience)
         if save_result is int and int(save_result) != OK:
@@ -47,8 +47,8 @@ func apply_completed_session(
     experience = updated_experience
     _rewarded_result = result
     return {
-        "coins": SESSION_REWARD_COINS,
-        "experience": SESSION_REWARD_EXPERIENCE,
+        "coins": reward_amount,
+        "experience": reward_amount,
         "total_coins": coins,
         "total_experience": experience,
         "level": level(),

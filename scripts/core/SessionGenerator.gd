@@ -18,6 +18,7 @@ static func generate(profile: LearningProfile, seed: int) -> Array[PracticeQuest
     var automated_facts := _older_facts(profile, true)
     var questions: Array[PracticeQuestion] = []
     var previous_key := ""
+    var used_keys: Dictionary = {}
 
     for slot in SLOT_PLAN:
         var candidates: Array[Vector2i]
@@ -30,13 +31,20 @@ static func generate(profile: LearningProfile, seed: int) -> Array[PracticeQuest
                 candidates = current_facts
         if candidates.is_empty():
             candidates = current_facts
-        var fact := _select_lowest_mastery(profile, candidates, previous_key, rng)
+        var fact := _select_lowest_mastery(
+            profile,
+            candidates,
+            previous_key,
+            used_keys,
+            rng
+        )
         var mastery := profile.get_mastery(fact.x, fact.y)
         var mode := LearningRules.mode_for_mastery(mastery)
         var choices := _create_choices(fact.x, fact.y, mode, rng)
         var question := PracticeQuestion.new(fact.x, fact.y, mode, choices)
         questions.append(question)
         previous_key = question.fact_key()
+        used_keys[previous_key] = true
 
     assert(questions.size() == LearningRules.SESSION_LENGTH)
     return questions
@@ -64,12 +72,18 @@ static func _select_lowest_mastery(
     profile: LearningProfile,
     candidates: Array[Vector2i],
     previous_key: String,
+    used_keys: Dictionary,
     rng: RandomNumberGenerator
 ) -> Vector2i:
     var eligible: Array[Vector2i] = []
     for fact in candidates:
-        if LearningRules.fact_key(fact.x, fact.y) != previous_key:
+        var key := LearningRules.fact_key(fact.x, fact.y)
+        if key != previous_key and not used_keys.has(key):
             eligible.append(fact)
+    if eligible.is_empty():
+        for fact in candidates:
+            if LearningRules.fact_key(fact.x, fact.y) != previous_key:
+                eligible.append(fact)
     if eligible.is_empty():
         eligible = candidates.duplicate()
 

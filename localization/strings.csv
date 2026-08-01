@@ -36,6 +36,37 @@ REWARD_COINS_TOTAL,{count} coins total,Celkem {count} mincí
 REWARD_XP_TOTAL,{count} experience total,Celkem {count} zkušeností
 REWARD_CHEST_ACCESSIBLE,Tap the reward chest,Klepnout na truhlu s odměnou
 NAV_OUTFIT,Outfit,Oblečení
+COSMETICS_TITLE,Cosmetics,Kosmetika
+COSMETICS_SUBTITLE,Make Numblop your own!,Uprav si Numblopa podle sebe!
+COSMETICS_COINS,{count} coins,{count} mincí
+COSMETICS_BODY_COLOR,Body color,Barva těla
+COSMETICS_COLOR_HINT,Tap a color to preview it.,Klepnutím si barvu vyzkoušej.
+COSMETICS_GREEN,Green,Zelená
+COSMETICS_BLUE,Blue,Modrá
+COSMETICS_PINK,Pink,Růžová
+COSMETICS_PURPLE,Purple,Fialová
+COSMETICS_ORANGE,Orange,Oranžová
+COSMETICS_SELECTED,Selected,Vybraná
+COSMETICS_OWNED,Owned,Vlastníš
+COSMETICS_FREE,Free,Zdarma
+COSMETICS_PRICE,{price} coins,{price} mincí
+COSMETICS_BUY,Buy for {price},Koupit za {price}
+COSMETICS_NEED_COINS,Need {price} coins,Potřebuješ {price} mincí
+COSMETICS_EQUIPPED,Equipped!,Nasazeno!
+COSMETICS_PREVIEWING,Previewing: {color},Zkoušíš: {color}
+COSMETICS_NOT_ENOUGH,Not enough coins yet.,Zatím nemáš dost mincí.
+COSMETICS_PURCHASED,Unlocked and equipped!,Odemčeno a nasazeno!
+COSMETICS_MORE_LATER,Belly patterns hats glasses and shoes are coming next.,Vzory bříška klobouky brýle a boty přidáme příště.
+COSMETICS_TAP_BUY,Tap Buy to unlock.,Odemkni tlačítkem Koupit.
+COSMETICS_HATS,Hats,Čepice
+COSMETICS_GLASSES,Glasses,Brýle
+COSMETICS_NONE,None,Bez doplňku
+COSMETICS_HAT_CROWN,Crown,Koruna
+COSMETICS_HAT_SANTA,Santa hat,Vánoční čepice
+COSMETICS_HAT_WINTER,Winter hat,Zimní čepice
+COSMETICS_GLASSES_FASHION,Flower glasses,Květinové brýle
+COSMETICS_GLASSES_GREEN,Green glasses,Zelené brýle
+COSMETICS_GLASSES_MOON,Moon glasses,Měsíční brýle
 NAV_MAP,Map,Mapa
 NAV_TROPHY,Trophies,Poháry
 HOME_FEATURE_LATER,Coming in a later update!,Připravujeme do další aktualizace!
@@ -47,7 +78,8 @@ MAP_TABLE,{table}×,{table}×
 MAP_STAGE_CURRENT,Learning now,Právě se učíš
 MAP_STAGE_COMPLETE,Trail cleared,Cesta splněna
 MAP_STAGE_LOCKED,Locked,Zamčeno
-MAP_STAGE_PROGRESS,{count}/10 facts,{count}/10 spojů
+MAP_STAGE_PROGRESS,Progress {percent}%,Pokrok {percent} %
+MAP_STAGE_UNLOCKED,The {table}× island is unlocked!,Ostrov {table}× je odemčený!
 NAV_SETTINGS,Settings,Nastavení
 NAV_HOME,Home,Domů
 SETTINGS_TITLE,Settings,Nastavení

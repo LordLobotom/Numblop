@@ -1,4 +1,4 @@
-[gd_scene load_steps=14 format=3]
+[gd_scene load_steps=15 format=3]
 
 [ext_resource type="Script" path="res://scripts/ui/Main.gd" id="1_main"]
 [ext_resource type="Theme" path="res://ui/theme.tres" id="2_theme"]
@@ -13,6 +13,7 @@
 [ext_resource type="AudioStream" path="res://audio/sfx/button.mp3" id="11_button"]
 [ext_resource type="AudioStream" path="res://audio/sfx/Menu_Select_00.wav" id="12_select"]
 [ext_resource type="AudioStream" path="res://audio/sfx/turn_page.wav" id="13_page"]
+[ext_resource type="PackedScene" path="res://scenes/screens/CosmeticsScreen.tscn" id="14_cosmetics"]
 
 [node name="Main" type="Control"]
 layout_mode = 3
@@ -34,6 +35,11 @@ visible = false
 layout_mode = 1
 
 [node name="SettingsScreen" parent="." instance=ExtResource("10_settings")]
+unique_name_in_owner = true
+visible = false
+layout_mode = 1
+
+[node name="CosmeticsScreen" parent="." instance=ExtResource("14_cosmetics")]
 unique_name_in_owner = true
 visible = false
 layout_mode = 1

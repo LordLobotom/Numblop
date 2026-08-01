@@ -40,18 +40,60 @@
 - These values are intentionally simple M1 defaults. M3 may tune the reward and level pacing from
   observed play evidence, but reward calculation remains outside the learning/mastery core.
 
+## 2026-08-02 — Accuracy-linked session rewards
+
+- This decision supersedes the fixed 10-coin/10-experience reward above. Each correct answer in a
+  completed series grants 1 coin and 1 experience point.
+- A completed series always grants at least 1 coin and 1 experience point, including at zero
+  correct answers, so the guaranteed reward chest is never empty. The resulting range is 1–10.
+- Rewards remain separate from mastery. Incorrect answers affect the documented mastery delta,
+  while coins and experience never unlock a multiplication table.
+
+## 2026-08-02 — Unique facts within a series
+
+- A 10-question series prefers unused eligible facts before repeating any fact. This prevents two
+  equally weak facts from alternating through the entire series.
+- Repetition remains valid only when a required 7-current/2-older-weak/1-older-automated pool is
+  too small. The quota and lowest-mastery priority remain unchanged.
+
+## 2026-08-02 — First Cosmetics vertical slice
+
+- Outfit opens a compact Cosmetics shop without showing Numblop. Green is free; blue, pink, purple,
+  and orange body colors cost 100 coins each and fit in one row.
+- Tapping a locked item selects it for a separate Buy action; a successful atomic save deducts
+  coins, unlocks and equips the item, and updates the home Numblop.
+- A palette shader recolors the existing body, arms, and legs, so body-color variants require no
+  duplicated PNG files. The belly, face, cheeks, and black outlines retain their source colors.
+- The three supplied hats and three pairs of glasses join the shop at 100 coins each. They use rounded
+  square cards with transparent crests, small borderless selected checks, the supplied lock icon,
+  and a compact `100` plus coin crest price. A free empty card removes hats or glasses. The 768px
+  accessory canvas is positioned at −128px horizontally and −160px vertically relative to the
+  512px character canvas rather than being shrunk, preserving its authored alignment. Future
+  patterns and shoes follow this contract.
+
 ## 2026-08-01 — M1 home navigation and stage map
 
 - The language chooser appears in the remembered opening flow and the Settings screen; it does
   not occupy the main-screen content area.
 - The footer uses Outfit, Map, Home, Trophies, and Settings crests. Home is always centered and
   returns directly to the blob screen, replacing top-level green back arrows. Map and Settings are
-  functional in M1, while Outfit and Trophies are honest later-feature placeholders.
+  functional in M1. The later Cosmetics decision above makes Outfit functional; Trophies remains
+  an honest later-feature placeholder.
 - The map is a read-only presentation of all eight table stages and never changes mastery,
   unlocking, or adaptive session selection.
 - Background music starts with the main scene and loops. Settings persists separate Music/SFX
   volumes and global mute; friendly cues reinforce petting, navigation, answers, and rewards.
 - Close game is available from Settings behind a confirmation and flushes pending preferences.
+
+## 2026-08-01 — Visible didactic progression
+
+- Every answer continues to use the canonical mastery delta and persists it immediately. Coins,
+  experience, and player level never unlock multiplication tables.
+- The current map island displays a continuous aggregate progress bar and matching percentage,
+  capped at 80 points per fact, so improvement remains visible before a fact is fully ready.
+  Unlocking still requires all 10 facts to reach 80 independently.
+- Crossing the final mastery gate emits a table-unlocked domain event. After the reward reveal,
+  the game opens the map, scrolls to the new island, and celebrates it in both languages.
 
 ## 2026-08-01 — Future Endless trail concept
 

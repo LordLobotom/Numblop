@@ -1,16 +1,18 @@
 extends Node
 
 const PROFILE_PATH := "user://profile.json"
-const SAVE_VERSION := 2
+const SAVE_VERSION := 4
 
 
 func save_profile(profile: LearningProfile, path: String = PROFILE_PATH) -> Error:
     var progress := load_progress(path)
+    var cosmetics := load_cosmetics(path)
     return save_game_state(
         profile,
         int(progress["coins"]),
         int(progress["experience"]),
-        path
+        path,
+        cosmetics
     )
 
 
@@ -18,8 +20,12 @@ func save_game_state(
     profile: LearningProfile,
     coins: int,
     experience: int,
-    path: String = PROFILE_PATH
+    path: String = PROFILE_PATH,
+    cosmetics: Dictionary = {}
 ) -> Error:
+    var cosmetics_to_save := cosmetics
+    if cosmetics_to_save.is_empty():
+        cosmetics_to_save = load_cosmetics(path)
     var file := FileAccess.open(path, FileAccess.WRITE)
     if file == null:
         push_error("Could not open profile for writing: %s" % path)
@@ -28,6 +34,7 @@ func save_game_state(
     data["version"] = SAVE_VERSION
     data["coins"] = maxi(0, coins)
     data["experience"] = maxi(0, experience)
+    data["cosmetics"] = LocalCosmetics.new(cosmetics_to_save).to_dictionary()
     file.store_string(JSON.stringify(data, "  "))
     EventBus.profile_saved.emit()
     return OK
@@ -46,6 +53,12 @@ func load_progress(path: String = PROFILE_PATH) -> Dictionary:
         "coins": maxi(0, int(data.get("coins", 0))),
         "experience": maxi(0, int(data.get("experience", 0))),
     }
+
+
+func load_cosmetics(path: String = PROFILE_PATH) -> Dictionary:
+    var data := _load_state_dictionary(path)
+    var cosmetics: Variant = data.get("cosmetics", {})
+    return LocalCosmetics.new(cosmetics if cosmetics is Dictionary else {}).to_dictionary()
 
 
 func _load_state_dictionary(path: String) -> Dictionary:

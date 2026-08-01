@@ -209,7 +209,15 @@ These rules are part of the MVP and remove ambiguity during implementation:
 - If there are not enough suitable facts for a review group, the missing slots are filled with
   facts from the multiplication table currently being learned. One game always has 10 questions.
 - The same fact must not appear in two immediately consecutive questions.
+- Within one 10-question series, select unused eligible facts before repeating a fact. Repetition
+  is allowed only after the required current, older-weak, or older-automated pool is exhausted.
+  Therefore the initial current-table-only series contains all 10 facts exactly once.
 - Answer time is measured to calculate the mastery change, but the child does not see a stressful
   countdown while answering.
 - In the MVP, the facts `a × b` and `b × a` are tracked separately according to their respective
   multiplication tables.
+- Every submitted answer applies the documented mastery delta immediately. Tests must verify the
+  complete answer → mastery → save → unlock path without requiring a rendered scene.
+- A stage map may show continuous aggregate progress by summing each fact up to the 80-point gate.
+  This presentation never changes the rule that all 10 facts must individually reach 80 before
+  the next multiplication table unlocks.

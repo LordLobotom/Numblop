@@ -39,21 +39,35 @@ No additional game modes are part of the MVP.
 - Show the local totals for coins, experience points, and player level.
 - The primary action is Play. The bottom navigation uses Outfit, Map, Home, Trophies, and Settings
   crests, with Home fixed in the middle and returning directly to the blob screen.
-- Map opens a read-only winding trail for the eight multiplication-table stages. Outfit and
-  Trophies remain visible entry points for later milestones and do not change learning state.
+- Map opens a read-only winding trail for the eight multiplication-table stages. Its bar and
+  percentage move continuously with real mastery gains, while the next island unlocks only after
+  all 10 facts in the current table reach 80. Trophies remains a visible entry point for a later
+  milestone and does not change learning state.
+- Outfit opens a compact Cosmetics shop without a character preview. The five body-color circles
+  share one row: green is free, while blue, pink, purple, and orange cost 100 coins each. Hats and
+  glasses use supplied transparent artwork in rounded square cards; every initial accessory costs
+  100 coins, and a free empty card removes that category. Tapping an owned item equips it. Tapping
+  a locked item exposes a separate purchase action; purchases and selections persist locally.
 - Settings provides English/Czech crest choices, separate background-music and sound-effect
-  volume controls, a global mute, and a confirmed Close game action. Cosmetic access is deferred.
+  volume controls, a global mute, and a confirmed Close game action.
 
-Coins will later buy cosmetic items. Experience represents general progress. For the playable
-MVP, every completed series grants a fixed 10 coins and 10 experience points, independent of
-answer accuracy. The displayed level is `1 + floor(total experience / 100)`. These deliberately
-simple values are provisional and may be tuned from play evidence without changing mastery.
+Coins buy cosmetic items. Experience represents general progress. For the playable
+MVP, each correct answer in a completed series grants 1 coin and 1 experience point. A completed
+series with no correct answers still grants the minimum of 1 coin and 1 experience point, so its
+guaranteed chest is never empty. The displayed level is `1 + floor(total experience / 100)`.
+Rewards never alter mastery or table unlocking.
+
+Future Cosmetics sections use the same scrollable panel for belly patterns, shoes, and additional
+categories. Non-color items use the same rounded cards, selected check, lock, and compact numeric
+price followed by the coin crest.
 
 ## Question series
 
 - Every completed series contains exactly **10 questions**.
 - Question selection, difficulty, and answer mode are adaptive and follow
   `docs/didactic_algorithm.md`.
+- Prefer 10 unique facts in each series. Repeat a fact only when a required adaptive review group
+  does not contain enough eligible facts to fill its quota.
 - Present one question at a time using four choices, six choices, or the numeric keypad.
 - A correct answer receives short positive visual/audio feedback and advances.
 - An incorrect answer shows the complete correct equation, for example `7 × 4 = 28`, using
@@ -64,16 +78,16 @@ simple values are provisional and may be tuned from play evidence without changi
 ## Completing the series and reward chest
 
 - Completing all 10 questions always grants a reward chest, even when answers were incorrect.
-- Every completed series grants the provisional MVP reward of 10 coins and 10 experience points.
-  The fixed reward keeps mistakes non-punitive; later milestones may tune the values from play
-  evidence.
+- Each correct answer grants 1 coin and 1 experience point. A completed series grants at least
+  1 of each, producing a reward range of 1–10 without making the guaranteed chest empty.
 - Present a closed chest with a short celebratory sound or fanfare.
 - The player taps the chest once. The tap shakes the chest and briefly vibrates a supported mobile
   device.
 - That tap opens the chest with a sound effect.
 - Count the earned coins and experience points up visually and show the updated totals.
-- After the count finishes, keep the totals visible briefly and return automatically to the main
-  screen, where the blob may play a short happy reaction. Do not show a continue button.
+- After the count finishes, keep the totals visible briefly and continue automatically. Normally
+  return to the main screen, where the blob may play a short happy reaction. If that series
+  unlocked a table, reveal its new island on the map instead. Do not show a continue button.
 
 ## Interrupted series
 

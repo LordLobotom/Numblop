@@ -7,6 +7,7 @@ func test_initial_session_fills_missing_review_slots_from_current_table() -> voi
     equal(questions.size(), 10, "Session length")
     for question in questions:
         equal(question.table_value, 2, "Only the current table is available")
+    equal(_unique_fact_count(questions), 10, "Initial session covers all ten facts once")
     _check_no_immediate_duplicates(questions)
 
 
@@ -31,6 +32,36 @@ func test_session_uses_seven_two_one_mix_when_review_pools_exist() -> void:
     equal(current_count, 7, "Current table quota")
     equal(weak_count, 2, "Older weak quota")
     equal(automated_count, 1, "Automated review quota")
+    equal(_unique_fact_count(questions), 10, "Available review facts remain unique")
+    _check_no_immediate_duplicates(questions)
+
+
+func test_two_equally_weak_facts_do_not_alternate_for_the_whole_session() -> void:
+    var profile := LearningProfile.new()
+    for multiplier in LearningRules.MULTIPLIERS:
+        profile.set_mastery(2, multiplier, 0 if multiplier < 2 else 50)
+
+    var questions := SessionGenerator.generate(profile, 20260802)
+
+    equal(_unique_fact_count(questions), 10, "Unused facts win before any fact repeats")
+    _check_no_immediate_duplicates(questions)
+
+
+func test_a_fact_repeats_only_when_its_required_review_pool_is_exhausted() -> void:
+    var profile := LearningProfile.new()
+    for multiplier in LearningRules.MULTIPLIERS:
+        profile.set_mastery(2, multiplier, 80)
+    for multiplier in LearningRules.MULTIPLIERS:
+        profile.set_mastery(2, multiplier, 95)
+    profile.set_mastery(2, 9, 80)
+
+    var questions := SessionGenerator.generate(profile, 4242)
+    var weak_review_count := 0
+    for question in questions:
+        if question.fact_key() == LearningRules.fact_key(2, 9):
+            weak_review_count += 1
+
+    equal(weak_review_count, 2, "The sole weak review fact fills both required weak slots")
     _check_no_immediate_duplicates(questions)
 
 
@@ -73,4 +104,11 @@ func _unique_count(values: Array[int]) -> int:
     var unique: Dictionary = {}
     for value in values:
         unique[value] = true
+    return unique.size()
+
+
+func _unique_fact_count(questions: Array[PracticeQuestion]) -> int:
+    var unique: Dictionary = {}
+    for question in questions:
+        unique[question.fact_key()] = true
     return unique.size()

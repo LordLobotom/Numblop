@@ -44,6 +44,8 @@ func _ready() -> void:
         int(totals["level"])
     )
     EventBus.progress_changed.connect(_on_progress_changed)
+    EventBus.cosmetics_changed.connect(_on_cosmetics_changed)
+    _on_cosmetics_changed(AppState.cosmetics_state())
     _refresh_text()
 
 
@@ -105,3 +107,7 @@ func _on_blob_petted() -> void:
 
 func _on_progress_changed(coins: int, experience: int, level: int) -> void:
     set_progress_totals(coins, experience, level)
+
+
+func _on_cosmetics_changed(state: Dictionary) -> void:
+    blob.apply_cosmetics(state)

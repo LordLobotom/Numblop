@@ -18,6 +18,7 @@ const STAGE_STEP := 145.0
 
 @onready var title_label: Label = %TitleLabel
 @onready var subtitle_label: Label = %SubtitleLabel
+@onready var scroll: ScrollContainer = %Scroll
 @onready var map_canvas: MapPath = %MapCanvas
 @onready var outfit_button: TextureButton = %OutfitButton
 @onready var map_button: TextureButton = %MapButton
@@ -32,6 +33,7 @@ const STAGE_STEP := 145.0
 @onready var feature_hint: Label = %FeatureHint
 
 var _stage_states: Array[Dictionary] = []
+var _unlocked_table_announcement := 0
 
 
 func _ready() -> void:
@@ -57,6 +59,19 @@ func set_stage_states(stage_states: Array[Dictionary]) -> void:
         _rebuild_stages()
 
 
+func show_table_unlocked(table_value: int) -> void:
+    _unlocked_table_announcement = table_value
+    if is_node_ready():
+        _refresh_text()
+        _rebuild_stages()
+
+
+func clear_unlock_announcement() -> void:
+    _unlocked_table_announcement = 0
+    if is_node_ready():
+        _refresh_text()
+
+
 func show_future_feature() -> void:
     feature_hint.text = tr("HOME_FEATURE_LATER")
 
@@ -69,7 +84,12 @@ func _refresh_text() -> void:
     home_label.text = tr("NAV_HOME")
     trophy_label.text = tr("NAV_TROPHY")
     settings_label.text = tr("NAV_SETTINGS")
-    feature_hint.text = tr("MAP_HINT")
+    if _unlocked_table_announcement > 0:
+        feature_hint.text = tr("MAP_STAGE_UNLOCKED").format({
+            "table": _unlocked_table_announcement,
+        })
+    else:
+        feature_hint.text = tr("MAP_HINT")
     outfit_button.tooltip_text = tr("NAV_OUTFIT")
     map_button.tooltip_text = tr("NAV_MAP")
     home_button.tooltip_text = tr("NAV_HOME")
@@ -95,6 +115,8 @@ func _rebuild_stages() -> void:
         _add_stage(stage_state, Vector2(stage_x, stage_y), index % 2 == 0)
         stage_centers.append(Vector2(stage_x, stage_y) + Vector2(66.0, 72.0))
     map_canvas.set_stage_centers(stage_centers)
+    if _unlocked_table_announcement > 0:
+        _scroll_to_table.call_deferred(_unlocked_table_announcement)
 
 
 func _add_stage(stage_state: Dictionary, stage_position: Vector2, stage_on_left: bool) -> void:
@@ -159,8 +181,8 @@ func _add_stage(stage_state: Dictionary, stage_position: Vector2, stage_on_left:
 
     var progress := ProgressBar.new()
     progress.custom_minimum_size = Vector2(0.0, 18.0)
-    progress.max_value = LearningRules.MULTIPLIERS.size()
-    progress.value = int(stage_state.get("mastered_facts", 0))
+    progress.max_value = int(stage_state.get("progress_max", 1))
+    progress.value = int(stage_state.get("progress_points", 0))
     progress.show_percentage = false
     progress.add_theme_stylebox_override("background", _progress_style(Color(0.84, 0.84, 0.8)))
     progress.add_theme_stylebox_override(
@@ -173,10 +195,35 @@ func _add_stage(stage_state: Dictionary, stage_position: Vector2, stage_on_left:
     progress_label.add_theme_font_size_override("font_size", 13)
     progress_label.add_theme_color_override("font_color", Color(0.3, 0.35, 0.31))
     progress_label.text = tr("MAP_STAGE_PROGRESS").format({
-        "count": int(stage_state.get("mastered_facts", 0)),
+        "percent": int(stage_state.get("progress_percent", 0)),
     })
     progress_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
     card_content.add_child(progress_label)
+
+    if int(stage_state.get("table", 0)) == _unlocked_table_announcement:
+        crest.pivot_offset = crest.size / 2.0
+        crest.scale = Vector2(0.72, 0.72)
+        crest.modulate = Color(1.0, 1.0, 1.0, 0.45)
+        var reveal := create_tween().set_parallel(true)
+        reveal.tween_property(crest, "scale", Vector2.ONE, 0.55) \
+            .set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+        reveal.tween_property(crest, "modulate", Color.WHITE, 0.3)
+
+
+func _scroll_to_table(table_value: int) -> void:
+    await get_tree().process_frame
+    var stage_index := -1
+    for index in _stage_states.size():
+        if int(_stage_states[index].get("table", 0)) == table_value:
+            stage_index = index
+            break
+    if stage_index < 0:
+        return
+    var visible_center_offset := maxf(0.0, (scroll.size.y - STAGE_SIZE.y) / 2.0)
+    var target := int(maxf(0.0, stage_index * STAGE_STEP - visible_center_offset))
+    var scroll_tween := create_tween()
+    scroll_tween.tween_property(scroll, "scroll_vertical", target, 0.5) \
+        .set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
 
 
 func _stage_card_style(current: bool) -> StyleBoxFlat:

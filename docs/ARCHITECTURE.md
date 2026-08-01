@@ -40,23 +40,38 @@ Core scripts never access nodes, singletons, files, time, locale, or platform AP
 - `SettingsManager` owns `user://settings.cfg`, applies `system`, `en`, or `cs` locale, and applies
   persisted music/SFX volume and global mute through separate `Music` and `SFX` audio buses.
 - `SaveManager` owns versioned `user://profile.json` serialization.
+- `CosmeticCatalog` defines stable local item IDs, prices, display keys, and palette colors;
+  `LocalCosmetics` validates owned and equipped items without accessing scenes or files.
 - `AppState` owns the loaded `LearningProfile` and active question session. Runtime random
-  seeds are chosen here, outside the deterministic generator.
+  seeds are chosen here, outside the deterministic generator. It projects capped aggregate
+  mastery into read-only map-stage progress and forwards table-unlock domain events; scenes never
+  calculate mastery or decide unlocking.
 
 ## Save contract
 
-Version 1 contains:
+Version 3 contains:
 
 ```json
 {
-  "version": 1,
+  "version": 3,
   "highest_unlocked_index": 0,
-  "mastery": { "2_x_0": 0 }
+  "mastery": { "2_x_0": 0 },
+  "coins": 0,
+  "experience": 0,
+  "cosmetics": {
+    "unlocked_body_colors": ["green"],
+    "selected_body_color": "green",
+    "unlocked_hats": ["hat_none"],
+    "selected_hat": "hat_none",
+    "unlocked_glasses": ["glasses_none"],
+    "selected_glasses": "glasses_none"
+  }
 }
 ```
 
-Missing or malformed fields use safe defaults. Unlock progress is never decreased when
-loading. Future migrations branch on `version` and preserve existing mastery.
+All earlier save versions remain valid. Missing or malformed fields use safe defaults, including free
+green cosmetics. Unlock progress is never decreased when loading. Every mastery, reward, purchase,
+and equip save preserves the other local state fields.
 
 ## UI and display
 
@@ -66,6 +81,15 @@ loading. Future migrations branch on `version` and preserve existing mastery.
 - Renderer: GL Compatibility for broad 2D Android hardware support.
 - Layout uses Control containers and must tolerate narrow/tall safe areas.
 - Number-entry questions use an in-game numeric keypad, not the platform soft keyboard.
+- The stage map consumes `AppState` presentation dictionaries. Partial mastery moves its progress
+  bars, and an unlock event can reveal the next island without giving UI code authority over the
+  learning rule.
+- The Cosmetics screen consumes an `AppState` catalog/inventory projection. A palette shader
+  recolors only body, arm, and leg pixels while preserving facial layers, outlines, and the belly.
+  Supplied accessories keep their 768×768 authoring coordinates: their layer spans 150% of the
+  512×512 character bounds. It starts at −25% horizontally and −160/512 vertically because the
+  source character was authored 160px below the accessory canvas top. Hats may extend above the
+  base canvas while glasses remain aligned with the eyes.
 
 ## Localization
 

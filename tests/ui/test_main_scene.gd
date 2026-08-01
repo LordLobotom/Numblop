@@ -15,6 +15,7 @@ func test_main_scene_has_touch_ready_portrait_controls() -> void:
     check(scene.has_node("HomeScreen"), "Main scene must contain the blob home")
     check(scene.has_node("MapScreen"), "Main scene must contain the stage map")
     check(scene.has_node("SettingsScreen"), "Main scene must contain settings")
+    check(scene.has_node("CosmeticsScreen"), "Main scene must contain cosmetics")
     check(scene.has_node("OpeningScreen"), "Main scene must start with the opening overlay")
     scene.free()
 
@@ -60,7 +61,9 @@ func test_map_screen_has_all_stage_navigation_contracts() -> void:
         return
     var scene := packed.instantiate()
     check(scene.has_method("set_stage_states"), "Map accepts presentation state")
+    check(scene.has_method("show_table_unlocked"), "Map can celebrate a didactic unlock")
     check(scene.has_signal("return_home_requested"), "Map can return home")
+    check(scene.get_node("%Scroll") is ScrollContainer, "Map can reveal the new island")
     check(scene.get_node("%MapCanvas") is MapPath, "Winding trail canvas")
     check(scene.get_node_or_null("%BackButton") == null, "Map has no top back arrow")
     for button_name in ["OutfitButton", "MapButton", "HomeButton", "TrophyButton", "SettingsButton"]:
@@ -129,6 +132,26 @@ func test_settings_screen_has_language_audio_mute_and_safe_exit_controls() -> vo
     scene.free()
 
 
+func test_cosmetics_screen_has_compact_shop_purchase_and_navigation_contracts() -> void:
+    var packed: PackedScene = load("res://scenes/screens/CosmeticsScreen.tscn")
+    check(packed != null, "Cosmetics scene must load")
+    if packed == null:
+        return
+    var scene := packed.instantiate()
+    check(scene.has_method("refresh_from_state"), "Cosmetics reads app presentation state")
+    check(scene.has_method("set_presentation_state"), "Cosmetics supports deterministic previews")
+    check(scene.get_node_or_null("%PreviewBlob") == null, "No oversized character preview")
+    check(scene.get_node("%ColorGrid") is GridContainer, "Body-color swatch grid")
+    equal(scene.get_node("%ColorGrid").columns, 5, "Five colors share one row")
+    check(scene.get_node("%HatsGrid") is GridContainer, "Hat shop grid")
+    check(scene.get_node("%GlassesGrid") is GridContainer, "Glasses shop grid")
+    check(scene.get_node("%PurchaseButton").custom_minimum_size.y >= 48.0, "Buy touch target")
+    for button_name in ["OutfitButton", "MapButton", "HomeButton", "TrophyButton", "SettingsButton"]:
+        var button: BaseButton = scene.get_node("%%%s" % button_name)
+        check(button.custom_minimum_size.y >= 48.0, "%s touch target" % button_name)
+    scene.free()
+
+
 func test_home_screen_displays_progress_without_calculating_it() -> void:
     var packed: PackedScene = load("res://scenes/screens/HomeScreen.tscn")
     check(packed != null, "Home scene must load")
@@ -167,6 +190,24 @@ func test_blob_home_has_idle_pet_and_heart_reactions() -> void:
         "res://assets/characters/numblop/body/body.png",
         "Blob body asset"
     )
+    check(blob.has_method("set_body_color"), "Blob accepts shader-based body colors")
+    check(blob.has_method("set_hat"), "Blob accepts 768 px hat overlays")
+    check(blob.has_method("set_glasses"), "Blob accepts 768 px glasses overlays")
+    equal(blob.get_node("%HatAccessory").anchor_left, -0.25, "Hat canvas x offset")
+    equal(blob.get_node("%HatAccessory").anchor_right, 1.25, "Hat canvas width")
+    check(
+        is_equal_approx(blob.get_node("%HatAccessory").anchor_top, -160.0 / 512.0),
+        "Hat canvas uses the authored 160 px vertical offset"
+    )
+    check(
+        is_equal_approx(blob.get_node("%GlassesAccessory").anchor_top, -160.0 / 512.0),
+        "Glasses canvas uses the authored 160 px vertical offset"
+    )
+    check(
+        is_equal_approx(blob.get_node("%GlassesAccessory").anchor_bottom, 608.0 / 512.0),
+        "Glasses canvas keeps its 768 px height"
+    )
+    check(load("res://ui/shaders/numblop_body_color.gdshader") is Shader, "Body-color shader")
     equal(blob.HEART_TEXTURE.resource_path, "res://assets/vfx/hearh.png", "Heart asset")
     blob.free()
 

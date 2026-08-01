@@ -4,8 +4,12 @@ extends Control
 signal petted
 
 const HEART_TEXTURE: Texture2D = preload("res://assets/vfx/hearh.png")
+const BODY_COLOR_SHADER: Shader = preload("res://ui/shaders/numblop_body_color.gdshader")
 
 @onready var visual: Control = %Visual
+@onready var body: TextureRect = %Body
+@onready var left_leg: TextureRect = %LeftLeg
+@onready var right_leg: TextureRect = %RightLeg
 @onready var left_eye_open: TextureRect = %LeftEyeOpen
 @onready var right_eye_open: TextureRect = %RightEyeOpen
 @onready var left_eye_closed: TextureRect = %LeftEyeClosed
@@ -14,8 +18,11 @@ const HEART_TEXTURE: Texture2D = preload("res://assets/vfx/hearh.png")
 @onready var shy_cheeks: TextureRect = %ShyCheeks
 @onready var smile_closed: TextureRect = %SmileClosed
 @onready var smile_open: TextureRect = %SmileOpen
+@onready var hat_accessory: TextureRect = %HatAccessory
+@onready var glasses_accessory: TextureRect = %GlassesAccessory
 @onready var left_hand_idle: TextureRect = %LeftHandIdle
 @onready var left_hand_wave: TextureRect = %LeftHandWave
+@onready var right_hand: TextureRect = %RightHand
 @onready var idle_timer: Timer = %IdleTimer
 @onready var giggle_player: AudioStreamPlayer = %GigglePlayer
 
@@ -23,14 +30,93 @@ var _idle_tween: Tween
 var _reaction_tween: Tween
 var _reacting := false
 var _heart_direction := 1.0
+var _body_materials: Array[ShaderMaterial] = []
+var _pending_body_color := Color("c7e143")
+var _pending_recolor_strength := 0.0
+var _pending_hat_id := CosmeticCatalog.DEFAULT_HAT_ID
+var _pending_glasses_id := CosmeticCatalog.DEFAULT_GLASSES_ID
 
 
 func _ready() -> void:
+    _prepare_body_color_materials()
+    set_body_color(_pending_body_color, _pending_recolor_strength)
+    set_hat(_pending_hat_id)
+    set_glasses(_pending_glasses_id)
     gui_input.connect(_on_gui_input)
     idle_timer.timeout.connect(_blink)
     resized.connect(_update_pivot)
     _update_pivot()
     _start_idle_animation()
+
+
+func set_body_color(color: Color, recolor_strength: float = 1.0) -> void:
+    _pending_body_color = color
+    _pending_recolor_strength = clampf(recolor_strength, 0.0, 1.0)
+    for body_material in _body_materials:
+        body_material.set_shader_parameter("target_color", color)
+        body_material.set_shader_parameter("recolor_strength", _pending_recolor_strength)
+
+
+func set_hat(hat_id: String) -> void:
+    _pending_hat_id = hat_id
+    if is_node_ready():
+        _set_accessory_texture(hat_accessory, CosmeticCatalog.CATEGORY_HAT, hat_id)
+
+
+func set_glasses(glasses_id: String) -> void:
+    _pending_glasses_id = glasses_id
+    if is_node_ready():
+        _set_accessory_texture(
+            glasses_accessory,
+            CosmeticCatalog.CATEGORY_GLASSES,
+            glasses_id
+        )
+
+
+func apply_cosmetics(state: Dictionary) -> void:
+    var selected_color_id := String(state.get(
+        "selected_body_color",
+        CosmeticCatalog.DEFAULT_BODY_COLOR_ID
+    ))
+    for item in state.get("colors", []):
+        if String(item["id"]) == selected_color_id:
+            set_body_color(
+                Color(item["color"]),
+                0.0 if selected_color_id == CosmeticCatalog.DEFAULT_BODY_COLOR_ID else 1.0
+            )
+            break
+    set_hat(String(state.get("selected_hat", CosmeticCatalog.DEFAULT_HAT_ID)))
+    set_glasses(String(state.get(
+        "selected_glasses",
+        CosmeticCatalog.DEFAULT_GLASSES_ID
+    )))
+
+
+func _set_accessory_texture(
+    target: TextureRect,
+    category: String,
+    item_id: String
+) -> void:
+    var item := CosmeticCatalog.item(category, item_id)
+    var texture_path := String(item.get("texture_path", ""))
+    target.texture = load(texture_path) as Texture2D if not texture_path.is_empty() else null
+
+
+func _prepare_body_color_materials() -> void:
+    _body_materials.clear()
+    var body_parts: Array[TextureRect] = [
+        left_leg,
+        right_leg,
+        body,
+        left_hand_idle,
+        left_hand_wave,
+        right_hand,
+    ]
+    for body_part in body_parts:
+        var body_material := ShaderMaterial.new()
+        body_material.shader = BODY_COLOR_SHADER
+        body_part.material = body_material
+        _body_materials.append(body_material)
 
 
 func _on_gui_input(event: InputEvent) -> void:

@@ -18,7 +18,19 @@ Invoke-NumblopGodot -Godot $godot -Arguments @(
 ) -ExpectedMarker "NUMBLOP_RESPONSIVE_CAPTURES_OK" -TimeoutSeconds 180
 
 Add-Type -AssemblyName System.Drawing
-$expectedScreens = @("home", "map", "settings", "choice", "keypad", "reward")
+$expectedScreens = @(
+    "home",
+    "home_accessories",
+    "cosmetics",
+    "cosmetics_color",
+    "cosmetics_buy",
+    "map",
+    "map_unlock",
+    "settings",
+    "choice",
+    "keypad",
+    "reward"
+)
 $expectedLocales = @("en", "cs")
 $expectedSizes = @(
     @{ Width = 390; Height = 844 },

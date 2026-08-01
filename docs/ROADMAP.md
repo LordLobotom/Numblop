@@ -16,7 +16,8 @@ are produced successfully.
 
 - Short Numblop opening, remembered Czech/English choice, and Fredoka UI.
 - Interactive blob home with idle/petting reactions and local coin/XP/level totals.
-- Outfit/Map/Home/Trophies/Settings crest navigation and a read-only multiplication-stage trail.
+- Outfit/Map/Home/Trophies/Settings crest navigation and a read-only multiplication-stage trail
+  that continuously reflects didactic mastery and reveals a newly unlocked island.
 - Settings with English/Czech crests, music/SFX volume, global mute, and confirmed game exit.
 - Background music and friendly interaction sounds for Numblop, navigation, answers, and rewards.
 - Home → 10-question adaptive practice → guaranteed reward chest → home.
@@ -40,11 +41,12 @@ reward, return to the blob, and relaunch without losing recorded mastery or earn
 Acceptance: the loop is understandable without instruction and remains comfortable when the
 child answers slowly or incorrectly.
 
-## M3 — Cosmetics and progression refinement ☐
+## M3 — Cosmetics and progression refinement ◐
 
-- Review and tune the provisional reward amount and level-progression formula from M1/M2 play
-  evidence.
-- Add a small local cosmetic inventory and blob customization entry point.
+- Accuracy-linked coin/experience rewards replace the provisional fixed reward.
+- The local cosmetic inventory and Outfit entry point support five shader-based body colors plus
+  the supplied hats and glasses with persistent purchase/equip state.
+- Extend the rounded-card catalog with belly patterns, shoes, and future supplied artwork.
 - Add visual/audio polish without changing the learning model or adding game modes.
 - Keep all rewards local and free of dark patterns, advertisements, or purchases.
 

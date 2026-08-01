@@ -1,0 +1,397 @@
+[gd_scene load_steps=18 format=3]
+
+[ext_resource type="Script" path="res://scripts/ui/CosmeticsScreen.gd" id="1_script"]
+[ext_resource type="Texture2D" path="res://assets/backgrounds/mianscreen_background.png" id="2_background"]
+[ext_resource type="Texture2D" path="res://ui/crests/crest_coin.png" id="4_coin"]
+[ext_resource type="Texture2D" path="res://ui/crests/crest_outfit.png" id="5_outfit"]
+[ext_resource type="Texture2D" path="res://ui/crests/crest_map.png" id="6_map"]
+[ext_resource type="Texture2D" path="res://ui/crests/crest_home.png" id="7_home"]
+[ext_resource type="Texture2D" path="res://ui/crests/crest_trophy.png" id="8_trophy"]
+[ext_resource type="Texture2D" path="res://ui/crests/crest_settings.png" id="9_settings"]
+[ext_resource type="Font" path="res://ui/fonts/FredokaBold.tres" id="10_bold"]
+[ext_resource type="AudioStream" path="res://audio/sfx/Menu_Select_00.wav" id="11_select"]
+[ext_resource type="AudioStream" path="res://audio/sfx/sell_buy_item.wav" id="12_purchase"]
+
+[sub_resource type="StyleBoxFlat" id="HeaderPanel"]
+bg_color = Color(1, 1, 1, 0.92)
+corner_radius_top_left = 24
+corner_radius_top_right = 24
+corner_radius_bottom_right = 24
+corner_radius_bottom_left = 24
+content_margin_left = 12.0
+content_margin_top = 5.0
+content_margin_right = 12.0
+content_margin_bottom = 5.0
+shadow_color = Color(0.1, 0.3, 0.26, 0.18)
+shadow_size = 6
+
+[sub_resource type="StyleBoxFlat" id="CosmeticsPanel"]
+bg_color = Color(1, 1, 1, 0.94)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(1, 1, 1, 0.8)
+corner_radius_top_left = 28
+corner_radius_top_right = 28
+corner_radius_bottom_right = 28
+corner_radius_bottom_left = 28
+content_margin_left = 20.0
+content_margin_top = 10.0
+content_margin_right = 20.0
+content_margin_bottom = 10.0
+shadow_color = Color(0.1, 0.3, 0.26, 0.18)
+shadow_size = 8
+
+[sub_resource type="StyleBoxFlat" id="NavPanel"]
+bg_color = Color(1, 1, 1, 0.92)
+corner_radius_top_left = 24
+corner_radius_top_right = 24
+corner_radius_bottom_right = 24
+corner_radius_bottom_left = 24
+content_margin_left = 8.0
+content_margin_top = 4.0
+content_margin_right = 8.0
+content_margin_bottom = 4.0
+shadow_color = Color(0.1, 0.3, 0.26, 0.18)
+shadow_size = 5
+
+[sub_resource type="StyleBoxFlat" id="BuyNormal"]
+bg_color = Color(0.31, 0.77, 0.12, 1)
+corner_radius_top_left = 20
+corner_radius_top_right = 20
+corner_radius_bottom_right = 20
+corner_radius_bottom_left = 20
+
+[sub_resource type="StyleBoxFlat" id="BuyHover"]
+bg_color = Color(0.4, 0.84, 0.16, 1)
+corner_radius_top_left = 20
+corner_radius_top_right = 20
+corner_radius_bottom_right = 20
+corner_radius_bottom_left = 20
+
+[sub_resource type="StyleBoxFlat" id="BuyDisabled"]
+bg_color = Color(0.68, 0.71, 0.65, 1)
+corner_radius_top_left = 20
+corner_radius_top_right = 20
+corner_radius_bottom_right = 20
+corner_radius_bottom_left = 20
+
+[node name="CosmeticsScreen" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_script")
+
+[node name="Background" type="TextureRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+texture = ExtResource("2_background")
+expand_mode = 1
+stretch_mode = 6
+
+[node name="Tint" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0.95, 0.9, 1, 0.13)
+
+[node name="SafeArea" type="MarginContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 14
+theme_override_constants/margin_top = 18
+theme_override_constants/margin_right = 14
+theme_override_constants/margin_bottom = 14
+
+[node name="Content" type="VBoxContainer" parent="SafeArea"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="Header" type="PanelContainer" parent="SafeArea/Content"]
+layout_mode = 2
+theme_override_styles/panel = SubResource("HeaderPanel")
+
+[node name="Heading" type="VBoxContainer" parent="SafeArea/Content/Header"]
+layout_mode = 2
+alignment = 1
+
+[node name="TitleLabel" type="Label" parent="SafeArea/Content/Header/Heading"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.19, 0.34, 0.24, 1)
+theme_override_fonts/font = ExtResource("10_bold")
+theme_override_font_sizes/font_size = 26
+text = "COSMETICS_TITLE"
+horizontal_alignment = 1
+
+[node name="Scroll" type="ScrollContainer" parent="SafeArea/Content"]
+layout_mode = 2
+size_flags_vertical = 3
+horizontal_scroll_mode = 0
+
+[node name="CosmeticsPanel" type="PanelContainer" parent="SafeArea/Content/Scroll"]
+custom_minimum_size = Vector2(350, 0)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_styles/panel = SubResource("CosmeticsPanel")
+
+[node name="Rows" type="VBoxContainer" parent="SafeArea/Content/Scroll/CosmeticsPanel"]
+layout_mode = 2
+theme_override_constants/separation = 3
+
+[node name="CoinsRow" type="HBoxContainer" parent="SafeArea/Content/Scroll/CosmeticsPanel/Rows"]
+layout_mode = 2
+theme_override_constants/separation = 6
+alignment = 1
+
+[node name="CoinIcon" type="TextureRect" parent="SafeArea/Content/Scroll/CosmeticsPanel/Rows/CoinsRow"]
+custom_minimum_size = Vector2(25, 25)
+layout_mode = 2
+mouse_filter = 2
+texture = ExtResource("4_coin")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="CoinsLabel" type="Label" parent="SafeArea/Content/Scroll/CosmeticsPanel/Rows/CoinsRow"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.38, 0.27, 0.1, 1)
+theme_override_fonts/font = ExtResource("10_bold")
+theme_override_font_sizes/font_size = 17
+text = "0"
+vertical_alignment = 1
+
+[node name="ColorLabel" type="Label" parent="SafeArea/Content/Scroll/CosmeticsPanel/Rows"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.19, 0.34, 0.24, 1)
+theme_override_fonts/font = ExtResource("10_bold")
+theme_override_font_sizes/font_size = 19
+text = "COSMETICS_BODY_COLOR"
+horizontal_alignment = 1
+
+[node name="ColorGrid" type="GridContainer" parent="SafeArea/Content/Scroll/CosmeticsPanel/Rows"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/h_separation = 6
+columns = 5
+
+[node name="HatsLabel" type="Label" parent="SafeArea/Content/Scroll/CosmeticsPanel/Rows"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.19, 0.34, 0.24, 1)
+theme_override_fonts/font = ExtResource("10_bold")
+theme_override_font_sizes/font_size = 19
+text = "COSMETICS_HATS"
+horizontal_alignment = 1
+
+[node name="HatsGrid" type="GridContainer" parent="SafeArea/Content/Scroll/CosmeticsPanel/Rows"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/h_separation = 6
+columns = 4
+
+[node name="GlassesLabel" type="Label" parent="SafeArea/Content/Scroll/CosmeticsPanel/Rows"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.19, 0.34, 0.24, 1)
+theme_override_fonts/font = ExtResource("10_bold")
+theme_override_font_sizes/font_size = 19
+text = "COSMETICS_GLASSES"
+horizontal_alignment = 1
+
+[node name="GlassesGrid" type="GridContainer" parent="SafeArea/Content/Scroll/CosmeticsPanel/Rows"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/h_separation = 6
+columns = 4
+
+[node name="PurchaseButton" type="Button" parent="SafeArea/Content/Scroll/CosmeticsPanel/Rows"]
+unique_name_in_owner = true
+visible = false
+custom_minimum_size = Vector2(0, 50)
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_disabled_color = Color(0.94, 0.94, 0.92, 1)
+theme_override_fonts/font = ExtResource("10_bold")
+theme_override_font_sizes/font_size = 19
+theme_override_styles/normal = SubResource("BuyNormal")
+theme_override_styles/hover = SubResource("BuyHover")
+theme_override_styles/pressed = SubResource("BuyHover")
+theme_override_styles/disabled = SubResource("BuyDisabled")
+text = "COSMETICS_BUY"
+
+[node name="StatusLabel" type="Label" parent="SafeArea/Content/Scroll/CosmeticsPanel/Rows"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+theme_override_colors/font_color = Color(0.28, 0.42, 0.32, 1)
+theme_override_font_sizes/font_size = 14
+horizontal_alignment = 1
+vertical_alignment = 1
+autowrap_mode = 2
+
+[node name="Navigation" type="PanelContainer" parent="SafeArea/Content"]
+custom_minimum_size = Vector2(0, 104)
+layout_mode = 2
+theme_override_styles/panel = SubResource("NavPanel")
+
+[node name="NavigationRow" type="HBoxContainer" parent="SafeArea/Content/Navigation"]
+layout_mode = 2
+theme_override_constants/separation = 3
+alignment = 1
+
+[node name="OutfitItem" type="VBoxContainer" parent="SafeArea/Content/Navigation/NavigationRow"]
+custom_minimum_size = Vector2(64, 0)
+layout_mode = 2
+theme_override_constants/separation = -5
+alignment = 1
+
+[node name="OutfitButton" type="TextureButton" parent="SafeArea/Content/Navigation/NavigationRow/OutfitItem"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(62, 62)
+layout_mode = 2
+size_flags_horizontal = 4
+focus_mode = 2
+mouse_default_cursor_shape = 2
+texture_normal = ExtResource("5_outfit")
+ignore_texture_size = true
+stretch_mode = 0
+
+[node name="OutfitLabel" type="Label" parent="SafeArea/Content/Navigation/NavigationRow/OutfitItem"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.28, 0.58, 0.09, 1)
+theme_override_fonts/font = ExtResource("10_bold")
+theme_override_font_sizes/font_size = 12
+text = "NAV_OUTFIT"
+horizontal_alignment = 1
+
+[node name="MapItem" type="VBoxContainer" parent="SafeArea/Content/Navigation/NavigationRow"]
+custom_minimum_size = Vector2(64, 0)
+layout_mode = 2
+theme_override_constants/separation = -5
+alignment = 1
+
+[node name="MapButton" type="TextureButton" parent="SafeArea/Content/Navigation/NavigationRow/MapItem"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(56, 56)
+layout_mode = 2
+size_flags_horizontal = 4
+focus_mode = 2
+mouse_default_cursor_shape = 2
+texture_normal = ExtResource("6_map")
+ignore_texture_size = true
+stretch_mode = 0
+
+[node name="MapLabel" type="Label" parent="SafeArea/Content/Navigation/NavigationRow/MapItem"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.2, 0.33, 0.27, 1)
+theme_override_font_sizes/font_size = 12
+text = "NAV_MAP"
+horizontal_alignment = 1
+
+[node name="HomeItem" type="VBoxContainer" parent="SafeArea/Content/Navigation/NavigationRow"]
+custom_minimum_size = Vector2(64, 0)
+layout_mode = 2
+theme_override_constants/separation = -5
+alignment = 1
+
+[node name="HomeButton" type="TextureButton" parent="SafeArea/Content/Navigation/NavigationRow/HomeItem"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(56, 56)
+layout_mode = 2
+size_flags_horizontal = 4
+focus_mode = 2
+mouse_default_cursor_shape = 2
+texture_normal = ExtResource("7_home")
+ignore_texture_size = true
+stretch_mode = 0
+
+[node name="HomeLabel" type="Label" parent="SafeArea/Content/Navigation/NavigationRow/HomeItem"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.2, 0.33, 0.27, 1)
+theme_override_font_sizes/font_size = 12
+text = "NAV_HOME"
+horizontal_alignment = 1
+
+[node name="TrophyItem" type="VBoxContainer" parent="SafeArea/Content/Navigation/NavigationRow"]
+custom_minimum_size = Vector2(64, 0)
+layout_mode = 2
+theme_override_constants/separation = -5
+alignment = 1
+
+[node name="TrophyButton" type="TextureButton" parent="SafeArea/Content/Navigation/NavigationRow/TrophyItem"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(56, 56)
+layout_mode = 2
+size_flags_horizontal = 4
+focus_mode = 2
+mouse_default_cursor_shape = 2
+texture_normal = ExtResource("8_trophy")
+ignore_texture_size = true
+stretch_mode = 0
+
+[node name="TrophyLabel" type="Label" parent="SafeArea/Content/Navigation/NavigationRow/TrophyItem"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.2, 0.33, 0.27, 1)
+theme_override_font_sizes/font_size = 12
+text = "NAV_TROPHY"
+horizontal_alignment = 1
+
+[node name="SettingsItem" type="VBoxContainer" parent="SafeArea/Content/Navigation/NavigationRow"]
+custom_minimum_size = Vector2(64, 0)
+layout_mode = 2
+theme_override_constants/separation = -5
+alignment = 1
+
+[node name="SettingsButton" type="TextureButton" parent="SafeArea/Content/Navigation/NavigationRow/SettingsItem"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(56, 56)
+layout_mode = 2
+size_flags_horizontal = 4
+focus_mode = 2
+mouse_default_cursor_shape = 2
+texture_normal = ExtResource("9_settings")
+ignore_texture_size = true
+stretch_mode = 0
+
+[node name="SettingsLabel" type="Label" parent="SafeArea/Content/Navigation/NavigationRow/SettingsItem"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.2, 0.33, 0.27, 1)
+theme_override_font_sizes/font_size = 12
+text = "NAV_SETTINGS"
+horizontal_alignment = 1
+
+[node name="SelectionPlayer" type="AudioStreamPlayer" parent="."]
+unique_name_in_owner = true
+stream = ExtResource("11_select")
+volume_db = -7.0
+bus = &"SFX"
+
+[node name="PurchasePlayer" type="AudioStreamPlayer" parent="."]
+unique_name_in_owner = true
+stream = ExtResource("12_purchase")
+volume_db = -4.0
+bus = &"SFX"

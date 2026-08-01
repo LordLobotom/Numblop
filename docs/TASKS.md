@@ -20,6 +20,8 @@ Status values: `TODO`, `WIP(@agent)`, `BLOCKED(reason)`, `DONE`.
   Owns: `scripts/core/SessionResult.gd`, `tests/core/test_session_result.gd`.
 - `A2 DONE` Distractor-quality rules and edge-case tests for ×0, ×1, and repeated products.
   Depends: A0. Owns: `scripts/core/SessionGenerator.gd`, `tests/core/test_distractors.gd`.
+- `A3 DONE` Prefer unique facts within each 10-question series and repeat only after a required
+  adaptive pool is exhausted. Depends: A0. Owns: session generator and generator tests.
 - `B1 DONE` Opening/logo scene, remembered language choice, bundled Fredoka font, and license.
   Depends: B0. Owns: opening scene/script, `ui/fonts/`, localization keys, UI tests.
 - `B2 DONE` Interactive blob home, idle/petting reactions, hearts, and coin/XP/level display.
@@ -37,9 +39,14 @@ Status values: `TODO`, `WIP(@agent)`, `BLOCKED(reason)`, `DONE`.
 - `B7 DONE` Settings screen, four-crest navigation, and expanded interaction sound palette.
   Depends: B6, C5. Owns: settings scene/script, home/map navigation changes, audio-player
   presentation, localization keys, audio provenance, and UI tests.
+- `B8 DONE` Continuous mastery progress on the map and bilingual next-island reveal flow.
+  Depends: B6, C6. Owns: map/main presentation, localization keys, UI tests, responsive captures.
+- `B9 DONE` Compact Cosmetics shop, body-color shader, supplied hat/glasses cards and aligned
+  character layers, lock/check/coin treatment, purchase UI, and hanger navigation. Depends: B8,
+  C7. Owns: cosmetic UI, shader, localization, and UI tests.
 - `C1 DONE` Session controller, per-answer mastery saves, and discard-on-interruption behavior.
   Depends: A1. Owns: `scripts/app/SessionController.gd`, autoload changes, state tests.
-- `C2 DONE` Local coin/XP/level persistence and atomic application of the fixed provisional M1
+- `C2 DONE` Local coin/XP/level persistence and atomic application of the accuracy-linked M1
   reward. Depends: A1, C1. Owns: app state/save changes and state tests.
 - `C3 DONE` Android pause/resume/back lifecycle handling. Depends: C1.
   Owns: app controller/autoload changes and state tests.
@@ -47,6 +54,10 @@ Status values: `TODO`, `WIP(@agent)`, `BLOCKED(reason)`, `DONE`.
   Owns: `scripts/autoload/AppState.gd` map-state contract and state tests.
 - `C5 DONE` Persistent music/SFX volume and mute preferences with audio-bus application.
   Depends: C0. Owns: `SettingsManager`, audio settings signal/bus contract, and state tests.
+- `C6 DONE` Didactic table-unlock event and continuous read-only map progress contract.
+  Depends: A0, C1, C4. Owns: session/app coordination, domain signals, and state tests.
+- `C7 DONE` Versioned local cosmetic inventory with atomic 100-coin body-color, hat, and glasses
+  purchase/equip persistence. Depends: C2. Owns: catalog/state, save/app coordination, state tests.
 - `D1 DONE` Responsive screenshot smoke harness at 390×844 and 450×900. Depends: B3.
   Owns: QA scripts, smoke scenes/tests, `artifacts/` output contract.
 - `D2 BLOCKED(no authorized physical Android device connected)` Physical Android install/run/log
@@ -56,6 +67,8 @@ Status values: `TODO`, `WIP(@agent)`, `BLOCKED(reason)`, `DONE`.
   Owns: responsive capture script, command, and harness test.
 - `D4 DONE` Add Settings to responsive portrait capture coverage. Depends: B7.
   Owns: responsive capture script, command, and harness test.
+- `D5 DONE` Add compact Cosmetics states and an equipped 768px accessory-alignment home state to
+  bilingual responsive captures. Depends: B9. Owns: capture harness and artifact verification.
 
 Claim the lowest-numbered unblocked task in your track. Only the stated owner changes the task's
 owned files; coordinate contract changes through the owning track.

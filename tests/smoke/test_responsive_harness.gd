@@ -13,7 +13,19 @@ func test_responsive_harness_pins_both_portrait_sizes_and_locales() -> void:
 
 func test_responsive_harness_covers_every_m1_screen_state() -> void:
     var capture_script := _read("res://tests/smoke/capture_responsive.gd")
-    for screen_name in ["home", "map", "settings", "choice", "keypad", "reward"]:
+    for screen_name in [
+        "home",
+        "home_accessories",
+        "cosmetics",
+        "cosmetics_color",
+        "cosmetics_buy",
+        "map",
+        "map_unlock",
+        "settings",
+        "choice",
+        "keypad",
+        "reward",
+    ]:
         check(capture_script.contains('"%s"' % screen_name), "Capture state: %s" % screen_name)
 
 
