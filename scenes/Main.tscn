@@ -1,0 +1,176 @@
+[gd_scene load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://scripts/ui/Main.gd" id="1_main"]
+[ext_resource type="Theme" path="res://ui/theme.tres" id="2_theme"]
+
+[sub_resource type="StyleBoxFlat" id="InfoPanel"]
+bg_color = Color(0.96, 0.93, 1, 1)
+corner_radius_top_left = 16
+corner_radius_top_right = 16
+corner_radius_bottom_right = 16
+corner_radius_bottom_left = 16
+content_margin_left = 18.0
+content_margin_top = 14.0
+content_margin_right = 18.0
+content_margin_bottom = 14.0
+
+[node name="Main" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme = ExtResource("2_theme")
+script = ExtResource("1_main")
+
+[node name="Sky" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.72, 0.92, 1, 1)
+mouse_filter = 2
+
+[node name="Ground" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 12
+anchor_top = 0.68
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 0
+color = Color(0.83, 0.96, 0.39, 1)
+mouse_filter = 2
+
+[node name="SafeArea" type="MarginContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 20
+theme_override_constants/margin_top = 28
+theme_override_constants/margin_right = 20
+theme_override_constants/margin_bottom = 24
+
+[node name="Center" type="CenterContainer" parent="SafeArea"]
+layout_mode = 2
+
+[node name="PortraitFrame" type="PanelContainer" parent="SafeArea/Center"]
+custom_minimum_size = Vector2(350, 760)
+layout_mode = 2
+
+[node name="ContentMargin" type="MarginContainer" parent="SafeArea/Center/PortraitFrame"]
+layout_mode = 2
+theme_override_constants/margin_left = 24
+theme_override_constants/margin_top = 24
+theme_override_constants/margin_right = 24
+theme_override_constants/margin_bottom = 24
+
+[node name="Content" type="VBoxContainer" parent="SafeArea/Center/PortraitFrame/ContentMargin"]
+layout_mode = 2
+theme_override_constants/separation = 16
+alignment = 1
+
+[node name="LanguageRow" type="HBoxContainer" parent="SafeArea/Center/PortraitFrame/ContentMargin/Content"]
+layout_mode = 2
+theme_override_constants/separation = 10
+alignment = 2
+
+[node name="LanguageLabel" type="Label" parent="SafeArea/Center/PortraitFrame/ContentMargin/Content/LanguageRow"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "LANGUAGE_LABEL"
+vertical_alignment = 1
+
+[node name="LanguageSelect" type="OptionButton" parent="SafeArea/Center/PortraitFrame/ContentMargin/Content/LanguageRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(156, 48)
+layout_mode = 2
+
+[node name="TitleLabel" type="Label" parent="SafeArea/Center/PortraitFrame/ContentMargin/Content"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.42, 0.21, 0.73, 1)
+theme_override_colors/font_outline_color = Color(1, 1, 1, 1)
+theme_override_constants/outline_size = 8
+theme_override_font_sizes/font_size = 52
+text = "Numblop"
+horizontal_alignment = 1
+
+[node name="SubtitleLabel" type="Label" parent="SafeArea/Center/PortraitFrame/ContentMargin/Content"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.12, 0.29, 0.5, 1)
+theme_override_font_sizes/font_size = 22
+text = "APP_TAGLINE"
+horizontal_alignment = 1
+autowrap_mode = 2
+
+[node name="SpacerTop" type="Control" parent="SafeArea/Center/PortraitFrame/ContentMargin/Content"]
+custom_minimum_size = Vector2(0, 32)
+layout_mode = 2
+
+[node name="MascotPlaceholder" type="Label" parent="SafeArea/Center/PortraitFrame/ContentMargin/Content"]
+custom_minimum_size = Vector2(0, 118)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.32, 0.69, 0.13, 1)
+theme_override_font_sizes/font_size = 82
+text = "×"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="ProfileLabel" type="Label" parent="SafeArea/Center/PortraitFrame/ContentMargin/Content"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.26, 0.15, 0.39, 1)
+theme_override_font_sizes/font_size = 22
+text = "HOME_PROFILE"
+horizontal_alignment = 1
+
+[node name="ProgressPanel" type="PanelContainer" parent="SafeArea/Center/PortraitFrame/ContentMargin/Content"]
+layout_mode = 2
+theme_override_styles/panel = SubResource("InfoPanel")
+
+[node name="ProgressLabel" type="Label" parent="SafeArea/Center/PortraitFrame/ContentMargin/Content/ProgressPanel"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.28, 0.17, 0.38, 1)
+theme_override_font_sizes/font_size = 17
+text = "HOME_PROGRESS"
+horizontal_alignment = 1
+autowrap_mode = 2
+
+[node name="PlayButton" type="Button" parent="SafeArea/Center/PortraitFrame/ContentMargin/Content"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 72)
+layout_mode = 2
+text = "HOME_PLAY"
+
+[node name="StatusLabel" type="Label" parent="SafeArea/Center/PortraitFrame/ContentMargin/Content"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 54)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.15, 0.36, 0.18, 1)
+theme_override_font_sizes/font_size = 18
+text = "HOME_STATUS_READY"
+horizontal_alignment = 1
+vertical_alignment = 1
+autowrap_mode = 2
+
+[node name="SpacerBottom" type="Control" parent="SafeArea/Center/PortraitFrame/ContentMargin/Content"]
+size_flags_vertical = 3
+layout_mode = 2
+
+[node name="PrivacyLabel" type="Label" parent="SafeArea/Center/PortraitFrame/ContentMargin/Content"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.36, 0.39, 0.42, 1)
+theme_override_font_sizes/font_size = 15
+text = "HOME_PRIVACY"
+horizontal_alignment = 1
+autowrap_mode = 2

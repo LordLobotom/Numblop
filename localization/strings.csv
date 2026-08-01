@@ -1,0 +1,12 @@
+keys,en,cs
+APP_TAGLINE,Learn multiplication through play,Uč se násobilku hrou
+HOME_PROFILE,Local learner,Místní hráč
+HOME_PROGRESS,Current table: ×{table} · Mastered facts: {mastered}/80,Aktuální násobilka: ×{table} · Zvládnuté spoje: {mastered}/80
+HOME_PLAY,Play,Hrát
+HOME_STATUS_READY,Ready for a short practice session.,Připraveno na krátké procvičování.
+HOME_STATUS_SESSION,A {count}-question session is ready.,Je připravena hra s {count} příklady.
+HOME_PRIVACY,Progress stays on this device.,Pokrok zůstává v tomto zařízení.
+LANGUAGE_LABEL,Language,Jazyk
+LANGUAGE_SYSTEM,System language,Jazyk systému
+LANGUAGE_ENGLISH,English,Angličtina
+LANGUAGE_CZECH,Czech,Čeština

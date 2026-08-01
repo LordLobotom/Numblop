@@ -1,0 +1,8 @@
+[gd_resource type="FontVariation" load_steps=3 format=3]
+
+[ext_resource type="FontFile" path="res://ui/fonts/Fredoka-Variable.ttf" id="1_fredoka"]
+[ext_resource type="FontFile" path="res://ui/fonts/NotoSans-Variable.ttf" id="2_noto_sans"]
+
+[resource]
+base_font = ExtResource("1_fredoka")
+fallbacks = Array[Font]([ExtResource("2_noto_sans")])
