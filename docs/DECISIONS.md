@@ -150,6 +150,8 @@
   save. Practice feedback names the fact and new band and plays level-up followed by coin SFX.
 - Milestone feedback remains visible for 3.6 seconds and can be dismissed early with a tap anywhere
   on its overlay. Ordinary correct-answer timing and incorrect-answer confirmation remain unchanged.
+- Its content is deliberately terse: localized Success title, a bold fact at 1.5 times that title's
+  size, the localized mastery-band name alone, and the 5-coin reward beneath it.
 - The milestone bonus is separate from the 1–10 coin/experience completed-series chest. Leaving an
   unfinished series forfeits only that chest; already processed mastery and milestone coins remain.
 

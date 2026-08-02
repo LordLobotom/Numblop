@@ -71,8 +71,9 @@ guaranteed chest is never empty. The displayed level is `1 + floor(total experie
 Rewards never alter mastery or table unlocking.
 
 A correct answer that moves a fact upward into the 60-point, 80-point, or 90-point mastery band
-immediately grants a separate 5-coin milestone bonus. The practice feedback names the fact and its
-new band and plays a level-up cue followed by a coin cue. This bonus grants no experience and does
+immediately grants a separate 5-coin milestone bonus. The practice feedback presents a short
+success title, the fact in bold at 1.5 times the title size, the new band name alone, and then the
+coin bonus; it plays a level-up cue followed by a coin cue. This bonus grants no experience and does
 not replace or alter the completed-series chest reward. The milestone card remains visible for
 3.6 seconds, twice its original duration, and a tap anywhere dismisses it early.
 

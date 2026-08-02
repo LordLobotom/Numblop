@@ -73,6 +73,9 @@ Status values: `TODO`, `WIP(@agent)`, `BLOCKED(reason)`, `DONE`.
   full-overlay tap to continue. Owns: practice feedback scene/script, localization, and UI tests.
 - `B20 DONE` Show the localized public application version in the Settings header. Owns:
   settings scene/script, localization, and UI tests.
+- `B21 DONE` Restructure fact-milestone feedback into a success title, prominent bold fact,
+  standalone mastery-band name, and coin reward. Owns: practice scene/script, localization, and
+  UI tests.
 - `C1 DONE` Session controller, per-answer mastery saves, and discard-on-interruption behavior.
   Depends: A1. Owns: `scripts/app/SessionController.gd`, autoload changes, state tests.
 - `C2 DONE` Local coin/XP/level persistence and atomic application of the accuracy-linked M1

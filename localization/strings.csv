@@ -32,8 +32,8 @@ PRACTICE_EXIT_ACCESSIBLE,Leave this practice,Ukončit procvičování
 PRACTICE_ENTER_ANSWER,Enter the answer,Zadej výsledek
 PRACTICE_CORRECT,Nice work!,Výborně!
 PRACTICE_INCORRECT,Let's look at it together.,Podíváme se na to spolu.
-PRACTICE_MILESTONE_REACHED,Milestone reached for {fact}: {status},Spoj {fact} dosáhl úrovně: {status}
-PRACTICE_MILESTONE_REWARD,+{coins} bonus coins!,Odměna: +{coins} mincí!
+PRACTICE_MILESTONE_TITLE,Success,Úspěch
+PRACTICE_MILESTONE_REWARD,+{coins} coins,+{coins} mincí
 PRACTICE_MILESTONE_SKIP_ACCESSIBLE,Continue now,Pokračovat hned
 PRACTICE_CONTINUE,Continue,Pokračovat
 KEYPAD_DELETE,Delete the last digit,Smazat poslední číslici

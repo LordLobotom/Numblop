@@ -116,20 +116,31 @@ func test_mastery_milestone_feedback_names_fact_band_and_coin_bonus_in_czech() -
     }
     scene._refresh_mastery_milestone_feedback()
 
-    var milestone_label: Label = scene.get_node("%MilestoneLabel")
+    var feedback_title: Label = scene.get_node("%FeedbackTitle")
+    var fact_label: Label = scene.get_node("%MilestoneFactLabel")
+    var status_label: Label = scene.get_node("%MilestoneStatusLabel")
     var reward_label: Label = scene.get_node("%MilestoneRewardLabel")
     var skip_button: Button = scene.get_node("%MilestoneSkipButton")
-    check(milestone_label.visible, "Milestone text is visible")
+    check(fact_label.visible, "Milestone fact is visible")
+    check(status_label.visible, "Milestone status is visible")
     check(reward_label.visible, "Milestone reward is visible")
     check(skip_button.visible, "Milestone feedback can be skipped by tapping anywhere")
     equal(scene.MILESTONE_FEEDBACK_SECONDS, 3.6, "Milestone feedback stays twice as long")
+    equal(feedback_title.text, "Úspěch", "Czech milestone title")
+    equal(fact_label.text, "7 × 4", "Milestone shows only the fact")
+    equal(status_label.text, "Upevňuji", "Milestone shows only the new fact status")
+    equal(reward_label.text, "+5 mincí", "Czech coin bonus message")
+    equal(status_label.modulate, Color(0.95, 0.55, 0.08), "Orange milestone color")
     equal(
-        milestone_label.text,
-        "Spoj 7 × 4 dosáhl úrovně: Upevňuji",
-        "Czech fact milestone message"
+        fact_label.get_theme_font_size("font_size"),
+        roundi(float(feedback_title.get_theme_font_size("font_size")) * 1.5),
+        "Milestone fact is one and a half times the title size"
     )
-    equal(reward_label.text, "Odměna: +5 mincí!", "Czech coin bonus message")
-    equal(milestone_label.modulate, Color(0.95, 0.55, 0.08), "Orange milestone color")
+    equal(
+        fact_label.get_theme_font("font").resource_path,
+        "res://ui/fonts/FredokaBold.tres",
+        "Milestone fact uses the bold Fredoka font"
+    )
     var skip_audit := {"emitted": false}
     scene.feedback_gate.connect(func() -> void: skip_audit["emitted"] = true)
     scene.get_node("%FeedbackOverlay").visible = true

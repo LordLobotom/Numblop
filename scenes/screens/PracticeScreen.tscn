@@ -1,8 +1,9 @@
-[gd_scene load_steps=8 format=3]
+[gd_scene load_steps=9 format=3]
 
 [ext_resource type="Script" path="res://scripts/ui/PracticeScreen.gd" id="1_script"]
 [ext_resource type="Texture2D" path="res://assets/backgrounds/mianscreen_background.png" id="2_background"]
 [ext_resource type="PackedScene" path="res://scenes/components/NumericKeypad.tscn" id="3_keypad"]
+[ext_resource type="Font" path="res://ui/fonts/FredokaBold.tres" id="4_bold"]
 
 [sub_resource type="StyleBoxFlat" id="QuestionCard"]
 bg_color = Color(1, 1, 1, 0.94)
@@ -288,14 +289,24 @@ text = "PRACTICE_CORRECT"
 horizontal_alignment = 1
 autowrap_mode = 2
 
-[node name="MilestoneLabel" type="Label" parent="FeedbackOverlay/Center/FeedbackPanel/Content"]
+[node name="MilestoneFactLabel" type="Label" parent="FeedbackOverlay/Center/FeedbackPanel/Content"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+theme_override_colors/font_color = Color(0.28, 0.16, 0.39, 1)
+theme_override_fonts/font = ExtResource("4_bold")
+theme_override_font_sizes/font_size = 42
+text = "7 × 4"
+horizontal_alignment = 1
+
+[node name="MilestoneStatusLabel" type="Label" parent="FeedbackOverlay/Center/FeedbackPanel/Content"]
 unique_name_in_owner = true
 visible = false
 layout_mode = 2
 theme_override_colors/font_outline_color = Color(1, 1, 1, 0.9)
 theme_override_constants/outline_size = 3
-theme_override_font_sizes/font_size = 21
-text = "PRACTICE_MILESTONE_REACHED"
+theme_override_font_sizes/font_size = 24
+text = "MAP_FACT_MASTERED"
 horizontal_alignment = 1
 autowrap_mode = 2
 

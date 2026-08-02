@@ -16,7 +16,8 @@ const MILESTONE_FEEDBACK_SECONDS := 3.6
 @onready var numeric_keypad: NumericKeypad = %NumericKeypad
 @onready var feedback_overlay: Control = %FeedbackOverlay
 @onready var feedback_title: Label = %FeedbackTitle
-@onready var milestone_label: Label = %MilestoneLabel
+@onready var milestone_fact_label: Label = %MilestoneFactLabel
+@onready var milestone_status_label: Label = %MilestoneStatusLabel
 @onready var milestone_reward_label: Label = %MilestoneRewardLabel
 @onready var correct_equation: Label = %CorrectEquation
 @onready var continue_button: Button = %ContinueButton
@@ -109,7 +110,11 @@ func _present_answer_feedback(
     _refresh_mastery_milestone_feedback()
     feedback_overlay.visible = true
     if record.correct:
-        feedback_title.text = tr("PRACTICE_CORRECT")
+        feedback_title.text = tr(
+            "PRACTICE_CORRECT"
+            if _active_milestone.is_empty()
+            else "PRACTICE_MILESTONE_TITLE"
+        )
         feedback_title.modulate = Color(0.24, 0.63, 0.2)
         correct_equation.visible = false
         continue_button.visible = false
@@ -137,7 +142,8 @@ func format_complete_equation(record: SessionResult.AnswerRecord) -> String:
 
 func _refresh_mastery_milestone_feedback() -> void:
     var visible := not _active_milestone.is_empty()
-    milestone_label.visible = visible
+    milestone_fact_label.visible = visible
+    milestone_status_label.visible = visible
     milestone_reward_label.visible = visible
     milestone_skip_button.visible = visible
     if not visible:
@@ -146,11 +152,10 @@ func _refresh_mastery_milestone_feedback() -> void:
     var multiplier := int(_active_milestone.get("multiplier", 0))
     var status := StringName(_active_milestone.get("status", &"building"))
     var reward_coins := int(_active_milestone.get("reward_coins", 0))
-    milestone_label.text = tr("PRACTICE_MILESTONE_REACHED").format({
-        "fact": "%d × %d" % [table_value, multiplier],
-        "status": tr(_fact_status_key(status)),
-    })
-    milestone_label.modulate = _fact_status_color(status)
+    feedback_title.text = tr("PRACTICE_MILESTONE_TITLE")
+    milestone_fact_label.text = "%d × %d" % [table_value, multiplier]
+    milestone_status_label.text = tr(_fact_status_key(status))
+    milestone_status_label.modulate = _fact_status_color(status)
     milestone_reward_label.text = tr("PRACTICE_MILESTONE_REWARD").format({
         "coins": reward_coins,
     })
