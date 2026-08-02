@@ -39,4 +39,5 @@ foreach ($path in $required) {
     Write-Host "OK $path"
 }
 
+Write-Host "NUMBLOP_WEB_ENV_OK"
 Write-Host "NUMBLOP_ANDROID_ENV_OK"

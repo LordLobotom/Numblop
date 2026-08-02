@@ -6,6 +6,8 @@
 - Android application ID: `cz.gutcloud.numblop`.
 - Primary platform: portrait Android phone.
 - Secondary platform: Windows, using the same centered portrait experience.
+- Web platform: an adaptive canvas that fits the available phone viewport and uses a wider
+  presentation on desktop without stretching portrait-focused content.
 - The game is offline and uses one unnamed local child profile.
 
 ## Player promise
@@ -114,5 +116,6 @@ price followed by the coin crest.
 - Keep `Numblop` untranslated as the public name.
 - Touch targets are at least 48 px and primary actions at least 64 px high.
 - Sound and vibration reinforce actions but are never required to understand the state.
-- The game remains usable with touch on Android and mouse/keyboard on Windows.
+- The game remains usable with touch on Android and mobile Web, and mouse/keyboard on Windows and
+  desktop Web.
 - No feature depends on connectivity, accounts, advertisements, analytics, or cloud services.

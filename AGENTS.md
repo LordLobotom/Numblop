@@ -3,7 +3,7 @@
 ## Product contract
 
 - Numblop is a portrait-first, offline multiplication-practice game for Android, also
-  exported as a centered portrait Windows application.
+  exported as a centered portrait Windows application and an adaptive browser build.
 - The permanent Android package ID is `cz.gutcloud.numblop`.
 - Every MVP practice series contains exactly 10 adaptively selected questions using the
   canonical 7 current / 2 older weak / 1 older automated mix.
@@ -22,7 +22,7 @@
 5. `docs/ROADMAP.md` — milestone order and acceptance gates.
 6. `docs/TASKS.md` — claimable work and agent ownership.
 7. `docs/DECISIONS.md` — accepted decisions that extend the documents above.
-8. `docs/RELEASES.md` — Windows and Android delivery process.
+8. `docs/RELEASES.md` — Windows, Android, and Web delivery process.
 
 If documents conflict, use the highest applicable source and record the resolution in
 `docs/DECISIONS.md`.
@@ -33,7 +33,7 @@ If documents conflict, use the highest applicable source and record the resoluti
 - Run: `C:\Users\eMich\source\Godot\Godot_v4.6.2-stable_win64.exe --path .`.
 - Test: `powershell -ExecutionPolicy Bypass -File tools/run-tests.ps1`.
 - Check Android tools: `powershell -ExecutionPolicy Bypass -File tools/check-environment.ps1`.
-- Export Windows/debug APK through `tools/export.ps1`; release signing credentials must
+- Export Windows/debug APK/Web through `tools/export.ps1`; release signing credentials must
   come from environment variables, never repository files.
 
 ## Engineering rules

@@ -5,8 +5,9 @@
 </p>
 
 Numblop is a friendly, offline multiplication-practice game for children, built with Godot 4.6.2
-and GDScript. It is portrait-first on Android and runs in the same centered portrait format on
-Windows. The complete interface is available in English and Czech.
+and GDScript. It is portrait-first on Android, runs in a centered portrait format on Windows, and
+has an adaptive Web build that fits a phone while using a wider canvas on desktop. The complete
+interface is available in English and Czech.
 
 The Android package ID is permanently fixed as `cz.gutcloud.numblop`.
 
@@ -72,6 +73,7 @@ formats with safe defaults.
 - Godot `4.6.2` with export templates.
 - PowerShell on Windows.
 - Android SDK/JDK and an authorized device for Android export and device checks.
+- Godot threadless Web export templates; the repository helper can install them when missing.
 
 Verify the local toolchain with:
 
@@ -88,7 +90,8 @@ C:\Users\eMich\source\Godot\Godot_v4.6.2-stable_win64.exe --path .
 ```
 
 The logical viewport is `390×844`; the Windows development window defaults to a centered
-`450×900` portrait view.
+`450×900` portrait view. Web uses an adaptive canvas: a phone fits its available viewport, while
+`900×900` is the wide desktop QA reference.
 
 ## Test and visual QA
 
@@ -99,7 +102,7 @@ and smoke suite:
 powershell -ExecutionPolicy Bypass -File tools/run-tests.ps1
 ```
 
-Generate and validate bilingual responsive screenshots at both supported portrait sizes:
+Generate and validate bilingual responsive screenshots at phone, Windows, and wide Web sizes:
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File tools/capture-responsive.ps1
@@ -117,10 +120,14 @@ powershell -ExecutionPolicy Bypass -File tools/android-smoke.ps1
 ```powershell
 powershell -ExecutionPolicy Bypass -File tools/export.ps1 -Target windows
 powershell -ExecutionPolicy Bypass -File tools/export.ps1 -Target android-debug
+powershell -ExecutionPolicy Bypass -File tools/export.ps1 -Target web
 ```
 
-These commands produce ignored development artifacts in `build/`. Android release signing values
-must come from environment variables and must never be stored in the repository. See
+If the Web templates are missing, run `tools/install-web-templates.ps1`. Validate the generated
+HTML, JavaScript, WebAssembly, and pack files with `tools/web-smoke.ps1 -SkipExport`, or serve the
+build locally with `tools/serve-web.ps1`. These commands produce ignored development artifacts in
+`build/`. Android release signing values must come from environment variables and must never be
+stored in the repository. See
 [`docs/RELEASES.md`](docs/RELEASES.md) for the signed AAB workflow and release checklist.
 
 ## Repository map

@@ -29,6 +29,7 @@ are produced successfully.
 - One chest tap with shake/haptic feedback, opening celebration, and coin/XP count-up.
 - Mastery saved after every answer; an interrupted series is discarded without a reward.
 - Responsive Czech and English UI on a physical Android device.
+- Adaptive static Web build that fits a phone viewport and uses a 900×900 desktop reference.
 
 Acceptance: a child can complete the complete repeating loop without instruction, receive a
 reward, return to the blob, and relaunch without losing recorded mastery or earned totals.
@@ -60,7 +61,7 @@ Acceptance: progression improves willingness to practice again without distracti
 - Final icons, store text/screenshots, privacy disclosure, versioning, and release keystore.
 - Signed AAB installed through an internal test track.
 - Physical-device lifecycle, safe areas, package size, and offline behavior verified.
-- Windows build remains a convenient matching test target.
+- Windows and Web builds remain convenient matching test targets.
 
 Acceptance: the internal Play build installs, updates, runs fully offline, and retains its save.
 

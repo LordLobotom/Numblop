@@ -144,3 +144,16 @@
   Its two 54px actions stack below 420px screen width and sit side by side on wider portraits.
 - Tapping outside, pressing Cancel, Escape, or Android Back closes the overlay without leaving
   Settings. Confirming still flushes audio preferences before emitting the game-exit request.
+
+## 2026-08-02 — Adaptive Web export
+
+- Web is a static secondary build of the same game, with no backend, analytics, remote
+  configuration, or gameplay networking. PWA support is deferred beyond M1.
+- The exported canvas follows the browser viewport. A 390×844 phone remains the compact reference;
+  900×900 is the wide desktop reference, at least twice the original development width. Responsive
+  containers consume the extra horizontal room while focused content stays centered.
+- M1 uses Godot's threadless Web template with the Compatibility renderer. This keeps ordinary
+  static hosting simple and avoids cross-origin-isolation requirements while retaining sample
+  audio support.
+- Web saves remain in browser storage for the deployment origin. Clearing site data or moving the
+  build to a different origin starts a new local profile; no account or cloud migration is added.

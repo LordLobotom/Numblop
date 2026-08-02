@@ -90,6 +90,11 @@ mastery, streak update, reward, purchase, and equip save preserves the other loc
 - Logical portrait viewport: 390 × 844.
 - Android orientation: locked portrait.
 - Desktop override: 450 × 900, centered on the usable monitor area.
+- Web export: adaptive browser canvas with 390 × 844 phone and 900 × 900 wide-desktop QA
+  references. `canvas_items` plus `expand` preserves the logical scale while containers use the
+  additional width; centered content such as the map and Cosmetics grids does not stretch.
+- Web uses the threadless Godot template and WebGL 2 through the Compatibility renderer. The MVP
+  is a static build with no backend, PWA, remote configuration, or gameplay networking.
 - Renderer: GL Compatibility for broad 2D Android hardware support.
 - Layout uses Control containers and must tolerate narrow/tall safe areas.
 - Number-entry questions use an in-game numeric keypad, not the platform soft keyboard.

@@ -275,6 +275,12 @@ func test_cosmetics_screen_has_compact_shop_purchase_and_navigation_contracts() 
     check(scene.get_node("%GlassesGrid") is GridContainer, "Glasses shop grid")
     check(scene.get_node("%NecklacesGrid") is GridContainer, "Necklace shop grid")
     equal(scene.get_node("%NecklacesGrid").columns, 4, "Empty slot plus three necklaces")
+    for grid_name in ["ColorGrid", "HatsGrid", "GlassesGrid", "NecklacesGrid"]:
+        var grid: GridContainer = scene.get_node("%%%s" % grid_name)
+        check(
+            grid.size_flags_horizontal == Control.SIZE_SHRINK_CENTER,
+            "%s stays centered in wide layouts" % grid_name
+        )
     check(scene.get_node("%PurchaseButton").custom_minimum_size.y >= 48.0, "Buy touch target")
     for button_name in ["OutfitButton", "MapButton", "HomeButton", "TrophyButton", "SettingsButton"]:
         var button: BaseButton = scene.get_node("%%%s" % button_name)

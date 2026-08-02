@@ -19,6 +19,8 @@ func test_web_commands_install_export_serve_and_validate_real_artifacts() -> voi
     var smoke := _read("res://tools/web-smoke.ps1")
     check(export_script.contains('"web"'), "Scripted Web export target")
     check(export_script.contains('"Web"'), "Web preset invocation")
+    check(export_script.contains('".gdignore"'), "Build directory is excluded from imports")
+    check(export_script.contains("Remove-Item -LiteralPath"), "Web output is cleaned before export")
     check(installer.contains("web_nothreads_debug.zip"), "Debug Web template installer")
     check(installer.contains("web_nothreads_release.zip"), "Release Web template installer")
     check(server.contains('"application/wasm"'), "Correct WASM MIME type")

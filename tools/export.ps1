@@ -14,6 +14,10 @@ $repoRoot = Split-Path $PSScriptRoot -Parent
 $buildRoot = Join-Path $repoRoot "build"
 $godot = Resolve-NumblopGodot -GodotPath $GodotPath
 New-Item -ItemType Directory -Path $buildRoot -Force | Out-Null
+$buildIgnorePath = Join-Path $buildRoot ".gdignore"
+if (-not (Test-Path -LiteralPath $buildIgnorePath -PathType Leaf)) {
+    [System.IO.File]::WriteAllText($buildIgnorePath, "")
+}
 Initialize-NumblopProject -Godot $godot -RepoRoot $repoRoot
 
 switch ($Target) {
@@ -58,6 +62,19 @@ switch ($Target) {
     }
     "web" {
         $webRoot = Join-Path $buildRoot "web"
+        $resolvedBuildRoot = [System.IO.Path]::GetFullPath($buildRoot).TrimEnd(
+            [System.IO.Path]::DirectorySeparatorChar
+        )
+        $resolvedWebRoot = [System.IO.Path]::GetFullPath($webRoot)
+        if (-not $resolvedWebRoot.StartsWith(
+            "$resolvedBuildRoot$([System.IO.Path]::DirectorySeparatorChar)",
+            [System.StringComparison]::OrdinalIgnoreCase
+        )) {
+            throw "Refusing to clean Web output outside the build directory: $resolvedWebRoot"
+        }
+        if (Test-Path -LiteralPath $resolvedWebRoot) {
+            Remove-Item -LiteralPath $resolvedWebRoot -Recurse -Force
+        }
         New-Item -ItemType Directory -Path $webRoot -Force | Out-Null
         $arguments = @(
             "--headless", "--path", $repoRoot,

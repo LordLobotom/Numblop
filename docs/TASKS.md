@@ -55,6 +55,8 @@ Status values: `TODO`, `WIP(@agent)`, `BLOCKED(reason)`, `DONE`.
   layer, localization, shader, and UI tests.
 - `B13 DONE` Apply red/yellow/gold/green fact-detail colors and replace the native exit prompt with
   a compact responsive themed overlay. Depends: B11. Owns: map/settings/main UI and UI tests.
+- `B14 DONE` Center Cosmetics item grids within the wider Web layout while preserving the compact
+  phone presentation. Depends: B9. Owns: Cosmetics scene and responsive artifacts.
 - `C1 DONE` Session controller, per-answer mastery saves, and discard-on-interruption behavior.
   Depends: A1. Owns: `scripts/app/SessionController.gd`, autoload changes, state tests.
 - `C2 DONE` Local coin/XP/level persistence and atomic application of the accuracy-linked M1
@@ -100,6 +102,9 @@ Status values: `TODO`, `WIP(@agent)`, `BLOCKED(reason)`, `DONE`.
   sizes. Depends: B13. Owns: capture harness and artifacts.
 - `D11 DONE` Refresh the root README with the current M1 loop, learning gate, local progression,
   QA/export commands, repository map, and documentation entry points. Owns: `README.md`.
+- `D12 DONE` Add a threadless adaptive Web export, targeted template installer, static HTTP/MIME
+  smoke server, and 390×844/900×900 responsive QA coverage. Owns: Web preset, `tools/`, smoke
+  tests, release documentation, and responsive harness.
 
 Claim the lowest-numbered unblocked task in your track. Only the stated owner changes the task's
 owned files; coordinate contract changes through the owning track.
