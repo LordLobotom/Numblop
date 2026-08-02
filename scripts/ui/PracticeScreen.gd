@@ -7,6 +7,9 @@ signal feedback_gate
 
 const CORRECT_FEEDBACK_SECONDS := 0.6
 const MILESTONE_FEEDBACK_SECONDS := 3.6
+## The correction picture fills in over this long before Continue appears, so the explanation
+## cannot be tapped away before it has been seen. After that the child has all the time they want.
+const WRONG_DOTS_REVEAL_SECONDS := 1.2
 
 @onready var progress_label: Label = %ProgressLabel
 @onready var exit_button: Button = %ExitButton
@@ -20,6 +23,8 @@ const MILESTONE_FEEDBACK_SECONDS := 3.6
 @onready var milestone_status_label: Label = %MilestoneStatusLabel
 @onready var milestone_reward_label: Label = %MilestoneRewardLabel
 @onready var correct_equation: Label = %CorrectEquation
+@onready var dot_fact_visual: DotFactVisual = %DotFactVisual
+@onready var dot_hint: Label = %DotHint
 @onready var continue_button: Button = %ContinueButton
 @onready var milestone_skip_button: Button = %MilestoneSkipButton
 
@@ -93,6 +98,11 @@ func show_answer_feedback(
         else:
             await _wait_for_milestone_feedback()
     else:
+        await _wait_for_dot_reveal()
+        if _feedback_cancelled:
+            return
+        continue_button.visible = true
+        continue_button.grab_focus()
         await feedback_gate
     if _feedback_cancelled:
         return
@@ -117,12 +127,23 @@ func _present_answer_feedback(
         )
         feedback_title.modulate = Color(0.24, 0.63, 0.2)
         correct_equation.visible = false
+        dot_fact_visual.visible = false
+        dot_hint.visible = false
         continue_button.visible = false
     else:
         feedback_title.text = tr("PRACTICE_INCORRECT")
         feedback_title.modulate = Color(0.33, 0.25, 0.5)
         correct_equation.text = format_complete_equation(record)
         correct_equation.visible = true
+        # This leaves the finished state on purpose: contract tests and the capture harness call
+        # this synchronously, and `show_answer_feedback` rewinds it to animate.
+        dot_fact_visual.set_fact(record.table_value, record.multiplier)
+        dot_fact_visual.reveal_progress = 1.0
+        dot_fact_visual.visible = true
+        dot_hint.text = tr(
+            "PRACTICE_DOTS_ZERO_HINT" if dot_fact_visual.is_empty_fact() else "PRACTICE_DOTS_HINT"
+        )
+        dot_hint.visible = true
         continue_button.text = tr("PRACTICE_CONTINUE")
         continue_button.visible = true
         continue_button.grab_focus()
@@ -233,6 +254,31 @@ func _on_continue_feedback_pressed() -> void:
 func _on_milestone_skip_pressed() -> void:
     if feedback_overlay.visible and not _active_milestone.is_empty():
         feedback_gate.emit()
+
+
+## Fills the correction picture in, then releases. Races the tween against `feedback_gate` exactly
+## like the milestone wait does: `Tween.kill()` never emits `finished`, so awaiting the tween
+## alone would hang this coroutine — and `Main._on_answer_submitted` is awaiting it.
+func _wait_for_dot_reveal() -> void:
+    continue_button.visible = false
+    continue_button.release_focus()
+    dot_fact_visual.reveal_progress = 0.0
+    var reveal := create_tween()
+    reveal.tween_property(
+        dot_fact_visual,
+        "reveal_progress",
+        1.0,
+        WRONG_DOTS_REVEAL_SECONDS
+    ).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+    var finish_reveal := func() -> void:
+        feedback_gate.emit()
+    reveal.finished.connect(finish_reveal, CONNECT_ONE_SHOT)
+    await feedback_gate
+    if reveal.finished.is_connected(finish_reveal):
+        reveal.finished.disconnect(finish_reveal)
+    if reveal.is_valid():
+        reveal.kill()
+    dot_fact_visual.reveal_progress = 1.0
 
 
 func _wait_for_milestone_feedback() -> void:

@@ -91,7 +91,11 @@ price followed by the coin crest.
 - Present one question at a time using four choices, six choices, or the numeric keypad.
 - A correct answer receives short positive visual/audio feedback and advances.
 - An incorrect answer shows the complete correct equation, for example `7 × 4 = 28`, using
-  calm and positive presentation. Wait for a tap before advancing.
+  calm and positive presentation, followed by a domino-style dot picture of the fact so the child
+  sees the quantity and not only the digits. The picture fills in over 1.2 seconds and the
+  continue control appears only once it is complete; after that wait for a tap before advancing,
+  with no time limit. This correction is presentation only: it never adds a question, changes
+  mastery, counts as an attempt, or affects the streak.
 - Never show a stressful answer countdown.
 - Do not display the completed-series coin or experience reward during the question series. The
   immediate 5-coin fact-milestone celebration is the only exception.

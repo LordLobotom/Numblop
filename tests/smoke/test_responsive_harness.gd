@@ -32,6 +32,8 @@ func test_responsive_harness_covers_every_m1_screen_state() -> void:
         "settings_exit",
         "choice",
         "milestone",
+        "correction",
+        "correction_max",
         "keypad",
         "reward",
         "reward_opened",

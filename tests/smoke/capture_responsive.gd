@@ -24,6 +24,8 @@ const SCREENS: Array[String] = [
     "settings_exit",
     "choice",
     "milestone",
+    "correction",
+    "correction_max",
     "keypad",
     "reward",
     "reward_opened",
@@ -101,7 +103,7 @@ func _capture_screen(locale: String, capture_size: Vector2i, screen_name: String
 
 func _create_screen(screen_name: String) -> Control:
     var scene_path := "res://scenes/screens/HomeScreen.tscn"
-    if screen_name in ["choice", "milestone", "keypad"]:
+    if screen_name in ["choice", "milestone", "keypad", "correction", "correction_max"]:
         scene_path = "res://scenes/screens/PracticeScreen.tscn"
     elif screen_name in ["cosmetics", "cosmetics_color", "cosmetics_buy", "cosmetics_hat"]:
         scene_path = "res://scenes/screens/CosmeticsScreen.tscn"
@@ -271,6 +273,27 @@ func _configure_screen(screen: Control, screen_name: String, locale: String) -> 
                 "mastery": 84,
                 "reward_coins": 5,
             })
+        "correction", "correction_max":
+            var practice := screen as PracticeScreen
+            # 7x4 is the typical split-face case; 9x9 is the heaviest layout the solver can hit.
+            var table_value := 9 if screen_name == "correction_max" else 7
+            var multiplier := 9 if screen_name == "correction_max" else 4
+            var question := PracticeQuestion.new(
+                table_value,
+                multiplier,
+                LearningRules.QuestionMode.CHOICE_FOUR,
+                [table_value * multiplier, table_value * multiplier + 1]
+            )
+            practice.show_question(question, 3, LearningRules.SESSION_LENGTH)
+            practice._present_answer_feedback(
+                SessionResult.AnswerRecord.new(
+                    3,
+                    question,
+                    table_value * multiplier + 1,
+                    1.0,
+                    30
+                )
+            )
         "keypad":
             var practice := screen as PracticeScreen
             practice.show_question(

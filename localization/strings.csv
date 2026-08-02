@@ -50,6 +50,8 @@ PRACTICE_MILESTONE_TITLE,Success,Úspěch
 PRACTICE_MILESTONE_REWARD,+{coins} coins,+{coins} mincí
 PRACTICE_MILESTONE_SKIP_ACCESSIBLE,Continue now,Pokračovat hned
 PRACTICE_CONTINUE,Continue,Pokračovat
+PRACTICE_DOTS_HINT,Count the dots.,Spočítej tečky.
+PRACTICE_DOTS_ZERO_HINT,Zero groups. Nothing to count.,Nula skupin. Není co počítat.
 KEYPAD_DELETE,Delete the last digit,Smazat poslední číslici
 KEYPAD_SUBMIT,Submit the answer,Potvrdit výsledek
 REWARD_TITLE,You found a reward chest!,Našel jsi truhlu s odměnou!

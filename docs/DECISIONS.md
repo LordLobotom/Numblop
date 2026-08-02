@@ -276,3 +276,33 @@
 - The finished page is held for eight seconds so a child can read it, and a tap anywhere skips
   the remaining wait. The skip surface is invisible and only becomes active once the reveal is
   complete; returning home can happen only once.
+
+## 2026-08-02 — Visual correction moment after a wrong answer
+
+- Every incorrect answer now shows a domino-style dot picture of the fact under the complete
+  equation. This extends the wrong-answer rule in `GAME_DESIGN.md`, which previously promised only
+  the equation.
+- The picture is not gated by mastery. It only ever appears after a mistake, which is precisely
+  when help is wanted, and one rule keeps the feedback predictable for a child.
+- A fact is drawn as `min(table, multiplier)` groups of `max(table, multiplier)` dots: `3 × 4` is
+  three groups of four, `7 × 4` is four groups of seven. The smaller factor is chosen as the group
+  count for readability; this commutes some facts on purpose.
+- Counts 1–6 use die faces. Counts 7–9 use the domino split `5 + remainder` on a 2:1 wide card
+  with a divider. The wide aspect was chosen because it is the only one that fits three columns
+  inside the 288 px usable width of the feedback panel.
+- `× 0` draws one empty frame with a dedicated sentence rather than nothing at all, so the reveal
+  always has exactly one card to time against.
+- Both the decomposition and the layout solver live in `scripts/core/DotVisualization.gd`. Keeping
+  the solver in core makes "every one of the 80 facts fits 288×200 without overlapping" an
+  exhaustive headless unit test instead of something only a real layout pass could catch. The
+  drawn control owns nothing but colour and `_draw`.
+- The tap gate is preserved, but the continue control is withheld until the 1.2-second reveal
+  finishes, so a fast tap can no longer skip the explanation. After that there is no time limit.
+- `PracticeScreen._present_answer_feedback` stays synchronous and produces the fully revealed
+  state; `show_answer_feedback` rewinds and animates it. Captures and contract tests therefore get
+  a deterministic picture with no settle wait.
+- The reveal races its tween against `feedback_gate`, mirroring the milestone wait. `Tween.kill()`
+  never emits `finished`, so awaiting the tween alone would hang `Main._on_answer_submitted`
+  forever when a session is interrupted mid-reveal.
+- The correction is presentation only and cannot add a question, change mastery, count as an
+  attempt, or affect the streak: all scoring completes before the presentation await.

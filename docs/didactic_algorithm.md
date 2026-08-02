@@ -58,6 +58,29 @@ Using the exact ranges of 0–59, 60–89, and 90–100 prevents ambiguity durin
 
 ---
 
+## 4a. Visual Correction Support
+
+After **every** incorrect answer, regardless of the fact's mastery value, the correction shows a
+domino-style dot picture of the fact underneath the complete equation. A mistake is exactly the
+moment help is wanted, so this is not gated by mastery band; one rule keeps the feedback
+predictable for a child.
+
+- The fact is drawn as `min(table, multiplier)` groups holding `max(table, multiplier)` dots each.
+  So `3 × 4` is three groups of four, and `7 × 4` is four groups of seven. Choosing the smaller
+  factor as the group count keeps the picture readable; it commutes some facts, which is
+  mathematically sound and intentional.
+- Counts of 1–6 are drawn as the familiar die faces. Counts of 7–9 use the domino decomposition
+  `5 + remainder`, so 7 is 5 + 2, 8 is 5 + 3, and 9 is 5 + 4. Recognising five at a glance is what
+  makes the larger quantities readable without counting one by one.
+- `× 0` has no groups. It draws a single empty frame and says so in words.
+- The picture is generated programmatically for all 80 facts; there is no per-fact artwork.
+
+This correction is **presentation only**. It never adds a scored question, changes a mastery
+value, counts as an attempt, affects the streak, or alters the exactly-10-questions contract. All
+scoring for the answer has already completed before the correction is shown.
+
+---
+
 ## 5. One Game
 
 One game contains **10 questions**:

@@ -97,12 +97,93 @@ func test_wrong_feedback_has_complete_equation_and_tap_gate() -> void:
     var continue_button: Button = scene.get_node("%ContinueButton")
     check(continue_button.custom_minimum_size.y >= 48.0, "Continue touch target")
     check(scene.get_node("%CorrectEquation") is Label, "Complete equation label")
+    check(scene.get_node("%DotFactVisual") is DotFactVisual, "Drawn correction picture")
+    check(scene.get_node("%DotHint") is Label, "Correction hint label")
+    equal(scene.WRONG_DOTS_REVEAL_SECONDS, 1.2, "The correction fills in before Continue appears")
 
     var question := PracticeQuestion.new(7, 4, LearningRules.QuestionMode.CHOICE_FOUR, [21, 28, 32, 35])
     var session := SessionResult.new(_ten_copies(question))
     var record := session.record_answer(21, 1.0, 0)
     equal(scene.format_complete_equation(record), "7 × 4 = 28", "Complete correction")
     scene.free()
+
+
+func test_a_wrong_answer_explains_the_fact_with_domino_dots() -> void:
+    var packed: PackedScene = load("res://scenes/screens/PracticeScreen.tscn")
+    var scene: PracticeScreen = packed.instantiate()
+    var scene_tree := Engine.get_main_loop() as SceneTree
+    scene_tree.root.add_child(scene)
+    var visual: DotFactVisual = scene.get_node("%DotFactVisual")
+    var hint: Label = scene.get_node("%DotHint")
+
+    scene._present_answer_feedback(_wrong_record(3, 4))
+    check(visual.visible, "Wrong answers show the correction picture")
+    check(hint.visible, "Wrong answers explain what to count")
+    equal(visual.card_count(), 3, "3x4 draws three groups")
+    equal(visual.reveal_progress, 1.0, "The synchronous state is fully revealed for captures")
+    check(scene.get_node("%ContinueButton").visible, "The synchronous state can be continued")
+
+    scene._present_answer_feedback(_wrong_record(7, 4))
+    equal(visual.card_count(), 4, "7x4 draws four groups of seven")
+
+    var previous_locale := TranslationServer.get_locale()
+    TranslationServer.set_locale("cs")
+    scene._present_answer_feedback(_wrong_record(3, 4))
+    equal(hint.text, "Spočítej tečky.", "Czech correction hint")
+    scene._present_answer_feedback(_wrong_record(7, 0))
+    check(visual.is_empty_fact(), "Times zero has no groups to draw")
+    equal(hint.text, "Nula skupin. Není co počítat.", "Czech zero-group hint")
+    TranslationServer.set_locale(previous_locale)
+
+    scene._present_answer_feedback(_correct_record(3, 4))
+    check(not visual.visible, "A correct answer needs no correction picture")
+    check(not hint.visible, "A correct answer needs no correction hint")
+    scene_tree.root.remove_child(scene)
+    scene.free()
+
+
+func test_the_reveal_withholds_continue_and_survives_an_interrupted_session() -> void:
+    var packed: PackedScene = load("res://scenes/screens/PracticeScreen.tscn")
+    var scene: PracticeScreen = packed.instantiate()
+    var scene_tree := Engine.get_main_loop() as SceneTree
+    scene_tree.root.add_child(scene)
+    var visual: DotFactVisual = scene.get_node("%DotFactVisual")
+    var continue_button: Button = scene.get_node("%ContinueButton")
+
+    scene._present_answer_feedback(_wrong_record(3, 4))
+    # Runs synchronously up to its own `await feedback_gate`.
+    scene._wait_for_dot_reveal()
+    check(not continue_button.visible, "Continue is withheld while the picture fills in")
+    equal(visual.reveal_progress, 0.0, "The reveal rewinds the finished state and replays it")
+
+    # Leaving mid-reveal must release the wait; a killed tween never emits `finished`, so this is
+    # the path that would otherwise hang Main._on_answer_submitted forever.
+    scene.cancel_feedback()
+    check(scene._feedback_cancelled, "Interrupting marks the feedback cancelled")
+    equal(visual.reveal_progress, 1.0, "The interrupted reveal leaves a clean state behind")
+    check(not scene.get_node("%FeedbackOverlay").visible, "Interrupting hides the overlay")
+    scene_tree.root.remove_child(scene)
+    scene.free()
+
+
+func _wrong_record(table_value: int, multiplier: int) -> SessionResult.AnswerRecord:
+    var question := PracticeQuestion.new(
+        table_value,
+        multiplier,
+        LearningRules.QuestionMode.CHOICE_FOUR,
+        [table_value * multiplier, table_value * multiplier + 1]
+    )
+    return SessionResult.AnswerRecord.new(0, question, table_value * multiplier + 1, 1.0, 20)
+
+
+func _correct_record(table_value: int, multiplier: int) -> SessionResult.AnswerRecord:
+    var question := PracticeQuestion.new(
+        table_value,
+        multiplier,
+        LearningRules.QuestionMode.CHOICE_FOUR,
+        [table_value * multiplier, table_value * multiplier + 1]
+    )
+    return SessionResult.AnswerRecord.new(0, question, table_value * multiplier, 1.0, 20)
 
 
 func test_mastery_milestone_feedback_names_fact_band_and_coin_bonus_in_czech() -> void:

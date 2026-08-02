@@ -185,6 +185,13 @@ Status values: `TODO`, `WIP(@agent)`, `BLOCKED(reason)`, `DONE`.
   achievements, local progress, save manager, app state, state tests.
 - `D19 DONE` Responsive captures for the island achievement list and the fully revealed
   end-of-round page. Depends: B28. Owns: capture harness, capture command, smoke tests.
+- `A10 DONE` Deterministic dot-visualization decomposition and layout solver for the wrong-answer
+  correction, with an exhaustive fit test across all 80 facts. Owns: `scripts/core/`, core tests.
+- `B29 DONE` Domino dot correction moment on the wrong-answer feedback panel: drawn control,
+  staggered reveal, continue withheld until the picture completes, bilingual hints. Depends: A10.
+  Owns: practice scene/script, `scripts/ui/DotFactVisual.gd`, localization, UI tests.
+- `D20 DONE` Responsive captures for the correction moment (typical 7×4 and the 9×9 worst case).
+  Depends: B29. Owns: capture harness, capture command, smoke tests.
 
 Claim the lowest-numbered unblocked task in your track. Only the stated owner changes the task's
 owned files; coordinate contract changes through the owning track.

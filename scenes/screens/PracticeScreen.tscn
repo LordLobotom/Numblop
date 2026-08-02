@@ -1,9 +1,10 @@
-[gd_scene load_steps=9 format=3]
+[gd_scene load_steps=10 format=3]
 
 [ext_resource type="Script" path="res://scripts/ui/PracticeScreen.gd" id="1_script"]
 [ext_resource type="Texture2D" path="res://assets/backgrounds/mianscreen_background.png" id="2_background"]
 [ext_resource type="PackedScene" path="res://scenes/components/NumericKeypad.tscn" id="3_keypad"]
 [ext_resource type="Font" path="res://ui/fonts/Baloo2Bold.tres" id="4_bold"]
+[ext_resource type="Script" path="res://scripts/ui/DotFactVisual.gd" id="5_dot_visual"]
 
 [sub_resource type="StyleBoxFlat" id="QuestionCard"]
 bg_color = Color(1, 1, 1, 0.94)
@@ -328,6 +329,24 @@ theme_override_font_sizes/font_size = 42
 text = "7 × 4 = 28"
 horizontal_alignment = 1
 vertical_alignment = 1
+
+[node name="DotFactVisual" type="Control" parent="FeedbackOverlay/Center/FeedbackPanel/Content"]
+unique_name_in_owner = true
+visible = false
+custom_minimum_size = Vector2(0, 120)
+layout_mode = 2
+mouse_filter = 2
+script = ExtResource("5_dot_visual")
+
+[node name="DotHint" type="Label" parent="FeedbackOverlay/Center/FeedbackPanel/Content"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+theme_override_colors/font_color = Color(0.35, 0.33, 0.42, 1)
+theme_override_font_sizes/font_size = 18
+text = "PRACTICE_DOTS_HINT"
+horizontal_alignment = 1
+autowrap_mode = 2
 
 [node name="ContinueButton" type="Button" parent="FeedbackOverlay/Center/FeedbackPanel/Content"]
 unique_name_in_owner = true
