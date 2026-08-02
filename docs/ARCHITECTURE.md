@@ -47,8 +47,8 @@ Core scripts never access nodes, singletons, files, time, locale, or platform AP
   when an incorrect answer interrupts a streak.
 - `AppState` owns the loaded `LearningProfile` and active question session. Runtime random
   seeds are chosen here, outside the deterministic generator. It projects capped aggregate
-  mastery into read-only map-stage progress and forwards table-unlock domain events; scenes never
-  calculate mastery or decide unlocking.
+  mastery plus each fact's mastery band into read-only map-stage progress and forwards table-unlock
+  domain events; scenes never calculate mastery or decide unlocking.
 
 ## Save contract
 
@@ -93,7 +93,9 @@ mastery, streak update, reward, purchase, and equip save preserves the other loc
 - Number-entry questions use an in-game numeric keypad, not the platform soft keyboard.
 - The stage map consumes `AppState` presentation dictionaries. Partial mastery moves its progress
   bars, and an unlock event can reveal the next island without giving UI code authority over the
-  learning rule.
+  learning rule. Unlocked islands are touch targets that open a bilingual ten-fact detail. The
+  winding canvas remains 350px wide inside a centering container so wider portrait windows add
+  balanced side space instead of stretching the trail.
 - The Cosmetics screen consumes an `AppState` catalog/inventory projection. A palette shader
   recolors only body, arm, and leg pixels while preserving facial layers, outlines, and the belly.
   Supplied accessories keep their 768×768 authoring coordinates: their layer spans 150% of the

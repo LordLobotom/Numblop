@@ -10,6 +10,7 @@ const SCREENS: Array[String] = [
     "cosmetics_buy",
     "trophy",
     "map",
+    "map_detail",
     "map_unlock",
     "settings",
     "choice",
@@ -95,7 +96,7 @@ func _create_screen(screen_name: String) -> Control:
         scene_path = "res://scenes/screens/CosmeticsScreen.tscn"
     elif screen_name == "trophy":
         scene_path = "res://scenes/screens/TrophyScreen.tscn"
-    elif screen_name == "map" or screen_name == "map_unlock":
+    elif screen_name in ["map", "map_detail", "map_unlock"]:
         scene_path = "res://scenes/screens/MapScreen.tscn"
     elif screen_name == "settings":
         scene_path = "res://scenes/screens/SettingsScreen.tscn"
@@ -170,24 +171,37 @@ func _configure_screen(screen: Control, screen_name: String, locale: String) -> 
                     {"count": 37, "ended_at_unix": 1785765600, "utc_offset_minutes": 120},
                 ],
             })
-        "map", "map_unlock":
+        "map", "map_detail", "map_unlock":
             var map_screen := screen as MapScreen
             var stage_states: Array[Dictionary] = []
             var progress_max := LearningRules.UNLOCK_MASTERY * LearningRules.MULTIPLIERS.size()
             for index in LearningRules.TABLES.size():
+                var facts := _map_capture_facts(index)
+                var progress_points := 0
+                var mastered_facts := 0
+                for fact in facts:
+                    progress_points += mini(int(fact["mastery"]), LearningRules.UNLOCK_MASTERY)
+                    if int(fact["mastery"]) >= LearningRules.UNLOCK_MASTERY:
+                        mastered_facts += 1
                 stage_states.append({
                     "table": LearningRules.TABLES[index],
                     "unlocked": index <= 2,
                     "current": index == 2,
                     "completed": index < 2,
-                    "mastered_facts": 10 if index < 2 else (4 if index == 2 else 0),
-                    "progress_points": progress_max if index < 2 else (430 if index == 2 else 0),
+                    "mastered_facts": mastered_facts,
+                    "progress_points": progress_max if index < 2 else progress_points,
                     "progress_max": progress_max,
-                    "progress_percent": 100 if index < 2 else (54 if index == 2 else 0),
+                    "progress_percent": (
+                        100 if index < 2
+                        else int(round(100.0 * progress_points / progress_max))
+                    ),
+                    "facts": facts,
                 })
             if screen_name == "map_unlock":
                 map_screen.show_table_unlocked(4)
             map_screen.set_stage_states(stage_states)
+            if screen_name == "map_detail":
+                map_screen.show_table_details(4)
         "settings":
             SettingsManager.locale_preference = locale
             var settings_screen := screen as SettingsScreen
@@ -231,3 +245,29 @@ func _cosmetic_capture_items(category: String, selected_id: String) -> Array[Dic
         item["selected"] = item_id == selected_id
         items.append(item)
     return items
+
+
+func _map_capture_facts(stage_index: int) -> Array[Dictionary]:
+    var values: Array[int] = []
+    if stage_index < 2:
+        values = [90, 92, 95, 100, 88, 94, 91, 86, 97, 90]
+    elif stage_index == 2:
+        values = [12, 30, 59, 60, 68, 79, 80, 84, 90, 100]
+    else:
+        values = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+    var facts: Array[Dictionary] = []
+    for multiplier in LearningRules.MULTIPLIERS:
+        var mastery := values[multiplier]
+        var status := &"building"
+        if mastery >= LearningRules.AUTOMATED_MASTERY:
+            status = &"automated"
+        elif mastery >= LearningRules.UNLOCK_MASTERY:
+            status = &"mastered"
+        elif LearningRules.mode_for_mastery(mastery) == LearningRules.QuestionMode.CHOICE_SIX:
+            status = &"practicing"
+        facts.append({
+            "multiplier": multiplier,
+            "mastery": mastery,
+            "status": status,
+        })
+    return facts

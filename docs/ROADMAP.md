@@ -17,7 +17,8 @@ are produced successfully.
 - Short Numblop opening, remembered Czech/English choice, and Fredoka UI.
 - Interactive blob home with idle/petting reactions and a shared coin/XP/level/streak bar.
 - Outfit/Map/Home/Trophies/Settings crest navigation and a read-only multiplication-stage trail
-  that continuously reflects didactic mastery and reveals a newly unlocked island.
+  that continuously reflects didactic mastery, reveals a newly unlocked island, and exposes a
+  centered bilingual ten-fact detail when an unlocked island is tapped.
 - Trophies lists timestamped, strictly increasing correct-answer streak records.
 - Settings with English/Czech crests, music/SFX volume, global mute, and confirmed game exit.
 - Background music and friendly interaction sounds for Numblop, navigation, answers, and rewards.

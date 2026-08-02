@@ -116,3 +116,13 @@
   mastery thresholds, or exact 10-question adaptive mix.
 - Its factor growth, question selection, difficulty, persistence, and completion semantics require
   a dedicated didactic design decision before implementation.
+
+## 2026-08-02 — Per-fact island detail and centered map
+
+- Every unlocked island is a large touch target. Tapping it opens a dismissible detail with all ten
+  facts, exact 0–100 progress bars, and the existing building/practicing/mastered/automatic bands
+  supplied by application state. The overlay never mutates learning state.
+- Aggregate progress remains capped at 80 per fact. A stage that has not met all ten gates displays
+  at most 99%, avoiding a rounded 100% label before the next table unlocks.
+- The winding trail uses a centered 350px content canvas. Wider portrait windows retain balanced
+  margins instead of stretching the island path and status cards apart.

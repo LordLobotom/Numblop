@@ -168,11 +168,17 @@ func map_stage_states() -> Array[Dictionary]:
         var table_value: int = LearningRules.TABLES[index]
         var mastered_facts := 0
         var progress_points := 0
+        var facts: Array[Dictionary] = []
         for multiplier in LearningRules.MULTIPLIERS:
             var mastery := profile.get_mastery(table_value, multiplier)
             progress_points += mini(mastery, LearningRules.UNLOCK_MASTERY)
             if mastery >= LearningRules.UNLOCK_MASTERY:
                 mastered_facts += 1
+            facts.append({
+                "multiplier": multiplier,
+                "mastery": mastery,
+                "status": _fact_mastery_status(mastery),
+            })
         var final_stage_complete := (
             index == LearningRules.TABLES.size() - 1
             and mastered_facts == LearningRules.MULTIPLIERS.size()
@@ -183,6 +189,8 @@ func map_stage_states() -> Array[Dictionary]:
         var progress_percent := int(round(
             100.0 * float(progress_points) / float(progress_max)
         ))
+        if not completed:
+            progress_percent = mini(progress_percent, 99)
         stage_states.append({
             "table": table_value,
             "unlocked": index <= profile.highest_unlocked_index,
@@ -192,8 +200,19 @@ func map_stage_states() -> Array[Dictionary]:
             "progress_points": progress_points,
             "progress_max": progress_max,
             "progress_percent": progress_percent,
+            "facts": facts,
         })
     return stage_states
+
+
+func _fact_mastery_status(mastery: int) -> StringName:
+    if mastery >= LearningRules.AUTOMATED_MASTERY:
+        return &"automated"
+    if mastery >= LearningRules.UNLOCK_MASTERY:
+        return &"mastered"
+    if LearningRules.mode_for_mastery(mastery) == LearningRules.QuestionMode.CHOICE_SIX:
+        return &"practicing"
+    return &"building"
 
 
 func reset_local_profile() -> void:

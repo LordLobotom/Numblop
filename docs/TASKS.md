@@ -46,6 +46,8 @@ Status values: `TODO`, `WIP(@agent)`, `BLOCKED(reason)`, `DONE`.
   C7. Owns: cosmetic UI, shader, localization, and UI tests.
 - `B10 DONE` Shared four-value home stats bar and bilingual Trophy milestone list. Depends: B9,
   C8. Owns: home/trophy/main UI, localization, and UI tests.
+- `B11 DONE` Centered responsive stage trail and tappable bilingual ten-fact island detail.
+  Depends: B8, C9. Owns: map scene/script, main back flow, localization, and UI tests.
 - `C1 DONE` Session controller, per-answer mastery saves, and discard-on-interruption behavior.
   Depends: A1. Owns: `scripts/app/SessionController.gd`, autoload changes, state tests.
 - `C2 DONE` Local coin/XP/level persistence and atomic application of the accuracy-linked M1
@@ -62,6 +64,8 @@ Status values: `TODO`, `WIP(@agent)`, `BLOCKED(reason)`, `DONE`.
   purchase/equip persistence. Depends: C2. Owns: catalog/state, save/app coordination, state tests.
 - `C8 DONE` Persistent cross-series correct-answer streak and timestamped increasing-record history,
   saved atomically per answer. Depends: C1. Owns: streak model, save/app coordination, state tests.
+- `C9 DONE` Read-only per-fact mastery-band projection for map island details, including a 99%
+  pre-unlock display cap. Depends: C6. Owns: app-state map contract and state tests.
 - `D1 DONE` Responsive screenshot smoke harness at 390×844 and 450×900. Depends: B3.
   Owns: QA scripts, smoke scenes/tests, `artifacts/` output contract.
 - `D2 BLOCKED(no authorized physical Android device connected)` Physical Android install/run/log
@@ -77,6 +81,8 @@ Status values: `TODO`, `WIP(@agent)`, `BLOCKED(reason)`, `DONE`.
   coverage. Depends: B10, C8. Owns: capture harness and artifact verification.
 - `D7 DONE` Use the supplied Numblop branding icon for the project, Windows executable, and both
   Android launcher export presets. Owns: project/export icon configuration and smoke contract.
+- `D8 DONE` Add the populated island fact detail to bilingual responsive captures at both portrait
+  sizes. Depends: B11, C9. Owns: capture harness and artifact verification.
 
 Claim the lowest-numbered unblocked task in your track. Only the stated owner changes the task's
 owned files; coordinate contract changes through the owning track.

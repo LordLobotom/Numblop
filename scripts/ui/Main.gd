@@ -26,6 +26,7 @@ func _ready() -> void:
     map_screen.outfit_requested.connect(_on_cosmetics_requested)
     map_screen.trophy_requested.connect(_on_trophy_requested)
     map_screen.settings_requested.connect(_on_settings_requested)
+    map_screen.fact_detail_opened.connect(_play_confirm_sfx)
     settings_screen.home_requested.connect(_on_settings_home_requested)
     settings_screen.map_requested.connect(_on_settings_map_requested)
     settings_screen.outfit_requested.connect(_on_cosmetics_requested)
@@ -160,7 +161,8 @@ func _on_back_requested() -> void:
     elif settings_screen.visible:
         _on_settings_home_requested()
     elif map_screen.visible:
-        _on_map_return_requested()
+        if not map_screen.close_detail_if_open():
+            _on_map_return_requested()
 
 
 func _on_settings_requested() -> void:

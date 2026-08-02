@@ -109,10 +109,51 @@ func test_map_screen_has_all_stage_navigation_contracts() -> void:
     check(scene.has_signal("return_home_requested"), "Map can return home")
     check(scene.get_node("%Scroll") is ScrollContainer, "Map can reveal the new island")
     check(scene.get_node("%MapCanvas") is MapPath, "Winding trail canvas")
+    check(scene.get_node("%MapCenter") is CenterContainer, "Wide map remains centered")
+    equal(scene.get_node("%MapCanvas").custom_minimum_size.x, 350.0, "Readable map width")
+    check(scene.has_method("show_table_details"), "Unlocked island opens fact mastery")
+    check(scene.has_method("close_detail_if_open"), "Back closes fact mastery first")
+    check(scene.has_signal("fact_detail_opened"), "Island detail exposes selection feedback")
+    check(scene.get_node("%FactDetailOverlay") is Control, "Fact detail overlay")
+    check(scene.get_node("%FactGrid") is GridContainer, "Two-column fact grid")
+    equal(scene.get_node("%FactGrid").columns, 2, "Ten facts use two compact columns")
+    check(scene.get_node("%FactDetailClose").custom_minimum_size.y >= 48.0, "Close touch target")
     check(scene.get_node_or_null("%BackButton") == null, "Map has no top back arrow")
     for button_name in ["OutfitButton", "MapButton", "HomeButton", "TrophyButton", "SettingsButton"]:
         var button: BaseButton = scene.get_node("%%%s" % button_name)
         check(button.custom_minimum_size.y >= 48.0, "%s touch target" % button_name)
+
+    var scene_tree := Engine.get_main_loop() as SceneTree
+    scene_tree.root.add_child(scene)
+    var facts: Array[Dictionary] = []
+    for multiplier in LearningRules.MULTIPLIERS:
+        facts.append({
+            "multiplier": multiplier,
+            "mastery": multiplier * 10,
+            "status": &"building" if multiplier < 6 else &"practicing",
+        })
+    var stage_states: Array[Dictionary] = [{
+        "table": 2,
+        "unlocked": true,
+        "current": true,
+        "completed": false,
+        "progress_points": 360,
+        "progress_max": 800,
+        "progress_percent": 45,
+        "facts": facts,
+    }]
+    scene.set_stage_states(stage_states)
+    var island := scene.get_node("%MapCanvas").get_node("Stage2") as TextureButton
+    check(island != null, "Island is a button")
+    if island == null:
+        scene.free()
+        return
+    check(island.custom_minimum_size.y >= 48.0, "Island touch target")
+    island.pressed.emit()
+    check(scene.get_node("%FactDetailOverlay").visible, "Island detail opens")
+    equal(scene.get_node("%FactGrid").get_child_count(), 10, "All ten facts are shown")
+    check(scene.close_detail_if_open(), "Open detail consumes back")
+    check(not scene.get_node("%FactDetailOverlay").visible, "Fact detail closes")
     scene.free()
 
 

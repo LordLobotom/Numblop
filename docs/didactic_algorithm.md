@@ -221,3 +221,7 @@ These rules are part of the MVP and remove ambiguity during implementation:
 - A stage map may show continuous aggregate progress by summing each fact up to the 80-point gate.
   This presentation never changes the rule that all 10 facts must individually reach 80 before
   the next multiplication table unlocks.
+- Tapping an unlocked stage may show the ten individual fact values and their existing didactic
+  bands. This drill-down is read-only and does not affect selection, scoring, or unlocking. Until
+  every fact reaches the gate, a rounded aggregate label is capped at 99% rather than displaying a
+  misleading 100% on a still-locked stage.

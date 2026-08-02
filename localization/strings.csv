@@ -86,6 +86,15 @@ MAP_STAGE_COMPLETE,Trail cleared,Cesta splněna
 MAP_STAGE_LOCKED,Locked,Zamčeno
 MAP_STAGE_PROGRESS,Progress {percent}%,Pokrok {percent} %
 MAP_STAGE_UNLOCKED,The {table}× island is unlocked!,Ostrov {table}× je odemčený!
+MAP_STAGE_OPEN_DETAIL,View {table}× mastery,Zobrazit upevnění {table}×
+MAP_FACT_DETAIL_TITLE,{table}× facts,Spoje {table}×
+MAP_FACT_DETAIL_OVERALL,Island progress {percent}%,Pokrok ostrova {percent} %
+MAP_FACT_DETAIL_CLOSE,Close fact detail,Zavřít detail spojů
+MAP_FACT_PERCENT,{percent}%,{percent} %
+MAP_FACT_BUILDING,Building up,Začínám
+MAP_FACT_PRACTICING,Practicing,Procvičuji
+MAP_FACT_MASTERED,Mastered,Upevněno
+MAP_FACT_AUTOMATED,Automatic,Automatizováno
 NAV_SETTINGS,Settings,Nastavení
 NAV_HOME,Home,Domů
 SETTINGS_TITLE,Settings,Nastavení

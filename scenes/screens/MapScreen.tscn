@@ -1,4 +1,4 @@
-[gd_scene load_steps=12 format=3]
+[gd_scene load_steps=13 format=3]
 
 [ext_resource type="Script" path="res://scripts/ui/MapScreen.gd" id="1_script"]
 [ext_resource type="Script" path="res://scripts/ui/MapPath.gd" id="2_path"]
@@ -35,6 +35,19 @@ content_margin_right = 10.0
 content_margin_bottom = 4.0
 shadow_color = Color(0.1, 0.3, 0.26, 0.18)
 shadow_size = 5
+
+[sub_resource type="StyleBoxFlat" id="FactDetailPanel"]
+bg_color = Color(0.98, 1, 0.97, 0.99)
+corner_radius_top_left = 26
+corner_radius_top_right = 26
+corner_radius_bottom_right = 26
+corner_radius_bottom_left = 26
+content_margin_left = 14.0
+content_margin_top = 12.0
+content_margin_right = 14.0
+content_margin_bottom = 14.0
+shadow_color = Color(0.08, 0.2, 0.15, 0.34)
+shadow_size = 12
 
 [node name="MapScreen" type="Control"]
 layout_mode = 3
@@ -121,11 +134,17 @@ layout_mode = 2
 size_flags_vertical = 3
 horizontal_scroll_mode = 0
 
-[node name="MapCanvas" type="Control" parent="SafeArea/Content/Scroll"]
+[node name="MapCenter" type="CenterContainer" parent="SafeArea/Content/Scroll"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(350, 1180)
 layout_mode = 2
 size_flags_horizontal = 3
+
+[node name="MapCanvas" type="Control" parent="SafeArea/Content/Scroll/MapCenter"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(350, 1180)
+layout_mode = 2
+size_flags_horizontal = 4
 mouse_filter = 1
 script = ExtResource("2_path")
 
@@ -282,3 +301,116 @@ theme_override_colors/font_color = Color(0.2, 0.33, 0.27, 1)
 theme_override_font_sizes/font_size = 12
 text = "NAV_SETTINGS"
 horizontal_alignment = 1
+
+[node name="FactDetailOverlay" type="Control" parent="."]
+unique_name_in_owner = true
+visible = false
+z_index = 20
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 0
+
+[node name="Dim" type="ColorRect" parent="FactDetailOverlay"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0.06, 0.14, 0.11, 0.5)
+
+[node name="DismissButton" type="Button" parent="FactDetailOverlay"]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+focus_mode = 0
+flat = true
+
+[node name="OverlayMargin" type="MarginContainer" parent="FactDetailOverlay"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 1
+theme_override_constants/margin_left = 20
+theme_override_constants/margin_top = 20
+theme_override_constants/margin_right = 20
+theme_override_constants/margin_bottom = 20
+
+[node name="DetailCenter" type="CenterContainer" parent="FactDetailOverlay/OverlayMargin"]
+layout_mode = 2
+
+[node name="FactDetailPanel" type="PanelContainer" parent="FactDetailOverlay/OverlayMargin/DetailCenter"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(350, 620)
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+mouse_filter = 0
+theme_override_styles/panel = SubResource("FactDetailPanel")
+
+[node name="DetailContent" type="VBoxContainer" parent="FactDetailOverlay/OverlayMargin/DetailCenter/FactDetailPanel"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="DetailHeader" type="HBoxContainer" parent="FactDetailOverlay/OverlayMargin/DetailCenter/FactDetailPanel/DetailContent"]
+layout_mode = 2
+theme_override_constants/separation = 6
+alignment = 1
+
+[node name="FactDetailTitle" type="Label" parent="FactDetailOverlay/OverlayMargin/DetailCenter/FactDetailPanel/DetailContent/DetailHeader"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.18, 0.34, 0.22, 1)
+theme_override_fonts/font = ExtResource("7_bold")
+theme_override_font_sizes/font_size = 25
+text = "MAP_FACT_DETAIL_TITLE"
+vertical_alignment = 1
+
+[node name="FactDetailClose" type="Button" parent="FactDetailOverlay/OverlayMargin/DetailCenter/FactDetailPanel/DetailContent/DetailHeader"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(48, 48)
+layout_mode = 2
+focus_mode = 2
+mouse_default_cursor_shape = 2
+theme_override_colors/font_color = Color(0.22, 0.43, 0.26, 1)
+theme_override_colors/font_hover_color = Color(0.36, 0.7, 0.16, 1)
+theme_override_fonts/font = ExtResource("7_bold")
+theme_override_font_sizes/font_size = 28
+text = "×"
+flat = true
+
+[node name="FactDetailOverall" type="Label" parent="FactDetailOverlay/OverlayMargin/DetailCenter/FactDetailPanel/DetailContent"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.32, 0.45, 0.35, 1)
+theme_override_font_sizes/font_size = 15
+text = "MAP_FACT_DETAIL_OVERALL"
+horizontal_alignment = 1
+
+[node name="FactGrid" type="GridContainer" parent="FactDetailOverlay/OverlayMargin/DetailCenter/FactDetailPanel/DetailContent"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/h_separation = 8
+theme_override_constants/v_separation = 8
+columns = 2
+
+[node name="LegendGrid" type="GridContainer" parent="FactDetailOverlay/OverlayMargin/DetailCenter/FactDetailPanel/DetailContent"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/h_separation = 8
+theme_override_constants/v_separation = 2
+columns = 2

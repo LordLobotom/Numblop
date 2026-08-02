@@ -110,12 +110,32 @@ func test_map_stage_state_exposes_progress_without_changing_learning_rules() -> 
     equal(initial_states[0]["progress_points"], 0, "Initial island progress")
     equal(initial_states[0]["progress_max"], 800, "Documented 10 facts times 80 gate")
     equal(initial_states[0]["progress_percent"], 0, "Initial visible percentage")
+    equal(initial_states[0]["facts"].size(), 10, "Every island exposes its ten facts")
+    equal(initial_states[0]["facts"][0]["mastery"], 0, "Initial fact mastery")
+    equal(initial_states[0]["facts"][0]["status"], &"building", "Initial fact band")
 
     map_profile.set_mastery(2, 0, 40)
     var partial_states := AppState.map_stage_states()
     equal(partial_states[0]["mastered_facts"], 0, "No fact has crossed the gate yet")
     equal(partial_states[0]["progress_points"], 40, "Partial mastery remains visible")
     equal(partial_states[0]["progress_percent"], 5, "Partial progress is a percentage")
+
+    map_profile.set_mastery(2, 0, 59)
+    map_profile.set_mastery(2, 1, 60)
+    map_profile.set_mastery(2, 2, 80)
+    map_profile.set_mastery(2, 3, 90)
+    var band_states := AppState.map_stage_states()
+    equal(band_states[0]["facts"][0]["status"], &"building", "Four-choice band")
+    equal(band_states[0]["facts"][1]["status"], &"practicing", "Six-choice band")
+    equal(band_states[0]["facts"][2]["status"], &"mastered", "Unlock band")
+    equal(band_states[0]["facts"][3]["status"], &"automated", "Automaticity band")
+
+    for multiplier in range(9):
+        map_profile.set_mastery(2, multiplier, LearningRules.UNLOCK_MASTERY)
+    map_profile.set_mastery(2, 9, 76)
+    var almost_states := AppState.map_stage_states()
+    equal(almost_states[0]["progress_points"], 796, "Aggregate can approach the gate")
+    equal(almost_states[0]["progress_percent"], 99, "Locked island never displays 100 percent")
 
     for multiplier in LearningRules.MULTIPLIERS:
         map_profile.set_mastery(2, multiplier, LearningRules.UNLOCK_MASTERY)
