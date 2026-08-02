@@ -1,4 +1,4 @@
-[gd_scene load_steps=18 format=3]
+[gd_scene load_steps=19 format=3]
 
 [ext_resource type="Script" path="res://scripts/ui/CosmeticsScreen.gd" id="1_script"]
 [ext_resource type="Texture2D" path="res://assets/backgrounds/mianscreen_background.png" id="2_background"]
@@ -11,6 +11,7 @@
 [ext_resource type="Font" path="res://ui/fonts/FredokaBold.tres" id="10_bold"]
 [ext_resource type="AudioStream" path="res://audio/sfx/Menu_Select_00.wav" id="11_select"]
 [ext_resource type="AudioStream" path="res://audio/sfx/sell_buy_item.wav" id="12_purchase"]
+[ext_resource type="Script" path="res://scripts/ui/CenteredContentMargin.gd" id="13_centered_margin"]
 
 [sub_resource type="StyleBoxFlat" id="HeaderPanel"]
 bg_color = Color(1, 1, 1, 0.92)
@@ -119,6 +120,7 @@ theme_override_constants/margin_left = 14
 theme_override_constants/margin_top = 18
 theme_override_constants/margin_right = 14
 theme_override_constants/margin_bottom = 14
+script = ExtResource("13_centered_margin")
 
 [node name="Content" type="VBoxContainer" parent="SafeArea"]
 layout_mode = 2

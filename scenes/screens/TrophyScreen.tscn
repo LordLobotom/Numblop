@@ -1,4 +1,4 @@
-[gd_scene load_steps=14 format=3]
+[gd_scene load_steps=15 format=3]
 
 [ext_resource type="Script" path="res://scripts/ui/TrophyScreen.gd" id="1_script"]
 [ext_resource type="Texture2D" path="res://assets/backgrounds/mianscreen_background.png" id="2_background"]
@@ -9,6 +9,7 @@
 [ext_resource type="Texture2D" path="res://ui/crests/crest_home.png" id="7_home"]
 [ext_resource type="Texture2D" path="res://ui/crests/crest_settings.png" id="8_settings"]
 [ext_resource type="Font" path="res://ui/fonts/FredokaBold.tres" id="9_bold"]
+[ext_resource type="Script" path="res://scripts/ui/CenteredContentMargin.gd" id="10_centered_margin"]
 
 [sub_resource type="StyleBoxFlat" id="HeaderPanel"]
 bg_color = Color(1, 1, 1, 0.92)
@@ -104,6 +105,7 @@ theme_override_constants/margin_left = 14
 theme_override_constants/margin_top = 18
 theme_override_constants/margin_right = 14
 theme_override_constants/margin_bottom = 14
+script = ExtResource("10_centered_margin")
 
 [node name="Content" type="VBoxContainer" parent="SafeArea"]
 layout_mode = 2

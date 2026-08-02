@@ -98,6 +98,42 @@ func test_bottom_navigation_spreads_five_items_evenly_at_wider_sizes() -> void:
         scene.free()
 
 
+func test_secondary_screens_center_a_540_pixel_column_on_wide_displays() -> void:
+    for scene_path in [
+        "res://scenes/screens/CosmeticsScreen.tscn",
+        "res://scenes/screens/TrophyScreen.tscn",
+        "res://scenes/screens/SettingsScreen.tscn",
+    ]:
+        var packed: PackedScene = load(scene_path)
+        check(packed != null, "Responsive scene loads: %s" % scene_path)
+        if packed == null:
+            continue
+        var scene := packed.instantiate()
+        var safe_area := scene.get_node("SafeArea") as CenteredContentMargin
+        check(safe_area != null, "Screen uses the centered content margin")
+        if safe_area == null:
+            scene.free()
+            continue
+
+        safe_area.size = Vector2(390.0, 844.0)
+        safe_area._update_side_margins()
+        equal(safe_area.get_theme_constant("margin_left"), 14, "Phone left margin")
+        equal(safe_area.get_theme_constant("margin_right"), 14, "Phone right margin")
+
+        safe_area.size = Vector2(900.0, 900.0)
+        safe_area._update_side_margins()
+        equal(safe_area.get_theme_constant("margin_left"), 180, "Wide left margin")
+        equal(safe_area.get_theme_constant("margin_right"), 180, "Wide right margin")
+        equal(
+            safe_area.size.x
+                - safe_area.get_theme_constant("margin_left")
+                - safe_area.get_theme_constant("margin_right"),
+            540.0,
+            "Wide content uses sixty percent of the responsive viewport"
+        )
+        scene.free()
+
+
 func test_map_screen_has_all_stage_navigation_contracts() -> void:
     var packed: PackedScene = load("res://scenes/screens/MapScreen.tscn")
     check(packed != null, "Map scene must load")

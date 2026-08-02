@@ -57,6 +57,9 @@ Status values: `TODO`, `WIP(@agent)`, `BLOCKED(reason)`, `DONE`.
   a compact responsive themed overlay. Depends: B11. Owns: map/settings/main UI and UI tests.
 - `B14 DONE` Center Cosmetics item grids within the wider Web layout while preserving the compact
   phone presentation. Depends: B9. Owns: Cosmetics scene and responsive artifacts.
+- `B15 DONE` Center the Cosmetics, Trophy, and Settings content in a 540 px column on wide
+  displays while preserving the existing phone margins. Owns: shared responsive UI margin,
+  affected scenes, and UI tests.
 - `C1 DONE` Session controller, per-answer mastery saves, and discard-on-interruption behavior.
   Depends: A1. Owns: `scripts/app/SessionController.gd`, autoload changes, state tests.
 - `C2 DONE` Local coin/XP/level persistence and atomic application of the accuracy-linked M1
