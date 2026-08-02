@@ -16,6 +16,7 @@ func test_responsive_harness_covers_every_m1_screen_state() -> void:
     for screen_name in [
         "home",
         "home_accessories",
+        "home_duck",
         "cosmetics",
         "cosmetics_color",
         "cosmetics_buy",

@@ -14,7 +14,7 @@ func _ready() -> void:
     flat = true
     focus_mode = Control.FOCUS_ALL
     mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
-    custom_minimum_size = Vector2(68.0, 68.0)
+    custom_minimum_size = Vector2(58.0, 58.0)
 
 
 func configure(item: Dictionary, is_locked: bool, is_selected: bool) -> void:

@@ -52,11 +52,11 @@ Core scripts never access nodes, singletons, files, time, locale, or platform AP
 
 ## Save contract
 
-Version 5 contains:
+Version 6 contains:
 
 ```json
 {
-  "version": 5,
+  "version": 6,
   "highest_unlocked_index": 0,
   "mastery": { "2_x_0": 0 },
   "coins": 0,
@@ -67,7 +67,9 @@ Version 5 contains:
     "unlocked_hats": ["hat_none"],
     "selected_hat": "hat_none",
     "unlocked_glasses": ["glasses_none"],
-    "selected_glasses": "glasses_none"
+    "selected_glasses": "glasses_none",
+    "unlocked_necklaces": ["necklace_none"],
+    "selected_necklace": "necklace_none"
   },
   "streak": {
     "current_count": 0,
@@ -100,8 +102,9 @@ mastery, streak update, reward, purchase, and equip save preserves the other loc
   recolors only body, arm, and leg pixels while preserving facial layers, outlines, and the belly.
   Supplied accessories keep their 768×768 authoring coordinates: their layer spans 150% of the
   512×512 character bounds. It starts at −25% horizontally and −175/512 vertically after the
-  shared accessory layer was visually tuned. Hats may extend above the
-  base canvas while glasses remain aligned with the eyes.
+  shared accessory layer was visually tuned. Hats may extend above the base canvas, glasses remain
+  aligned with the eyes, and necklaces sit across the upper body. A necklace-only shader clips
+  stray transparent-source pixels above the authored necklace region without modifying the PNGs.
 - The home screen presents coins, XP, level, and streak in one shared bar. The Trophies screen is a
   read-only projection of `LocalStreak`; UI code formats stored timestamps but never decides which
   answers extend a streak or qualify as a record.

@@ -21,6 +21,7 @@ Add-Type -AssemblyName System.Drawing
 $expectedScreens = @(
     "home",
     "home_accessories",
+    "home_duck",
     "cosmetics",
     "cosmetics_color",
     "cosmetics_buy",

@@ -1,7 +1,7 @@
 extends Node
 
 const PROFILE_PATH := "user://profile.json"
-const SAVE_VERSION := 5
+const SAVE_VERSION := 6
 
 
 func save_profile(profile: LearningProfile, path: String = PROFILE_PATH) -> Error:

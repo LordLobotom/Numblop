@@ -12,16 +12,25 @@ func test_body_color_catalog_has_one_free_and_four_hundred_coin_colors() -> void
         equal(colors[index]["price"], 100, "Paid body color price")
 
 
-func test_supplied_accessory_catalog_has_free_empty_slots_and_six_paid_items() -> void:
+func test_supplied_accessory_catalog_has_free_empty_slots_and_ten_paid_items() -> void:
     var hats := CosmeticCatalog.hats()
     var glasses := CosmeticCatalog.glasses()
-    equal(hats.size(), 4, "Empty slot plus three hats")
+    var necklaces := CosmeticCatalog.necklaces()
+    equal(hats.size(), 5, "Empty slot plus four hats")
     equal(glasses.size(), 4, "Empty slot plus three glasses")
+    equal(necklaces.size(), 4, "Empty slot plus three necklaces")
     equal(hats[0]["price"], 0, "No-hat slot is free")
     equal(glasses[0]["price"], 0, "No-glasses slot is free")
-    for item in hats.slice(1) + glasses.slice(1):
+    equal(necklaces[0]["price"], 0, "No-necklace slot is free")
+    for item in hats.slice(1) + glasses.slice(1) + necklaces.slice(1):
         equal(item["price"], 100, "Supplied accessory price")
         check(ResourceLoader.exists(String(item["texture_path"])), "Accessory asset exists")
+    equal(hats[4]["id"], "hat_duck", "Duck cap joins the hat catalog")
+    equal(
+        necklaces[2]["display_region"],
+        Rect2(227.0, 404.0, 320.0, 136.0),
+        "Duck necklace preview ignores stray source pixels"
+    )
 
 
 func test_locked_color_requires_coins_then_unlocks_and_equips() -> void:
@@ -36,13 +45,13 @@ func test_locked_color_requires_coins_then_unlocks_and_equips() -> void:
     equal(cosmetics.purchase_and_equip_body_color("blue", 0), 0, "Owned color is free to equip")
 
 
-func test_supplied_hats_and_glasses_use_the_same_local_purchase_contract() -> void:
+func test_supplied_hats_glasses_and_necklaces_use_the_same_purchase_contract() -> void:
     var cosmetics := LocalCosmetics.new()
     equal(cosmetics.selected_hat, CosmeticCatalog.DEFAULT_HAT_ID, "No hat by default")
     equal(
         cosmetics.purchase_and_equip_item(
             CosmeticCatalog.CATEGORY_HAT,
-            "hat_crown",
+            "hat_duck",
             99
         ),
         -1,
@@ -51,14 +60,14 @@ func test_supplied_hats_and_glasses_use_the_same_local_purchase_contract() -> vo
     equal(
         cosmetics.purchase_and_equip_item(
             CosmeticCatalog.CATEGORY_HAT,
-            "hat_crown",
+            "hat_duck",
             100
         ),
         100,
         "Hat price"
     )
-    check(cosmetics.owns_item(CosmeticCatalog.CATEGORY_HAT, "hat_crown"), "Hat owned")
-    equal(cosmetics.selected_hat, "hat_crown", "Purchased hat equipped")
+    check(cosmetics.owns_item(CosmeticCatalog.CATEGORY_HAT, "hat_duck"), "Duck hat owned")
+    equal(cosmetics.selected_hat, "hat_duck", "Purchased duck hat equipped")
     check(
         cosmetics.equip_item(
             CosmeticCatalog.CATEGORY_HAT,
@@ -79,6 +88,29 @@ func test_supplied_hats_and_glasses_use_the_same_local_purchase_contract() -> vo
     )
     equal(cosmetics.selected_glasses, "glasses_green", "Purchased glasses equipped")
 
+    equal(
+        cosmetics.purchase_and_equip_item(
+            CosmeticCatalog.CATEGORY_NECKLACE,
+            "necklace_duck",
+            100
+        ),
+        100,
+        "Necklace price"
+    )
+    equal(cosmetics.selected_necklace, "necklace_duck", "Purchased necklace equipped")
+    check(
+        cosmetics.equip_item(
+            CosmeticCatalog.CATEGORY_NECKLACE,
+            CosmeticCatalog.DEFAULT_NECKLACE_ID
+        ),
+        "Free empty slot removes the necklace"
+    )
+    equal(
+        cosmetics.selected_necklace,
+        CosmeticCatalog.DEFAULT_NECKLACE_ID,
+        "Empty necklace slot stays equipped"
+    )
+
 
 func test_cosmetics_round_trip_and_profile_save_preserve_inventory() -> void:
     _remove_test_file()
@@ -93,6 +125,11 @@ func test_cosmetics_round_trip_and_profile_save_preserve_inventory() -> void:
     cosmetics.purchase_and_equip_item(
         CosmeticCatalog.CATEGORY_GLASSES,
         "glasses_fashion",
+        100
+    )
+    cosmetics.purchase_and_equip_item(
+        CosmeticCatalog.CATEGORY_NECKLACE,
+        "necklace_moon",
         100
     )
     equal(
@@ -111,6 +148,7 @@ func test_cosmetics_round_trip_and_profile_save_preserve_inventory() -> void:
     equal(loaded.selected_body_color, "purple", "Equipped color survives reload")
     equal(loaded.selected_hat, "hat_winter", "Equipped hat survives reload")
     equal(loaded.selected_glasses, "glasses_fashion", "Equipped glasses survive reload")
+    equal(loaded.selected_necklace, "necklace_moon", "Equipped necklace survives reload")
 
     profile.set_mastery(2, 4, 25)
     equal(SaveManager.save_profile(profile, TEST_PATH), OK, "Mastery-only save")
@@ -119,6 +157,7 @@ func test_cosmetics_round_trip_and_profile_save_preserve_inventory() -> void:
     equal(loaded.selected_body_color, "purple", "Per-answer save preserves selection")
     equal(loaded.selected_hat, "hat_winter", "Per-answer save preserves hat")
     equal(loaded.selected_glasses, "glasses_fashion", "Per-answer save preserves glasses")
+    equal(loaded.selected_necklace, "necklace_moon", "Per-answer save preserves necklace")
 
     equal(SaveManager.save_game_state(profile, 30, 50, TEST_PATH), OK, "Progress-only save")
     loaded = LocalCosmetics.new(SaveManager.load_cosmetics(TEST_PATH))
@@ -126,6 +165,7 @@ func test_cosmetics_round_trip_and_profile_save_preserve_inventory() -> void:
     equal(loaded.selected_body_color, "purple", "Progress save preserves selection")
     equal(loaded.selected_hat, "hat_winter", "Progress save preserves hat")
     equal(loaded.selected_glasses, "glasses_fashion", "Progress save preserves glasses")
+    equal(loaded.selected_necklace, "necklace_moon", "Progress save preserves necklace")
     _remove_test_file()
 
 
@@ -144,6 +184,11 @@ func test_legacy_save_receives_safe_default_cosmetics() -> void:
         loaded.selected_glasses,
         CosmeticCatalog.DEFAULT_GLASSES_ID,
         "Legacy profile has no glasses"
+    )
+    equal(
+        loaded.selected_necklace,
+        CosmeticCatalog.DEFAULT_NECKLACE_ID,
+        "Legacy profile has no necklace"
     )
     _remove_test_file()
 

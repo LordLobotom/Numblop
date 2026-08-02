@@ -47,7 +47,7 @@ child answers slowly or incorrectly.
 
 - Accuracy-linked coin/experience rewards replace the provisional fixed reward.
 - The local cosmetic inventory and Outfit entry point support five shader-based body colors plus
-  the supplied hats and glasses with persistent purchase/equip state.
+  the supplied hats, glasses, and necklaces with persistent purchase/equip state.
 - Persistent cross-series correct-answer streaks and timestamped personal-record milestones.
 - Extend the rounded-card catalog with belly patterns, shoes, and future supplied artwork.
 - Add visual/audio polish without changing the learning model or adding game modes.

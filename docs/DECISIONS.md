@@ -64,12 +64,13 @@
   coins, unlocks and equips the item, and updates the home Numblop.
 - A palette shader recolors the existing body, arms, and legs, so body-color variants require no
   duplicated PNG files. The belly, face, cheeks, and black outlines retain their source colors.
-- The three supplied hats and three pairs of glasses join the shop at 100 coins each. They use rounded
-  square cards with transparent crests, small borderless selected checks, the supplied lock icon,
-  and a compact `100` plus coin crest price. A free empty card removes hats or glasses. The 768px
-  accessory canvas is positioned at −128px horizontally and −175px vertically relative to the
-  512px character canvas rather than being shrunk, preserving its authored alignment. Future
-  patterns and shoes follow this contract.
+- The four supplied hats, three pairs of glasses, and three necklaces join the shop at 100 coins
+  each. They use rounded square cards with transparent crests, small borderless selected checks,
+  the supplied lock icon, and a compact `100` plus coin crest price. A free empty card removes each
+  category. The 768px accessory canvas is positioned at −128px horizontally and −175px vertically
+  relative to the 512px character canvas rather than being shrunk, preserving its authored
+  alignment. The duck necklace's isolated source pixels above the artwork are clipped at render
+  time. Future patterns and shoes follow this contract.
 
 ## 2026-08-01 — M1 home navigation and stage map
 

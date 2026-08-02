@@ -229,7 +229,10 @@ func test_cosmetics_screen_has_compact_shop_purchase_and_navigation_contracts() 
     check(scene.get_node("%ColorGrid") is GridContainer, "Body-color swatch grid")
     equal(scene.get_node("%ColorGrid").columns, 5, "Five colors share one row")
     check(scene.get_node("%HatsGrid") is GridContainer, "Hat shop grid")
+    equal(scene.get_node("%HatsGrid").columns, 5, "Duck hat keeps hats on one compact row")
     check(scene.get_node("%GlassesGrid") is GridContainer, "Glasses shop grid")
+    check(scene.get_node("%NecklacesGrid") is GridContainer, "Necklace shop grid")
+    equal(scene.get_node("%NecklacesGrid").columns, 4, "Empty slot plus three necklaces")
     check(scene.get_node("%PurchaseButton").custom_minimum_size.y >= 48.0, "Buy touch target")
     for button_name in ["OutfitButton", "MapButton", "HomeButton", "TrophyButton", "SettingsButton"]:
         var button: BaseButton = scene.get_node("%%%s" % button_name)
@@ -295,6 +298,7 @@ func test_blob_home_has_idle_pet_and_heart_reactions() -> void:
     check(blob.has_method("set_body_color"), "Blob accepts shader-based body colors")
     check(blob.has_method("set_hat"), "Blob accepts 768 px hat overlays")
     check(blob.has_method("set_glasses"), "Blob accepts 768 px glasses overlays")
+    check(blob.has_method("set_necklace"), "Blob accepts 768 px necklace overlays")
     equal(blob.get_node("%HatAccessory").anchor_left, -0.25, "Hat canvas x offset")
     equal(blob.get_node("%HatAccessory").anchor_right, 1.25, "Hat canvas width")
     check(
@@ -309,6 +313,22 @@ func test_blob_home_has_idle_pet_and_heart_reactions() -> void:
         is_equal_approx(blob.get_node("%GlassesAccessory").anchor_bottom, 593.0 / 512.0),
         "Glasses canvas keeps its 768 px height"
     )
+    check(
+        is_equal_approx(blob.get_node("%NecklaceAccessory").anchor_top, -175.0 / 512.0),
+        "Necklace shares the tuned accessory offset"
+    )
+    check(
+        is_equal_approx(blob.get_node("%NecklaceAccessory").anchor_bottom, 593.0 / 512.0),
+        "Necklace canvas keeps its 768 px height"
+    )
+    var necklace_material := blob.get_node("%NecklaceAccessory").material as ShaderMaterial
+    check(necklace_material != null, "Necklace artifact-clipping material")
+    if necklace_material != null:
+        equal(
+            necklace_material.shader.resource_path,
+            "res://ui/shaders/necklace_artifact_clip.gdshader",
+            "Necklace source artifacts are clipped"
+        )
     check(load("res://ui/shaders/numblop_body_color.gdshader") is Shader, "Body-color shader")
     equal(blob.HEART_TEXTURE.resource_path, "res://assets/vfx/hearh.png", "Heart asset")
     blob.free()

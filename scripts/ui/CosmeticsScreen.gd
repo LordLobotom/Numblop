@@ -16,6 +16,8 @@ const COIN_TEXTURE: Texture2D = preload("res://ui/crests/crest_coin.png")
 @onready var hats_grid: GridContainer = %HatsGrid
 @onready var glasses_label: Label = %GlassesLabel
 @onready var glasses_grid: GridContainer = %GlassesGrid
+@onready var necklaces_label: Label = %NecklacesLabel
+@onready var necklaces_grid: GridContainer = %NecklacesGrid
 @onready var purchase_button: Button = %PurchaseButton
 @onready var status_label: Label = %StatusLabel
 @onready var outfit_button: TextureButton = %OutfitButton
@@ -99,6 +101,7 @@ func _refresh_text() -> void:
     color_label.text = tr("COSMETICS_BODY_COLOR")
     hats_label.text = tr("COSMETICS_HATS")
     glasses_label.text = tr("COSMETICS_GLASSES")
+    necklaces_label.text = tr("COSMETICS_NECKLACES")
     outfit_label.text = tr("NAV_OUTFIT")
     map_label.text = tr("NAV_MAP")
     home_label.text = tr("NAV_HOME")
@@ -144,6 +147,11 @@ func _rebuild_catalog() -> void:
         CosmeticCatalog.CATEGORY_GLASSES,
         _state.get("glasses", [])
     )
+    _rebuild_accessories(
+        necklaces_grid,
+        CosmeticCatalog.CATEGORY_NECKLACE,
+        _state.get("necklaces", [])
+    )
 
 
 func _rebuild_accessories(
@@ -155,7 +163,7 @@ func _rebuild_accessories(
     for item_value in items:
         var item: Dictionary = item_value
         var item_id := String(item["id"])
-        var item_column := _item_column(Vector2(70.0, 88.0))
+        var item_column := _item_column(Vector2(58.0, 78.0))
         grid.add_child(item_column)
 
         var card := CosmeticItemCard.new()
@@ -244,6 +252,8 @@ func _state_item(category: String, item_id: String) -> Dictionary:
             state_key = "hats"
         CosmeticCatalog.CATEGORY_GLASSES:
             state_key = "glasses"
+        CosmeticCatalog.CATEGORY_NECKLACE:
+            state_key = "necklaces"
     for item in _state.get(state_key, []):
         if String(item["id"]) == item_id:
             return item

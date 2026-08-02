@@ -20,6 +20,7 @@ const BODY_COLOR_SHADER: Shader = preload("res://ui/shaders/numblop_body_color.g
 @onready var smile_open: TextureRect = %SmileOpen
 @onready var hat_accessory: TextureRect = %HatAccessory
 @onready var glasses_accessory: TextureRect = %GlassesAccessory
+@onready var necklace_accessory: TextureRect = %NecklaceAccessory
 @onready var left_hand_idle: TextureRect = %LeftHandIdle
 @onready var left_hand_wave: TextureRect = %LeftHandWave
 @onready var right_hand: TextureRect = %RightHand
@@ -35,6 +36,7 @@ var _pending_body_color := Color("c7e143")
 var _pending_recolor_strength := 0.0
 var _pending_hat_id := CosmeticCatalog.DEFAULT_HAT_ID
 var _pending_glasses_id := CosmeticCatalog.DEFAULT_GLASSES_ID
+var _pending_necklace_id := CosmeticCatalog.DEFAULT_NECKLACE_ID
 
 
 func _ready() -> void:
@@ -42,6 +44,7 @@ func _ready() -> void:
     set_body_color(_pending_body_color, _pending_recolor_strength)
     set_hat(_pending_hat_id)
     set_glasses(_pending_glasses_id)
+    set_necklace(_pending_necklace_id)
     gui_input.connect(_on_gui_input)
     idle_timer.timeout.connect(_blink)
     resized.connect(_update_pivot)
@@ -73,6 +76,16 @@ func set_glasses(glasses_id: String) -> void:
         )
 
 
+func set_necklace(necklace_id: String) -> void:
+    _pending_necklace_id = necklace_id
+    if is_node_ready():
+        _set_accessory_texture(
+            necklace_accessory,
+            CosmeticCatalog.CATEGORY_NECKLACE,
+            necklace_id
+        )
+
+
 func apply_cosmetics(state: Dictionary) -> void:
     var selected_color_id := String(state.get(
         "selected_body_color",
@@ -89,6 +102,10 @@ func apply_cosmetics(state: Dictionary) -> void:
     set_glasses(String(state.get(
         "selected_glasses",
         CosmeticCatalog.DEFAULT_GLASSES_ID
+    )))
+    set_necklace(String(state.get(
+        "selected_necklace",
+        CosmeticCatalog.DEFAULT_NECKLACE_ID
     )))
 
 

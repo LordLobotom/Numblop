@@ -1,4 +1,4 @@
-[gd_scene load_steps=18 format=3]
+[gd_scene load_steps=20 format=3]
 
 [ext_resource type="Script" path="res://scripts/ui/BlobCharacter.gd" id="1_script"]
 [ext_resource type="Texture2D" path="res://assets/characters/numblop/leg_left/leg_left_bare_idle.png" id="2_leg_left"]
@@ -17,6 +17,10 @@
 [ext_resource type="Texture2D" path="res://assets/characters/numblop/mouth/mouth_smile_close.png" id="15_smile_closed"]
 [ext_resource type="Texture2D" path="res://assets/characters/numblop/mouth/mouth_smile_open.png" id="16_smile_open"]
 [ext_resource type="AudioStream" path="res://audio/sfx/giggle.mp3" id="17_giggle"]
+[ext_resource type="Shader" path="res://ui/shaders/necklace_artifact_clip.gdshader" id="18_necklace_clip"]
+
+[sub_resource type="ShaderMaterial" id="NecklaceClipMaterial"]
+shader = ExtResource("18_necklace_clip")
 
 [node name="BlobCharacter" type="Control"]
 unique_name_in_owner = true
@@ -254,6 +258,20 @@ stretch_mode = 5
 
 [node name="GlassesAccessory" type="TextureRect" parent="Visual"]
 unique_name_in_owner = true
+layout_mode = 1
+anchor_left = -0.25
+anchor_top = -0.341796875
+anchor_right = 1.25
+anchor_bottom = 1.158203125
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+expand_mode = 1
+stretch_mode = 5
+
+[node name="NecklaceAccessory" type="TextureRect" parent="Visual"]
+unique_name_in_owner = true
+material = SubResource("NecklaceClipMaterial")
 layout_mode = 1
 anchor_left = -0.25
 anchor_top = -0.341796875

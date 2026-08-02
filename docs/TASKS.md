@@ -48,6 +48,9 @@ Status values: `TODO`, `WIP(@agent)`, `BLOCKED(reason)`, `DONE`.
   C8. Owns: home/trophy/main UI, localization, and UI tests.
 - `B11 DONE` Centered responsive stage trail and tappable bilingual ten-fact island detail.
   Depends: B8, C9. Owns: map scene/script, main back flow, localization, and UI tests.
+- `B12 DONE` Add the supplied duck cap and three-necklace Cosmetics row with aligned 768px home
+  rendering and artifact clipping. Depends: B9, C10. Owns: catalog/UI presentation, character
+  layer, localization, shader, and UI tests.
 - `C1 DONE` Session controller, per-answer mastery saves, and discard-on-interruption behavior.
   Depends: A1. Owns: `scripts/app/SessionController.gd`, autoload changes, state tests.
 - `C2 DONE` Local coin/XP/level persistence and atomic application of the accuracy-linked M1
@@ -66,6 +69,8 @@ Status values: `TODO`, `WIP(@agent)`, `BLOCKED(reason)`, `DONE`.
   saved atomically per answer. Depends: C1. Owns: streak model, save/app coordination, state tests.
 - `C9 DONE` Read-only per-fact mastery-band projection for map island details, including a 99%
   pre-unlock display cap. Depends: C6. Owns: app-state map contract and state tests.
+- `C10 DONE` Backward-compatible necklace ownership and equipped-state persistence in save version
+  6. Depends: C7. Owns: local cosmetics, save/app projection, and state tests.
 - `D1 DONE` Responsive screenshot smoke harness at 390×844 and 450×900. Depends: B3.
   Owns: QA scripts, smoke scenes/tests, `artifacts/` output contract.
 - `D2 BLOCKED(no authorized physical Android device connected)` Physical Android install/run/log
@@ -83,6 +88,8 @@ Status values: `TODO`, `WIP(@agent)`, `BLOCKED(reason)`, `DONE`.
   Android launcher export presets. Owns: project/export icon configuration and smoke contract.
 - `D8 DONE` Add the populated island fact detail to bilingual responsive captures at both portrait
   sizes. Depends: B11, C9. Owns: capture harness and artifact verification.
+- `D9 DONE` Add a supplied duck-cap plus duck-necklace home alignment state and expanded Cosmetics
+  catalog to bilingual responsive captures. Depends: B12, C10. Owns: capture harness and artifacts.
 
 Claim the lowest-numbered unblocked task in your track. Only the stated owner changes the task's
 owned files; coordinate contract changes through the owning track.

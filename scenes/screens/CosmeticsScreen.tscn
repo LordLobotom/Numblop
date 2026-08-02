@@ -205,8 +205,8 @@ horizontal_alignment = 1
 [node name="HatsGrid" type="GridContainer" parent="SafeArea/Content/Scroll/CosmeticsPanel/Rows"]
 unique_name_in_owner = true
 layout_mode = 2
-theme_override_constants/h_separation = 6
-columns = 4
+theme_override_constants/h_separation = 4
+columns = 5
 
 [node name="GlassesLabel" type="Label" parent="SafeArea/Content/Scroll/CosmeticsPanel/Rows"]
 unique_name_in_owner = true
@@ -218,6 +218,21 @@ text = "COSMETICS_GLASSES"
 horizontal_alignment = 1
 
 [node name="GlassesGrid" type="GridContainer" parent="SafeArea/Content/Scroll/CosmeticsPanel/Rows"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/h_separation = 6
+columns = 4
+
+[node name="NecklacesLabel" type="Label" parent="SafeArea/Content/Scroll/CosmeticsPanel/Rows"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.19, 0.34, 0.24, 1)
+theme_override_fonts/font = ExtResource("10_bold")
+theme_override_font_sizes/font_size = 19
+text = "COSMETICS_NECKLACES"
+horizontal_alignment = 1
+
+[node name="NecklacesGrid" type="GridContainer" parent="SafeArea/Content/Scroll/CosmeticsPanel/Rows"]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_constants/h_separation = 6

@@ -5,6 +5,7 @@ const LOCALES: Array[String] = ["en", "cs"]
 const SCREENS: Array[String] = [
     "home",
     "home_accessories",
+    "home_duck",
     "cosmetics",
     "cosmetics_color",
     "cosmetics_buy",
@@ -108,7 +109,7 @@ func _create_screen(screen_name: String) -> Control:
 
 func _configure_screen(screen: Control, screen_name: String, locale: String) -> void:
     match screen_name:
-        "home", "home_accessories":
+        "home", "home_accessories", "home_duck":
             var home := screen as HomeScreen
             home.set_progress_totals(120, 240, 3)
             home.set_streak(18)
@@ -120,6 +121,7 @@ func _configure_screen(screen: Control, screen_name: String, locale: String) -> 
                 "selected_body_color": CosmeticCatalog.DEFAULT_BODY_COLOR_ID,
                 "selected_hat": CosmeticCatalog.DEFAULT_HAT_ID,
                 "selected_glasses": CosmeticCatalog.DEFAULT_GLASSES_ID,
+                "selected_necklace": CosmeticCatalog.DEFAULT_NECKLACE_ID,
                 "colors": home_colors,
             })
             if screen_name == "home_accessories":
@@ -127,6 +129,15 @@ func _configure_screen(screen: Control, screen_name: String, locale: String) -> 
                     "selected_body_color": CosmeticCatalog.DEFAULT_BODY_COLOR_ID,
                     "selected_hat": "hat_crown",
                     "selected_glasses": "glasses_green",
+                    "selected_necklace": CosmeticCatalog.DEFAULT_NECKLACE_ID,
+                    "colors": home_colors,
+                })
+            elif screen_name == "home_duck":
+                home.blob.apply_cosmetics({
+                    "selected_body_color": CosmeticCatalog.DEFAULT_BODY_COLOR_ID,
+                    "selected_hat": "hat_duck",
+                    "selected_glasses": CosmeticCatalog.DEFAULT_GLASSES_ID,
+                    "selected_necklace": "necklace_duck",
                     "colors": home_colors,
                 })
         "cosmetics", "cosmetics_color", "cosmetics_buy":
@@ -149,14 +160,20 @@ func _configure_screen(screen: Control, screen_name: String, locale: String) -> 
                 CosmeticCatalog.CATEGORY_GLASSES,
                 CosmeticCatalog.DEFAULT_GLASSES_ID
             )
+            var necklaces := _cosmetic_capture_items(
+                CosmeticCatalog.CATEGORY_NECKLACE,
+                CosmeticCatalog.DEFAULT_NECKLACE_ID
+            )
             cosmetics_screen.set_presentation_state({
                 "coins": 240,
                 "selected_body_color": selected_id,
                 "selected_hat": CosmeticCatalog.DEFAULT_HAT_ID,
                 "selected_glasses": CosmeticCatalog.DEFAULT_GLASSES_ID,
+                "selected_necklace": CosmeticCatalog.DEFAULT_NECKLACE_ID,
                 "colors": colors,
                 "hats": hats,
                 "glasses": glasses,
+                "necklaces": necklaces,
             })
             if screen_name == "cosmetics_buy":
                 cosmetics_screen.preview_body_color("pink")

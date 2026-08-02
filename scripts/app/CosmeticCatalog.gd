@@ -4,9 +4,11 @@ extends RefCounted
 const CATEGORY_BODY_COLOR := "body_color"
 const CATEGORY_HAT := "hat"
 const CATEGORY_GLASSES := "glasses"
+const CATEGORY_NECKLACE := "necklace"
 const DEFAULT_BODY_COLOR_ID := "green"
 const DEFAULT_HAT_ID := "hat_none"
 const DEFAULT_GLASSES_ID := "glasses_none"
+const DEFAULT_NECKLACE_ID := "necklace_none"
 const BODY_COLOR_PRICE := 100
 const ACCESSORY_PRICE := 100
 
@@ -56,6 +58,13 @@ static func hats() -> Array[Dictionary]:
             Rect2(246.0, 63.0, 320.0, 285.0),
             ACCESSORY_PRICE
         ),
+        _accessory(
+            "hat_duck",
+            "COSMETICS_HAT_DUCK",
+            "res://assets/cosmetics/hats/hat_duck.png",
+            Rect2(200.0, 139.0, 353.0, 239.0),
+            ACCESSORY_PRICE
+        ),
     ]
 
 
@@ -86,6 +95,33 @@ static func glasses() -> Array[Dictionary]:
     ]
 
 
+static func necklaces() -> Array[Dictionary]:
+    return [
+        _accessory(DEFAULT_NECKLACE_ID, "COSMETICS_NONE", "", Rect2(), 0),
+        _accessory(
+            "necklace_crown",
+            "COSMETICS_NECKLACE_CROWN",
+            "res://assets/cosmetics/necklaces/necklace_crown.png",
+            Rect2(233.0, 397.0, 309.0, 130.0),
+            ACCESSORY_PRICE
+        ),
+        _accessory(
+            "necklace_duck",
+            "COSMETICS_NECKLACE_DUCK",
+            "res://assets/cosmetics/necklaces/necklace_duck.png",
+            Rect2(227.0, 404.0, 320.0, 136.0),
+            ACCESSORY_PRICE
+        ),
+        _accessory(
+            "necklace_moon",
+            "COSMETICS_NECKLACE_MOON",
+            "res://assets/cosmetics/necklaces/necklace_moon.png",
+            Rect2(234.0, 396.0, 303.0, 148.0),
+            ACCESSORY_PRICE
+        ),
+    ]
+
+
 static func items(category: String) -> Array[Dictionary]:
     match category:
         CATEGORY_BODY_COLOR:
@@ -94,6 +130,8 @@ static func items(category: String) -> Array[Dictionary]:
             return hats()
         CATEGORY_GLASSES:
             return glasses()
+        CATEGORY_NECKLACE:
+            return necklaces()
     return []
 
 
