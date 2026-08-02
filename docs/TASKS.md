@@ -98,6 +98,8 @@ Status values: `TODO`, `WIP(@agent)`, `BLOCKED(reason)`, `DONE`.
   catalog to bilingual responsive captures. Depends: B12, C10. Owns: capture harness and artifacts.
 - `D10 DONE` Add the responsive custom exit confirmation to bilingual captures at both portrait
   sizes. Depends: B13. Owns: capture harness and artifacts.
+- `D11 DONE` Refresh the root README with the current M1 loop, learning gate, local progression,
+  QA/export commands, repository map, and documentation entry points. Owns: `README.md`.
 
 Claim the lowest-numbered unblocked task in your track. Only the stated owner changes the task's
 owned files; coordinate contract changes through the owning track.
