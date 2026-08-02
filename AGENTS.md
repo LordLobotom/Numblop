@@ -7,8 +7,9 @@
 - The permanent Android package ID is `cz.gutcloud.numblop`.
 - Every MVP practice series contains exactly 10 adaptively selected questions using the
   canonical 7 current / 2 older weak / 1 older automated mix.
-- MVP data stays on one device in one local child profile. Do not add accounts, analytics,
-  advertisements, cloud services, networking, or remote configuration.
+- MVP data stays on one device in one local child profile (optional local nickname only).
+  Do not add accounts, analytics, advertisements, cloud services, networking, or remote
+  configuration.
 - English and Czech are both required. Never place user-facing prose directly in GDScript.
 - The canonical learning behavior is `docs/didactic_algorithm.md`, including its confirmed
   implementation decisions. Do not change learning thresholds or scoring incidentally.
@@ -44,7 +45,7 @@ If documents conflict, use the highest applicable source and record the resoluti
 - UI displays state; it does not calculate mastery, session quotas, or unlocking.
 - Saves are versioned, local, and backward-compatible. A corrupt save must fall back safely.
 - Use translation keys for every user-facing string. Both `en` and `cs` must be non-empty.
-- Fredoka is the primary UI font. Keep its OFL license with the asset and verify Czech glyphs.
+- Baloo 2 is the primary UI font. Keep its OFL license with the asset and verify Czech glyphs.
 - Use Control containers, minimum 48 px touch targets, portrait-safe layout, and no visible
   answer countdown.
 - Never commit `.godot/`, build products, export credentials, keystores, or passwords.

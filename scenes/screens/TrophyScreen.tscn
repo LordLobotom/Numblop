@@ -8,7 +8,7 @@
 [ext_resource type="Texture2D" path="res://ui/crests/crest_map.png" id="6_map"]
 [ext_resource type="Texture2D" path="res://ui/crests/crest_home.png" id="7_home"]
 [ext_resource type="Texture2D" path="res://ui/crests/crest_settings.png" id="8_settings"]
-[ext_resource type="Font" path="res://ui/fonts/FredokaBold.tres" id="9_bold"]
+[ext_resource type="Font" path="res://ui/fonts/Baloo2Bold.tres" id="9_bold"]
 [ext_resource type="Script" path="res://scripts/ui/CenteredContentMargin.gd" id="10_centered_margin"]
 
 [sub_resource type="StyleBoxFlat" id="HeaderPanel"]

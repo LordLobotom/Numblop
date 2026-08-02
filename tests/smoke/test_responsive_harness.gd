@@ -18,6 +18,7 @@ func test_responsive_harness_covers_every_m1_screen_state() -> void:
         "home",
         "home_accessories",
         "home_duck",
+        "home_name",
         "cosmetics",
         "cosmetics_color",
         "cosmetics_buy",

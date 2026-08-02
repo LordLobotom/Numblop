@@ -1,6 +1,6 @@
 [gd_resource type="FontVariation" load_steps=2 format=3]
 
-[ext_resource type="FontVariation" path="res://ui/fonts/FredokaWithCzechFallback.tres" id="1_font"]
+[ext_resource type="FontVariation" path="res://ui/fonts/Baloo2WithCzechFallback.tres" id="1_font"]
 
 [resource]
 base_font = ExtResource("1_font")

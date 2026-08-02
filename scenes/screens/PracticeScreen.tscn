@@ -3,7 +3,7 @@
 [ext_resource type="Script" path="res://scripts/ui/PracticeScreen.gd" id="1_script"]
 [ext_resource type="Texture2D" path="res://assets/backgrounds/mianscreen_background.png" id="2_background"]
 [ext_resource type="PackedScene" path="res://scenes/components/NumericKeypad.tscn" id="3_keypad"]
-[ext_resource type="Font" path="res://ui/fonts/FredokaBold.tres" id="4_bold"]
+[ext_resource type="Font" path="res://ui/fonts/Baloo2Bold.tres" id="4_bold"]
 
 [sub_resource type="StyleBoxFlat" id="QuestionCard"]
 bg_color = Color(1, 1, 1, 0.94)

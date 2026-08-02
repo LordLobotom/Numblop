@@ -3,11 +3,20 @@ extends NumblopTestCase
 
 func test_public_identity_and_portrait_window_are_pinned() -> void:
     equal(ProjectSettings.get_setting("application/config/name"), "Numblop", "Public name")
-    equal(ProjectSettings.get_setting("application/config/version"), "0.1.0", "Public version")
+    equal(ProjectSettings.get_setting("application/config/version"), "1.0.0", "Public version")
     equal(
         ProjectSettings.get_setting("application/config/icon"),
         "res://ui/branding/numblop_ico.png",
         "Numblop application icon"
+    )
+    equal(
+        ProjectSettings.get_setting("application/boot_splash/image"),
+        "res://ui/branding/boot_splash.png",
+        "Branded boot splash replaces the engine logo"
+    )
+    check(
+        ProjectSettings.get_setting("application/boot_splash/bg_color") is Color,
+        "Boot splash background color is pinned"
     )
     equal(ProjectSettings.get_setting("display/window/size/viewport_width"), 390, "Viewport width")
     equal(ProjectSettings.get_setting("display/window/size/viewport_height"), 844, "Viewport height")
@@ -25,7 +34,10 @@ func test_android_identity_and_offline_export_contract_are_pinned() -> void:
     check(config.contains('package/unique_name="cz.gutcloud.numblop"'), "Permanent package ID")
     check(config.contains("permissions/internet=false"), "Android exports remain offline")
     check(config.contains('gradle_build/export_format=1'), "Release preset builds an AAB")
-    equal(config.count('version/name="0.1.0"'), 2, "Android exports use the public version")
+    equal(config.count('version/name="1.0.0"'), 2, "Android exports use the public version")
+    equal(config.count("version/code=2"), 2, "Android exports share the Play version code")
+    equal(config.count("permissions/vibrate=true"), 2, "Reward chest haptic needs VIBRATE")
+    equal(config.count("user_data_backup/allow=true"), 2, "Profile survives device migration")
     check(not config.contains("audio/*"), "MVP audio must remain exportable")
 
 
@@ -38,10 +50,19 @@ func test_numblop_icon_is_used_by_windows_and_android_exports() -> void:
     var icon_path := "res://ui/branding/numblop_ico.png"
     check(config.contains('application/icon="%s"' % icon_path), "Windows executable icon")
     equal(
-        config.count('launcher_icons/main_192x192="%s"' % icon_path),
+        config.count('launcher_icons/main_192x192="res://ui/branding/android/icon_main_192.png"'),
         2,
         "Android debug and release launcher icons"
     )
+    for adaptive_layer in ["foreground", "background", "monochrome"]:
+        equal(
+            config.count(
+                'launcher_icons/adaptive_%s_432x432="res://ui/branding/android/icon_%s_432.png"'
+                % [adaptive_layer, adaptive_layer]
+            ),
+            2,
+            "Adaptive %s icon wired in both Android presets" % adaptive_layer
+        )
 
 
 func test_windows_export_uses_the_public_version() -> void:

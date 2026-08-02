@@ -5,8 +5,9 @@
 - Public product name is `Numblop`; “Násobilkový kamarád” was mockup placeholder text.
 - Permanent Android package ID is `cz.gutcloud.numblop`.
 - Android is portrait-locked; Windows uses a centered portrait window.
-- MVP has one unnamed local child profile and no accounts, analytics, advertisements, cloud,
-  or networking.
+- MVP has one local child profile and no accounts, analytics, advertisements, cloud,
+  or networking. (Originally unnamed; the 2026-08-02 optional-nickname decision below adds an
+  optional local nickname.)
 - English and Czech ship together from the first playable version.
 - Godot 4.6.2 and GL Compatibility are pinned for the initial vertical slice because that exact
   editor, SDK, and template combination has been export-tested locally.
@@ -199,3 +200,27 @@
   audio support.
 - Web saves remain in browser storage for the deployment origin. Clearing site data or moving the
   build to a different origin starts a new local profile; no account or cloud migration is added.
+
+## 2026-08-02 — Baloo 2 replaces Fredoka as the primary typeface
+
+- Baloo 2 (variable, Google Fonts, SIL OFL 1.1) is the primary UI font, keeping the existing
+  Noto Sans fallback and the 0.8-embolden bold variation. Fredoka is removed from the bundle.
+- The resource structure is unchanged: `ui/fonts/Baloo2WithCzechFallback.tres` is the theme
+  default font and `ui/fonts/Baloo2Bold.tres` is the bold variant referenced by scenes.
+- Czech glyph coverage remains pinned by the theme test.
+
+## 2026-08-02 — Optional local nickname and stable profile id
+
+- This supersedes the "unnamed" wording of the product baseline: the single local child profile
+  may carry an optional nickname. There are still no accounts, analytics, cloud, or networking.
+- The nickname is free text typed by the child, sanitized in the application layer (trimmed,
+  control characters removed, at most 16 characters), and stored only inside `user://profile.json`.
+- An empty nickname is valid and shows the localized `HOME_PROFILE` fallback on Home. Clearing
+  the name returns to the fallback; the profile reset also clears it.
+- Save version 7 adds the `nickname` field plus a random, never-displayed `profile_id` (32 hex
+  characters, generated once on first v7 save and preserved forever). The id exists solely so a
+  future classroom feature (see `docs/adr/0001-teacher-classroom-mode.md`) has a stable local
+  pseudonym; nothing in the MVP reads it beyond persistence.
+- Android device backup is enabled (`user_data_backup/allow=true`), so the profile — including
+  the nickname — survives device migration through the user's own Google backup. Data still
+  never reaches any Numblop or third-party service.

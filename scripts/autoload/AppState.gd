@@ -9,6 +9,7 @@ var cosmetics := LocalCosmetics.new()
 var streak := LocalStreak.new()
 
 var _pending_answer_milestone: Dictionary = {}
+var _nickname := ""
 
 
 func _ready() -> void:
@@ -16,7 +17,30 @@ func _ready() -> void:
     progress = LocalProgress.new(SaveManager.load_progress())
     cosmetics = LocalCosmetics.new(SaveManager.load_cosmetics())
     streak = LocalStreak.new(SaveManager.load_streak())
+    _nickname = SaveManager.load_nickname()
     _create_session_controller()
+
+
+func nickname() -> String:
+    return _nickname
+
+
+func set_nickname(raw_nickname: String) -> bool:
+    var sanitized := LocalNickname.sanitize(raw_nickname)
+    var save_error := SaveManager.save_game_state(
+        profile,
+        progress.coins,
+        progress.experience,
+        SaveManager.PROFILE_PATH,
+        cosmetics.to_dictionary(),
+        streak.to_dictionary(),
+        sanitized
+    )
+    if save_error != OK:
+        return false
+    _nickname = sanitized
+    EventBus.nickname_changed.emit(_nickname)
+    return true
 
 
 func _notification(what: int) -> void:
@@ -235,8 +259,10 @@ func reset_local_profile() -> void:
     progress = LocalProgress.new()
     cosmetics = LocalCosmetics.new()
     streak = LocalStreak.new()
+    _nickname = ""
     _save_game_state(profile, progress.coins, progress.experience)
     _create_session_controller()
+    EventBus.nickname_changed.emit(_nickname)
 
 
 func _create_session_controller() -> void:
@@ -300,7 +326,8 @@ func _save_game_state(
         experience,
         SaveManager.PROFILE_PATH,
         cosmetics.to_dictionary(),
-        streak.to_dictionary()
+        streak.to_dictionary(),
+        _nickname
     )
 
 
@@ -311,7 +338,8 @@ func _save_state_with_cosmetics(updated_cosmetics: LocalCosmetics, coins: int) -
         progress.experience,
         SaveManager.PROFILE_PATH,
         updated_cosmetics.to_dictionary(),
-        streak.to_dictionary()
+        streak.to_dictionary(),
+        _nickname
     )
 
 

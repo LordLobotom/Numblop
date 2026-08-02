@@ -107,6 +107,13 @@ static func glasses() -> Array[Dictionary]:
             Rect2(202.0, 288.0, 368.0, 148.0),
             ACCESSORY_PRICE
         ),
+        _accessory(
+            "glasses_pirat",
+            "COSMETICS_GLASSES_PIRATE",
+            "res://assets/cosmetics/glasses/glasses_pirat.png",
+            Rect2(262.0, 280.0, 274.0, 139.0),
+            ACCESSORY_PRICE
+        ),
     ]
 
 

@@ -12,7 +12,7 @@ Hard boundary: edit only `scripts/autoload/`, `scripts/app/`, `tests/state/`, an
 Track-C task/decision lines. Never edit scenes/UI, core learning rules, translations, project or
 export configuration, or QA tooling.
 
-The MVP has exactly one unnamed local child profile and no accounts, analytics, ads, cloud,
+The MVP has exactly one local child profile (optional local nickname) and no accounts, analytics, ads, cloud,
 networking, remote config, or personal-data collection. Saves are versioned and resilient to
 missing/corrupt data. Checkpoint after each accepted answer, keep mastery changes idempotent across
 pause/resume, and handle Android back, focus loss, suspend, force-stop, and relaunch safely.

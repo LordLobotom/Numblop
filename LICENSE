@@ -1,0 +1,12 @@
+Copyright (c) 2026 Michal Gut (GutCloud). All rights reserved.
+
+The source code in this repository is made available for reading and
+reference. No permission is granted to copy, modify, redistribute, or use
+it in other software or products without prior written consent from the
+copyright holder.
+
+Third-party assets bundled with the project keep their own licenses:
+
+- Baloo 2 and Noto Sans fonts — SIL Open Font License 1.1 (see ui/fonts/).
+- Audio assets sourced from Pixabay — Pixabay Content License; provenance
+  is recorded in audio/README.md.

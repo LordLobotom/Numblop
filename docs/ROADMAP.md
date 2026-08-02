@@ -14,7 +14,7 @@ are produced successfully.
 
 ## M1 — Playable learning loop ☐
 
-- Short Numblop opening, remembered Czech/English choice, and Fredoka UI.
+- Short Numblop opening, remembered Czech/English choice, and Baloo 2 UI.
 - Interactive blob home with idle/petting reactions and a shared coin/XP/level/streak bar.
 - Outfit/Map/Home/Trophies/Settings crest navigation and a read-only multiplication-stage trail
   that continuously reflects didactic mastery, reveals a newly unlocked island, and exposes a
@@ -56,14 +56,22 @@ child answers slowly or incorrectly.
 
 Acceptance: progression improves willingness to practice again without distracting from answers.
 
-## M4 — Android release candidate ☐
+## M4 — Android release candidate ◐
 
-- Final icons, store text/screenshots, privacy disclosure, versioning, and release keystore.
-- Signed AAB installed through an internal test track.
-- Physical-device lifecycle, safe areas, package size, and offline behavior verified.
+- ☑ Final icons (adaptive foreground/background/monochrome), boot splash, store text and
+  9:16 screenshots (`store/`), privacy disclosure (`docs/privacy/`, GitHub Pages), and
+  versioning (1.0.0 / code 2). ☐ Release keystore generation remains a manual step.
+- ☐ Signed AAB verified via `tools/verify-aab.ps1` and installed through an internal test track.
+- ☐ Physical-device lifecycle, safe areas, package size, and offline behavior verified.
 - Windows and Web builds remain convenient matching test targets.
 
 Acceptance: the internal Play build installs, updates, runs fully offline, and retains its save.
+
+## Future concept — Teacher / classroom mode
+
+- Class join codes, pseudonymous class leaderboard, and teacher statistics are designed in
+  [`docs/adr/0001-teacher-classroom-mode.md`](adr/0001-teacher-classroom-mode.md) (design
+  only; no code, networking, or permission changes until a dedicated decision).
 
 ## Future concept — Endless trail
 

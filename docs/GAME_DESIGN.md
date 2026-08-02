@@ -8,7 +8,7 @@
 - Secondary platform: Windows, using the same centered portrait experience.
 - Web platform: an adaptive canvas that fits the available phone viewport and uses a wider
   presentation on desktop without stretching portrait-focused content.
-- The game is offline and uses one unnamed local child profile.
+- The game is offline and uses one local child profile with an optional nickname.
 
 ## Player promise
 
@@ -121,7 +121,7 @@ price followed by the coin crest.
 
 ## Presentation and accessibility
 
-- Use **Fredoka** as the primary game typeface and include Czech glyph coverage.
+- Use **Baloo 2** as the primary game typeface and include Czech glyph coverage.
 - Keep `Numblop` untranslated as the public name.
 - Touch targets are at least 48 px and primary actions at least 64 px high.
 - Sound and vibration reinforce actions but are never required to understand the state.

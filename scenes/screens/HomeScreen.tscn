@@ -1,4 +1,4 @@
-[gd_scene load_steps=17 format=3]
+[gd_scene load_steps=19 format=3]
 
 [ext_resource type="Script" path="res://scripts/ui/HomeScreen.gd" id="1_script"]
 [ext_resource type="Texture2D" path="res://assets/backgrounds/mianscreen_background.png" id="2_background"]
@@ -9,7 +9,7 @@
 [ext_resource type="Texture2D" path="res://ui/crests/crest_outfit.png" id="7_outfit"]
 [ext_resource type="Texture2D" path="res://ui/crests/crest_map.png" id="8_map"]
 [ext_resource type="Texture2D" path="res://ui/crests/crest_trophy.png" id="9_trophy"]
-[ext_resource type="Font" path="res://ui/fonts/FredokaBold.tres" id="10_bold"]
+[ext_resource type="Font" path="res://ui/fonts/Baloo2Bold.tres" id="10_bold"]
 [ext_resource type="Texture2D" path="res://ui/crests/crest_settings.png" id="11_settings"]
 [ext_resource type="Texture2D" path="res://ui/crests/crest_home.png" id="12_home"]
 [ext_resource type="Texture2D" path="res://ui/crests/crest_flame.png" id="13_flame"]
@@ -41,6 +41,37 @@ content_margin_right = 10.0
 content_margin_bottom = 4.0
 shadow_color = Color(0.1, 0.3, 0.26, 0.18)
 shadow_size = 5
+
+[sub_resource type="StyleBoxFlat" id="NameButtonPill"]
+bg_color = Color(1, 1, 1, 0.85)
+corner_radius_top_left = 20
+corner_radius_top_right = 20
+corner_radius_bottom_right = 20
+corner_radius_bottom_left = 20
+content_margin_left = 20.0
+content_margin_top = 6.0
+content_margin_right = 20.0
+content_margin_bottom = 6.0
+shadow_color = Color(0.1, 0.35, 0.4, 0.14)
+shadow_size = 4
+
+[sub_resource type="StyleBoxFlat" id="NameDialogPanelStyle"]
+bg_color = Color(0.985, 1, 0.975, 0.99)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.68, 0.86, 0.57, 1)
+corner_radius_top_left = 28
+corner_radius_top_right = 28
+corner_radius_bottom_right = 28
+corner_radius_bottom_left = 28
+content_margin_left = 24.0
+content_margin_top = 22.0
+content_margin_right = 24.0
+content_margin_bottom = 22.0
+shadow_color = Color(0.08, 0.2, 0.12, 0.32)
+shadow_size = 14
 
 [node name="HomeScreen" type="Control"]
 layout_mode = 3
@@ -178,6 +209,25 @@ theme_override_fonts/font = ExtResource("10_bold")
 theme_override_font_sizes/font_size = 18
 text = "0"
 vertical_alignment = 1
+
+[node name="NameCenter" type="CenterContainer" parent="SafeArea/Content"]
+layout_mode = 2
+
+[node name="NameButton" type="Button" parent="SafeArea/Content/NameCenter"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(200, 48)
+layout_mode = 2
+focus_mode = 2
+mouse_default_cursor_shape = 2
+theme_override_colors/font_color = Color(0.18, 0.35, 0.28, 1)
+theme_override_colors/font_hover_color = Color(0.14, 0.31, 0.22, 1)
+theme_override_colors/font_pressed_color = Color(0.12, 0.27, 0.18, 1)
+theme_override_fonts/font = ExtResource("10_bold")
+theme_override_font_sizes/font_size = 19
+theme_override_styles/normal = SubResource("NameButtonPill")
+theme_override_styles/hover = SubResource("NameButtonPill")
+theme_override_styles/pressed = SubResource("NameButtonPill")
+text = "HOME_PROFILE"
 
 [node name="BlobCenter" type="CenterContainer" parent="SafeArea/Content"]
 custom_minimum_size = Vector2(0, 340)
@@ -373,3 +423,99 @@ theme_override_colors/font_color = Color(0.2, 0.33, 0.27, 1)
 theme_override_font_sizes/font_size = 12
 text = "NAV_SETTINGS"
 horizontal_alignment = 1
+
+[node name="NameDialog" type="Control" parent="."]
+unique_name_in_owner = true
+visible = false
+z_index = 100
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 1
+
+[node name="NameScrim" type="ColorRect" parent="NameDialog"]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_default_cursor_shape = 2
+color = Color(0.06, 0.16, 0.1, 0.58)
+
+[node name="NameDialogTop" type="MarginContainer" parent="NameDialog"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 1
+theme_override_constants/margin_left = 20
+theme_override_constants/margin_top = 90
+theme_override_constants/margin_right = 20
+
+[node name="NameDialogPanel" type="PanelContainer" parent="NameDialog/NameDialogTop"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(350, 0)
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 0
+theme_override_styles/panel = SubResource("NameDialogPanelStyle")
+
+[node name="NameDialogContent" type="VBoxContainer" parent="NameDialog/NameDialogTop/NameDialogPanel"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="NameDialogTitle" type="Label" parent="NameDialog/NameDialogTop/NameDialogPanel/NameDialogContent"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.16, 0.32, 0.2, 1)
+theme_override_fonts/font = ExtResource("10_bold")
+theme_override_font_sizes/font_size = 26
+text = "NAME_DIALOG_TITLE"
+horizontal_alignment = 1
+autowrap_mode = 2
+
+[node name="NameInput" type="LineEdit" parent="NameDialog/NameDialogTop/NameDialogPanel/NameDialogContent"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 54)
+layout_mode = 2
+theme_override_font_sizes/font_size = 20
+placeholder_text = "NAME_DIALOG_PLACEHOLDER"
+alignment = 1
+max_length = 16
+
+[node name="NameDialogDivider" type="HSeparator" parent="NameDialog/NameDialogTop/NameDialogPanel/NameDialogContent"]
+layout_mode = 2
+
+[node name="NameDialogButtons" type="BoxContainer" parent="NameDialog/NameDialogTop/NameDialogPanel/NameDialogContent"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="NameCancelButton" type="Button" parent="NameDialog/NameDialogTop/NameDialogPanel/NameDialogContent/NameDialogButtons"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 54)
+layout_mode = 2
+size_flags_horizontal = 3
+focus_mode = 2
+mouse_default_cursor_shape = 2
+theme_override_fonts/font = ExtResource("10_bold")
+theme_override_font_sizes/font_size = 17
+text = "NAME_CANCEL"
+
+[node name="NameSaveButton" type="Button" parent="NameDialog/NameDialogTop/NameDialogPanel/NameDialogContent/NameDialogButtons"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 54)
+layout_mode = 2
+size_flags_horizontal = 3
+focus_mode = 2
+mouse_default_cursor_shape = 2
+theme_override_fonts/font = ExtResource("10_bold")
+theme_override_font_sizes/font_size = 17
+text = "NAME_SAVE"

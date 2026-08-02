@@ -49,7 +49,7 @@ func test_home_crest_navigation_uses_requested_artwork_and_bold_play_font() -> v
     var play_label: Label = scene.get_node("%PlayLabel")
     equal(
         play_label.get_theme_font("font").resource_path,
-        "res://ui/fonts/FredokaBold.tres",
+        "res://ui/fonts/Baloo2Bold.tres",
         "Play uses the bold font"
     )
     scene.free()
@@ -441,6 +441,40 @@ func test_trophy_screen_lists_timestamped_record_milestones() -> void:
     scene.free()
 
 
+func test_home_nickname_button_and_dialog_have_touch_ready_contracts() -> void:
+    var packed: PackedScene = load("res://scenes/screens/HomeScreen.tscn")
+    check(packed != null, "Home scene must load")
+    if packed == null:
+        return
+    var scene := packed.instantiate()
+    var nickname_button: Button = scene.get_node("%NameButton")
+    check(nickname_button is Button, "Nickname button exists")
+    check(nickname_button.custom_minimum_size.y >= 48.0, "Nickname button touch target")
+    var dialog: Control = scene.get_node("%NameDialog")
+    check(dialog is Control, "Name dialog overlay exists")
+    check(not dialog.visible, "Name dialog starts hidden")
+    var name_input: LineEdit = scene.get_node("%NameInput")
+    check(name_input is LineEdit, "Name input is a virtual-keyboard LineEdit")
+    equal(name_input.max_length, 16, "Nickname length matches LocalNickname.MAX_LENGTH")
+    check(
+        scene.get_node("%NameSaveButton").custom_minimum_size.y >= 48.0,
+        "Save touch target"
+    )
+    check(
+        scene.get_node("%NameCancelButton").custom_minimum_size.y >= 48.0,
+        "Cancel touch target"
+    )
+    check(scene.has_method("show_name_dialog"), "Home can open the name dialog")
+    check(scene.has_method("close_name_dialog_if_open"), "Android Back can close the dialog")
+    var scene_tree := Engine.get_main_loop() as SceneTree
+    scene_tree.root.add_child(scene)
+    check(not scene.close_name_dialog_if_open(), "Closed dialog does not consume Back")
+    dialog.visible = true
+    check(scene.close_name_dialog_if_open(), "Open dialog consumes Back")
+    check(not dialog.visible, "Back hides only the name dialog")
+    scene.free()
+
+
 func test_home_screen_displays_progress_without_calculating_it() -> void:
     var packed: PackedScene = load("res://scenes/screens/HomeScreen.tscn")
     check(packed != null, "Home scene must load")
@@ -518,18 +552,18 @@ func test_blob_home_has_idle_pet_and_heart_reactions() -> void:
     blob.free()
 
 
-func test_theme_bundles_fredoka_with_czech_glyphs() -> void:
+func test_theme_bundles_baloo2_with_czech_glyphs() -> void:
     var theme: Theme = load("res://ui/theme.tres")
     check(theme != null, "Theme must load")
     if theme == null:
         return
-    check(theme.default_font != null, "Fredoka must be the default font")
+    check(theme.default_font != null, "Baloo 2 must be the default font")
     if theme.default_font == null:
         return
     var czech_glyphs := "áčďéěíňóřšťúůýž"
     for index in czech_glyphs.length():
         var codepoint := czech_glyphs.unicode_at(index)
-        check(theme.default_font.has_char(codepoint), "Fredoka missing Czech glyph: %s" % codepoint)
+        check(theme.default_font.has_char(codepoint), "Baloo 2 missing Czech glyph: %s" % codepoint)
 
 
 func test_opening_screen_uses_wordmark_and_touch_ready_language_choices() -> void:

@@ -24,7 +24,7 @@ Status values: `TODO`, `WIP(@agent)`, `BLOCKED(reason)`, `DONE`.
   adaptive pool is exhausted. Depends: A0. Owns: session generator and generator tests.
 - `A4 DONE` Replace the table gate with the confirmed 9-of-10 facts at 80 mastery rule, including
   boundary and permanent-unlock tests. Depends: A0. Owns: learning rules/profile and core tests.
-- `B1 DONE` Opening/logo scene, remembered language choice, bundled Fredoka font, and license.
+- `B1 DONE` Opening/logo scene, remembered language choice, bundled UI font, and license.
   Depends: B0. Owns: opening scene/script, `ui/fonts/`, localization keys, UI tests.
 - `B2 DONE` Interactive blob home, idle/petting reactions, hearts, and coin/XP/level display.
   Depends: B1. Owns: home/blob scenes and scripts, UI tests.
@@ -134,6 +134,36 @@ Status values: `TODO`, `WIP(@agent)`, `BLOCKED(reason)`, `DONE`.
   tests, release documentation, and responsive harness.
 - `D13 DONE` Define the public application version in project configuration and verify that the
   Windows and Android export versions stay aligned. Owns: project configuration and smoke tests.
+
+## M4 tasks
+
+- `B23 DONE` Optional local nickname UI: home name pill, kid-friendly top-anchored name dialog
+  with LineEdit and 48px+ actions, Android Back integration, localization, and the `home_name`
+  responsive capture state. Depends: C14. Owns: home scene/script, main back flow, localization,
+  UI tests, capture harness.
+- `B24 DONE` Switch the primary typeface from Fredoka to Baloo 2 (variable + Noto Sans fallback,
+  OFL bundled), keeping the bold 0.8-embolden variant and Czech glyph coverage. Owns: `ui/fonts/`,
+  theme, scene font references, UI tests, docs.
+- `B25 DONE` Add the supplied pirate eye patch to the glasses catalog under the 100-coin contract.
+  Owns: cosmetic catalog, localization, and state tests.
+- `C14 DONE` Save version 7: optional sanitized nickname (`LocalNickname`, max 16 chars) and a
+  stable random `profile_id`, preserved across every save path and cleared on profile reset.
+  Owns: save manager, app state, event bus, and state tests.
+- `D14 DONE` Adaptive Android launcher icons (foreground/background/monochrome 432px), proper
+  192px legacy icon, and branded boot splash. Owns: `ui/branding/android/`, project/export
+  configuration, and smoke contract.
+- `D15 DONE` Release manifest fixes: VIBRATE permission for the chest haptic, Android device
+  backup enabled, and the 1.0.0 / version-code-2 bump across all presets. Owns: export presets,
+  project configuration, smoke contract, `docs/RELEASES.md`.
+- `D16 DONE` AAB verification tool (`tools/verify-aab.ps1`): structure, both ABIs, jarsigner
+  signature, and optional bundletool manifest assertions. Owns: `tools/`, release documentation.
+- `D17 DONE` Store submission kit: bilingual privacy policy for GitHub Pages (`docs/privacy/`),
+  512px store icon, 1024×500 feature graphic, 9:16 store screenshot harness
+  (`tools/capture-store.ps1` → versioned `store/screenshots/`), bilingual listing texts, and the
+  repository LICENSE. Owns: `store/`, `docs/index.md`, `docs/privacy/`, capture harness, LICENSE.
+- `D18 TODO` Release execution: generate the release keystore, export and verify the signed AAB,
+  enable GitHub Pages, complete the physical-device checklist (unblocks D2), and upload to the
+  Play internal test track. Depends: D2, D14–D17. Owns: release workflow (manual steps).
 
 Claim the lowest-numbered unblocked task in your track. Only the stated owner changes the task's
 owned files; coordinate contract changes through the owning track.

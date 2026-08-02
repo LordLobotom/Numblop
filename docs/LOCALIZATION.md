@@ -13,7 +13,7 @@
 - Keep `Numblop` untranslated as the public product name.
 - Use whole-sentence keys and named placeholders such as `{count}` and `{table}`.
 - Do not translate mathematical symbols or alter numeric formatting inside the learning core.
-- Use UTF-8 and the bundled Fredoka font, verifying Czech characters:
+- Use UTF-8 and the bundled Baloo 2 font, verifying Czech characters:
   `á č ď é ě í ň ó ř š ť ú ů ý ž`.
 - Check text expansion, wrapping, and touch sizes in both locales at 390 × 844.
 

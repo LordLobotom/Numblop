@@ -22,6 +22,7 @@ $expectedScreens = @(
     "home",
     "home_accessories",
     "home_duck",
+    "home_name",
     "cosmetics",
     "cosmetics_color",
     "cosmetics_buy",

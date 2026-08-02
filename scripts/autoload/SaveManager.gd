@@ -1,7 +1,8 @@
 extends Node
 
 const PROFILE_PATH := "user://profile.json"
-const SAVE_VERSION := 6
+const SAVE_VERSION := 7
+const PROFILE_ID_BYTES := 16
 
 
 func save_profile(profile: LearningProfile, path: String = PROFILE_PATH) -> Error:
@@ -24,7 +25,8 @@ func save_game_state(
     experience: int,
     path: String = PROFILE_PATH,
     cosmetics: Dictionary = {},
-    streak: Dictionary = {}
+    streak: Dictionary = {},
+    nickname: Variant = null
 ) -> Error:
     var cosmetics_to_save := cosmetics
     if cosmetics_to_save.is_empty():
@@ -32,6 +34,12 @@ func save_game_state(
     var streak_to_save := streak
     if streak_to_save.is_empty():
         streak_to_save = load_streak(path)
+    var nickname_to_save := (
+        LocalNickname.sanitize(nickname) if nickname is String else load_nickname(path)
+    )
+    var profile_id := load_profile_id(path)
+    if profile_id.is_empty():
+        profile_id = Crypto.new().generate_random_bytes(PROFILE_ID_BYTES).hex_encode()
     var file := FileAccess.open(path, FileAccess.WRITE)
     if file == null:
         push_error("Could not open profile for writing: %s" % path)
@@ -42,6 +50,8 @@ func save_game_state(
     data["experience"] = maxi(0, experience)
     data["cosmetics"] = LocalCosmetics.new(cosmetics_to_save).to_dictionary()
     data["streak"] = LocalStreak.new(streak_to_save).to_dictionary()
+    data["nickname"] = nickname_to_save
+    data["profile_id"] = profile_id
     file.store_string(JSON.stringify(data, "  "))
     EventBus.profile_saved.emit()
     return OK
@@ -66,6 +76,18 @@ func load_cosmetics(path: String = PROFILE_PATH) -> Dictionary:
     var data := _load_state_dictionary(path)
     var cosmetics: Variant = data.get("cosmetics", {})
     return LocalCosmetics.new(cosmetics if cosmetics is Dictionary else {}).to_dictionary()
+
+
+func load_nickname(path: String = PROFILE_PATH) -> String:
+    var data := _load_state_dictionary(path)
+    var nickname: Variant = data.get("nickname", "")
+    return LocalNickname.sanitize(nickname) if nickname is String else ""
+
+
+func load_profile_id(path: String = PROFILE_PATH) -> String:
+    var data := _load_state_dictionary(path)
+    var profile_id: Variant = data.get("profile_id", "")
+    return profile_id if profile_id is String else ""
 
 
 func load_streak(path: String = PROFILE_PATH) -> Dictionary:

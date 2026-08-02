@@ -25,6 +25,13 @@ signal settings_requested
 @onready var trophy_label: Label = %TrophyLabel
 @onready var settings_label: Label = %SettingsLabel
 @onready var blob: BlobCharacter = %BlobCharacter
+@onready var name_button: Button = %NameButton
+@onready var name_dialog: Control = %NameDialog
+@onready var name_scrim: ColorRect = %NameScrim
+@onready var name_dialog_title: Label = %NameDialogTitle
+@onready var name_input: LineEdit = %NameInput
+@onready var name_save_button: Button = %NameSaveButton
+@onready var name_cancel_button: Button = %NameCancelButton
 
 var _coins := 0
 var _experience := 0
@@ -39,6 +46,12 @@ func _ready() -> void:
     trophy_button.pressed.connect(trophy_requested.emit)
     settings_button.pressed.connect(settings_requested.emit)
     blob.petted.connect(_on_blob_petted)
+    name_button.pressed.connect(show_name_dialog)
+    name_save_button.pressed.connect(_save_nickname)
+    name_cancel_button.pressed.connect(hide_name_dialog)
+    name_scrim.gui_input.connect(_on_name_scrim_input)
+    name_input.text_submitted.connect(func(_text: String) -> void: _save_nickname())
+    EventBus.nickname_changed.connect(_on_nickname_changed)
     var totals: Dictionary = AppState.progress_totals()
     set_progress_totals(
         int(totals["coins"]),
@@ -85,6 +98,53 @@ func show_future_feature() -> void:
     pet_hint.text = tr("HOME_FEATURE_LATER")
 
 
+func show_name_dialog() -> void:
+    name_input.text = AppState.nickname()
+    name_dialog.visible = true
+    name_input.grab_focus()
+
+
+func hide_name_dialog() -> void:
+    name_dialog.visible = false
+    name_button.grab_focus()
+
+
+func close_name_dialog_if_open() -> bool:
+    if not name_dialog.visible:
+        return false
+    hide_name_dialog()
+    return true
+
+
+func _save_nickname() -> void:
+    AppState.set_nickname(name_input.text)
+    hide_name_dialog()
+
+
+func _on_name_scrim_input(event: InputEvent) -> void:
+    if (
+        event is InputEventMouseButton
+        and event.button_index == MOUSE_BUTTON_LEFT
+        and event.pressed
+    ):
+        hide_name_dialog()
+        name_scrim.accept_event()
+
+
+func _on_nickname_changed(_nickname: String) -> void:
+    _refresh_name_text()
+
+
+func _refresh_name_text() -> void:
+    var nickname := AppState.nickname()
+    name_button.text = nickname if not nickname.is_empty() else tr("HOME_PROFILE")
+    name_button.tooltip_text = tr("HOME_NAME_EDIT_HINT")
+    name_dialog_title.text = tr("NAME_DIALOG_TITLE")
+    name_input.placeholder_text = tr("NAME_DIALOG_PLACEHOLDER")
+    name_save_button.text = tr("NAME_SAVE")
+    name_cancel_button.text = tr("NAME_CANCEL")
+
+
 func _refresh_text() -> void:
     play_label.text = tr("HOME_PLAY")
     pet_hint.text = tr("HOME_PET_HINT")
@@ -100,6 +160,7 @@ func _refresh_text() -> void:
     trophy_button.tooltip_text = tr("NAV_TROPHY")
     settings_button.tooltip_text = tr("NAV_SETTINGS")
     blob.tooltip_text = tr("HOME_PET_ACCESSIBLE")
+    _refresh_name_text()
     _refresh_progress_text()
 
 

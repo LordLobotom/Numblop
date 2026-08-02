@@ -166,6 +166,8 @@ product documents are:
 
 ## Bundled assets
 
-Fredoka is bundled under the SIL Open Font License. Audio supplied for the project includes assets
+Baloo 2 (with the Noto Sans fallback) is bundled under the SIL Open Font License. Audio supplied
+for the project includes assets
 from Pixabay; provenance and the applicable Pixabay Content License notes are recorded in
-[`audio/README.md`](audio/README.md). No repository-wide software license is currently declared.
+[`audio/README.md`](audio/README.md). The repository itself is licensed under the proprietary
+terms in [`LICENSE`](LICENSE) (all rights reserved; source readable, not reusable).

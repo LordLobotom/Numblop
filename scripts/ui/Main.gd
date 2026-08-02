@@ -247,6 +247,8 @@ func _on_back_requested() -> void:
     elif map_screen.visible:
         if not map_screen.close_detail_if_open():
             _on_map_return_requested()
+    elif home_screen.visible:
+        home_screen.close_name_dialog_if_open()
 
 
 func _on_settings_requested() -> void:

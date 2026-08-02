@@ -142,8 +142,8 @@ func test_mastery_milestone_feedback_names_fact_band_and_coin_bonus_in_czech() -
     )
     equal(
         fact_label.get_theme_font("font").resource_path,
-        "res://ui/fonts/FredokaBold.tres",
-        "Milestone fact uses the bold Fredoka font"
+        "res://ui/fonts/Baloo2Bold.tres",
+        "Milestone fact uses the bold Baloo 2 font"
     )
     var skip_audit := {"emitted": false}
     scene.feedback_gate.connect(func() -> void: skip_audit["emitted"] = true)

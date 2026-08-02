@@ -13,7 +13,7 @@ const OPEN_STAGE_TEXTURE: Texture2D = preload(
 const CLOSED_STAGE_TEXTURE: Texture2D = preload(
     "res://ui/crests/crest_map_islan_closed.png"
 )
-const BOLD_FONT: Font = preload("res://ui/fonts/FredokaBold.tres")
+const BOLD_FONT: Font = preload("res://ui/fonts/Baloo2Bold.tres")
 const STAGE_SIZE := Vector2(132.0, 132.0)
 const STAGE_STEP := 145.0
 const MAP_CONTENT_WIDTH := 350.0

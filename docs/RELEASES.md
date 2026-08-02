@@ -7,8 +7,11 @@
 - Windows: x86-64 centered portrait window.
 - Web: adaptive static canvas; phone view fits the available viewport and 900×900 is the wide
   desktop QA reference.
-- The public version comes from `application/config/version`, starts at `0.1.0`, and stays
-  aligned with Android version name `0.1.0` (code `1`) and the Windows product version.
+- The public version comes from `application/config/version` (currently `1.0.0`) and stays
+  aligned with the Android version name (Play version code `2`) and the Windows product version.
+  All four values are pinned by `tests/smoke/test_project_contract.gd`; bump them together.
+- Privacy policy URL for Play Console (data safety + store listing):
+  `https://lordlobotom.github.io/Numblop/privacy/` (served by GitHub Pages from `docs/`).
 
 ## Development artifacts
 
@@ -68,8 +71,8 @@ Complete this checklist on the phone while it remains disconnected from Wi-Fi an
    confirmation, then confirm Close game and relaunch.
 5. Complete one 10-question series, including four choices, six choices, and the numeric keypad.
 6. Make one intentional mistake; confirm the full correct equation remains until Continue is tapped.
-7. Tap the chest once; confirm one shake/haptic, one opening, a +10 coin/+10 XP count-up,
-   and the final tap back to the updated home totals.
+7. Tap the chest once; confirm one shake with a real haptic buzz, one opening, the accuracy-based
+   coin/XP count-up, and the final tap back to the updated home totals.
 8. Start another series, answer at least once, switch apps, and return; the unfinished series must
    be gone while the processed mastery remains saved and no reward is added.
 9. Force-stop and relaunch; mastery, language, audio preferences, coins, experience, and level must
@@ -95,12 +98,26 @@ task intentionally customizes and versions it. For scripted release exports, the
 Gradle's background daemon to avoid a Windows redirected-output handle deadlock; interactive
 Godot and Gradle settings are not changed.
 
+## Verify the AAB
+
+After a release export, verify the bundle before uploading:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File tools/verify-aab.ps1
+```
+
+The tool checks the bundle structure (manifest, dex, both ABIs' native libraries), verifies the
+upload signature with `jarsigner`, and — when `NUMBLOP_BUNDLETOOL_JAR` points at a
+`bundletool-all-<version>.jar` downloaded once from `github.com/google/bundletool/releases` —
+asserts the manifest: package id, version code/name, VIBRATE present, INTERNET absent, and
+`allowBackup="true"`. Success prints `NUMBLOP_AAB_VERIFY_OK`.
+
 ## Release checklist
 
 1. Full tests pass; both translations and version values are reviewed.
 2. Windows, Web, and debug APK export without script/export errors; Web HTTP smoke passes.
 3. `tools/android-smoke.ps1` passes and the physical checklist above passes with networking disabled.
 4. Save survives pause, force-stop, relaunch, and application update.
-5. Signed AAB is verified and uploaded to an internal Play test track.
+5. Signed AAB passes `tools/verify-aab.ps1` and is uploaded to an internal Play test track.
 6. Store listing, screenshots, content rating, data-safety answers, and privacy text match the
    actual offline/no-data-collection behavior.

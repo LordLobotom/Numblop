@@ -7,7 +7,7 @@ signal outfit_requested
 signal settings_requested
 
 const FLAME_TEXTURE: Texture2D = preload("res://ui/crests/crest_flame.png")
-const BOLD_FONT: Font = preload("res://ui/fonts/FredokaBold.tres")
+const BOLD_FONT: Font = preload("res://ui/fonts/Baloo2Bold.tres")
 
 @onready var title_label: Label = %TitleLabel
 @onready var current_label: Label = %CurrentLabel

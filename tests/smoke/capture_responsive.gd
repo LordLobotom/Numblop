@@ -10,6 +10,7 @@ const SCREENS: Array[String] = [
     "home",
     "home_accessories",
     "home_duck",
+    "home_name",
     "cosmetics",
     "cosmetics_color",
     "cosmetics_buy",
@@ -116,7 +117,7 @@ func _create_screen(screen_name: String) -> Control:
 
 func _configure_screen(screen: Control, screen_name: String, locale: String) -> void:
     match screen_name:
-        "home", "home_accessories", "home_duck":
+        "home", "home_accessories", "home_duck", "home_name":
             var home := screen as HomeScreen
             home.set_progress_totals(120, 240, 3)
             home.set_streak(18)
@@ -147,6 +148,9 @@ func _configure_screen(screen: Control, screen_name: String, locale: String) -> 
                     "selected_necklace": "necklace_duck",
                     "colors": home_colors,
                 })
+            elif screen_name == "home_name":
+                home.show_name_dialog()
+                home.name_input.text = "Anička"
         "cosmetics", "cosmetics_color", "cosmetics_buy", "cosmetics_hat":
             var cosmetics_screen := screen as CosmeticsScreen
             var selected_id := (
