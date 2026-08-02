@@ -20,6 +20,7 @@ static func body_colors() -> Array[Dictionary]:
         _body_color("pink", "COSMETICS_PINK", Color("f47fb2"), BODY_COLOR_PRICE),
         _body_color("purple", "COSMETICS_PURPLE", Color("9b78e8"), BODY_COLOR_PRICE),
         _body_color("orange", "COSMETICS_ORANGE", Color("f6a83b"), BODY_COLOR_PRICE),
+        _body_color("yellow", "COSMETICS_YELLOW", Color("f5d547"), BODY_COLOR_PRICE),
     ]
 
 

@@ -206,6 +206,13 @@ func test_map_screen_has_all_stage_navigation_contracts() -> void:
     island.pressed.emit()
     check(scene.get_node("%FactDetailOverlay").visible, "Island detail opens")
     equal(scene.get_node("%FactGrid").get_child_count(), 10, "All ten facts are shown")
+    var legend_grid: GridContainer = scene.get_node("%LegendGrid")
+    equal(legend_grid.get_child_count(), 4, "Legend shows all four mastery bands")
+    for legend_item in legend_grid.get_children():
+        check(
+            legend_item.get_node_or_null("DotHolder/LegendDot") is Panel,
+            "Legend uses a drawn color dot instead of a font glyph"
+        )
     check(scene.close_detail_if_open(), "Open detail consumes back")
     check(not scene.get_node("%FactDetailOverlay").visible, "Fact detail closes")
     scene.free()
@@ -283,6 +290,8 @@ func test_settings_screen_has_language_audio_mute_and_safe_exit_controls() -> vo
     for language_button_name in ["EnglishButton", "CzechButton"]:
         var language_button: TextureButton = scene.get_node("%%%s" % language_button_name)
         check(language_button.custom_minimum_size.y >= 48.0, "Language crest touch target")
+    check(scene.get_node("%EnglishCheck") is CheckmarkIcon, "English uses a drawn checkmark")
+    check(scene.get_node("%CzechCheck") is CheckmarkIcon, "Czech uses a drawn checkmark")
     for slider_name in ["MusicSlider", "SfxSlider"]:
         var slider: HSlider = scene.get_node("%%%s" % slider_name)
         check(slider.custom_minimum_size.y >= 48.0, "Audio slider touch target")
@@ -348,7 +357,7 @@ func test_cosmetics_screen_has_compact_shop_purchase_and_navigation_contracts() 
     check(scene.has_method("set_presentation_state"), "Cosmetics supports deterministic previews")
     check(scene.get_node_or_null("%PreviewBlob") == null, "No oversized character preview")
     check(scene.get_node("%ColorGrid") is GridContainer, "Body-color swatch grid")
-    equal(scene.get_node("%ColorGrid").columns, 5, "Five colors share one row")
+    equal(scene.get_node("%ColorGrid").columns, 6, "Six colors share one compact row")
     check(scene.get_node("%HatsGrid") is GridContainer, "Hat shop grid")
     equal(scene.get_node("%HatsGrid").columns, 5, "Duck hat keeps hats on one compact row")
     check(scene.get_node("%GlassesGrid") is GridContainer, "Glasses shop grid")

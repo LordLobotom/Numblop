@@ -13,7 +13,7 @@ func _ready() -> void:
     flat = true
     focus_mode = Control.FOCUS_ALL
     mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
-    custom_minimum_size = Vector2(54.0, 54.0)
+    custom_minimum_size = Vector2(48.0, 48.0)
 
 
 func configure(
@@ -40,12 +40,12 @@ func _draw() -> void:
 
 
 func _draw_check(center: Vector2) -> void:
-    var points := PackedVector2Array([
-        center + Vector2(-6.0, 0.0),
-        center + Vector2(-1.5, 4.5),
-        center + Vector2(7.5, -6.0),
-    ])
-    draw_polyline(points, Color(0.12, 0.56, 0.08), 3.0, true)
+    draw_polyline(
+        CheckmarkIcon.check_points(center),
+        CheckmarkIcon.DEFAULT_COLOR,
+        3.0,
+        true
+    )
 
 
 func _draw_lock(center: Vector2) -> void:

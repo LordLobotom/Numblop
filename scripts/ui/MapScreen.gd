@@ -343,11 +343,24 @@ func _rebuild_legend() -> void:
         item.add_theme_constant_override("separation", 5)
         legend_grid.add_child(item)
 
-        var dot := Label.new()
-        dot.add_theme_font_size_override("font_size", 16)
-        dot.add_theme_color_override("font_color", _fact_status_color(status))
-        dot.text = "●"
-        item.add_child(dot)
+        var dot_holder := CenterContainer.new()
+        dot_holder.name = "DotHolder"
+        dot_holder.custom_minimum_size = Vector2(16.0, 22.0)
+        dot_holder.mouse_filter = Control.MOUSE_FILTER_IGNORE
+        item.add_child(dot_holder)
+
+        var dot := Panel.new()
+        dot.name = "LegendDot"
+        dot.custom_minimum_size = Vector2(12.0, 12.0)
+        dot.mouse_filter = Control.MOUSE_FILTER_IGNORE
+        var dot_style := StyleBoxFlat.new()
+        dot_style.bg_color = _fact_status_color(status)
+        dot_style.corner_radius_top_left = 6
+        dot_style.corner_radius_top_right = 6
+        dot_style.corner_radius_bottom_right = 6
+        dot_style.corner_radius_bottom_left = 6
+        dot.add_theme_stylebox_override("panel", dot_style)
+        dot_holder.add_child(dot)
 
         var label := Label.new()
         label.add_theme_font_size_override("font_size", 12)

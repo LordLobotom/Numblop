@@ -158,9 +158,17 @@
 ## 2026-08-02 — Responsive exit confirmation
 
 - Settings uses a themed in-game exit overlay instead of the platform `ConfirmationDialog`.
-  Its two 54px actions stack below 420px screen width and sit side by side on wider portraits.
+- Its two 54px actions stack below 420px screen width and sit side by side on wider portraits.
 - Tapping outside, pressing Cancel, Escape, or Android Back closes the overlay without leaving
   Settings. Confirming still flushes audio preferences before emitting the game-exit request.
+
+## 2026-08-02 — Web-safe UI symbols and yellow body color
+
+- Checkmarks in Settings and the numeric keypad use the same vector-drawn geometry as selected
+  Cosmetics items, and the keypad delete arrow is also drawn. Map-detail legend dots use rounded
+  style boxes. These controls no longer depend on optional Unicode glyphs in the Web font renderer.
+- Yellow is the sixth body color and follows the existing 100-coin purchase, equip, and local-save
+  contract. Six 48px color targets remain centered in one compact row.
 
 ## 2026-08-02 — Adaptive Web export
 

@@ -75,6 +75,10 @@ func test_numeric_keypad_uses_large_in_game_touch_targets() -> void:
         "res://audio/sfx/button.mp3",
         "Numeric key sound"
     )
+    equal(keypad.get_node("%SubmitButton").text, "", "Submit avoids unsupported font glyphs")
+    check(keypad.get_node("%SubmitCheck") is CheckmarkIcon, "Submit uses a drawn checkmark")
+    equal(keypad.get_node("%DeleteButton").text, "", "Delete avoids unsupported font glyphs")
+    check(keypad.get_node("%DeleteArrow") is BackspaceIcon, "Delete uses a drawn arrow")
     check(
         grid.theme.get_color("font_color", "Button").get_luminance() < 0.5,
         "Digits must remain readable on white keys"

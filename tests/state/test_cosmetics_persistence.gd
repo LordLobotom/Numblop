@@ -3,13 +3,15 @@ extends NumblopTestCase
 const TEST_PATH := "user://numblop_cosmetics_test.json"
 
 
-func test_body_color_catalog_has_one_free_and_four_hundred_coin_colors() -> void:
+func test_body_color_catalog_has_one_free_and_five_paid_colors() -> void:
     var colors := CosmeticCatalog.body_colors()
-    equal(colors.size(), 5, "Initial body-color choices")
+    equal(colors.size(), 6, "Body-color choices include yellow")
     equal(colors[0]["id"], CosmeticCatalog.DEFAULT_BODY_COLOR_ID, "Default green")
     equal(colors[0]["price"], 0, "Default color is free")
     for index in range(1, colors.size()):
         equal(colors[index]["price"], 100, "Paid body color price")
+    equal(colors[5]["id"], "yellow", "Yellow joins the body-color catalog")
+    equal(colors[5]["name_key"], "COSMETICS_YELLOW", "Yellow is localized")
 
 
 func test_supplied_accessory_catalog_has_free_empty_slots_and_ten_paid_items() -> void:
@@ -116,7 +118,7 @@ func test_cosmetics_round_trip_and_profile_save_preserve_inventory() -> void:
     _remove_test_file()
     var profile := LearningProfile.new()
     var cosmetics := LocalCosmetics.new()
-    cosmetics.purchase_and_equip_body_color("purple", 100)
+    cosmetics.purchase_and_equip_body_color("yellow", 100)
     cosmetics.purchase_and_equip_item(
         CosmeticCatalog.CATEGORY_HAT,
         "hat_winter",
@@ -144,8 +146,8 @@ func test_cosmetics_round_trip_and_profile_save_preserve_inventory() -> void:
         "Cosmetic state save"
     )
     var loaded := LocalCosmetics.new(SaveManager.load_cosmetics(TEST_PATH))
-    check(loaded.owns_body_color("purple"), "Purchased color survives reload")
-    equal(loaded.selected_body_color, "purple", "Equipped color survives reload")
+    check(loaded.owns_body_color("yellow"), "Purchased yellow survives reload")
+    equal(loaded.selected_body_color, "yellow", "Equipped yellow survives reload")
     equal(loaded.selected_hat, "hat_winter", "Equipped hat survives reload")
     equal(loaded.selected_glasses, "glasses_fashion", "Equipped glasses survive reload")
     equal(loaded.selected_necklace, "necklace_moon", "Equipped necklace survives reload")
@@ -153,16 +155,16 @@ func test_cosmetics_round_trip_and_profile_save_preserve_inventory() -> void:
     profile.set_mastery(2, 4, 25)
     equal(SaveManager.save_profile(profile, TEST_PATH), OK, "Mastery-only save")
     loaded = LocalCosmetics.new(SaveManager.load_cosmetics(TEST_PATH))
-    check(loaded.owns_body_color("purple"), "Per-answer save preserves inventory")
-    equal(loaded.selected_body_color, "purple", "Per-answer save preserves selection")
+    check(loaded.owns_body_color("yellow"), "Per-answer save preserves yellow")
+    equal(loaded.selected_body_color, "yellow", "Per-answer save preserves yellow selection")
     equal(loaded.selected_hat, "hat_winter", "Per-answer save preserves hat")
     equal(loaded.selected_glasses, "glasses_fashion", "Per-answer save preserves glasses")
     equal(loaded.selected_necklace, "necklace_moon", "Per-answer save preserves necklace")
 
     equal(SaveManager.save_game_state(profile, 30, 50, TEST_PATH), OK, "Progress-only save")
     loaded = LocalCosmetics.new(SaveManager.load_cosmetics(TEST_PATH))
-    check(loaded.owns_body_color("purple"), "Progress save preserves inventory")
-    equal(loaded.selected_body_color, "purple", "Progress save preserves selection")
+    check(loaded.owns_body_color("yellow"), "Progress save preserves yellow")
+    equal(loaded.selected_body_color, "yellow", "Progress save preserves yellow selection")
     equal(loaded.selected_hat, "hat_winter", "Progress save preserves hat")
     equal(loaded.selected_glasses, "glasses_fashion", "Progress save preserves glasses")
     equal(loaded.selected_necklace, "necklace_moon", "Progress save preserves necklace")

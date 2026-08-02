@@ -54,8 +54,8 @@ No additional game modes are part of the MVP.
   answer ends it. When an ended streak exceeds every previously ended streak, Trophies adds a
   milestone with its count and the local date and time of the interrupting mistake. Shorter ended
   streaks reset the current counter but do not add rows. Streaks never change mastery or rewards.
-- Outfit opens a compact Cosmetics shop without a character preview. The five body-color circles
-  share one row: green is free, while blue, pink, purple, and orange cost 100 coins each. Hats,
+- Outfit opens a compact Cosmetics shop without a character preview. The six body-color circles
+  share one row: green is free, while blue, pink, purple, orange, and yellow cost 100 coins each. Hats,
   glasses, and necklaces use supplied transparent artwork in rounded square cards; every accessory
   costs 100 coins, and a free empty card removes that category. The duck cap joins the hat row and
   crown, duck, and moon necklaces have their own row. Tapping an owned item equips it. Tapping a

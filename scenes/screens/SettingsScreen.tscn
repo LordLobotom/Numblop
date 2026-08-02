@@ -1,4 +1,4 @@
-[gd_scene load_steps=24 format=3]
+[gd_scene load_steps=25 format=3]
 
 [ext_resource type="Script" path="res://scripts/ui/SettingsScreen.gd" id="1_script"]
 [ext_resource type="Texture2D" path="res://assets/backgrounds/mianscreen_background.png" id="2_background"]
@@ -12,6 +12,7 @@
 [ext_resource type="AudioStream" path="res://audio/sfx/Menu_Select_00.wav" id="10_preview"]
 [ext_resource type="Texture2D" path="res://ui/crests/crest_home.png" id="11_home"]
 [ext_resource type="Script" path="res://scripts/ui/CenteredContentMargin.gd" id="12_centered_margin"]
+[ext_resource type="Script" path="res://scripts/ui/CheckmarkIcon.gd" id="13_checkmark"]
 
 [sub_resource type="StyleBoxFlat" id="HeaderPanel"]
 bg_color = Color(1, 1, 1, 0.92)
@@ -285,7 +286,7 @@ texture_normal = ExtResource("3_english")
 ignore_texture_size = true
 stretch_mode = 0
 
-[node name="EnglishCheck" type="Label" parent="SafeArea/Content/Scroll/SettingsPanel/SettingsContent/LanguageButtons/EnglishItem/EnglishButton"]
+[node name="EnglishCheck" type="Control" parent="SafeArea/Content/Scroll/SettingsPanel/SettingsContent/LanguageButtons/EnglishItem/EnglishButton"]
 unique_name_in_owner = true
 layout_mode = 1
 anchors_preset = 1
@@ -295,13 +296,11 @@ offset_left = -34.0
 offset_bottom = 36.0
 grow_horizontal = 0
 mouse_filter = 2
-theme_override_colors/font_color = Color(0.27, 0.72, 0.08, 1)
-theme_override_colors/font_outline_color = Color(1, 1, 1, 1)
-theme_override_constants/outline_size = 5
-theme_override_fonts/font = ExtResource("9_bold")
-theme_override_font_sizes/font_size = 28
-text = "✓"
-horizontal_alignment = 1
+script = ExtResource("13_checkmark")
+line_width = 4.0
+scale_factor = 1.5
+outline_color = Color(1, 1, 1, 1)
+outline_width = 8.0
 
 [node name="EnglishLabel" type="Label" parent="SafeArea/Content/Scroll/SettingsPanel/SettingsContent/LanguageButtons/EnglishItem"]
 unique_name_in_owner = true
@@ -325,7 +324,7 @@ texture_normal = ExtResource("4_czech")
 ignore_texture_size = true
 stretch_mode = 0
 
-[node name="CzechCheck" type="Label" parent="SafeArea/Content/Scroll/SettingsPanel/SettingsContent/LanguageButtons/CzechItem/CzechButton"]
+[node name="CzechCheck" type="Control" parent="SafeArea/Content/Scroll/SettingsPanel/SettingsContent/LanguageButtons/CzechItem/CzechButton"]
 unique_name_in_owner = true
 layout_mode = 1
 anchors_preset = 1
@@ -335,13 +334,11 @@ offset_left = -34.0
 offset_bottom = 36.0
 grow_horizontal = 0
 mouse_filter = 2
-theme_override_colors/font_color = Color(0.27, 0.72, 0.08, 1)
-theme_override_colors/font_outline_color = Color(1, 1, 1, 1)
-theme_override_constants/outline_size = 5
-theme_override_fonts/font = ExtResource("9_bold")
-theme_override_font_sizes/font_size = 28
-text = "✓"
-horizontal_alignment = 1
+script = ExtResource("13_checkmark")
+line_width = 4.0
+scale_factor = 1.5
+outline_color = Color(1, 1, 1, 1)
+outline_width = 8.0
 
 [node name="CzechLabel" type="Label" parent="SafeArea/Content/Scroll/SettingsPanel/SettingsContent/LanguageButtons/CzechItem"]
 unique_name_in_owner = true

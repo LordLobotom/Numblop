@@ -119,7 +119,7 @@ func _rebuild_catalog() -> void:
     _clear_grid(color_grid)
     for item in _state.get("colors", []):
         var item_id := String(item["id"])
-        var item_column := _item_column(Vector2(54.0, 74.0))
+        var item_column := _item_column(Vector2(48.0, 68.0))
         color_grid.add_child(item_column)
 
         var swatch := CosmeticSwatch.new()

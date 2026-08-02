@@ -76,6 +76,9 @@ Status values: `TODO`, `WIP(@agent)`, `BLOCKED(reason)`, `DONE`.
 - `B21 DONE` Restructure fact-milestone feedback into a success title, prominent bold fact,
   standalone mastery-band name, and coin reward. Owns: practice scene/script, localization, and
   UI tests.
+- `B22 DONE` Replace Web-fragile checkmark and legend-dot glyphs with drawn shapes, and present a
+  sixth yellow body-color swatch in the compact Cosmetics row. Owns: UI scenes/scripts,
+  localization, and UI tests.
 - `C1 DONE` Session controller, per-answer mastery saves, and discard-on-interruption behavior.
   Depends: A1. Owns: `scripts/app/SessionController.gd`, autoload changes, state tests.
 - `C2 DONE` Local coin/XP/level persistence and atomic application of the accuracy-linked M1
@@ -101,6 +104,8 @@ Status values: `TODO`, `WIP(@agent)`, `BLOCKED(reason)`, `DONE`.
 - `C12 DONE` Detect upward 60/80/90 fact-band crossings in app state and atomically grant a
   separate 5-coin mastery milestone bonus before each answer save. Owns: local progress, app-state
   coordination, persistence tests, and the shared UI presentation dictionary.
+- `C13 DONE` Add yellow to the persistent body-color catalog under the existing 100-coin contract.
+  Owns: cosmetic catalog and state tests.
 - `D1 DONE` Responsive screenshot smoke harness at 390×844 and 450×900. Depends: B3.
   Owns: QA scripts, smoke scenes/tests, `artifacts/` output contract.
 - `D2 BLOCKED(no authorized physical Android device connected)` Physical Android install/run/log

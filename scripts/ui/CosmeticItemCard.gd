@@ -70,9 +70,9 @@ func _draw_none_mark(center: Vector2) -> void:
 
 
 func _draw_check(center: Vector2) -> void:
-    var points := PackedVector2Array([
-        center + Vector2(-6.0, 0.0),
-        center + Vector2(-1.5, 4.5),
-        center + Vector2(7.0, -5.5),
-    ])
-    draw_polyline(points, Color(0.12, 0.56, 0.08), 3.5, true)
+    draw_polyline(
+        CheckmarkIcon.check_points(center),
+        CheckmarkIcon.DEFAULT_COLOR,
+        3.5,
+        true
+    )
