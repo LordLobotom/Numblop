@@ -1,7 +1,7 @@
 [CmdletBinding()]
 param(
     [Parameter(Mandatory)]
-    [ValidateSet("windows", "android-debug", "android-release")]
+    [ValidateSet("windows", "android-debug", "android-release", "web")]
     [string]$Target,
     [string]$GodotPath = ""
 )
@@ -54,6 +54,14 @@ switch ($Target) {
         $arguments = @(
             "--headless", "--path", $repoRoot,
             "--export-release", "Android Release", (Join-Path $buildRoot "Numblop.aab")
+        )
+    }
+    "web" {
+        $webRoot = Join-Path $buildRoot "web"
+        New-Item -ItemType Directory -Path $webRoot -Force | Out-Null
+        $arguments = @(
+            "--headless", "--path", $repoRoot,
+            "--export-release", "Web", (Join-Path $webRoot "index.html")
         )
     }
 }

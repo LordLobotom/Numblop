@@ -6,6 +6,7 @@ func test_responsive_harness_pins_both_portrait_sizes_and_locales() -> void:
     var command_script := _read("res://tools/capture-responsive.ps1")
     check(capture_script.contains("Vector2i(390, 844)"), "Phone portrait capture")
     check(capture_script.contains("Vector2i(450, 900)"), "Desktop portrait capture")
+    check(capture_script.contains("Vector2i(900, 900)"), "Wide Web capture")
     check(capture_script.contains('["en", "cs"]'), "English and Czech captures")
     check(command_script.contains("NUMBLOP_RESPONSIVE_ARTIFACTS_OK"), "Artifact marker")
     check(command_script.contains("artifacts\\responsive"), "Ignored artifact output")

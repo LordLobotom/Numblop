@@ -38,7 +38,8 @@ $expectedScreens = @(
 $expectedLocales = @("en", "cs")
 $expectedSizes = @(
     @{ Width = 390; Height = 844 },
-    @{ Width = 450; Height = 900 }
+    @{ Width = 450; Height = 900 },
+    @{ Width = 900; Height = 900 }
 )
 
 foreach ($locale in $expectedLocales) {

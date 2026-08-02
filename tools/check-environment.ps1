@@ -27,7 +27,9 @@ $required = @(
     (Join-Path $androidRoot "cmake\3.10.2.4988404"),
     (Join-Path $templateRoot "android_debug.apk"),
     (Join-Path $templateRoot "android_release.apk"),
-    (Join-Path $templateRoot "android_source.zip")
+    (Join-Path $templateRoot "android_source.zip"),
+    (Join-Path $templateRoot "web_nothreads_debug.zip"),
+    (Join-Path $templateRoot "web_nothreads_release.zip")
 )
 
 foreach ($path in $required) {

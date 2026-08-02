@@ -1,6 +1,10 @@
 extends Node
 
-const CAPTURE_SIZES: Array[Vector2i] = [Vector2i(390, 844), Vector2i(450, 900)]
+const CAPTURE_SIZES: Array[Vector2i] = [
+    Vector2i(390, 844),
+    Vector2i(450, 900),
+    Vector2i(900, 900),
+]
 const LOCALES: Array[String] = ["en", "cs"]
 const SCREENS: Array[String] = [
     "home",
