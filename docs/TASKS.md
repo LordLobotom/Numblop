@@ -44,6 +44,8 @@ Status values: `TODO`, `WIP(@agent)`, `BLOCKED(reason)`, `DONE`.
 - `B9 DONE` Compact Cosmetics shop, body-color shader, supplied hat/glasses cards and aligned
   character layers, lock/check/coin treatment, purchase UI, and hanger navigation. Depends: B8,
   C7. Owns: cosmetic UI, shader, localization, and UI tests.
+- `B10 DONE` Shared four-value home stats bar and bilingual Trophy milestone list. Depends: B9,
+  C8. Owns: home/trophy/main UI, localization, and UI tests.
 - `C1 DONE` Session controller, per-answer mastery saves, and discard-on-interruption behavior.
   Depends: A1. Owns: `scripts/app/SessionController.gd`, autoload changes, state tests.
 - `C2 DONE` Local coin/XP/level persistence and atomic application of the accuracy-linked M1
@@ -58,6 +60,8 @@ Status values: `TODO`, `WIP(@agent)`, `BLOCKED(reason)`, `DONE`.
   Depends: A0, C1, C4. Owns: session/app coordination, domain signals, and state tests.
 - `C7 DONE` Versioned local cosmetic inventory with atomic 100-coin body-color, hat, and glasses
   purchase/equip persistence. Depends: C2. Owns: catalog/state, save/app coordination, state tests.
+- `C8 DONE` Persistent cross-series correct-answer streak and timestamped increasing-record history,
+  saved atomically per answer. Depends: C1. Owns: streak model, save/app coordination, state tests.
 - `D1 DONE` Responsive screenshot smoke harness at 390×844 and 450×900. Depends: B3.
   Owns: QA scripts, smoke scenes/tests, `artifacts/` output contract.
 - `D2 BLOCKED(no authorized physical Android device connected)` Physical Android install/run/log
@@ -69,6 +73,8 @@ Status values: `TODO`, `WIP(@agent)`, `BLOCKED(reason)`, `DONE`.
   Owns: responsive capture script, command, and harness test.
 - `D5 DONE` Add compact Cosmetics states and an equipped 768px accessory-alignment home state to
   bilingual responsive captures. Depends: B9. Owns: capture harness and artifact verification.
+- `D6 DONE` Add the shared streak bar and populated Trophy history to bilingual responsive capture
+  coverage. Depends: B10, C8. Owns: capture harness and artifact verification.
 
 Claim the lowest-numbered unblocked task in your track. Only the stated owner changes the task's
 owned files; coordinate contract changes through the owning track.

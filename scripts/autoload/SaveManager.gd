@@ -1,18 +1,20 @@
 extends Node
 
 const PROFILE_PATH := "user://profile.json"
-const SAVE_VERSION := 4
+const SAVE_VERSION := 5
 
 
 func save_profile(profile: LearningProfile, path: String = PROFILE_PATH) -> Error:
     var progress := load_progress(path)
     var cosmetics := load_cosmetics(path)
+    var streak := load_streak(path)
     return save_game_state(
         profile,
         int(progress["coins"]),
         int(progress["experience"]),
         path,
-        cosmetics
+        cosmetics,
+        streak
     )
 
 
@@ -21,11 +23,15 @@ func save_game_state(
     coins: int,
     experience: int,
     path: String = PROFILE_PATH,
-    cosmetics: Dictionary = {}
+    cosmetics: Dictionary = {},
+    streak: Dictionary = {}
 ) -> Error:
     var cosmetics_to_save := cosmetics
     if cosmetics_to_save.is_empty():
         cosmetics_to_save = load_cosmetics(path)
+    var streak_to_save := streak
+    if streak_to_save.is_empty():
+        streak_to_save = load_streak(path)
     var file := FileAccess.open(path, FileAccess.WRITE)
     if file == null:
         push_error("Could not open profile for writing: %s" % path)
@@ -35,6 +41,7 @@ func save_game_state(
     data["coins"] = maxi(0, coins)
     data["experience"] = maxi(0, experience)
     data["cosmetics"] = LocalCosmetics.new(cosmetics_to_save).to_dictionary()
+    data["streak"] = LocalStreak.new(streak_to_save).to_dictionary()
     file.store_string(JSON.stringify(data, "  "))
     EventBus.profile_saved.emit()
     return OK
@@ -59,6 +66,12 @@ func load_cosmetics(path: String = PROFILE_PATH) -> Dictionary:
     var data := _load_state_dictionary(path)
     var cosmetics: Variant = data.get("cosmetics", {})
     return LocalCosmetics.new(cosmetics if cosmetics is Dictionary else {}).to_dictionary()
+
+
+func load_streak(path: String = PROFILE_PATH) -> Dictionary:
+    var data := _load_state_dictionary(path)
+    var streak: Variant = data.get("streak", {})
+    return LocalStreak.new(streak if streak is Dictionary else {}).to_dictionary()
 
 
 func _load_state_dictionary(path: String) -> Dictionary:

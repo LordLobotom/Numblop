@@ -261,6 +261,7 @@ alignment = 1
 [node name="OutfitItem" type="VBoxContainer" parent="SafeArea/Content/Navigation/NavigationRow"]
 custom_minimum_size = Vector2(64, 0)
 layout_mode = 2
+size_flags_horizontal = 3
 theme_override_constants/separation = -5
 alignment = 1
 
@@ -287,6 +288,7 @@ horizontal_alignment = 1
 [node name="MapItem" type="VBoxContainer" parent="SafeArea/Content/Navigation/NavigationRow"]
 custom_minimum_size = Vector2(64, 0)
 layout_mode = 2
+size_flags_horizontal = 3
 theme_override_constants/separation = -5
 alignment = 1
 
@@ -312,6 +314,7 @@ horizontal_alignment = 1
 [node name="HomeItem" type="VBoxContainer" parent="SafeArea/Content/Navigation/NavigationRow"]
 custom_minimum_size = Vector2(64, 0)
 layout_mode = 2
+size_flags_horizontal = 3
 theme_override_constants/separation = -5
 alignment = 1
 
@@ -337,6 +340,7 @@ horizontal_alignment = 1
 [node name="TrophyItem" type="VBoxContainer" parent="SafeArea/Content/Navigation/NavigationRow"]
 custom_minimum_size = Vector2(64, 0)
 layout_mode = 2
+size_flags_horizontal = 3
 theme_override_constants/separation = -5
 alignment = 1
 
@@ -362,6 +366,7 @@ horizontal_alignment = 1
 [node name="SettingsItem" type="VBoxContainer" parent="SafeArea/Content/Navigation/NavigationRow"]
 custom_minimum_size = Vector2(64, 0)
 layout_mode = 2
+size_flags_horizontal = 3
 theme_override_constants/separation = -5
 alignment = 1
 

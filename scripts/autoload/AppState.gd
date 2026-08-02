@@ -6,12 +6,14 @@ var active_session_result: SessionResult
 var session_controller: SessionController
 var progress := LocalProgress.new()
 var cosmetics := LocalCosmetics.new()
+var streak := LocalStreak.new()
 
 
 func _ready() -> void:
     profile = SaveManager.load_profile()
     progress = LocalProgress.new(SaveManager.load_progress())
     cosmetics = LocalCosmetics.new(SaveManager.load_cosmetics())
+    streak = LocalStreak.new(SaveManager.load_streak())
     _create_session_controller()
 
 
@@ -87,6 +89,10 @@ func claim_completed_session_reward() -> Dictionary:
 
 func progress_totals() -> Dictionary:
     return progress.totals()
+
+
+func streak_state() -> Dictionary:
+    return streak.to_dictionary()
 
 
 func cosmetics_state() -> Dictionary:
@@ -195,6 +201,7 @@ func reset_local_profile() -> void:
     profile = LearningProfile.new()
     progress = LocalProgress.new()
     cosmetics = LocalCosmetics.new()
+    streak = LocalStreak.new()
     _save_game_state(profile, progress.coins, progress.experience)
     _create_session_controller()
 
@@ -211,6 +218,13 @@ func _on_session_started(question_count: int) -> void:
 
 
 func _on_answer_recorded(record: SessionResult.AnswerRecord) -> void:
+    var time_zone := Time.get_time_zone_from_system()
+    streak.record_answer(
+        record.correct,
+        int(Time.get_unix_time_from_system()),
+        int(time_zone.get("bias", 0))
+    )
+    EventBus.streak_changed.emit(streak.current_count, streak.all_time_high)
     EventBus.answer_recorded.emit(record.fact_key, record.correct, record.mastery_after)
 
 
@@ -232,7 +246,8 @@ func _save_game_state(
         coins,
         experience,
         SaveManager.PROFILE_PATH,
-        cosmetics.to_dictionary()
+        cosmetics.to_dictionary(),
+        streak.to_dictionary()
     )
 
 
@@ -242,7 +257,8 @@ func _save_state_with_cosmetics(updated_cosmetics: LocalCosmetics, coins: int) -
         coins,
         progress.experience,
         SaveManager.PROFILE_PATH,
-        updated_cosmetics.to_dictionary()
+        updated_cosmetics.to_dictionary(),
+        streak.to_dictionary()
     )
 
 

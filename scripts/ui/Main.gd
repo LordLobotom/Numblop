@@ -4,6 +4,7 @@ extends Control
 @onready var map_screen: MapScreen = %MapScreen
 @onready var settings_screen: SettingsScreen = %SettingsScreen
 @onready var cosmetics_screen: CosmeticsScreen = %CosmeticsScreen
+@onready var trophy_screen: TrophyScreen = %TrophyScreen
 @onready var practice_screen: PracticeScreen = %PracticeScreen
 @onready var reward_screen: RewardScreen = %RewardScreen
 @onready var music_player: AudioStreamPlayer = %MusicPlayer
@@ -19,21 +20,25 @@ func _ready() -> void:
     home_screen.play_requested.connect(_on_play_requested)
     home_screen.map_requested.connect(_on_map_requested)
     home_screen.outfit_requested.connect(_on_cosmetics_requested)
-    home_screen.trophy_requested.connect(_on_future_feature_requested)
+    home_screen.trophy_requested.connect(_on_trophy_requested)
     home_screen.settings_requested.connect(_on_settings_requested)
     map_screen.return_home_requested.connect(_on_map_return_requested)
     map_screen.outfit_requested.connect(_on_cosmetics_requested)
-    map_screen.trophy_requested.connect(_on_future_feature_requested)
+    map_screen.trophy_requested.connect(_on_trophy_requested)
     map_screen.settings_requested.connect(_on_settings_requested)
     settings_screen.home_requested.connect(_on_settings_home_requested)
     settings_screen.map_requested.connect(_on_settings_map_requested)
     settings_screen.outfit_requested.connect(_on_cosmetics_requested)
-    settings_screen.trophy_requested.connect(_on_settings_future_feature_requested)
+    settings_screen.trophy_requested.connect(_on_trophy_requested)
     settings_screen.exit_requested.connect(_on_exit_requested)
     cosmetics_screen.home_requested.connect(_on_cosmetics_home_requested)
     cosmetics_screen.map_requested.connect(_on_cosmetics_map_requested)
-    cosmetics_screen.trophy_requested.connect(_on_cosmetics_future_feature_requested)
+    cosmetics_screen.trophy_requested.connect(_on_trophy_requested)
     cosmetics_screen.settings_requested.connect(_on_settings_requested)
+    trophy_screen.home_requested.connect(_on_trophy_home_requested)
+    trophy_screen.map_requested.connect(_on_map_requested)
+    trophy_screen.outfit_requested.connect(_on_cosmetics_requested)
+    trophy_screen.settings_requested.connect(_on_settings_requested)
     practice_screen.answer_submitted.connect(_on_answer_submitted)
     practice_screen.exit_requested.connect(_on_practice_exit_requested)
     reward_screen.return_home_requested.connect(_on_reward_return_requested)
@@ -51,6 +56,7 @@ func _on_play_requested() -> void:
     _play_page_sfx()
     var questions := AppState.begin_session()
     home_screen.visible = false
+    trophy_screen.visible = false
     practice_screen.visible = true
     practice_screen.show_question(questions[0], 0, questions.size())
 
@@ -125,6 +131,8 @@ func _on_map_requested() -> void:
     map_screen.set_stage_states(AppState.map_stage_states())
     home_screen.visible = false
     cosmetics_screen.visible = false
+    settings_screen.visible = false
+    trophy_screen.visible = false
     map_screen.visible = true
 
 
@@ -145,7 +153,9 @@ func _on_future_feature_requested() -> void:
 
 
 func _on_back_requested() -> void:
-    if cosmetics_screen.visible:
+    if trophy_screen.visible:
+        _on_trophy_home_requested()
+    elif cosmetics_screen.visible:
         _on_cosmetics_home_requested()
     elif settings_screen.visible:
         _on_settings_home_requested()
@@ -159,6 +169,7 @@ func _on_settings_requested() -> void:
     home_screen.visible = false
     map_screen.visible = false
     cosmetics_screen.visible = false
+    trophy_screen.visible = false
     settings_screen.visible = true
 
 
@@ -166,12 +177,14 @@ func _on_settings_home_requested() -> void:
     _play_page_sfx()
     settings_screen.visible = false
     map_screen.visible = false
+    trophy_screen.visible = false
     home_screen.visible = true
 
 
 func _on_settings_map_requested() -> void:
     _play_page_sfx()
     settings_screen.visible = false
+    trophy_screen.visible = false
     map_screen.set_stage_states(AppState.map_stage_states())
     map_screen.visible = true
 
@@ -182,31 +195,40 @@ func _on_cosmetics_requested() -> void:
     home_screen.visible = false
     map_screen.visible = false
     settings_screen.visible = false
+    trophy_screen.visible = false
     cosmetics_screen.visible = true
 
 
 func _on_cosmetics_home_requested() -> void:
     _play_page_sfx()
     cosmetics_screen.visible = false
+    trophy_screen.visible = false
     home_screen.visible = true
 
 
 func _on_cosmetics_map_requested() -> void:
     _play_page_sfx()
     cosmetics_screen.visible = false
+    trophy_screen.visible = false
     map_screen.clear_unlock_announcement()
     map_screen.set_stage_states(AppState.map_stage_states())
     map_screen.visible = true
 
 
-func _on_cosmetics_future_feature_requested() -> void:
-    _play_confirm_sfx()
-    cosmetics_screen.show_future_feature()
+func _on_trophy_requested() -> void:
+    _play_page_sfx()
+    trophy_screen.refresh_from_state()
+    home_screen.visible = false
+    map_screen.visible = false
+    settings_screen.visible = false
+    cosmetics_screen.visible = false
+    trophy_screen.visible = true
 
 
-func _on_settings_future_feature_requested() -> void:
-    _play_confirm_sfx()
-    settings_screen.show_future_feature()
+func _on_trophy_home_requested() -> void:
+    _play_page_sfx()
+    trophy_screen.visible = false
+    home_screen.visible = true
 
 
 func _on_exit_requested() -> void:

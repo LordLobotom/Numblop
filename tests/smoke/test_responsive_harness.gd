@@ -19,6 +19,7 @@ func test_responsive_harness_covers_every_m1_screen_state() -> void:
         "cosmetics",
         "cosmetics_color",
         "cosmetics_buy",
+        "trophy",
         "map",
         "map_unlock",
         "settings",

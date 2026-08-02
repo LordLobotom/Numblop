@@ -8,6 +8,7 @@ const SCREENS: Array[String] = [
     "cosmetics",
     "cosmetics_color",
     "cosmetics_buy",
+    "trophy",
     "map",
     "map_unlock",
     "settings",
@@ -92,6 +93,8 @@ func _create_screen(screen_name: String) -> Control:
         scene_path = "res://scenes/screens/PracticeScreen.tscn"
     elif screen_name in ["cosmetics", "cosmetics_color", "cosmetics_buy"]:
         scene_path = "res://scenes/screens/CosmeticsScreen.tscn"
+    elif screen_name == "trophy":
+        scene_path = "res://scenes/screens/TrophyScreen.tscn"
     elif screen_name == "map" or screen_name == "map_unlock":
         scene_path = "res://scenes/screens/MapScreen.tscn"
     elif screen_name == "settings":
@@ -107,16 +110,23 @@ func _configure_screen(screen: Control, screen_name: String, locale: String) -> 
         "home", "home_accessories":
             var home := screen as HomeScreen
             home.set_progress_totals(120, 240, 3)
+            home.set_streak(18)
+            var home_colors := _cosmetic_capture_items(
+                CosmeticCatalog.CATEGORY_BODY_COLOR,
+                CosmeticCatalog.DEFAULT_BODY_COLOR_ID
+            )
+            home.blob.apply_cosmetics({
+                "selected_body_color": CosmeticCatalog.DEFAULT_BODY_COLOR_ID,
+                "selected_hat": CosmeticCatalog.DEFAULT_HAT_ID,
+                "selected_glasses": CosmeticCatalog.DEFAULT_GLASSES_ID,
+                "colors": home_colors,
+            })
             if screen_name == "home_accessories":
-                var colors := _cosmetic_capture_items(
-                    CosmeticCatalog.CATEGORY_BODY_COLOR,
-                    CosmeticCatalog.DEFAULT_BODY_COLOR_ID
-                )
                 home.blob.apply_cosmetics({
                     "selected_body_color": CosmeticCatalog.DEFAULT_BODY_COLOR_ID,
                     "selected_hat": "hat_crown",
                     "selected_glasses": "glasses_green",
-                    "colors": colors,
+                    "colors": home_colors,
                 })
         "cosmetics", "cosmetics_color", "cosmetics_buy":
             var cosmetics_screen := screen as CosmeticsScreen
@@ -149,6 +159,17 @@ func _configure_screen(screen: Control, screen_name: String, locale: String) -> 
             })
             if screen_name == "cosmetics_buy":
                 cosmetics_screen.preview_body_color("pink")
+        "trophy":
+            var trophy_screen := screen as TrophyScreen
+            trophy_screen.set_presentation_state({
+                "current_count": 18,
+                "all_time_high": 37,
+                "milestones": [
+                    {"count": 8, "ended_at_unix": 1785592800, "utc_offset_minutes": 120},
+                    {"count": 21, "ended_at_unix": 1785679200, "utc_offset_minutes": 120},
+                    {"count": 37, "ended_at_unix": 1785765600, "utc_offset_minutes": 120},
+                ],
+            })
         "map", "map_unlock":
             var map_screen := screen as MapScreen
             var stage_states: Array[Dictionary] = []

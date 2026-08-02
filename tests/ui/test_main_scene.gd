@@ -16,6 +16,7 @@ func test_main_scene_has_touch_ready_portrait_controls() -> void:
     check(scene.has_node("MapScreen"), "Main scene must contain the stage map")
     check(scene.has_node("SettingsScreen"), "Main scene must contain settings")
     check(scene.has_node("CosmeticsScreen"), "Main scene must contain cosmetics")
+    check(scene.has_node("TrophyScreen"), "Main scene must contain streak records")
     check(scene.has_node("OpeningScreen"), "Main scene must start with the opening overlay")
     scene.free()
 
@@ -52,6 +53,49 @@ func test_home_crest_navigation_uses_requested_artwork_and_bold_play_font() -> v
         "Play uses the bold font"
     )
     scene.free()
+
+
+func test_home_uses_one_stats_bar_with_the_flame_streak() -> void:
+    var packed: PackedScene = load("res://scenes/screens/HomeScreen.tscn")
+    check(packed != null, "Home scene must load")
+    if packed == null:
+        return
+    var scene := packed.instantiate()
+    check(scene.get_node("%StatsBar") is PanelContainer, "One shared stats background")
+    check(scene.get_node_or_null("SafeArea/Content/Stats/CoinsPanel") == null, "No coin card")
+    check(scene.get_node_or_null("SafeArea/Content/Stats/XpPanel") == null, "No XP card")
+    check(scene.get_node("%StreakLabel") is Label, "Visible streak count")
+    equal(
+        scene.get_node("%FlameIcon").texture.resource_path,
+        "res://ui/crests/crest_flame.png",
+        "Streak flame artwork"
+    )
+    check(scene.has_method("set_streak"), "Home accepts streak presentation state")
+    scene.free()
+
+
+func test_bottom_navigation_spreads_five_items_evenly_at_wider_sizes() -> void:
+    for scene_path in [
+        "res://scenes/screens/HomeScreen.tscn",
+        "res://scenes/screens/MapScreen.tscn",
+        "res://scenes/screens/SettingsScreen.tscn",
+        "res://scenes/screens/CosmeticsScreen.tscn",
+        "res://scenes/screens/TrophyScreen.tscn",
+    ]:
+        var packed: PackedScene = load(scene_path)
+        check(packed != null, "Navigation scene loads: %s" % scene_path)
+        if packed == null:
+            continue
+        var scene := packed.instantiate()
+        var row := scene.get_node("SafeArea/Content/Navigation/NavigationRow")
+        equal(row.get_child_count(), 5, "Five navigation items")
+        for item in row.get_children():
+            equal(
+                item.size_flags_horizontal,
+                Control.SIZE_EXPAND_FILL,
+                "%s expands equally" % item.name
+            )
+        scene.free()
 
 
 func test_map_screen_has_all_stage_navigation_contracts() -> void:
@@ -146,6 +190,23 @@ func test_cosmetics_screen_has_compact_shop_purchase_and_navigation_contracts() 
     check(scene.get_node("%HatsGrid") is GridContainer, "Hat shop grid")
     check(scene.get_node("%GlassesGrid") is GridContainer, "Glasses shop grid")
     check(scene.get_node("%PurchaseButton").custom_minimum_size.y >= 48.0, "Buy touch target")
+    for button_name in ["OutfitButton", "MapButton", "HomeButton", "TrophyButton", "SettingsButton"]:
+        var button: BaseButton = scene.get_node("%%%s" % button_name)
+        check(button.custom_minimum_size.y >= 48.0, "%s touch target" % button_name)
+    scene.free()
+
+
+func test_trophy_screen_lists_timestamped_record_milestones() -> void:
+    var packed: PackedScene = load("res://scenes/screens/TrophyScreen.tscn")
+    check(packed != null, "Trophy scene must load")
+    if packed == null:
+        return
+    var scene := packed.instantiate()
+    check(scene.has_method("refresh_from_state"), "Trophies read persisted streak state")
+    check(scene.has_method("set_presentation_state"), "Trophies support deterministic captures")
+    check(scene.get_node("%MilestoneList") is VBoxContainer, "Record milestone list")
+    check(scene.get_node("%CurrentLabel") is Label, "Current streak summary")
+    check(scene.get_node("%BestLabel") is Label, "All-time high summary")
     for button_name in ["OutfitButton", "MapButton", "HomeButton", "TrophyButton", "SettingsButton"]:
         var button: BaseButton = scene.get_node("%%%s" % button_name)
         check(button.custom_minimum_size.y >= 48.0, "%s touch target" % button_name)

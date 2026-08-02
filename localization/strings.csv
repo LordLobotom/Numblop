@@ -1,4 +1,10 @@
 keys,en,cs
+HOME_STREAK,{count} correct answers in a row,{count} příkladů správně v řadě
+TROPHY_TITLE,Records,Rekordy
+TROPHY_CURRENT,Current streak: {count},Aktuální série: {count}
+TROPHY_BEST,Finished record: {count},Ukončený rekord: {count}
+TROPHY_EMPTY,Your first record will appear here after a mistake ends it.,První rekord se sem zapíše až ho ukončí chyba.
+TROPHY_DATE_TIME,{year}-{month}-{day}  {hour}:{minute},{day}.{month}.{year}  {hour}:{minute}
 APP_TAGLINE,Learn multiplication through play,Uč se násobilku hrou
 HOME_PROFILE,Local learner,Místní hráč
 HOME_PROGRESS,Current table: ×{table} · Mastered facts: {mastered}/80,Aktuální násobilka: ×{table} · Zvládnuté spoje: {mastered}/80

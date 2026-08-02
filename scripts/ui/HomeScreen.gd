@@ -10,6 +10,7 @@ signal settings_requested
 @onready var coins_label: Label = %CoinsLabel
 @onready var xp_label: Label = %XpLabel
 @onready var level_label: Label = %LevelLabel
+@onready var streak_label: Label = %StreakLabel
 @onready var pet_hint: Label = %PetHint
 @onready var play_button: TextureButton = %PlayButton
 @onready var play_label: Label = %PlayLabel
@@ -28,6 +29,7 @@ signal settings_requested
 var _coins := 0
 var _experience := 0
 var _level := 1
+var _streak := 0
 
 
 func _ready() -> void:
@@ -44,7 +46,9 @@ func _ready() -> void:
         int(totals["level"])
     )
     EventBus.progress_changed.connect(_on_progress_changed)
+    EventBus.streak_changed.connect(_on_streak_changed)
     EventBus.cosmetics_changed.connect(_on_cosmetics_changed)
+    set_streak(int(AppState.streak_state().get("current_count", 0)))
     _on_cosmetics_changed(AppState.cosmetics_state())
     _refresh_text()
 
@@ -58,6 +62,12 @@ func set_progress_totals(coins: int, experience: int, level: int) -> void:
     _coins = maxi(0, coins)
     _experience = maxi(0, experience)
     _level = maxi(1, level)
+    if is_node_ready():
+        _refresh_progress_text()
+
+
+func set_streak(count: int) -> void:
+    _streak = maxi(0, count)
     if is_node_ready():
         _refresh_progress_text()
 
@@ -97,8 +107,10 @@ func _refresh_progress_text() -> void:
     coins_label.text = str(_coins)
     xp_label.text = str(_experience)
     level_label.text = tr("HOME_LEVEL").format({"level": _level})
+    streak_label.text = str(_streak)
     coins_label.tooltip_text = tr("HOME_COINS").format({"count": _coins})
     xp_label.tooltip_text = tr("HOME_XP").format({"count": _experience})
+    streak_label.tooltip_text = tr("HOME_STREAK").format({"count": _streak})
 
 
 func _on_blob_petted() -> void:
@@ -107,6 +119,10 @@ func _on_blob_petted() -> void:
 
 func _on_progress_changed(coins: int, experience: int, level: int) -> void:
     set_progress_totals(coins, experience, level)
+
+
+func _on_streak_changed(current_count: int, _all_time_high: int) -> void:
+    set_streak(current_count)
 
 
 func _on_cosmetics_changed(state: Dictionary) -> void:

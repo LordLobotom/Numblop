@@ -1,4 +1,4 @@
-[gd_scene load_steps=15 format=3]
+[gd_scene load_steps=16 format=3]
 
 [ext_resource type="Script" path="res://scripts/ui/HomeScreen.gd" id="1_script"]
 [ext_resource type="Texture2D" path="res://assets/backgrounds/mianscreen_background.png" id="2_background"]
@@ -12,6 +12,7 @@
 [ext_resource type="Font" path="res://ui/fonts/FredokaBold.tres" id="10_bold"]
 [ext_resource type="Texture2D" path="res://ui/crests/crest_settings.png" id="11_settings"]
 [ext_resource type="Texture2D" path="res://ui/crests/crest_home.png" id="12_home"]
+[ext_resource type="Texture2D" path="res://ui/crests/crest_flame.png" id="13_flame"]
 
 [sub_resource type="StyleBoxFlat" id="StatPanel"]
 bg_color = Color(1, 1, 1, 0.92)
@@ -77,91 +78,104 @@ theme_override_constants/margin_bottom = 18
 layout_mode = 2
 theme_override_constants/separation = 8
 
-[node name="Stats" type="HBoxContainer" parent="SafeArea/Content"]
-layout_mode = 2
-theme_override_constants/separation = 8
-alignment = 1
-
-[node name="CoinsPanel" type="PanelContainer" parent="SafeArea/Content/Stats"]
-custom_minimum_size = Vector2(108, 66)
+[node name="StatsBar" type="PanelContainer" parent="SafeArea/Content"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 66)
 layout_mode = 2
 theme_override_styles/panel = SubResource("StatPanel")
 
-[node name="Margin" type="MarginContainer" parent="SafeArea/Content/Stats/CoinsPanel"]
+[node name="Margin" type="MarginContainer" parent="SafeArea/Content/StatsBar"]
 layout_mode = 2
-theme_override_constants/margin_left = 8
+theme_override_constants/margin_left = 7
 theme_override_constants/margin_top = 7
-theme_override_constants/margin_right = 8
+theme_override_constants/margin_right = 7
 theme_override_constants/margin_bottom = 7
 
-[node name="Row" type="HBoxContainer" parent="SafeArea/Content/Stats/CoinsPanel/Margin"]
+[node name="Stats" type="HBoxContainer" parent="SafeArea/Content/StatsBar/Margin"]
 layout_mode = 2
-theme_override_constants/separation = 3
+theme_override_constants/separation = 4
 alignment = 1
 
-[node name="Icon" type="TextureRect" parent="SafeArea/Content/Stats/CoinsPanel/Margin/Row"]
-custom_minimum_size = Vector2(40, 40)
+[node name="CoinsItem" type="HBoxContainer" parent="SafeArea/Content/StatsBar/Margin/Stats"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 1
+alignment = 1
+
+[node name="Icon" type="TextureRect" parent="SafeArea/Content/StatsBar/Margin/Stats/CoinsItem"]
+custom_minimum_size = Vector2(31, 31)
 layout_mode = 2
 mouse_filter = 2
 texture = ExtResource("3_coin")
 expand_mode = 1
 stretch_mode = 5
 
-[node name="CoinsLabel" type="Label" parent="SafeArea/Content/Stats/CoinsPanel/Margin/Row"]
+[node name="CoinsLabel" type="Label" parent="SafeArea/Content/StatsBar/Margin/Stats/CoinsItem"]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_colors/font_color = Color(0.27, 0.16, 0.12, 1)
-theme_override_font_sizes/font_size = 19
+theme_override_font_sizes/font_size = 17
 text = "0"
 vertical_alignment = 1
 
-[node name="XpPanel" type="PanelContainer" parent="SafeArea/Content/Stats"]
-custom_minimum_size = Vector2(108, 66)
+[node name="XpItem" type="HBoxContainer" parent="SafeArea/Content/StatsBar/Margin/Stats"]
 layout_mode = 2
-theme_override_styles/panel = SubResource("StatPanel")
-
-[node name="Margin" type="MarginContainer" parent="SafeArea/Content/Stats/XpPanel"]
-layout_mode = 2
-theme_override_constants/margin_left = 8
-theme_override_constants/margin_top = 7
-theme_override_constants/margin_right = 8
-theme_override_constants/margin_bottom = 7
-
-[node name="Row" type="HBoxContainer" parent="SafeArea/Content/Stats/XpPanel/Margin"]
-layout_mode = 2
-theme_override_constants/separation = 4
+size_flags_horizontal = 3
+theme_override_constants/separation = 1
 alignment = 1
 
-[node name="Icon" type="TextureRect" parent="SafeArea/Content/Stats/XpPanel/Margin/Row"]
-custom_minimum_size = Vector2(40, 40)
+[node name="Icon" type="TextureRect" parent="SafeArea/Content/StatsBar/Margin/Stats/XpItem"]
+custom_minimum_size = Vector2(31, 31)
 layout_mode = 2
 mouse_filter = 2
 texture = ExtResource("4_xp")
 expand_mode = 1
 stretch_mode = 5
 
-[node name="XpLabel" type="Label" parent="SafeArea/Content/Stats/XpPanel/Margin/Row"]
-unique_name_in_owner = true
-layout_mode = 2
-theme_override_colors/font_color = Color(0.31, 0.19, 0.46, 1)
-theme_override_font_sizes/font_size = 19
-text = "0"
-vertical_alignment = 1
-
-[node name="LevelPanel" type="PanelContainer" parent="SafeArea/Content/Stats"]
-custom_minimum_size = Vector2(108, 66)
-layout_mode = 2
-theme_override_styles/panel = SubResource("StatPanel")
-
-[node name="LevelLabel" type="Label" parent="SafeArea/Content/Stats/LevelPanel"]
+[node name="XpLabel" type="Label" parent="SafeArea/Content/StatsBar/Margin/Stats/XpItem"]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_colors/font_color = Color(0.31, 0.19, 0.46, 1)
 theme_override_font_sizes/font_size = 17
+text = "0"
+vertical_alignment = 1
+
+[node name="LevelItem" type="CenterContainer" parent="SafeArea/Content/StatsBar/Margin/Stats"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="LevelLabel" type="Label" parent="SafeArea/Content/StatsBar/Margin/Stats/LevelItem"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.31, 0.19, 0.46, 1)
+theme_override_font_sizes/font_size = 15
 text = "HOME_LEVEL"
 horizontal_alignment = 1
 vertical_alignment = 1
-autowrap_mode = 2
+
+[node name="StreakItem" type="HBoxContainer" parent="SafeArea/Content/StatsBar/Margin/Stats"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 0
+alignment = 1
+
+[node name="FlameIcon" type="TextureRect" parent="SafeArea/Content/StatsBar/Margin/Stats/StreakItem"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(33, 33)
+layout_mode = 2
+mouse_filter = 2
+texture = ExtResource("13_flame")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="StreakLabel" type="Label" parent="SafeArea/Content/StatsBar/Margin/Stats/StreakItem"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.85, 0.25, 0.06, 1)
+theme_override_fonts/font = ExtResource("10_bold")
+theme_override_font_sizes/font_size = 18
+text = "0"
+vertical_alignment = 1
 
 [node name="BlobCenter" type="CenterContainer" parent="SafeArea/Content"]
 custom_minimum_size = Vector2(0, 340)
@@ -230,6 +244,7 @@ alignment = 1
 [node name="OutfitItem" type="VBoxContainer" parent="SafeArea/Content/Navigation/NavigationRow"]
 custom_minimum_size = Vector2(64, 0)
 layout_mode = 2
+size_flags_horizontal = 3
 theme_override_constants/separation = -5
 alignment = 1
 
@@ -255,6 +270,7 @@ horizontal_alignment = 1
 [node name="MapItem" type="VBoxContainer" parent="SafeArea/Content/Navigation/NavigationRow"]
 custom_minimum_size = Vector2(64, 0)
 layout_mode = 2
+size_flags_horizontal = 3
 theme_override_constants/separation = -5
 alignment = 1
 
@@ -280,6 +296,7 @@ horizontal_alignment = 1
 [node name="HomeItem" type="VBoxContainer" parent="SafeArea/Content/Navigation/NavigationRow"]
 custom_minimum_size = Vector2(64, 0)
 layout_mode = 2
+size_flags_horizontal = 3
 theme_override_constants/separation = -5
 alignment = 1
 
@@ -306,6 +323,7 @@ horizontal_alignment = 1
 [node name="TrophyItem" type="VBoxContainer" parent="SafeArea/Content/Navigation/NavigationRow"]
 custom_minimum_size = Vector2(64, 0)
 layout_mode = 2
+size_flags_horizontal = 3
 theme_override_constants/separation = -5
 alignment = 1
 
@@ -331,6 +349,7 @@ horizontal_alignment = 1
 [node name="SettingsItem" type="VBoxContainer" parent="SafeArea/Content/Navigation/NavigationRow"]
 custom_minimum_size = Vector2(64, 0)
 layout_mode = 2
+size_flags_horizontal = 3
 theme_override_constants/separation = -5
 alignment = 1
 

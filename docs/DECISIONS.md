@@ -76,14 +76,27 @@
 - The language chooser appears in the remembered opening flow and the Settings screen; it does
   not occupy the main-screen content area.
 - The footer uses Outfit, Map, Home, Trophies, and Settings crests. Home is always centered and
-  returns directly to the blob screen, replacing top-level green back arrows. Map and Settings are
-  functional in M1. The later Cosmetics decision above makes Outfit functional; Trophies remains
-  an honest later-feature placeholder.
+  returns directly to the blob screen, replacing top-level green back arrows. Each of the five
+  columns expands equally with window width. Map and Settings are functional in M1. The later
+  Cosmetics and streak decisions make Outfit and Trophies functional.
 - The map is a read-only presentation of all eight table stages and never changes mastery,
   unlocking, or adaptive session selection.
 - Background music starts with the main scene and loops. Settings persists separate Music/SFX
   volumes and global mute; friendly cues reinforce petting, navigation, answers, and rewards.
 - Close game is available from Settings behind a confirmation and flushes pending preferences.
+
+## 2026-08-02 — Cross-series correct-answer streak records
+
+- The current streak counts consecutive correct answers across series and app restarts. Completing,
+  abandoning, pausing, or closing a series does not end it; only an incorrect answer resets it.
+- The interrupting mistake creates a timestamped Trophy milestone only when the ended streak is
+  strictly higher than every previously ended streak. The stored history is therefore a compact,
+  strictly increasing sequence of personal records rather than a log of every attempt.
+- Each milestone stores Unix time plus the system timezone offset at interruption, allowing the UI
+  to reproduce the local date and time later. Streak state is saved atomically with per-answer
+  mastery and never affects didactic selection, mastery, rewards, coins, XP, or table unlocking.
+- Home shows coin, XP, level, and the flame streak in one shared panel. Trophies shows the active
+  streak, the best ended streak, and newest milestones first.
 
 ## 2026-08-01 — Visible didactic progression
 

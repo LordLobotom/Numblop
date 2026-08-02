@@ -48,8 +48,8 @@ func submit_answer(
         mastery_before
     )
     profile.set_mastery(question.table_value, question.multiplier, record.mastery_after)
-    _save_after_answer()
     answer_recorded.emit(record)
+    _save_after_answer()
     for unlocked_index in range(
         unlocked_index_before + 1,
         profile.highest_unlocked_index + 1

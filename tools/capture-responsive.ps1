@@ -24,6 +24,7 @@ $expectedScreens = @(
     "cosmetics",
     "cosmetics_color",
     "cosmetics_buy",
+    "trophy",
     "map",
     "map_unlock",
     "settings",

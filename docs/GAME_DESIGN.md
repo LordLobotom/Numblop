@@ -36,13 +36,17 @@ No additional game modes are part of the MVP.
   looking around.
 - Let touch and mouse input pet or scratch the blob. It responds happily with animation,
   small hearts, and optionally a short positive sound.
-- Show the local totals for coins, experience points, and player level.
+- Show coins, experience, player level, and the current correct-answer streak in one shared top bar.
 - The primary action is Play. The bottom navigation uses Outfit, Map, Home, Trophies, and Settings
-  crests, with Home fixed in the middle and returning directly to the blob screen.
+  crests, with Home fixed in the middle and returning directly to the blob screen. All five items
+  receive equal horizontal space as the portrait window widens.
 - Map opens a read-only winding trail for the eight multiplication-table stages. Its bar and
   percentage move continuously with real mastery gains, while the next island unlocks only after
-  all 10 facts in the current table reach 80. Trophies remains a visible entry point for a later
-  milestone and does not change learning state.
+  all 10 facts in the current table reach 80.
+- A correct-answer streak continues across practice series and app restarts. Only an incorrect
+  answer ends it. When an ended streak exceeds every previously ended streak, Trophies adds a
+  milestone with its count and the local date and time of the interrupting mistake. Shorter ended
+  streaks reset the current counter but do not add rows. Streaks never change mastery or rewards.
 - Outfit opens a compact Cosmetics shop without a character preview. The five body-color circles
   share one row: green is free, while blue, pink, purple, and orange cost 100 coins each. Hats and
   glasses use supplied transparent artwork in rounded square cards; every initial accessory costs

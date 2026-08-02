@@ -42,6 +42,9 @@ Core scripts never access nodes, singletons, files, time, locale, or platform AP
 - `SaveManager` owns versioned `user://profile.json` serialization.
 - `CosmeticCatalog` defines stable local item IDs, prices, display keys, and palette colors;
   `LocalCosmetics` validates owned and equipped items without accessing scenes or files.
+- `LocalStreak` validates the active streak and strictly increasing record milestones without
+  accessing clocks, scenes, or files. `AppState` supplies the system timestamp and timezone offset
+  when an incorrect answer interrupts a streak.
 - `AppState` owns the loaded `LearningProfile` and active question session. Runtime random
   seeds are chosen here, outside the deterministic generator. It projects capped aggregate
   mastery into read-only map-stage progress and forwards table-unlock domain events; scenes never
@@ -49,11 +52,11 @@ Core scripts never access nodes, singletons, files, time, locale, or platform AP
 
 ## Save contract
 
-Version 3 contains:
+Version 5 contains:
 
 ```json
 {
-  "version": 3,
+  "version": 5,
   "highest_unlocked_index": 0,
   "mastery": { "2_x_0": 0 },
   "coins": 0,
@@ -65,13 +68,20 @@ Version 3 contains:
     "selected_hat": "hat_none",
     "unlocked_glasses": ["glasses_none"],
     "selected_glasses": "glasses_none"
+  },
+  "streak": {
+    "current_count": 0,
+    "all_time_high": 0,
+    "milestones": [
+      { "count": 12, "ended_at_unix": 1785765600, "utc_offset_minutes": 120 }
+    ]
   }
 }
 ```
 
 All earlier save versions remain valid. Missing or malformed fields use safe defaults, including free
-green cosmetics. Unlock progress is never decreased when loading. Every mastery, reward, purchase,
-and equip save preserves the other local state fields.
+green cosmetics and an empty streak. Unlock progress is never decreased when loading. Every
+mastery, streak update, reward, purchase, and equip save preserves the other local state fields.
 
 ## UI and display
 
@@ -90,6 +100,9 @@ and equip save preserves the other local state fields.
   512×512 character bounds. It starts at −25% horizontally and −160/512 vertically because the
   source character was authored 160px below the accessory canvas top. Hats may extend above the
   base canvas while glasses remain aligned with the eyes.
+- The home screen presents coins, XP, level, and streak in one shared bar. The Trophies screen is a
+  read-only projection of `LocalStreak`; UI code formats stored timestamps but never decides which
+  answers extend a streak or qualify as a record.
 
 ## Localization
 

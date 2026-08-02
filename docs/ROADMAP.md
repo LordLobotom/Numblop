@@ -15,9 +15,10 @@ are produced successfully.
 ## M1 — Playable learning loop ☐
 
 - Short Numblop opening, remembered Czech/English choice, and Fredoka UI.
-- Interactive blob home with idle/petting reactions and local coin/XP/level totals.
+- Interactive blob home with idle/petting reactions and a shared coin/XP/level/streak bar.
 - Outfit/Map/Home/Trophies/Settings crest navigation and a read-only multiplication-stage trail
   that continuously reflects didactic mastery and reveals a newly unlocked island.
+- Trophies lists timestamped, strictly increasing correct-answer streak records.
 - Settings with English/Czech crests, music/SFX volume, global mute, and confirmed game exit.
 - Background music and friendly interaction sounds for Numblop, navigation, answers, and rewards.
 - Home → 10-question adaptive practice → guaranteed reward chest → home.
@@ -46,6 +47,7 @@ child answers slowly or incorrectly.
 - Accuracy-linked coin/experience rewards replace the provisional fixed reward.
 - The local cosmetic inventory and Outfit entry point support five shader-based body colors plus
   the supplied hats and glasses with persistent purchase/equip state.
+- Persistent cross-series correct-answer streaks and timestamped personal-record milestones.
 - Extend the rounded-card catalog with belly patterns, shoes, and future supplied artwork.
 - Add visual/audio polish without changing the learning model or adding game modes.
 - Keep all rewards local and free of dark patterns, advertisements, or purchases.

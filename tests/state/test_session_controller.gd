@@ -34,6 +34,23 @@ func test_every_answer_updates_mastery_and_saves_immediately() -> void:
     _remove_test_file()
 
 
+func test_answer_event_updates_supplemental_state_before_the_atomic_save() -> void:
+    var order := {"event_seen": false, "save_saw_event": false}
+    var save_after_event := func(_profile: LearningProfile) -> Error:
+        order["save_saw_event"] = bool(order["event_seen"])
+        return OK
+    var controller := SessionController.new(LearningProfile.new(), save_after_event)
+    controller.answer_recorded.connect(
+        func(_record: SessionResult.AnswerRecord) -> void:
+            order["event_seen"] = true
+    )
+    controller.begin_session(24601)
+    var question := controller.current_question()
+    controller.submit_answer(question.answer(), 1.0)
+
+    check(bool(order["save_saw_event"]), "Streak state can join the per-answer mastery save")
+
+
 func test_answer_crossing_the_mastery_gate_unlocks_the_next_table() -> void:
     var profile := LearningProfile.new()
     var last_multiplier: int = LearningRules.MULTIPLIERS.back()
