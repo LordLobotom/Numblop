@@ -13,7 +13,7 @@ content.
 
 ## Current presentation roles
 
-- `backround_music.wav` — looping background music.
+- `backround_music.ogg` — streamed looping background music.
 - `button.mp3` — compact buttons, language selection, and chest taps.
 - `Menu_Select_00.wav` — answer and Settings preview selection.
 - `turn_page.wav` — full-screen navigation transitions.

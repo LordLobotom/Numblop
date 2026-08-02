@@ -226,8 +226,8 @@ func test_main_scene_bundles_audible_music_and_confirm_sfx() -> void:
     var scene := packed.instantiate()
     var music: AudioStreamPlayer = scene.get_node("%MusicPlayer")
     var sfx: AudioStreamPlayer = scene.get_node("%UiSfxPlayer")
-    check(music.autoplay, "Background music starts automatically")
-    equal(music.stream.resource_path, "res://audio/music/backround_music.wav", "Music asset")
+    check(not music.autoplay, "Web-safe music waits for a user gesture")
+    equal(music.stream.resource_path, "res://audio/music/backround_music.ogg", "Music asset")
     equal(sfx.stream.resource_path, "res://audio/sfx/button.mp3", "Button SFX asset")
     equal(music.bus, "Music", "Music uses its volume bus")
     equal(sfx.bus, "SFX", "UI sounds use their volume bus")
@@ -255,25 +255,32 @@ func test_main_scene_bundles_audible_music_and_confirm_sfx() -> void:
     scene.free()
 
 
-func test_web_audio_can_restart_on_the_first_user_gesture() -> void:
+func test_main_scene_defers_streamed_music_until_web_audio_is_unlocked() -> void:
     var packed: PackedScene = load("res://scenes/Main.tscn")
     check(packed != null, "Main scene must load")
     if packed == null:
         return
     var scene := packed.instantiate()
-    var scene_tree := Engine.get_main_loop() as SceneTree
-    scene_tree.root.add_child(scene)
-    var music: AudioStreamPlayer = scene.get_node("%MusicPlayer")
-    music.stop()
+    var music_player: AudioStreamPlayer = scene.get_node("%MusicPlayer")
+    var ui_sfx_player: AudioStreamPlayer = scene.get_node("%UiSfxPlayer")
+    check(not music_player.autoplay, "Music does not autoplay before a web gesture")
+    equal(
+        music_player.playback_type,
+        AudioServer.PLAYBACK_TYPE_STREAM,
+        "Long background music uses streamed web playback"
+    )
+    equal(
+        ui_sfx_player.playback_type,
+        AudioServer.PLAYBACK_TYPE_DEFAULT,
+        "Short UI feedback keeps the default low-latency web playback"
+    )
 
-    var touch := InputEventScreenTouch.new()
-    touch.pressed = true
-    scene._unlock_web_audio(touch)
-    check(music.playing, "First Web touch restarts music after autoplay blocking")
-
-    music.stop()
-    scene._unlock_web_audio(touch)
-    check(not music.playing, "Later touches do not restart music unexpectedly")
+    var touch_down := InputEventScreenTouch.new()
+    touch_down.pressed = true
+    var touch_up := InputEventScreenTouch.new()
+    touch_up.pressed = false
+    check(not scene._is_audio_unlock_event(touch_down), "Touch start does not unlock web audio")
+    check(scene._is_audio_unlock_event(touch_up), "Completed tap can unlock web audio")
     scene.free()
 
 

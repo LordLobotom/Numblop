@@ -1,5 +1,22 @@
 extends Control
 
+const WEB_AUDIO_CONTEXT_STATE_SCRIPT := (
+    "typeof GodotAudio !== 'undefined' && GodotAudio.ctx"
+    + " ? GodotAudio.ctx.state : 'unavailable'"
+)
+const WEB_AUDIO_RESUME_SCRIPT := """
+(() => {
+    if (typeof GodotAudio === 'undefined' || !GodotAudio.ctx) {
+        return 'unavailable';
+    }
+    if (GodotAudio.ctx.state !== 'running') {
+        GodotAudio.ctx.resume().catch(() => {});
+    }
+    return GodotAudio.ctx.state;
+})()
+"""
+const WEB_AUDIO_UNLOCK_VERIFY_DELAY := 0.25
+
 @onready var home_screen: HomeScreen = %HomeScreen
 @onready var map_screen: MapScreen = %MapScreen
 @onready var settings_screen: SettingsScreen = %SettingsScreen
@@ -17,6 +34,7 @@ extends Control
 
 var _pending_unlocked_table := 0
 var _web_audio_unlocked := false
+var _web_audio_unlock_pending := false
 
 
 func _ready() -> void:
@@ -50,30 +68,66 @@ func _ready() -> void:
     EventBus.table_unlocked.connect(_on_table_unlocked)
     EventBus.back_requested.connect(_on_back_requested)
     music_player.finished.connect(_on_music_finished)
-    if not music_player.playing:
+    if not OS.has_feature("web") and not music_player.playing:
         music_player.play()
     if not OS.has_feature("mobile") and DisplayServer.get_name() != "headless":
         call_deferred("_center_desktop_window")
 
 
 func _input(event: InputEvent) -> void:
-    if OS.has_feature("web"):
-        _unlock_web_audio(event)
+    if OS.has_feature("web") and _is_audio_unlock_event(event):
+        _try_unlock_web_audio()
 
 
-func _unlock_web_audio(event: InputEvent) -> void:
-    if _web_audio_unlocked or not _is_audio_unlock_event(event):
+func _try_unlock_web_audio() -> void:
+    if _web_audio_unlock_pending:
         return
-    _web_audio_unlocked = true
+
+    if _web_audio_unlocked:
+        if _web_audio_context_state() == "running":
+            return
+        _web_audio_unlocked = false
+
+    var initial_state := _web_audio_context_state(true)
+    if initial_state == "running":
+        _finish_web_audio_unlock()
+        return
+
+    _web_audio_unlock_pending = true
     music_player.stop()
     music_player.play()
+    get_tree().create_timer(WEB_AUDIO_UNLOCK_VERIFY_DELAY).timeout.connect(
+        _verify_web_audio_unlock
+    )
+
+
+func _verify_web_audio_unlock() -> void:
+    _web_audio_unlock_pending = false
+    if _web_audio_context_state() == "running":
+        _finish_web_audio_unlock()
+        return
+
+    _web_audio_unlocked = false
+    music_player.stop()
+
+
+func _finish_web_audio_unlock() -> void:
+    _web_audio_unlocked = true
+    if not music_player.playing:
+        music_player.play()
+
+
+func _web_audio_context_state(request_resume := false) -> String:
+    var script := WEB_AUDIO_RESUME_SCRIPT if request_resume else WEB_AUDIO_CONTEXT_STATE_SCRIPT
+    var state: Variant = JavaScriptBridge.eval(script, false)
+    return str(state)
 
 
 func _is_audio_unlock_event(event: InputEvent) -> bool:
     if event is InputEventScreenTouch:
-        return event.pressed
+        return not event.pressed
     if event is InputEventMouseButton:
-        return event.pressed
+        return not event.pressed
     if event is InputEventKey:
         return event.pressed and not event.echo
     return false
