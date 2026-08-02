@@ -56,6 +56,22 @@
 - Repetition remains valid only when a required 7-current/2-older-weak/1-older-automated pool is
   too small. The quota and lowest-mastery priority remain unchanged.
 
+## 2026-08-02 — Cosmetics shop preview dock and category tabs
+
+- Supersedes "Outfit opens a compact Cosmetics shop without showing Numblop" in the *First Cosmetics
+  vertical slice* decision below. The shop now shows a 140px non-interactive Numblop in a fixed
+  bottom dock. Home remains the only place Numblop can be petted.
+- The four categories are tabs and one grid is visible at a time. Body color opens first.
+- Tapping an item only previews it. The preview is the equipped outfit with the tapped item
+  substituted, built as a throwaway dictionary and never written to `AppState`. The dock's single
+  action button reads Buy, Wear, or Worn, and body colors use their own verb pair because the Czech
+  "nasadit" suits accessories but not a color.
+- Locked artwork is dimmed to 62% alpha and the lock moves to a corner badge instead of covering the
+  item. Accessory cards grow from 58px to 96px, and hats, glasses, and necklaces use three columns so
+  the artwork is large enough to identify before buying.
+- `BlobCharacter` gains an exported `preview_mode` that suppresses petting, the giggle sound, and the
+  52px hearts while keeping the idle and blink animations.
+
 ## 2026-08-02 — First Cosmetics vertical slice
 
 - Outfit opens a compact Cosmetics shop without showing Numblop. Green is free; blue, pink, purple,

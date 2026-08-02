@@ -13,6 +13,7 @@ const SCREENS: Array[String] = [
     "cosmetics",
     "cosmetics_color",
     "cosmetics_buy",
+    "cosmetics_hat",
     "trophy",
     "map",
     "map_detail",
@@ -99,7 +100,7 @@ func _create_screen(screen_name: String) -> Control:
     var scene_path := "res://scenes/screens/HomeScreen.tscn"
     if screen_name in ["choice", "milestone", "keypad"]:
         scene_path = "res://scenes/screens/PracticeScreen.tscn"
-    elif screen_name in ["cosmetics", "cosmetics_color", "cosmetics_buy"]:
+    elif screen_name in ["cosmetics", "cosmetics_color", "cosmetics_buy", "cosmetics_hat"]:
         scene_path = "res://scenes/screens/CosmeticsScreen.tscn"
     elif screen_name == "trophy":
         scene_path = "res://scenes/screens/TrophyScreen.tscn"
@@ -146,7 +147,7 @@ func _configure_screen(screen: Control, screen_name: String, locale: String) -> 
                     "selected_necklace": "necklace_duck",
                     "colors": home_colors,
                 })
-        "cosmetics", "cosmetics_color", "cosmetics_buy":
+        "cosmetics", "cosmetics_color", "cosmetics_buy", "cosmetics_hat":
             var cosmetics_screen := screen as CosmeticsScreen
             var selected_id := (
                 "blue" if screen_name == "cosmetics_color" else "green"
@@ -183,6 +184,8 @@ func _configure_screen(screen: Control, screen_name: String, locale: String) -> 
             })
             if screen_name == "cosmetics_buy":
                 cosmetics_screen.preview_body_color("pink")
+            elif screen_name == "cosmetics_hat":
+                cosmetics_screen.preview_item(CosmeticCatalog.CATEGORY_HAT, "hat_crown")
         "trophy":
             var trophy_screen := screen as TrophyScreen
             trophy_screen.set_presentation_state({

@@ -354,7 +354,7 @@ func test_settings_screen_has_language_audio_mute_and_safe_exit_controls() -> vo
     scene.free()
 
 
-func test_cosmetics_screen_has_compact_shop_purchase_and_navigation_contracts() -> void:
+func test_cosmetics_screen_has_previewing_shop_purchase_and_navigation_contracts() -> void:
     var packed: PackedScene = load("res://scenes/screens/CosmeticsScreen.tscn")
     check(packed != null, "Cosmetics scene must load")
     if packed == null:
@@ -362,14 +362,55 @@ func test_cosmetics_screen_has_compact_shop_purchase_and_navigation_contracts() 
     var scene := packed.instantiate()
     check(scene.has_method("refresh_from_state"), "Cosmetics reads app presentation state")
     check(scene.has_method("set_presentation_state"), "Cosmetics supports deterministic previews")
-    check(scene.get_node_or_null("%PreviewBlob") == null, "No oversized character preview")
+    check(scene.has_method("preview_item"), "Cosmetics previews a tapped item")
+
+    var preview_blob := scene.get_node_or_null("%PreviewBlob") as BlobCharacter
+    check(preview_blob != null, "Fixed dock previews the tapped item on Numblop")
+    check(
+        preview_blob != null and preview_blob.preview_mode,
+        "Dock preview is not pettable"
+    )
+    check(
+        preview_blob != null and preview_blob.custom_minimum_size.y <= 160.0,
+        "Dock preview stays compact beside the item details"
+    )
+
+    var scroll: ScrollContainer = scene.get_node("%Scroll")
+    check(scene.get_node("%Dock") is PanelContainer, "Fixed preview dock")
+    check(not scroll.is_ancestor_of(scene.get_node("%Dock")), "Dock never scrolls away")
+    check(
+        not scroll.is_ancestor_of(scene.get_node("%PurchaseButton")),
+        "Buy action stays reachable without scrolling"
+    )
+    check(
+        not scroll.is_ancestor_of(scene.get_node("%CoinsLabel")),
+        "Coin balance stays pinned in the header"
+    )
+    check(scene.get_node("%ItemNameLabel") is Label, "Dock names the selected item")
+    check(scene.get_node("%PriceLabel") is Label, "Dock prices the selected item")
+
+    for tab_name in ["ColorTab", "HatsTab", "GlassesTab", "NecklacesTab"]:
+        var tab: BaseButton = scene.get_node("%%%s" % tab_name)
+        check(tab.custom_minimum_size.y >= 48.0, "%s touch target" % tab_name)
+        check(tab.toggle_mode, "%s behaves as a category tab" % tab_name)
+    check(scene.get_node("%ColorPage").visible, "Body color opens first")
+    for hidden_page in ["HatsPage", "GlassesPage", "NecklacesPage"]:
+        check(
+            not scene.get_node("%%%s" % hidden_page).visible,
+            "%s starts hidden behind its tab" % hidden_page
+        )
+
     check(scene.get_node("%ColorGrid") is GridContainer, "Body-color swatch grid")
     equal(scene.get_node("%ColorGrid").columns, 6, "Six colors share one compact row")
     check(scene.get_node("%HatsGrid") is GridContainer, "Hat shop grid")
-    equal(scene.get_node("%HatsGrid").columns, 5, "Duck hat keeps hats on one compact row")
+    equal(scene.get_node("%HatsGrid").columns, 3, "Hats use three identifiable cards per row")
     check(scene.get_node("%GlassesGrid") is GridContainer, "Glasses shop grid")
     check(scene.get_node("%NecklacesGrid") is GridContainer, "Necklace shop grid")
-    equal(scene.get_node("%NecklacesGrid").columns, 4, "Empty slot plus three necklaces")
+    equal(
+        scene.get_node("%NecklacesGrid").columns,
+        3,
+        "Necklaces use three identifiable cards per row"
+    )
     for grid_name in ["ColorGrid", "HatsGrid", "GlassesGrid", "NecklacesGrid"]:
         var grid: GridContainer = scene.get_node("%%%s" % grid_name)
         check(
