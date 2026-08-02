@@ -48,7 +48,10 @@ Core scripts never access nodes, singletons, files, time, locale, or platform AP
 - `AppState` owns the loaded `LearningProfile` and active question session. Runtime random
   seeds are chosen here, outside the deterministic generator. It projects capped aggregate
   mastery plus each fact's mastery band into read-only map-stage progress and forwards table-unlock
-  domain events; scenes never calculate mastery or decide unlocking.
+  domain events; scenes never calculate mastery or decide unlocking. When an answer moves a fact
+  upward across the existing 60, 80, or 90 thresholds, AppState asks `LocalProgress` for the
+  5-coin milestone bonus before the normal per-answer save, then exposes a one-answer presentation
+  dictionary to the practice UI. Milestone rewards never enter the deterministic learning core.
 
 ## Save contract
 
@@ -113,6 +116,9 @@ mastery, streak update, reward, purchase, and equip save preserves the other loc
 - The home screen presents coins, XP, level, and streak in one shared bar. The Trophies screen is a
   read-only projection of `LocalStreak`; UI code formats stored timestamps but never decides which
   answers extend a streak or qualify as a record.
+- Correct-answer feedback may present an AppState-supplied mastery milestone. It localizes the new
+  band and plays the bundled level-up and coin cues, but does not calculate thresholds or mutate
+  progression itself.
 
 ## Localization
 

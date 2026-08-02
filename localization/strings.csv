@@ -32,6 +32,9 @@ PRACTICE_EXIT_ACCESSIBLE,Leave this practice,Ukončit procvičování
 PRACTICE_ENTER_ANSWER,Enter the answer,Zadej výsledek
 PRACTICE_CORRECT,Nice work!,Výborně!
 PRACTICE_INCORRECT,Let's look at it together.,Podíváme se na to spolu.
+PRACTICE_MILESTONE_REACHED,Milestone reached for {fact}: {status},Spoj {fact} dosáhl úrovně: {status}
+PRACTICE_MILESTONE_REWARD,+{coins} bonus coins!,Odměna: +{coins} mincí!
+PRACTICE_MILESTONE_SKIP_ACCESSIBLE,Continue now,Pokračovat hned
 PRACTICE_CONTINUE,Continue,Pokračovat
 KEYPAD_DELETE,Delete the last digit,Smazat poslední číslici
 KEYPAD_SUBMIT,Submit the answer,Potvrdit výsledek
@@ -96,10 +99,10 @@ MAP_FACT_DETAIL_TITLE,{table}× facts,Spoje {table}×
 MAP_FACT_DETAIL_OVERALL,Island progress {percent}%,Pokrok ostrova {percent} %
 MAP_FACT_DETAIL_CLOSE,Close fact detail,Zavřít detail spojů
 MAP_FACT_PERCENT,{percent}%,{percent} %
-MAP_FACT_BUILDING,Building up,Začínám
+MAP_FACT_BUILDING,Building up,Objevuji
 MAP_FACT_PRACTICING,Practicing,Procvičuji
-MAP_FACT_MASTERED,Mastered,Upevněno
-MAP_FACT_AUTOMATED,Automatic,Automatizováno
+MAP_FACT_MASTERED,Mastered,Upevňuji
+MAP_FACT_AUTOMATED,Automatic,Mám jistotu
 NAV_SETTINGS,Settings,Nastavení
 NAV_HOME,Home,Domů
 SETTINGS_TITLE,Settings,Nastavení

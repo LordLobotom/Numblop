@@ -20,6 +20,7 @@ const SCREENS: Array[String] = [
     "settings",
     "settings_exit",
     "choice",
+    "milestone",
     "keypad",
     "reward",
 ]
@@ -96,7 +97,7 @@ func _capture_screen(locale: String, capture_size: Vector2i, screen_name: String
 
 func _create_screen(screen_name: String) -> Control:
     var scene_path := "res://scenes/screens/HomeScreen.tscn"
-    if screen_name == "choice" or screen_name == "keypad":
+    if screen_name in ["choice", "milestone", "keypad"]:
         scene_path = "res://scenes/screens/PracticeScreen.tscn"
     elif screen_name in ["cosmetics", "cosmetics_color", "cosmetics_buy"]:
         scene_path = "res://scenes/screens/CosmeticsScreen.tscn"
@@ -242,6 +243,23 @@ func _configure_screen(screen: Control, screen_name: String, locale: String) -> 
                 3,
                 LearningRules.SESSION_LENGTH
             )
+        "milestone":
+            var practice := screen as PracticeScreen
+            var question := PracticeQuestion.new(
+                7,
+                4,
+                LearningRules.QuestionMode.CHOICE_SIX,
+                [14, 21, 28, 32, 35, 42]
+            )
+            practice.show_question(question, 3, LearningRules.SESSION_LENGTH)
+            var record := SessionResult.AnswerRecord.new(3, question, 28, 1.0, 79)
+            practice._present_answer_feedback(record, {
+                "table_value": 7,
+                "multiplier": 4,
+                "status": &"mastered",
+                "mastery": 84,
+                "reward_coins": 5,
+            })
         "keypad":
             var practice := screen as PracticeScreen
             practice.show_question(

@@ -288,6 +288,27 @@ text = "PRACTICE_CORRECT"
 horizontal_alignment = 1
 autowrap_mode = 2
 
+[node name="MilestoneLabel" type="Label" parent="FeedbackOverlay/Center/FeedbackPanel/Content"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+theme_override_colors/font_outline_color = Color(1, 1, 1, 0.9)
+theme_override_constants/outline_size = 3
+theme_override_font_sizes/font_size = 21
+text = "PRACTICE_MILESTONE_REACHED"
+horizontal_alignment = 1
+autowrap_mode = 2
+
+[node name="MilestoneRewardLabel" type="Label" parent="FeedbackOverlay/Center/FeedbackPanel/Content"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+theme_override_colors/font_color = Color(0.83, 0.48, 0.05, 1)
+theme_override_font_sizes/font_size = 24
+text = "PRACTICE_MILESTONE_REWARD"
+horizontal_alignment = 1
+autowrap_mode = 2
+
 [node name="CorrectEquation" type="Label" parent="FeedbackOverlay/Center/FeedbackPanel/Content"]
 unique_name_in_owner = true
 layout_mode = 2
@@ -303,3 +324,16 @@ custom_minimum_size = Vector2(0, 64)
 layout_mode = 2
 theme_override_font_sizes/font_size = 22
 text = "PRACTICE_CONTINUE"
+
+[node name="MilestoneSkipButton" type="Button" parent="FeedbackOverlay"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+focus_mode = 0
+mouse_default_cursor_shape = 2
+flat = true

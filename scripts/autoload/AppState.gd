@@ -8,6 +8,8 @@ var progress := LocalProgress.new()
 var cosmetics := LocalCosmetics.new()
 var streak := LocalStreak.new()
 
+var _pending_answer_milestone: Dictionary = {}
+
 
 func _ready() -> void:
     profile = SaveManager.load_profile()
@@ -40,6 +42,7 @@ func submit_answer(
     submitted_answer: int,
     elapsed_seconds: float
 ) -> SessionResult.AnswerRecord:
+    _pending_answer_milestone.clear()
     return session_controller.submit_answer(submitted_answer, elapsed_seconds)
 
 
@@ -89,6 +92,12 @@ func claim_completed_session_reward() -> Dictionary:
 
 func progress_totals() -> Dictionary:
     return progress.totals()
+
+
+func consume_answer_milestone() -> Dictionary:
+    var milestone := _pending_answer_milestone.duplicate(true)
+    _pending_answer_milestone.clear()
+    return milestone
 
 
 func streak_state() -> Dictionary:
@@ -248,12 +257,32 @@ func _on_answer_recorded(record: SessionResult.AnswerRecord) -> void:
         int(Time.get_unix_time_from_system()),
         int(time_zone.get("bias", 0))
     )
+    _apply_mastery_milestone_reward(record)
     EventBus.streak_changed.emit(streak.current_count, streak.all_time_high)
     EventBus.answer_recorded.emit(record.fact_key, record.correct, record.mastery_after)
 
 
 func _on_table_unlocked(completed_table: int, new_table: int) -> void:
     EventBus.table_unlocked.emit(completed_table, new_table)
+
+
+func _apply_mastery_milestone_reward(record: SessionResult.AnswerRecord) -> void:
+    if record.mastery_after <= record.mastery_before:
+        return
+    var previous_status := _fact_mastery_status(record.mastery_before)
+    var current_status := _fact_mastery_status(record.mastery_after)
+    if current_status == previous_status or current_status == &"building":
+        return
+    var reward_coins := progress.grant_mastery_milestone()
+    _pending_answer_milestone = {
+        "fact_key": record.fact_key,
+        "table_value": record.table_value,
+        "multiplier": record.multiplier,
+        "status": current_status,
+        "mastery": record.mastery_after,
+        "reward_coins": reward_coins,
+    }
+    EventBus.progress_changed.emit(progress.coins, progress.experience, progress.level())
 
 
 func _save_profile(updated_profile: LearningProfile) -> Error:

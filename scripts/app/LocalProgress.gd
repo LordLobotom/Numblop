@@ -3,6 +3,7 @@ extends RefCounted
 
 const MINIMUM_SESSION_REWARD := 1
 const EXPERIENCE_PER_LEVEL := 100
+const MASTERY_MILESTONE_COINS := 5
 
 var coins := 0
 var experience := 0
@@ -25,6 +26,11 @@ func totals() -> Dictionary:
         "experience": experience,
         "level": level(),
     }
+
+
+func grant_mastery_milestone() -> int:
+    coins += MASTERY_MILESTONE_COINS
+    return MASTERY_MILESTONE_COINS
 
 
 func apply_completed_session(

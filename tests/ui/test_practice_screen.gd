@@ -101,6 +101,44 @@ func test_wrong_feedback_has_complete_equation_and_tap_gate() -> void:
     scene.free()
 
 
+func test_mastery_milestone_feedback_names_fact_band_and_coin_bonus_in_czech() -> void:
+    var packed: PackedScene = load("res://scenes/screens/PracticeScreen.tscn")
+    var scene := packed.instantiate()
+    var scene_tree := Engine.get_main_loop() as SceneTree
+    scene_tree.root.add_child(scene)
+    var previous_locale := TranslationServer.get_locale()
+    TranslationServer.set_locale("cs")
+    scene._active_milestone = {
+        "table_value": 7,
+        "multiplier": 4,
+        "status": &"mastered",
+        "reward_coins": 5,
+    }
+    scene._refresh_mastery_milestone_feedback()
+
+    var milestone_label: Label = scene.get_node("%MilestoneLabel")
+    var reward_label: Label = scene.get_node("%MilestoneRewardLabel")
+    var skip_button: Button = scene.get_node("%MilestoneSkipButton")
+    check(milestone_label.visible, "Milestone text is visible")
+    check(reward_label.visible, "Milestone reward is visible")
+    check(skip_button.visible, "Milestone feedback can be skipped by tapping anywhere")
+    equal(scene.MILESTONE_FEEDBACK_SECONDS, 3.6, "Milestone feedback stays twice as long")
+    equal(
+        milestone_label.text,
+        "Spoj 7 × 4 dosáhl úrovně: Upevňuji",
+        "Czech fact milestone message"
+    )
+    equal(reward_label.text, "Odměna: +5 mincí!", "Czech coin bonus message")
+    equal(milestone_label.modulate, Color(0.95, 0.55, 0.08), "Orange milestone color")
+    var skip_audit := {"emitted": false}
+    scene.feedback_gate.connect(func() -> void: skip_audit["emitted"] = true)
+    scene.get_node("%FeedbackOverlay").visible = true
+    skip_button.pressed.emit()
+    check(bool(skip_audit["emitted"]), "Milestone tap releases the feedback wait")
+    TranslationServer.set_locale(previous_locale)
+    scene.free()
+
+
 func _contains_line_edit(node: Node) -> bool:
     if node is LineEdit:
         return true

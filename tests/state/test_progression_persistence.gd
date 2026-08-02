@@ -98,6 +98,47 @@ func test_level_advances_at_each_hundred_experience() -> void:
     equal(progress.experience, 109, "Experience after reward")
 
 
+func test_upward_fact_band_crossing_grants_five_coins_before_answer_save() -> void:
+    var state: Node = load("res://scripts/autoload/AppState.gd").new()
+    state.profile = LearningProfile.new()
+    state.progress = LocalProgress.new({"coins": 10, "experience": 7})
+    state.cosmetics = LocalCosmetics.new()
+    state.streak = LocalStreak.new()
+    for multiplier in LearningRules.MULTIPLIERS:
+        state.profile.set_mastery(2, multiplier, 59)
+
+    var save_audit := {"coins": -1}
+    var save_after_answer := func(_profile: LearningProfile) -> Error:
+        save_audit["coins"] = state.progress.coins
+        return OK
+    state.session_controller = SessionController.new(state.profile, save_after_answer)
+    state.session_controller.answer_recorded.connect(state._on_answer_recorded)
+    state.active_session_result = state.session_controller.begin_session(86420)
+    state.active_session = state.active_session_result.questions.duplicate()
+
+    var question: PracticeQuestion = state.session_controller.current_question()
+    var record: SessionResult.AnswerRecord = state.submit_answer(question.answer(), 1.0)
+    var milestone: Dictionary = state.consume_answer_milestone()
+    equal(record.mastery_before, 59, "Answer starts immediately below a band")
+    equal(record.mastery_after, 64, "Canonical fast-answer delta is unchanged")
+    equal(milestone["status"], &"practicing", "The new mastery band is presented")
+    equal(milestone["reward_coins"], 5, "Fact milestone bonus")
+    equal(state.progress.coins, 15, "Milestone coins are applied immediately")
+    equal(state.progress.experience, 7, "Milestone grants no experience")
+    equal(save_audit["coins"], 15, "Answer save sees the milestone coin total")
+
+    var same_band_question: PracticeQuestion = state.session_controller.current_question()
+    state.profile.set_mastery(
+        same_band_question.table_value,
+        same_band_question.multiplier,
+        60
+    )
+    state.submit_answer(same_band_question.answer(), 1.0)
+    equal(state.consume_answer_milestone(), {}, "Improvement within a band is not a milestone")
+    equal(state.progress.coins, 15, "No duplicate bonus within the same band")
+    state.free()
+
+
 func test_map_stage_state_exposes_progress_without_changing_learning_rules() -> void:
     var original_profile := AppState.profile
     var map_profile := LearningProfile.new()

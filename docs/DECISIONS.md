@@ -138,6 +138,21 @@
 - Fact-detail colors follow a red, yellow, gold, green learning progression. `Mastered` / `Upevněno`
   is orange-gold, while `Automatic` / `Automatizováno` is green.
 
+## 2026-08-02 — Fact mastery milestone celebration
+
+- This decision supersedes the fact-detail color and Czech labels immediately above. The four
+  bands are red/purple/orange/green and their Czech names are `Objevuji`, `Procvičuji`,
+  `Upevňuji`, and `Mám jistotu`. English labels remain unchanged.
+- A correct answer that crosses upward into the existing 60, 80, or 90 mastery band grants an
+  immediate 5-coin bonus. It grants no experience and never changes mastery, question selection,
+  or unlocking.
+- AppState detects the transition and applies the coin bonus before the existing per-answer atomic
+  save. Practice feedback names the fact and new band and plays level-up followed by coin SFX.
+- Milestone feedback remains visible for 3.6 seconds and can be dismissed early with a tap anywhere
+  on its overlay. Ordinary correct-answer timing and incorrect-answer confirmation remain unchanged.
+- The milestone bonus is separate from the 1–10 coin/experience completed-series chest. Leaving an
+  unfinished series forfeits only that chest; already processed mastery and milestone coins remain.
+
 ## 2026-08-02 — Responsive exit confirmation
 
 - Settings uses a themed in-game exit overlay instead of the platform `ConfirmationDialog`.

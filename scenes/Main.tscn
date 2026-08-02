@@ -1,4 +1,4 @@
-[gd_scene load_steps=16 format=3]
+[gd_scene load_steps=18 format=3]
 
 [ext_resource type="Script" path="res://scripts/ui/Main.gd" id="1_main"]
 [ext_resource type="Theme" path="res://ui/theme.tres" id="2_theme"]
@@ -15,6 +15,8 @@
 [ext_resource type="AudioStream" path="res://audio/sfx/turn_page.wav" id="13_page"]
 [ext_resource type="PackedScene" path="res://scenes/screens/CosmeticsScreen.tscn" id="14_cosmetics"]
 [ext_resource type="PackedScene" path="res://scenes/screens/TrophyScreen.tscn" id="15_trophy"]
+[ext_resource type="AudioStream" path="res://audio/sfx/level_up.wav" id="16_milestone"]
+[ext_resource type="AudioStream" path="res://audio/sfx/coin2.wav" id="17_coin"]
 
 [node name="Main" type="Control"]
 layout_mode = 3
@@ -94,5 +96,19 @@ bus = &"SFX"
 unique_name_in_owner = true
 stream = ExtResource("13_page")
 volume_db = -9.0
+max_polyphony = 2
+bus = &"SFX"
+
+[node name="MilestoneSfxPlayer" type="AudioStreamPlayer" parent="."]
+unique_name_in_owner = true
+stream = ExtResource("16_milestone")
+volume_db = -4.0
+max_polyphony = 2
+bus = &"SFX"
+
+[node name="CoinSfxPlayer" type="AudioStreamPlayer" parent="."]
+unique_name_in_owner = true
+stream = ExtResource("17_coin")
+volume_db = -5.0
 max_polyphony = 2
 bus = &"SFX"

@@ -66,6 +66,11 @@ Status values: `TODO`, `WIP(@agent)`, `BLOCKED(reason)`, `DONE`.
 - `B17 DONE` Apply the shared centered 540 px wide-display layout to Home and Map so their top
   content, main content, and bottom navigation align with every other navigation screen. Owns:
   Home/Map scenes and responsive UI tests.
+- `B18 DONE` Rename Czech mastery bands, use the red/purple/orange/green presentation, and show
+  localized fact-milestone feedback with level-up and coin SFX. Owns: localization, practice/map
+  UI, audio scene wiring, and UI tests.
+- `B19 DONE` Keep mastery-milestone feedback visible for 3.6 seconds while allowing an early
+  full-overlay tap to continue. Owns: practice feedback scene/script, localization, and UI tests.
 - `C1 DONE` Session controller, per-answer mastery saves, and discard-on-interruption behavior.
   Depends: A1. Owns: `scripts/app/SessionController.gd`, autoload changes, state tests.
 - `C2 DONE` Local coin/XP/level persistence and atomic application of the accuracy-linked M1
@@ -88,6 +93,9 @@ Status values: `TODO`, `WIP(@agent)`, `BLOCKED(reason)`, `DONE`.
   6. Depends: C7. Owns: local cosmetics, save/app projection, and state tests.
 - `C11 DONE` Project the 9-of-10 gate into map completion state while retaining the tenth fact's
   real mastery value. Depends: A4, C9. Owns: app-state map projection and state tests.
+- `C12 DONE` Detect upward 60/80/90 fact-band crossings in app state and atomically grant a
+  separate 5-coin mastery milestone bonus before each answer save. Owns: local progress, app-state
+  coordination, persistence tests, and the shared UI presentation dictionary.
 - `D1 DONE` Responsive screenshot smoke harness at 390×844 and 450×900. Depends: B3.
   Owns: QA scripts, smoke scenes/tests, `artifacts/` output contract.
 - `D2 BLOCKED(no authorized physical Android device connected)` Physical Android install/run/log

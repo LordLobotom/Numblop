@@ -29,3 +29,13 @@ func test_runtime_catalog_switches_between_english_and_czech() -> void:
     TranslationServer.set_locale("cs")
     equal(TranslationServer.translate("HOME_PLAY"), "Hrát", "Czech runtime translation")
     TranslationServer.set_locale(previous_locale)
+
+
+func test_czech_mastery_band_names_match_the_learning_language() -> void:
+    var previous_locale := TranslationServer.get_locale()
+    TranslationServer.set_locale("cs")
+    equal(TranslationServer.translate("MAP_FACT_BUILDING"), "Objevuji", "Red band")
+    equal(TranslationServer.translate("MAP_FACT_PRACTICING"), "Procvičuji", "Purple band")
+    equal(TranslationServer.translate("MAP_FACT_MASTERED"), "Upevňuji", "Orange band")
+    equal(TranslationServer.translate("MAP_FACT_AUTOMATED"), "Mám jistotu", "Green band")
+    TranslationServer.set_locale(previous_locale)

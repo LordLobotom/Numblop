@@ -167,6 +167,11 @@ func test_map_screen_has_all_stage_navigation_contracts() -> void:
         scene.FACT_AUTOMATED_COLOR,
         "Automated facts use green"
     )
+    equal(
+        scene.FACT_PRACTICING_COLOR,
+        Color(0.58, 0.37, 0.78),
+        "Practicing facts use purple"
+    )
     check(scene.get_node_or_null("%BackButton") == null, "Map has no top back arrow")
     for button_name in ["OutfitButton", "MapButton", "HomeButton", "TrophyButton", "SettingsButton"]:
         var button: BaseButton = scene.get_node("%%%s" % button_name)
@@ -228,6 +233,16 @@ func test_main_scene_bundles_audible_music_and_confirm_sfx() -> void:
         scene.get_node("%PageSfxPlayer").stream.resource_path,
         "res://audio/sfx/turn_page.wav",
         "Screen transition sound"
+    )
+    equal(
+        scene.get_node("%MilestoneSfxPlayer").stream.resource_path,
+        "res://audio/sfx/level_up.wav",
+        "Mastery milestone level-up sound"
+    )
+    equal(
+        scene.get_node("%CoinSfxPlayer").stream.resource_path,
+        "res://audio/sfx/coin2.wav",
+        "Mastery milestone coin sound"
     )
     check(music.volume_db > -20.0, "Music is not effectively silent")
     scene.free()

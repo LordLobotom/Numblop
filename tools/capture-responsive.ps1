@@ -32,6 +32,7 @@ $expectedScreens = @(
     "settings",
     "settings_exit",
     "choice",
+    "milestone",
     "keypad",
     "reward"
 )

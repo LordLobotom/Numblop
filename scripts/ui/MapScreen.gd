@@ -18,7 +18,7 @@ const STAGE_SIZE := Vector2(132.0, 132.0)
 const STAGE_STEP := 145.0
 const MAP_CONTENT_WIDTH := 350.0
 const FACT_BUILDING_COLOR := Color(0.9, 0.25, 0.2)
-const FACT_PRACTICING_COLOR := Color(0.96, 0.73, 0.12)
+const FACT_PRACTICING_COLOR := Color(0.58, 0.37, 0.78)
 const FACT_MASTERED_COLOR := Color(0.95, 0.55, 0.08)
 const FACT_AUTOMATED_COLOR := Color(0.27, 0.7, 0.2)
 

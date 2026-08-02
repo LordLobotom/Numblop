@@ -48,8 +48,8 @@ No additional game modes are part of the MVP.
   two-column view of all 10 facts, their individual percentage bars, and the four learning bands.
   The winding trail keeps a centered readable width when the portrait window becomes wider. In the
   detail,
-  the mastery band moves from red through yellow and gold to green: Mastered is gold and Automatic
-  is green.
+  the mastery band moves from red through purple and orange to green. The Czech presentation names
+  these bands `Objevuji`, `Procvičuji`, `Upevňuji`, and `Mám jistotu`.
 - A correct-answer streak continues across practice series and app restarts. Only an incorrect
   answer ends it. When an ended streak exceeds every previously ended streak, Trophies adds a
   milestone with its count and the local date and time of the interrupting mistake. Shorter ended
@@ -70,6 +70,12 @@ series with no correct answers still grants the minimum of 1 coin and 1 experien
 guaranteed chest is never empty. The displayed level is `1 + floor(total experience / 100)`.
 Rewards never alter mastery or table unlocking.
 
+A correct answer that moves a fact upward into the 60-point, 80-point, or 90-point mastery band
+immediately grants a separate 5-coin milestone bonus. The practice feedback names the fact and its
+new band and plays a level-up cue followed by a coin cue. This bonus grants no experience and does
+not replace or alter the completed-series chest reward. The milestone card remains visible for
+3.6 seconds, twice its original duration, and a tap anywhere dismisses it early.
+
 Future Cosmetics sections use the same scrollable panel for belly patterns, shoes, and additional
 categories. Non-color items use the same rounded cards, selected check, lock, and compact numeric
 price followed by the coin crest.
@@ -86,7 +92,8 @@ price followed by the coin crest.
 - An incorrect answer shows the complete correct equation, for example `7 × 4 = 28`, using
   calm and positive presentation. Wait for a tap before advancing.
 - Never show a stressful answer countdown.
-- Do not display coins or experience rewards during the question series.
+- Do not display the completed-series coin or experience reward during the question series. The
+  immediate 5-coin fact-milestone celebration is the only exception.
 
 ## Completing the series and reward chest
 
@@ -105,7 +112,8 @@ price followed by the coin crest.
 ## Interrupted series
 
 - Leaving or closing the game before all 10 questions are complete abandons that series.
-- An abandoned series grants no chest, coins, or experience and is not restored on relaunch.
+- An abandoned series grants no chest or completed-series coins or experience and is not restored
+  on relaunch. Any per-answer fact-milestone bonus already earned and saved remains on the device.
 - Mastery changes from answers already processed remain saved locally; only unfinished-series
   state and its pending reward are discarded.
 - The next press of Play starts a new 10-question series from the beginning.

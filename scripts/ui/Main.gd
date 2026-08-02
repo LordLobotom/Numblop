@@ -12,6 +12,8 @@ extends Control
 @onready var answer_sfx_player: AudioStreamPlayer = %AnswerSfxPlayer
 @onready var correct_sfx_player: AudioStreamPlayer = %CorrectSfxPlayer
 @onready var page_sfx_player: AudioStreamPlayer = %PageSfxPlayer
+@onready var milestone_sfx_player: AudioStreamPlayer = %MilestoneSfxPlayer
+@onready var coin_sfx_player: AudioStreamPlayer = %CoinSfxPlayer
 
 var _pending_unlocked_table := 0
 var _web_audio_unlocked := false
@@ -89,13 +91,16 @@ func _on_play_requested() -> void:
 func _on_answer_submitted(value: int, elapsed_seconds: float) -> void:
     answer_sfx_player.play()
     var record := AppState.submit_answer(value, elapsed_seconds)
-    if record.correct:
+    var milestone := AppState.consume_answer_milestone()
+    if not milestone.is_empty():
+        _play_mastery_milestone_sfx()
+    elif record.correct:
         correct_sfx_player.play()
     var result := AppState.active_session_result
     var reward: Dictionary = {}
     if result.is_complete():
         reward = AppState.claim_completed_session_reward()
-    await practice_screen.show_answer_feedback(record)
+    await practice_screen.show_answer_feedback(record, milestone)
     if result.is_complete():
         practice_screen.visible = false
         reward_screen.visible = true
@@ -272,6 +277,11 @@ func _play_confirm_sfx() -> void:
 
 func _play_page_sfx() -> void:
     page_sfx_player.play()
+
+
+func _play_mastery_milestone_sfx() -> void:
+    milestone_sfx_player.play()
+    get_tree().create_timer(0.3).timeout.connect(coin_sfx_player.play)
 
 
 func _center_desktop_window() -> void:
