@@ -257,15 +257,15 @@ func test_blob_home_has_idle_pet_and_heart_reactions() -> void:
     equal(blob.get_node("%HatAccessory").anchor_left, -0.25, "Hat canvas x offset")
     equal(blob.get_node("%HatAccessory").anchor_right, 1.25, "Hat canvas width")
     check(
-        is_equal_approx(blob.get_node("%HatAccessory").anchor_top, -160.0 / 512.0),
-        "Hat canvas uses the authored 160 px vertical offset"
+        is_equal_approx(blob.get_node("%HatAccessory").anchor_top, -175.0 / 512.0),
+        "Hat canvas uses the tuned 175 px vertical offset"
     )
     check(
-        is_equal_approx(blob.get_node("%GlassesAccessory").anchor_top, -160.0 / 512.0),
-        "Glasses canvas uses the authored 160 px vertical offset"
+        is_equal_approx(blob.get_node("%GlassesAccessory").anchor_top, -175.0 / 512.0),
+        "Glasses canvas uses the tuned 175 px vertical offset"
     )
     check(
-        is_equal_approx(blob.get_node("%GlassesAccessory").anchor_bottom, 608.0 / 512.0),
+        is_equal_approx(blob.get_node("%GlassesAccessory").anchor_bottom, 593.0 / 512.0),
         "Glasses canvas keeps its 768 px height"
     )
     check(load("res://ui/shaders/numblop_body_color.gdshader") is Shader, "Body-color shader")

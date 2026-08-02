@@ -97,8 +97,8 @@ mastery, streak update, reward, purchase, and equip save preserves the other loc
 - The Cosmetics screen consumes an `AppState` catalog/inventory projection. A palette shader
   recolors only body, arm, and leg pixels while preserving facial layers, outlines, and the belly.
   Supplied accessories keep their 768×768 authoring coordinates: their layer spans 150% of the
-  512×512 character bounds. It starts at −25% horizontally and −160/512 vertically because the
-  source character was authored 160px below the accessory canvas top. Hats may extend above the
+  512×512 character bounds. It starts at −25% horizontally and −175/512 vertically after the
+  shared accessory layer was visually tuned. Hats may extend above the
   base canvas while glasses remain aligned with the eyes.
 - The home screen presents coins, XP, level, and streak in one shared bar. The Trophies screen is a
   read-only projection of `LocalStreak`; UI code formats stored timestamps but never decides which

@@ -67,7 +67,7 @@
 - The three supplied hats and three pairs of glasses join the shop at 100 coins each. They use rounded
   square cards with transparent crests, small borderless selected checks, the supplied lock icon,
   and a compact `100` plus coin crest price. A free empty card removes hats or glasses. The 768px
-  accessory canvas is positioned at −128px horizontally and −160px vertically relative to the
+  accessory canvas is positioned at −128px horizontally and −175px vertically relative to the
   512px character canvas rather than being shrunk, preserving its authored alignment. Future
   patterns and shoes follow this contract.
 
