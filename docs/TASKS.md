@@ -170,6 +170,21 @@ Status values: `TODO`, `WIP(@agent)`, `BLOCKED(reason)`, `DONE`.
 - `D18 TODO` Release execution: generate the release keystore, export and verify the signed AAB,
   enable GitHub Pages, complete the physical-device checklist (unblocks D2), and upload to the
   Play internal test track. Depends: D2, D14–D17. Owns: release workflow (manual steps).
+- `A9 DONE` Achievement catalog (first round, four streak tiers, one full-mastery island per
+  table) and per-fact session mastery gains, both pure and deterministic. Owns: achievement
+  catalog, session result, core tests.
+- `B27 DONE` Steam-style Trophy tab: best-streak header and achievement cards with icon, title,
+  description, progress, and coin reward. Depends: A9, C16. Owns: trophy UI, localization,
+  UI tests.
+- `B28 DONE` Unified end-of-round page around the single treasure chest: mastery gains above,
+  chest in the middle, itemized coin rewards (round, mastery bonus, achievements, total) below,
+  all revealed step by step, then held until the auto-return or a tap anywhere. Depends: B27.
+  Owns: reward UI, localization, UI tests.
+- `C16 DONE` Achievement persistence in save v8: once-only reward grants, the completed-session
+  counter, and retroactive evaluation of existing saves on load. Depends: A9. Owns: local
+  achievements, local progress, save manager, app state, state tests.
+- `D19 DONE` Responsive captures for the island achievement list and the fully revealed
+  end-of-round page. Depends: B28. Owns: capture harness, capture command, smoke tests.
 
 Claim the lowest-numbered unblocked task in your track. Only the stated owner changes the task's
 owned files; coordinate contract changes through the owning track.

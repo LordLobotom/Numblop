@@ -235,3 +235,44 @@
 - Android device backup is enabled (`user_data_backup/allow=true`), so the profile — including
   the nickname — survives device migration through the user's own Google backup. Data still
   never reaches any Numblop or third-party service.
+
+## 2026-08-02 — Achievements, retroactive rewards, and the end-of-round mastery summary
+
+- The Trophy tab shows only the highest completed streak at the top; the timestamped milestone
+  history is removed and the rest of the screen is the achievement list. This supersedes the
+  Trophy milestone-history presentation described above; `LocalStreak.milestones` is still
+  persisted, it is simply no longer displayed.
+- The catalog is fixed: First Steps (finish one round, 100 coins), Streak 10/20/50/100 (coins
+  equal to the streak target), and one island achievement per multiplication table (50 coins).
+- An island achievement completes only when every one of its ten facts reaches mastery 100. This
+  is deliberately stricter than the map's progress bar, which fills at the unlock threshold 80.
+- A streak achievement completes the moment the streak is reached. It does not have to be ended
+  by a mistake, so it uses `max(all_time_high, current_count)` while the Trophy header keeps
+  showing the completed record.
+- Every achievement reward is granted exactly once. `LocalAchievements.granted` is the single
+  guard, and a grant only counts after the save succeeds; a failed write is rolled back and
+  retried on the next evaluation.
+- Achievements are evaluated retroactively when a save loads. Saves written before save v8 have
+  no session counter, so any stored experience proves at least one finished round. Retroactive
+  grants pay their coins silently — the player never triggered that celebration.
+- Save version 8 adds `achievements` and `completed_sessions`. Both use an explicit null sentinel
+  in `SaveManager.save_game_state` because an empty grant set and a zero session count are
+  meaningful values rather than "reload from disk".
+- There is exactly one treasure chest in the game, on the end-of-round reward screen, and it is
+  the central element of a single unified page. Opening it reveals everything step by step in
+  place: mastery gains above the chest, then the itemized coin rewards below it. Achievements
+  unlocked by the round are part of that one reveal — there is no separate celebration screen.
+  A UI test enforces the single-chest rule across every screen.
+- The space above the chest lists every fact whose mastery rose during the round (previous value,
+  new value, and amount gained), taken from the session's real answer audit and not from the
+  score. Ties break by table then multiplier so the list is deterministic; three rows are visible
+  and the rest scroll.
+- The space below the chest itemizes the coins earned: the round reward, the mastery bonus when
+  any band was crossed, one named line per achievement unlocked, and the total, which always
+  equals the sum of those lines. The wallet total walks back the full payout, because bonus and
+  achievement coins were already banked as they were earned.
+- Achievements unlocked during an abandoned round stay queued and are presented with the next
+  finished round, so every unlock is announced exactly once and never mid-question.
+- The finished page is held for eight seconds so a child can read it, and a tap anywhere skips
+  the remaining wait. The skip surface is invisible and only becomes active once the reveal is
+  complete; returning home can happen only once.

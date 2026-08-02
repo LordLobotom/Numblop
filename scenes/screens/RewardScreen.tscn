@@ -1,4 +1,4 @@
-[gd_scene load_steps=13 format=3]
+[gd_scene load_steps=16 format=3]
 
 [ext_resource type="Script" path="res://scripts/ui/RewardScreen.gd" id="1_script"]
 [ext_resource type="Texture2D" path="res://assets/backgrounds/mianscreen_background.png" id="2_background"]
@@ -11,6 +11,8 @@
 [ext_resource type="AudioStream" path="res://audio/sfx/xp_gain.wav" id="9_xp"]
 [ext_resource type="AudioStream" path="res://audio/sfx/button.mp3" id="10_tap"]
 [ext_resource type="AudioStream" path="res://audio/sfx/coin2.wav" id="11_coin"]
+[ext_resource type="Font" path="res://ui/fonts/Baloo2Bold.tres" id="12_bold"]
+[ext_resource type="Texture2D" path="res://ui/crests/crest_trophy.png" id="13_trophy"]
 
 [sub_resource type="StyleBoxFlat" id="RewardPanel"]
 bg_color = Color(1, 1, 1, 0.94)
@@ -29,6 +31,19 @@ content_margin_left = 18.0
 content_margin_top = 16.0
 content_margin_right = 18.0
 content_margin_bottom = 16.0
+
+[sub_resource type="StyleBoxFlat" id="MasteryPanel"]
+bg_color = Color(1, 1, 1, 0.9)
+corner_radius_top_left = 22
+corner_radius_top_right = 22
+corner_radius_bottom_right = 22
+corner_radius_bottom_left = 22
+shadow_color = Color(0.1, 0.3, 0.26, 0.16)
+shadow_size = 6
+content_margin_left = 14.0
+content_margin_top = 10.0
+content_margin_right = 14.0
+content_margin_bottom = 12.0
 
 [node name="RewardScreen" type="Control"]
 layout_mode = 3
@@ -99,14 +114,44 @@ text = "REWARD_TAP_PROGRESS"
 horizontal_alignment = 1
 vertical_alignment = 1
 
+[node name="MasteryPanel" type="PanelContainer" parent="SafeArea/Content"]
+unique_name_in_owner = true
+visible = false
+custom_minimum_size = Vector2(0, 158)
+layout_mode = 2
+theme_override_styles/panel = SubResource("MasteryPanel")
+
+[node name="MasteryRows" type="VBoxContainer" parent="SafeArea/Content/MasteryPanel"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="MasteryTitle" type="Label" parent="SafeArea/Content/MasteryPanel/MasteryRows"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.25, 0.42, 0.19, 1)
+theme_override_font_sizes/font_size = 17
+text = "REWARD_MASTERY_TITLE"
+horizontal_alignment = 1
+
+[node name="MasteryScroll" type="ScrollContainer" parent="SafeArea/Content/MasteryPanel/MasteryRows"]
+layout_mode = 2
+size_flags_vertical = 3
+horizontal_scroll_mode = 0
+
+[node name="MasteryList" type="VBoxContainer" parent="SafeArea/Content/MasteryPanel/MasteryRows/MasteryScroll"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 4
+
 [node name="ChestCenter" type="CenterContainer" parent="SafeArea/Content"]
-custom_minimum_size = Vector2(0, 320)
+custom_minimum_size = Vector2(0, 250)
 layout_mode = 2
 size_flags_vertical = 3
 
 [node name="ChestButton" type="TextureButton" parent="SafeArea/Content/ChestCenter"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(320, 280)
+custom_minimum_size = Vector2(268, 234)
 layout_mode = 2
 focus_mode = 2
 mouse_default_cursor_shape = 2
@@ -117,7 +162,7 @@ stretch_mode = 0
 [node name="OpenedChest" type="TextureRect" parent="SafeArea/Content/ChestCenter"]
 unique_name_in_owner = true
 visible = false
-custom_minimum_size = Vector2(320, 280)
+custom_minimum_size = Vector2(268, 234)
 layout_mode = 2
 mouse_filter = 2
 texture = ExtResource("4_opened")
@@ -127,71 +172,108 @@ stretch_mode = 5
 [node name="RewardPanel" type="PanelContainer" parent="SafeArea/Content"]
 unique_name_in_owner = true
 visible = false
-custom_minimum_size = Vector2(0, 180)
 layout_mode = 2
 theme_override_styles/panel = SubResource("RewardPanel")
 
 [node name="Rows" type="VBoxContainer" parent="SafeArea/Content/RewardPanel"]
 layout_mode = 2
-theme_override_constants/separation = 8
+theme_override_constants/separation = 6
+
+[node name="BreakdownList" type="VBoxContainer" parent="SafeArea/Content/RewardPanel/Rows"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/separation = 2
+
+[node name="BreakdownSeparator" type="HSeparator" parent="SafeArea/Content/RewardPanel/Rows"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
 
 [node name="CoinRow" type="HBoxContainer" parent="SafeArea/Content/RewardPanel/Rows"]
 layout_mode = 2
 theme_override_constants/separation = 8
-alignment = 1
 
 [node name="Icon" type="TextureRect" parent="SafeArea/Content/RewardPanel/Rows/CoinRow"]
-custom_minimum_size = Vector2(46, 46)
+custom_minimum_size = Vector2(38, 38)
 layout_mode = 2
+size_flags_vertical = 4
 mouse_filter = 2
 texture = ExtResource("5_coin")
 expand_mode = 1
 stretch_mode = 5
+
+[node name="TotalRewardLabel" type="Label" parent="SafeArea/Content/RewardPanel/Rows/CoinRow"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.32, 0.25, 0.08, 1)
+theme_override_fonts/font = ExtResource("12_bold")
+theme_override_font_sizes/font_size = 19
+text = "REWARD_TOTAL"
+vertical_alignment = 1
 
 [node name="CoinsEarned" type="Label" parent="SafeArea/Content/RewardPanel/Rows/CoinRow"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(62, 0)
 layout_mode = 2
 theme_override_colors/font_color = Color(0.56, 0.35, 0.05, 1)
+theme_override_fonts/font = ExtResource("12_bold")
 theme_override_font_sizes/font_size = 27
 text = "+10"
-vertical_alignment = 1
-
-[node name="CoinsTotal" type="Label" parent="SafeArea/Content/RewardPanel/Rows/CoinRow"]
-unique_name_in_owner = true
-layout_mode = 2
-theme_override_colors/font_color = Color(0.34, 0.26, 0.16, 1)
-theme_override_font_sizes/font_size = 18
-text = "REWARD_COINS_TOTAL"
+horizontal_alignment = 2
 vertical_alignment = 1
 
 [node name="XpRow" type="HBoxContainer" parent="SafeArea/Content/RewardPanel/Rows"]
 layout_mode = 2
 theme_override_constants/separation = 8
-alignment = 1
 
 [node name="Icon" type="TextureRect" parent="SafeArea/Content/RewardPanel/Rows/XpRow"]
-custom_minimum_size = Vector2(46, 46)
+custom_minimum_size = Vector2(38, 38)
 layout_mode = 2
+size_flags_vertical = 4
 mouse_filter = 2
 texture = ExtResource("6_xp")
 expand_mode = 1
 stretch_mode = 5
+
+[node name="XpRewardLabel" type="Label" parent="SafeArea/Content/RewardPanel/Rows/XpRow"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.32, 0.25, 0.08, 1)
+theme_override_font_sizes/font_size = 17
+text = "REWARD_XP_EARNED"
+vertical_alignment = 1
 
 [node name="XpEarned" type="Label" parent="SafeArea/Content/RewardPanel/Rows/XpRow"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(62, 0)
 layout_mode = 2
 theme_override_colors/font_color = Color(0.39, 0.23, 0.62, 1)
-theme_override_font_sizes/font_size = 27
+theme_override_fonts/font = ExtResource("12_bold")
+theme_override_font_sizes/font_size = 23
 text = "+10"
+horizontal_alignment = 2
 vertical_alignment = 1
 
-[node name="XpTotal" type="Label" parent="SafeArea/Content/RewardPanel/Rows/XpRow"]
+[node name="TotalsRow" type="HBoxContainer" parent="SafeArea/Content/RewardPanel/Rows"]
+layout_mode = 2
+theme_override_constants/separation = 10
+alignment = 1
+
+[node name="CoinsTotal" type="Label" parent="SafeArea/Content/RewardPanel/Rows/TotalsRow"]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_colors/font_color = Color(0.34, 0.26, 0.16, 1)
-theme_override_font_sizes/font_size = 18
+theme_override_font_sizes/font_size = 15
+text = "REWARD_COINS_TOTAL"
+vertical_alignment = 1
+
+[node name="XpTotal" type="Label" parent="SafeArea/Content/RewardPanel/Rows/TotalsRow"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.34, 0.26, 0.16, 1)
+theme_override_font_sizes/font_size = 15
 text = "REWARD_XP_TOTAL"
 vertical_alignment = 1
 
@@ -202,6 +284,19 @@ theme_override_colors/font_color = Color(0.35, 0.21, 0.5, 1)
 theme_override_font_sizes/font_size = 20
 text = "HOME_LEVEL"
 horizontal_alignment = 1
+
+[node name="SkipButton" type="Button" parent="."]
+unique_name_in_owner = true
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+focus_mode = 0
+mouse_default_cursor_shape = 2
+flat = true
 
 [node name="FanfarePlayer" type="AudioStreamPlayer" parent="."]
 unique_name_in_owner = true

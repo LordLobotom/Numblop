@@ -1,10 +1,24 @@
 keys,en,cs
 HOME_STREAK,{count} correct answers in a row,{count} příkladů správně v řadě
 TROPHY_TITLE,Records,Rekordy
-TROPHY_CURRENT,Current streak: {count},Aktuální série: {count}
-TROPHY_BEST,Finished record: {count},Ukončený rekord: {count}
-TROPHY_EMPTY,Your first record will appear here after a mistake ends it.,První rekord se sem zapíše až ho ukončí chyba.
-TROPHY_DATE_TIME,{year}-{month}-{day}  {hour}:{minute},{day}.{month}.{year}  {hour}:{minute}
+TROPHY_BEST,Best streak: {count},Nejlepší série: {count}
+TROPHY_ACHIEVEMENT_PROGRESS,{current}/{target},{current}/{target}
+ACHIEVEMENT_FIRST_STEPS_TITLE,First Steps,První kroky
+ACHIEVEMENT_FIRST_STEPS_DESC,Finish your first round,Dokonči své první kolo
+ACHIEVEMENT_STREAK_TITLE,Streak {count},Série {count}
+ACHIEVEMENT_STREAK_DESC,Answer {count} in a row,Odpověz {count} příkladů v řadě
+ACHIEVEMENT_ISLAND_TITLE,Island {table}× mastery,Mistrovství ostrova {table}×
+ACHIEVEMENT_ISLAND_DESC,Master every {table}× fact to 100 %,Zvládni všechny spoje {table}× na 100 %
+REWARD_MASTERY_TITLE,What you improved,Co se ti zlepšilo
+REWARD_MASTERY_FACT,{table} × {multiplier},{table} × {multiplier}
+REWARD_MASTERY_CHANGE,{before} → {after},{before} → {after}
+REWARD_MASTERY_GAIN,+{gained},+{gained}
+REWARD_ROUND,Round reward,Odměna za kolo
+REWARD_MASTERY_BONUS,Mastery bonus,Bonus za mistrovství
+REWARD_ACHIEVEMENT_BONUS,Achievement bonus,Bonus za úspěch
+REWARD_TOTAL,Total reward,Celková odměna
+REWARD_XP_EARNED,Experience,Zkušenosti
+REWARD_COINS_GAIN,+{count},+{count}
 APP_TAGLINE,Learn multiplication through play,Uč se násobilku hrou
 HOME_PROFILE,Local learner,Místní hráč
 HOME_PROGRESS,Current table: ×{table} · Mastered facts: {mastered}/80,Aktuální násobilka: ×{table} · Zvládnuté spoje: {mastered}/80
@@ -44,6 +58,7 @@ REWARD_OPENED,Your reward!,Tvoje odměna!
 REWARD_COINS_TOTAL,{count} coins total,Celkem {count} mincí
 REWARD_XP_TOTAL,{count} experience total,Celkem {count} zkušeností
 REWARD_CHEST_ACCESSIBLE,Tap the reward chest,Klepnout na truhlu s odměnou
+REWARD_TAP_CONTINUE,Tap anywhere to continue,Klepni kamkoli a pokračuj
 NAV_OUTFIT,Outfit,Oblečení
 COSMETICS_TITLE,Cosmetics,Kosmetika
 COSMETICS_SUBTITLE,Make Numblop your own!,Uprav si Numblopa podle sebe!

@@ -33,10 +33,140 @@ func test_reward_screen_has_count_up_totals_and_returns_automatically() -> void:
     check(scene.get_node("%CoinsTotal") is Label, "Updated coin total")
     check(scene.get_node("%XpTotal") is Label, "Updated experience total")
     check(scene.get_node("%LevelTotal") is Label, "Updated level")
+    check(scene.get_node("%BreakdownList") is VBoxContainer, "Reward breakdown lines")
+    check(scene.get_node("%TotalRewardLabel") is Label, "Total reward line")
     check(scene.get_node_or_null("%ContinueButton") == null, "No continue button")
-    check(scene.AUTO_RETURN_DELAY_SECONDS >= 1.0, "Reward totals remain readable")
-    check(scene.AUTO_RETURN_DELAY_SECONDS <= 3.0, "Automatic return stays prompt")
+    check(scene.AUTO_RETURN_DELAY_SECONDS >= 5.0, "The finished page is held long enough to read")
+    check(scene.AUTO_RETURN_DELAY_SECONDS <= 12.0, "Nobody has to wait forever")
     scene.free()
+
+
+func test_the_finished_page_is_held_and_a_tap_anywhere_skips_the_wait() -> void:
+    var packed: PackedScene = load("res://scenes/screens/RewardScreen.tscn")
+    var scene: RewardScreen = packed.instantiate()
+    var tree := Engine.get_main_loop() as SceneTree
+    tree.root.add_child(scene)
+    var skip: Button = scene.get_node("%SkipButton")
+    check(skip.flat, "The skip surface never covers the page with a visible button")
+
+    scene.start_reward(_reward_with_gains())
+    check(not skip.visible, "No skip surface while the chest is still closed")
+
+    scene.preview_opened_state(_reward_with_gains())
+    check(skip.visible, "A tap anywhere works once everything is revealed")
+    var returned := [false]
+    scene.return_home_requested.connect(func() -> void: returned[0] = true)
+    skip.pressed.emit()
+    check(returned[0], "Tapping returns home immediately")
+
+    skip.pressed.emit()
+    equal(scene.get_node("%SkipButton").visible, false, "A second tap cannot return twice")
+    tree.root.remove_child(scene)
+    scene.free()
+
+
+func test_mastery_summary_stays_hidden_until_the_chest_is_open() -> void:
+    var packed: PackedScene = load("res://scenes/screens/RewardScreen.tscn")
+    var scene: RewardScreen = packed.instantiate()
+    var tree := Engine.get_main_loop() as SceneTree
+    tree.root.add_child(scene)
+    var panel: PanelContainer = scene.get_node("%MasteryPanel")
+
+    scene.start_reward(_reward_with_gains())
+    check(not panel.visible, "Summary waits for the chest to open")
+
+    scene.preview_opened_state(_reward_with_gains())
+    check(panel.visible, "Summary appears once the chest is open")
+    var list: VBoxContainer = scene.get_node("%MasteryList")
+    equal(list.get_child_count(), 2, "One row per improved fact")
+    tree.root.remove_child(scene)
+    scene.free()
+
+
+func test_a_round_without_mastery_gains_shows_no_summary_panel() -> void:
+    var packed: PackedScene = load("res://scenes/screens/RewardScreen.tscn")
+    var scene: RewardScreen = packed.instantiate()
+    var tree := Engine.get_main_loop() as SceneTree
+    tree.root.add_child(scene)
+
+    scene.preview_opened_state({"coins": 1, "experience": 1, "mastery_gains": []})
+    check(not scene.get_node("%MasteryPanel").visible, "Nothing improved means no panel")
+    tree.root.remove_child(scene)
+    scene.free()
+
+
+func test_reward_breakdown_names_every_earning_and_sums_to_the_total() -> void:
+    var packed: PackedScene = load("res://scenes/screens/RewardScreen.tscn")
+    var scene: RewardScreen = packed.instantiate()
+    var tree := Engine.get_main_loop() as SceneTree
+    tree.root.add_child(scene)
+
+    var reward := _reward_with_gains()
+    reward["bonus_coins"] = 10
+    reward["achievements"] = [
+        AchievementCatalog.definition(AchievementCatalog.island_id(3)),
+    ]
+    reward["achievement_coins"] = 50
+    reward["total_reward_coins"] = 68
+    scene.preview_opened_state(reward)
+
+    var list: VBoxContainer = scene.get_node("%BreakdownList")
+    equal(list.get_child_count(), 3, "Round reward plus mastery bonus plus one achievement")
+    check(scene.get_node("%BreakdownSeparator").visible, "Total is separated from the lines")
+    equal(scene.get_node("%CoinsEarned").text, "+68", "Total matches the summed lines")
+    tree.root.remove_child(scene)
+    scene.free()
+
+
+func test_a_plain_round_shows_only_the_round_reward_line() -> void:
+    var packed: PackedScene = load("res://scenes/screens/RewardScreen.tscn")
+    var scene: RewardScreen = packed.instantiate()
+    var tree := Engine.get_main_loop() as SceneTree
+    tree.root.add_child(scene)
+
+    scene.preview_opened_state({
+        "coins": 9,
+        "experience": 9,
+        "bonus_coins": 0,
+        "achievements": [],
+        "achievement_coins": 0,
+        "total_reward_coins": 9,
+        "total_coins": 9,
+        "total_experience": 9,
+        "level": 1,
+    })
+    equal(scene.get_node("%BreakdownList").get_child_count(), 1, "Only the round reward")
+    equal(scene.get_node("%CoinsEarned").text, "+9", "Total equals the round reward")
+    tree.root.remove_child(scene)
+    scene.free()
+
+
+func _reward_with_gains() -> Dictionary:
+    return {
+        "coins": 8,
+        "experience": 8,
+        "total_coins": 108,
+        "total_experience": 208,
+        "level": 3,
+        "mastery_gains": [
+            {
+                "fact_key": "3_x_7",
+                "table_value": 3,
+                "multiplier": 7,
+                "mastery_before": 45,
+                "mastery_after": 53,
+                "mastery_gained": 8,
+            },
+            {
+                "fact_key": "3_x_4",
+                "table_value": 3,
+                "multiplier": 4,
+                "mastery_before": 62,
+                "mastery_after": 68,
+                "mastery_gained": 6,
+            },
+        ],
+    }
 
 
 func test_reward_screen_bundles_celebration_audio() -> void:

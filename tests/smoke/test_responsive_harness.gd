@@ -24,6 +24,7 @@ func test_responsive_harness_covers_every_m1_screen_state() -> void:
         "cosmetics_buy",
         "cosmetics_hat",
         "trophy",
+        "trophy_islands",
         "map",
         "map_detail",
         "map_unlock",
@@ -33,6 +34,7 @@ func test_responsive_harness_covers_every_m1_screen_state() -> void:
         "milestone",
         "keypad",
         "reward",
+        "reward_opened",
     ]:
         check(capture_script.contains('"%s"' % screen_name), "Capture state: %s" % screen_name)
 

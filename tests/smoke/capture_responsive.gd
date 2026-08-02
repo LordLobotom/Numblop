@@ -16,6 +16,7 @@ const SCREENS: Array[String] = [
     "cosmetics_buy",
     "cosmetics_hat",
     "trophy",
+    "trophy_islands",
     "map",
     "map_detail",
     "map_unlock",
@@ -25,6 +26,7 @@ const SCREENS: Array[String] = [
     "milestone",
     "keypad",
     "reward",
+    "reward_opened",
 ]
 const OUTPUT_DIRECTORY := "res://artifacts/responsive"
 
@@ -103,13 +105,13 @@ func _create_screen(screen_name: String) -> Control:
         scene_path = "res://scenes/screens/PracticeScreen.tscn"
     elif screen_name in ["cosmetics", "cosmetics_color", "cosmetics_buy", "cosmetics_hat"]:
         scene_path = "res://scenes/screens/CosmeticsScreen.tscn"
-    elif screen_name == "trophy":
+    elif screen_name in ["trophy", "trophy_islands"]:
         scene_path = "res://scenes/screens/TrophyScreen.tscn"
     elif screen_name in ["map", "map_detail", "map_unlock"]:
         scene_path = "res://scenes/screens/MapScreen.tscn"
     elif screen_name in ["settings", "settings_exit"]:
         scene_path = "res://scenes/screens/SettingsScreen.tscn"
-    elif screen_name == "reward":
+    elif screen_name in ["reward", "reward_opened"]:
         scene_path = "res://scenes/screens/RewardScreen.tscn"
     var packed: PackedScene = load(scene_path)
     return packed.instantiate()
@@ -197,17 +199,12 @@ func _configure_screen(screen: Control, screen_name: String, locale: String) -> 
                 cosmetics_screen.preview_body_color("pink")
             elif screen_name == "cosmetics_hat":
                 cosmetics_screen.preview_item(CosmeticCatalog.CATEGORY_HAT, "hat_crown")
-        "trophy":
+        "trophy", "trophy_islands":
             var trophy_screen := screen as TrophyScreen
-            trophy_screen.set_presentation_state({
-                "current_count": 18,
-                "all_time_high": 37,
-                "milestones": [
-                    {"count": 8, "ended_at_unix": 1785592800, "utc_offset_minutes": 120},
-                    {"count": 21, "ended_at_unix": 1785679200, "utc_offset_minutes": 120},
-                    {"count": 37, "ended_at_unix": 1785765600, "utc_offset_minutes": 120},
-                ],
-            })
+            # The island cards sit below the fold, so they get their own capture.
+            trophy_screen.set_presentation_state(
+                _trophy_capture_state(screen_name == "trophy_islands")
+            )
         "map", "map_detail", "map_unlock":
             var map_screen := screen as MapScreen
             var stage_states: Array[Dictionary] = []
@@ -281,15 +278,73 @@ func _configure_screen(screen: Control, screen_name: String, locale: String) -> 
                 8,
                 LearningRules.SESSION_LENGTH
             )
-        "reward":
+        "reward", "reward_opened":
             var reward_screen := screen as RewardScreen
-            reward_screen.start_reward({
-                "coins": 10,
-                "experience": 10,
-                "total_coins": 130,
-                "total_experience": 250,
+            var reward := {
+                "coins": 20,
+                "experience": 20,
+                "bonus_coins": 10,
+                "achievement_coins": 50,
+                "achievements": [
+                    AchievementCatalog.definition(AchievementCatalog.island_id(3)),
+                ],
+                "total_reward_coins": 80,
+                "total_coins": 220,
+                "total_experience": 260,
                 "level": 3,
-            })
+                "mastery_gains": [
+                    {
+                        "fact_key": "3_x_7",
+                        "table_value": 3,
+                        "multiplier": 7,
+                        "mastery_before": 45,
+                        "mastery_after": 53,
+                        "mastery_gained": 8,
+                    },
+                    {
+                        "fact_key": "3_x_4",
+                        "table_value": 3,
+                        "multiplier": 4,
+                        "mastery_before": 62,
+                        "mastery_after": 68,
+                        "mastery_gained": 6,
+                    },
+                    {
+                        "fact_key": "3_x_9",
+                        "table_value": 3,
+                        "multiplier": 9,
+                        "mastery_before": 80,
+                        "mastery_after": 82,
+                        "mastery_gained": 2,
+                    },
+                ],
+            }
+            if screen_name == "reward_opened":
+                reward_screen.preview_opened_state(reward)
+            else:
+                reward_screen.start_reward(reward)
+
+
+## A fixed achievement board so captures never depend on the device's real save.
+func _trophy_capture_state(islands_only: bool) -> Dictionary:
+    var profile := LearningProfile.new()
+    for multiplier in LearningRules.MULTIPLIERS:
+        profile.set_mastery(2, multiplier, 100)
+        profile.set_mastery(3, multiplier, 100)
+        profile.set_mastery(4, multiplier, 74)
+    var entries: Array[Dictionary] = []
+    for entry in AchievementCatalog.evaluate(profile, {
+        "completed_sessions": 24,
+        "best_streak": 37,
+    }):
+        if islands_only and String(entry["kind"]) != AchievementCatalog.KIND_ISLAND:
+            continue
+        entry["granted"] = bool(entry["completed"])
+        entries.append(entry)
+    return {
+        "best_streak": 37,
+        "achievements": entries,
+    }
 
 
 func _cosmetic_capture_items(category: String, selected_id: String) -> Array[Dictionary]:

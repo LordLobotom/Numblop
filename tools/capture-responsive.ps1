@@ -28,6 +28,7 @@ $expectedScreens = @(
     "cosmetics_buy",
     "cosmetics_hat",
     "trophy",
+    "trophy_islands",
     "map",
     "map_detail",
     "map_unlock",
@@ -36,7 +37,8 @@ $expectedScreens = @(
     "choice",
     "milestone",
     "keypad",
-    "reward"
+    "reward",
+    "reward_opened"
 )
 $expectedLocales = @("en", "cs")
 $expectedSizes = @(

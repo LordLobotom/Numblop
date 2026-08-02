@@ -7,8 +7,12 @@ var session_controller: SessionController
 var progress := LocalProgress.new()
 var cosmetics := LocalCosmetics.new()
 var streak := LocalStreak.new()
+var achievements := LocalAchievements.new()
 
 var _pending_answer_milestone: Dictionary = {}
+var _session_bonus_coins := 0
+var _pending_achievement_unlocks: Array[Dictionary] = []
+var _achievements_loaded := false
 var _nickname := ""
 
 
@@ -17,8 +21,14 @@ func _ready() -> void:
     progress = LocalProgress.new(SaveManager.load_progress())
     cosmetics = LocalCosmetics.new(SaveManager.load_cosmetics())
     streak = LocalStreak.new(SaveManager.load_streak())
+    achievements = LocalAchievements.new(SaveManager.load_achievements())
     _nickname = SaveManager.load_nickname()
     _create_session_controller()
+    _achievements_loaded = true
+    # Older saves predate the achievement list; award everything they already earned once, but
+    # without a celebration the player never triggered.
+    sync_achievements()
+    _pending_achievement_unlocks.clear()
 
 
 func nickname() -> String:
@@ -34,7 +44,9 @@ func set_nickname(raw_nickname: String) -> bool:
         SaveManager.PROFILE_PATH,
         cosmetics.to_dictionary(),
         streak.to_dictionary(),
-        sanitized
+        sanitized,
+        achievements.to_dictionary(),
+        progress.completed_sessions
     )
     if save_error != OK:
         return false
@@ -57,6 +69,7 @@ func begin_session(seed: int = -1) -> Array[PracticeQuestion]:
     var actual_seed := seed
     if actual_seed < 0:
         actual_seed = int(Time.get_ticks_usec() & 0x7FFFFFFF)
+    _session_bonus_coins = 0
     active_session_result = session_controller.begin_session(actual_seed)
     active_session = active_session_result.questions.duplicate()
     return active_session
@@ -78,6 +91,7 @@ func record_answer(question: PracticeQuestion, correct: bool, elapsed_seconds: f
 
 
 func abandon_session() -> void:
+    _session_bonus_coins = 0
     session_controller.abandon_active_session()
     active_session_result = null
     active_session.clear()
@@ -99,6 +113,9 @@ func handle_go_back_request() -> bool:
 
 
 func claim_completed_session_reward() -> Dictionary:
+    var mastery_gains: Array[Dictionary] = (
+        active_session_result.mastery_gains() if active_session_result != null else []
+    )
     var reward := progress.apply_completed_session(
         active_session_result,
         profile,
@@ -106,8 +123,23 @@ func claim_completed_session_reward() -> Dictionary:
     )
     if reward.is_empty():
         return {}
+    reward["mastery_gains"] = mastery_gains
     EventBus.reward_applied.emit(int(reward["coins"]), int(reward["experience"]))
     EventBus.progress_changed.emit(progress.coins, progress.experience, progress.level())
+
+    # The finished round can itself complete achievements, so evaluate before the chest opens
+    # and hand every unlock to the one reward presentation.
+    sync_achievements()
+    var unlocks := consume_achievement_unlocks()
+    var achievement_coins := 0
+    for unlock in unlocks:
+        achievement_coins += int(unlock.get("reward_coins", 0))
+    reward["bonus_coins"] = _session_bonus_coins
+    reward["achievements"] = unlocks
+    reward["achievement_coins"] = achievement_coins
+    reward["total_reward_coins"] = int(reward["coins"]) + _session_bonus_coins + achievement_coins
+
+    _session_bonus_coins = 0
     session_controller.clear_completed_session()
     active_session_result = null
     active_session.clear()
@@ -126,6 +158,66 @@ func consume_answer_milestone() -> Dictionary:
 
 func streak_state() -> Dictionary:
     return streak.to_dictionary()
+
+
+func achievements_state() -> Dictionary:
+    var entries: Array[Dictionary] = []
+    for entry in AchievementCatalog.evaluate(profile, _achievement_statistics()):
+        entry["granted"] = achievements.has_granted(String(entry["id"]))
+        entries.append(entry)
+    return {
+        "best_streak": streak.all_time_high,
+        "achievements": entries,
+    }
+
+
+## Awards every newly completed achievement exactly once and returns the fresh unlocks.
+func sync_achievements() -> Array[Dictionary]:
+    # Grants write the live save, so never award anything before the real state is loaded.
+    if not _achievements_loaded:
+        return []
+    var newly_unlocked: Array[Dictionary] = []
+    var awarded_coins := 0
+    for entry in AchievementCatalog.evaluate(profile, _achievement_statistics()):
+        var achievement_id := String(entry["id"])
+        if not bool(entry["completed"]) or achievements.has_granted(achievement_id):
+            continue
+        awarded_coins += achievements.grant(achievement_id)
+        entry["granted"] = true
+        newly_unlocked.append(entry)
+    if newly_unlocked.is_empty():
+        return []
+
+    progress.grant_achievement_reward(awarded_coins)
+    if _save_game_state(profile, progress.coins, progress.experience) != OK:
+        # The award is only real once it is on disk; drop it and retry on the next evaluation.
+        progress.coins -= awarded_coins
+        for entry in newly_unlocked:
+            achievements.granted.erase(String(entry["id"]))
+        return []
+
+    _pending_achievement_unlocks.append_array(newly_unlocked)
+    EventBus.progress_changed.emit(progress.coins, progress.experience, progress.level())
+    EventBus.achievements_unlocked.emit(newly_unlocked.duplicate(true))
+    return newly_unlocked
+
+
+func has_pending_achievement_unlocks() -> bool:
+    return not _pending_achievement_unlocks.is_empty()
+
+
+func consume_achievement_unlocks() -> Array[Dictionary]:
+    var unlocks := _pending_achievement_unlocks.duplicate(true)
+    _pending_achievement_unlocks.clear()
+    return unlocks
+
+
+func _achievement_statistics() -> Dictionary:
+    return {
+        "completed_sessions": progress.completed_sessions,
+        # A streak counts the moment it is reached; it does not have to be ended by a mistake.
+        "best_streak": maxi(streak.all_time_high, streak.current_count),
+    }
 
 
 func cosmetics_state() -> Dictionary:
@@ -264,6 +356,8 @@ func reset_local_profile() -> void:
     progress = LocalProgress.new()
     cosmetics = LocalCosmetics.new()
     streak = LocalStreak.new()
+    achievements = LocalAchievements.new()
+    _pending_achievement_unlocks.clear()
     _nickname = ""
     _save_game_state(profile, progress.coins, progress.experience)
     _create_session_controller()
@@ -289,6 +383,7 @@ func _on_answer_recorded(record: SessionResult.AnswerRecord) -> void:
         int(time_zone.get("bias", 0))
     )
     _apply_mastery_milestone_reward(record)
+    sync_achievements()
     EventBus.streak_changed.emit(streak.current_count, streak.all_time_high)
     EventBus.answer_recorded.emit(record.fact_key, record.correct, record.mastery_after)
 
@@ -305,6 +400,7 @@ func _apply_mastery_milestone_reward(record: SessionResult.AnswerRecord) -> void
     if current_status == previous_status or current_status == &"building":
         return
     var reward_coins := progress.grant_mastery_milestone()
+    _session_bonus_coins += reward_coins
     _pending_answer_milestone = {
         "fact_key": record.fact_key,
         "table_value": record.table_value,
@@ -332,7 +428,9 @@ func _save_game_state(
         SaveManager.PROFILE_PATH,
         cosmetics.to_dictionary(),
         streak.to_dictionary(),
-        _nickname
+        _nickname,
+        achievements.to_dictionary(),
+        progress.completed_sessions
     )
 
 
@@ -344,7 +442,9 @@ func _save_state_with_cosmetics(updated_cosmetics: LocalCosmetics, coins: int) -
         SaveManager.PROFILE_PATH,
         updated_cosmetics.to_dictionary(),
         streak.to_dictionary(),
-        _nickname
+        _nickname,
+        achievements.to_dictionary(),
+        progress.completed_sessions
     )
 
 

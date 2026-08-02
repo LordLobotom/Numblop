@@ -7,6 +7,7 @@ signal progress_changed(coins: int, experience: int, level: int)
 signal reward_applied(coins: int, experience: int)
 signal cosmetics_changed(state: Dictionary)
 signal streak_changed(current_count: int, all_time_high: int)
+signal achievements_unlocked(entries: Array)
 signal nickname_changed(nickname: String)
 signal session_interrupted
 signal application_resumed

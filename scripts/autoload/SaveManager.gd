@@ -1,7 +1,7 @@
 extends Node
 
 const PROFILE_PATH := "user://profile.json"
-const SAVE_VERSION := 7
+const SAVE_VERSION := 8
 const PROFILE_ID_BYTES := 16
 
 
@@ -9,13 +9,17 @@ func save_profile(profile: LearningProfile, path: String = PROFILE_PATH) -> Erro
     var progress := load_progress(path)
     var cosmetics := load_cosmetics(path)
     var streak := load_streak(path)
+    var achievements := load_achievements(path)
     return save_game_state(
         profile,
         int(progress["coins"]),
         int(progress["experience"]),
         path,
         cosmetics,
-        streak
+        streak,
+        null,
+        achievements,
+        int(progress["completed_sessions"])
     )
 
 
@@ -26,7 +30,9 @@ func save_game_state(
     path: String = PROFILE_PATH,
     cosmetics: Dictionary = {},
     streak: Dictionary = {},
-    nickname: Variant = null
+    nickname: Variant = null,
+    achievements: Variant = null,
+    completed_sessions: Variant = null
 ) -> Error:
     var cosmetics_to_save := cosmetics
     if cosmetics_to_save.is_empty():
@@ -36,6 +42,15 @@ func save_game_state(
         streak_to_save = load_streak(path)
     var nickname_to_save := (
         LocalNickname.sanitize(nickname) if nickname is String else load_nickname(path)
+    )
+    # An empty achievement set and a zero session count are meaningful values, so these two use
+    # an explicit null sentinel instead of the "empty means reload" rule above.
+    var achievements_to_save: Dictionary = (
+        achievements if achievements is Dictionary else load_achievements(path)
+    )
+    var completed_sessions_to_save := (
+        maxi(0, int(completed_sessions)) if completed_sessions is int
+        else int(load_progress(path)["completed_sessions"])
     )
     var profile_id := load_profile_id(path)
     if profile_id.is_empty():
@@ -48,8 +63,10 @@ func save_game_state(
     data["version"] = SAVE_VERSION
     data["coins"] = maxi(0, coins)
     data["experience"] = maxi(0, experience)
+    data["completed_sessions"] = completed_sessions_to_save
     data["cosmetics"] = LocalCosmetics.new(cosmetics_to_save).to_dictionary()
     data["streak"] = LocalStreak.new(streak_to_save).to_dictionary()
+    data["achievements"] = LocalAchievements.new(achievements_to_save).to_dictionary()
     data["nickname"] = nickname_to_save
     data["profile_id"] = profile_id
     file.store_string(JSON.stringify(data, "  "))
@@ -66,10 +83,19 @@ func load_profile(path: String = PROFILE_PATH) -> LearningProfile:
 
 func load_progress(path: String = PROFILE_PATH) -> Dictionary:
     var data := _load_state_dictionary(path)
-    return {
-        "coins": maxi(0, int(data.get("coins", 0))),
-        "experience": maxi(0, int(data.get("experience", 0))),
-    }
+    return LocalProgress.new({
+        "coins": data.get("coins", 0),
+        "experience": data.get("experience", 0),
+        "completed_sessions": data.get("completed_sessions", 0),
+    }).totals()
+
+
+func load_achievements(path: String = PROFILE_PATH) -> Dictionary:
+    var data := _load_state_dictionary(path)
+    var achievements: Variant = data.get("achievements", {})
+    return LocalAchievements.new(
+        achievements if achievements is Dictionary else {}
+    ).to_dictionary()
 
 
 func load_cosmetics(path: String = PROFILE_PATH) -> Dictionary:

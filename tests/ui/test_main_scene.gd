@@ -427,21 +427,77 @@ func test_cosmetics_screen_has_previewing_shop_purchase_and_navigation_contracts
     scene.free()
 
 
-func test_trophy_screen_lists_timestamped_record_milestones() -> void:
+func test_trophy_screen_lists_achievements_under_the_best_streak() -> void:
     var packed: PackedScene = load("res://scenes/screens/TrophyScreen.tscn")
     check(packed != null, "Trophy scene must load")
     if packed == null:
         return
     var scene := packed.instantiate()
-    check(scene.has_method("refresh_from_state"), "Trophies read persisted streak state")
+    check(scene.has_method("refresh_from_state"), "Trophies read persisted achievement state")
     check(scene.has_method("set_presentation_state"), "Trophies support deterministic captures")
-    check(scene.get_node("%MilestoneList") is VBoxContainer, "Record milestone list")
-    check(scene.get_node("%CurrentLabel") is Label, "Current streak summary")
-    check(scene.get_node("%BestLabel") is Label, "All-time high summary")
+    check(scene.get_node("%AchievementList") is VBoxContainer, "Achievement card list")
+    check(scene.get_node("%BestLabel") is Label, "Best streak summary")
+    check(not scene.has_node("%MilestoneList"), "Milestone history is replaced by achievements")
     for button_name in ["OutfitButton", "MapButton", "HomeButton", "TrophyButton", "SettingsButton"]:
         var button: BaseButton = scene.get_node("%%%s" % button_name)
         check(button.custom_minimum_size.y >= 48.0, "%s touch target" % button_name)
     scene.free()
+
+
+func test_trophy_screen_builds_one_card_per_catalog_achievement() -> void:
+    var packed: PackedScene = load("res://scenes/screens/TrophyScreen.tscn")
+    check(packed != null, "Trophy scene must load")
+    if packed == null:
+        return
+    var scene: TrophyScreen = packed.instantiate()
+    var tree := Engine.get_main_loop() as SceneTree
+    tree.root.add_child(scene)
+    var entries: Array[Dictionary] = AchievementCatalog.evaluate(LearningProfile.new(), {
+        "completed_sessions": 1,
+        "best_streak": 12,
+    })
+    scene.set_presentation_state({"best_streak": 12, "achievements": entries})
+    var list: VBoxContainer = scene.get_node("%AchievementList")
+    equal(list.get_child_count(), entries.size(), "One card per achievement")
+    tree.root.remove_child(scene)
+    scene.free()
+
+
+func test_only_one_treasure_chest_exists_in_the_whole_game() -> void:
+    var chest_screens: Array[String] = []
+    for scene_path in [
+        "res://scenes/screens/HomeScreen.tscn",
+        "res://scenes/screens/MapScreen.tscn",
+        "res://scenes/screens/CosmeticsScreen.tscn",
+        "res://scenes/screens/TrophyScreen.tscn",
+        "res://scenes/screens/SettingsScreen.tscn",
+        "res://scenes/screens/PracticeScreen.tscn",
+        "res://scenes/screens/RewardScreen.tscn",
+    ]:
+        var packed: PackedScene = load(scene_path)
+        check(packed != null, "Scene loads: %s" % scene_path)
+        if packed == null:
+            continue
+        var scene := packed.instantiate()
+        if _uses_chest_art(scene):
+            chest_screens.append(scene_path)
+        scene.free()
+    equal(
+        chest_screens,
+        ["res://scenes/screens/RewardScreen.tscn"],
+        "The reward screen owns the only chest"
+    )
+
+
+func _uses_chest_art(node: Node) -> bool:
+    for property_name in ["texture", "texture_normal"]:
+        var texture: Variant = node.get(property_name)
+        if texture is Texture2D and String(texture.resource_path).contains("/chest/"):
+            return true
+    for child in node.get_children():
+        if _uses_chest_art(child):
+            return true
+    return false
 
 
 func test_home_nickname_button_and_dialog_have_touch_ready_contracts() -> void:

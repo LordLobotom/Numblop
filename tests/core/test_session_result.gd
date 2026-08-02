@@ -75,6 +75,39 @@ func test_audit_record_has_a_plain_dictionary_projection() -> void:
     equal(data["correct"], true, "Dictionary correctness")
 
 
+func test_mastery_gains_report_only_improved_facts_largest_first() -> void:
+    var session := SessionResult.new(_questions())
+    # Slow-but-correct answers gain 3; a wrong answer loses 2; fast answers gain 5.
+    session.record_answer(session.current_question().answer(), 9.0, 50)
+    session.record_answer(session.current_question().answer(), 0.5, 60)
+    session.record_answer(session.current_question().answer() + 1, 1.0, 70)
+
+    var gains := session.mastery_gains()
+    equal(gains.size(), 2, "Only improved facts appear")
+    equal(int(gains[0]["multiplier"]), 1, "Largest gain first")
+    equal(int(gains[0]["mastery_before"]), 60, "Previous mastery")
+    equal(int(gains[0]["mastery_after"]), 65, "New mastery")
+    equal(int(gains[0]["mastery_gained"]), 5, "Amount gained")
+    equal(int(gains[1]["mastery_gained"]), 3, "Smaller gain second")
+
+
+func test_mastery_gains_collapse_a_repeated_fact_into_one_span() -> void:
+    var repeated: Array[PracticeQuestion] = []
+    for index in LearningRules.SESSION_LENGTH:
+        repeated.append(
+            PracticeQuestion.new(3, 4, LearningRules.QuestionMode.CHOICE_FOUR, [12, 13, 14, 15])
+        )
+    var session := SessionResult.new(repeated)
+    session.record_answer(12, 0.5, 40)
+    session.record_answer(12, 0.5, 45)
+
+    var gains := session.mastery_gains()
+    equal(gains.size(), 1, "One entry per fact")
+    equal(int(gains[0]["mastery_before"]), 40, "Span starts at the first value seen")
+    equal(int(gains[0]["mastery_after"]), 50, "Span ends at the last value recorded")
+    equal(int(gains[0]["mastery_gained"]), 10, "Total gained across the round")
+
+
 func _questions() -> Array[PracticeQuestion]:
     var questions: Array[PracticeQuestion] = []
     for multiplier in LearningRules.MULTIPLIERS:

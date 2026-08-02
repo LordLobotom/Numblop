@@ -121,6 +121,47 @@ func correct_count() -> int:
     return count
 
 
+## Per-fact mastery movement across the whole session, largest gain first.
+##
+## A fact answered more than once collapses into a single entry spanning the first value seen
+## and the last one recorded, so the summary always matches the real end-of-round state. Facts
+## that did not improve are left out.
+func mastery_gains() -> Array[Dictionary]:
+    var fact_order: Array[String] = []
+    var by_fact: Dictionary = {}
+    for record in answer_records:
+        if by_fact.has(record.fact_key):
+            by_fact[record.fact_key]["mastery_after"] = record.mastery_after
+            continue
+        fact_order.append(record.fact_key)
+        by_fact[record.fact_key] = {
+            "fact_key": record.fact_key,
+            "table_value": record.table_value,
+            "multiplier": record.multiplier,
+            "mastery_before": record.mastery_before,
+            "mastery_after": record.mastery_after,
+        }
+
+    var gains: Array[Dictionary] = []
+    for fact_key in fact_order:
+        var entry: Dictionary = by_fact[fact_key]
+        var gained := int(entry["mastery_after"]) - int(entry["mastery_before"])
+        if gained <= 0:
+            continue
+        entry["mastery_gained"] = gained
+        gains.append(entry)
+    gains.sort_custom(_is_larger_mastery_gain)
+    return gains
+
+
+static func _is_larger_mastery_gain(left: Dictionary, right: Dictionary) -> bool:
+    if int(left["mastery_gained"]) != int(right["mastery_gained"]):
+        return int(left["mastery_gained"]) > int(right["mastery_gained"])
+    if int(left["table_value"]) != int(right["table_value"]):
+        return int(left["table_value"]) < int(right["table_value"])
+    return int(left["multiplier"]) < int(right["multiplier"])
+
+
 func total_elapsed_seconds() -> float:
     var total := 0.0
     for record in answer_records:
