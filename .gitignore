@@ -27,6 +27,7 @@ export_credentials.cfg
 *.wasm
 
 # Local environment and editor files
+.claude/
 .env
 .env.*
 !.env.example
