@@ -22,6 +22,8 @@ Status values: `TODO`, `WIP(@agent)`, `BLOCKED(reason)`, `DONE`.
   Depends: A0. Owns: `scripts/core/SessionGenerator.gd`, `tests/core/test_distractors.gd`.
 - `A3 DONE` Prefer unique facts within each 10-question series and repeat only after a required
   adaptive pool is exhausted. Depends: A0. Owns: session generator and generator tests.
+- `A4 DONE` Replace the table gate with the confirmed 9-of-10 facts at 80 mastery rule, including
+  boundary and permanent-unlock tests. Depends: A0. Owns: learning rules/profile and core tests.
 - `B1 DONE` Opening/logo scene, remembered language choice, bundled Fredoka font, and license.
   Depends: B0. Owns: opening scene/script, `ui/fonts/`, localization keys, UI tests.
 - `B2 DONE` Interactive blob home, idle/petting reactions, hearts, and coin/XP/level display.
@@ -51,6 +53,8 @@ Status values: `TODO`, `WIP(@agent)`, `BLOCKED(reason)`, `DONE`.
 - `B12 DONE` Add the supplied duck cap and three-necklace Cosmetics row with aligned 768px home
   rendering and artifact clipping. Depends: B9, C10. Owns: catalog/UI presentation, character
   layer, localization, shader, and UI tests.
+- `B13 DONE` Apply red/yellow/gold/green fact-detail colors and replace the native exit prompt with
+  a compact responsive themed overlay. Depends: B11. Owns: map/settings/main UI and UI tests.
 - `C1 DONE` Session controller, per-answer mastery saves, and discard-on-interruption behavior.
   Depends: A1. Owns: `scripts/app/SessionController.gd`, autoload changes, state tests.
 - `C2 DONE` Local coin/XP/level persistence and atomic application of the accuracy-linked M1
@@ -71,6 +75,8 @@ Status values: `TODO`, `WIP(@agent)`, `BLOCKED(reason)`, `DONE`.
   pre-unlock display cap. Depends: C6. Owns: app-state map contract and state tests.
 - `C10 DONE` Backward-compatible necklace ownership and equipped-state persistence in save version
   6. Depends: C7. Owns: local cosmetics, save/app projection, and state tests.
+- `C11 DONE` Project the 9-of-10 gate into map completion state while retaining the tenth fact's
+  real mastery value. Depends: A4, C9. Owns: app-state map projection and state tests.
 - `D1 DONE` Responsive screenshot smoke harness at 390×844 and 450×900. Depends: B3.
   Owns: QA scripts, smoke scenes/tests, `artifacts/` output contract.
 - `D2 BLOCKED(no authorized physical Android device connected)` Physical Android install/run/log
@@ -90,6 +96,8 @@ Status values: `TODO`, `WIP(@agent)`, `BLOCKED(reason)`, `DONE`.
   sizes. Depends: B11, C9. Owns: capture harness and artifact verification.
 - `D9 DONE` Add a supplied duck-cap plus duck-necklace home alignment state and expanded Cosmetics
   catalog to bilingual responsive captures. Depends: B12, C10. Owns: capture harness and artifacts.
+- `D10 DONE` Add the responsive custom exit confirmation to bilingual captures at both portrait
+  sizes. Depends: B13. Owns: capture harness and artifacts.
 
 Claim the lowest-numbered unblocked task in your track. Only the stated owner changes the task's
 owned files; coordinate contract changes through the owning track.

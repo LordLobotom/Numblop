@@ -10,6 +10,7 @@ enum QuestionMode {
 const TABLES: Array[int] = [2, 3, 4, 5, 6, 7, 8, 9]
 const MULTIPLIERS: Array[int] = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
 const UNLOCK_MASTERY := 80
+const REQUIRED_FACTS_TO_UNLOCK := 9
 const AUTOMATED_MASTERY := 90
 const SESSION_LENGTH := 10
 

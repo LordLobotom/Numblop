@@ -25,11 +25,11 @@ Each fact has its own mastery value in the range of **0–100 points**.
 
 ## 2. Unlocking the Next Multiplication Table
 
-The next multiplication table is unlocked when all 10 facts in the current table reach a value
-of at least **80**.
+The next multiplication table is unlocked when at least **9 of the 10 facts** in the current table
+reach a value of at least **80**.
 
-This ensures that the child has mastered the entire multiplication table, not only some of its
-facts.
+This keeps the whole table important while allowing one unusually difficult fact to continue in
+review without blocking the child's progress to the next island.
 
 ---
 
@@ -175,7 +175,7 @@ The following rules apply when selecting the next question:
  Change question type by the new value
         │
         ▼
- Are all 10 facts ≥ 80?
+ Are at least 9 of 10 facts ≥ 80?
         │
     Yes │ No
         │
@@ -206,6 +206,8 @@ These rules are part of the MVP and remove ambiguity during implementation:
 
 - Once a multiplication table is unlocked, it never locks again, even if the value of an older
   fact later falls below 80.
+- Exactly nine facts at 80 or more are sufficient to unlock the next multiplication table. Eight
+  are not sufficient. The remaining fact stays in the older-weak review pool until it improves.
 - If there are not enough suitable facts for a review group, the missing slots are filled with
   facts from the multiplication table currently being learned. One game always has 10 questions.
 - The same fact must not appear in two immediately consecutive questions.
@@ -219,9 +221,9 @@ These rules are part of the MVP and remove ambiguity during implementation:
 - Every submitted answer applies the documented mastery delta immediately. Tests must verify the
   complete answer → mastery → save → unlock path without requiring a rendered scene.
 - A stage map may show continuous aggregate progress by summing each fact up to the 80-point gate.
-  This presentation never changes the rule that all 10 facts must individually reach 80 before
-  the next multiplication table unlocks.
+  Once 9 of 10 facts reach 80, the completed island displays 100%; the remaining fact keeps its
+  real individual value in the detail and continues to be reviewed.
 - Tapping an unlocked stage may show the ten individual fact values and their existing didactic
   bands. This drill-down is read-only and does not affect selection, scoring, or unlocking. Until
-  every fact reaches the gate, a rounded aggregate label is capped at 99% rather than displaying a
+  nine facts reach the gate, a rounded aggregate label is capped at 99% rather than displaying a
   misleading 100% on a still-locked stage.

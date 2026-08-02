@@ -53,9 +53,14 @@ func test_answer_event_updates_supplemental_state_before_the_atomic_save() -> vo
 
 func test_answer_crossing_the_mastery_gate_unlocks_the_next_table() -> void:
     var profile := LearningProfile.new()
-    var last_multiplier: int = LearningRules.MULTIPLIERS.back()
+    var unlock_multiplier := LearningRules.REQUIRED_FACTS_TO_UNLOCK - 1
+    var remaining_multiplier: int = LearningRules.MULTIPLIERS.back()
     for multiplier in LearningRules.MULTIPLIERS:
-        var mastery := 75 if multiplier == last_multiplier else LearningRules.UNLOCK_MASTERY
+        var mastery := LearningRules.UNLOCK_MASTERY
+        if multiplier == unlock_multiplier:
+            mastery = 75
+        elif multiplier == remaining_multiplier:
+            mastery = 79
         profile.set_mastery(2, multiplier, mastery)
     var controller := SessionController.new(profile)
     var unlocks: Array[Vector2i] = []
@@ -67,10 +72,11 @@ func test_answer_crossing_the_mastery_gate_unlocks_the_next_table() -> void:
     var question := controller.current_question()
 
     equal(question.table_value, 2, "Current table before unlock")
-    equal(question.multiplier, last_multiplier, "Lowest-mastery fact is selected")
+    equal(question.multiplier, unlock_multiplier, "Lowest-mastery fact is selected")
     controller.submit_answer(question.answer(), 1.0)
 
-    equal(profile.get_mastery(2, last_multiplier), 80, "Answer reaches unlock mastery")
+    equal(profile.get_mastery(2, unlock_multiplier), 80, "Ninth fact reaches unlock mastery")
+    equal(profile.get_mastery(2, remaining_multiplier), 79, "Tenth fact may remain below 80")
     equal(profile.current_table(), 3, "Profile advances using the didactic rule")
     equal(unlocks, [Vector2i(2, 3)], "Unlock event identifies both islands")
 

@@ -130,18 +130,21 @@ func test_map_stage_state_exposes_progress_without_changing_learning_rules() -> 
     equal(band_states[0]["facts"][2]["status"], &"mastered", "Unlock band")
     equal(band_states[0]["facts"][3]["status"], &"automated", "Automaticity band")
 
-    for multiplier in range(9):
+    for multiplier in range(LearningRules.REQUIRED_FACTS_TO_UNLOCK - 1):
         map_profile.set_mastery(2, multiplier, LearningRules.UNLOCK_MASTERY)
+    map_profile.set_mastery(2, 8, 79)
     map_profile.set_mastery(2, 9, 76)
     var almost_states := AppState.map_stage_states()
-    equal(almost_states[0]["progress_points"], 796, "Aggregate can approach the gate")
+    equal(almost_states[0]["mastered_facts"], 8, "Eight ready facts remain below the gate")
+    equal(almost_states[0]["progress_points"], 795, "Aggregate can approach the gate")
     equal(almost_states[0]["progress_percent"], 99, "Locked island never displays 100 percent")
+    check(not almost_states[1]["unlocked"], "Eight ready facts keep the next island locked")
 
-    for multiplier in LearningRules.MULTIPLIERS:
-        map_profile.set_mastery(2, multiplier, LearningRules.UNLOCK_MASTERY)
+    map_profile.set_mastery(2, 8, LearningRules.UNLOCK_MASTERY)
     var advanced_states := AppState.map_stage_states()
     check(advanced_states[0]["completed"], "Unlocked trail is complete")
-    equal(advanced_states[0]["mastered_facts"], 10, "Completed fact count")
+    equal(advanced_states[0]["mastered_facts"], 9, "Nine ready facts complete the island")
+    equal(advanced_states[0]["facts"][9]["mastery"], 76, "Tenth fact keeps its real mastery")
     equal(advanced_states[0]["progress_points"], 800, "Completed island progress")
     equal(advanced_states[0]["progress_percent"], 100, "Completed visible percentage")
     check(advanced_states[1]["current"], "The three-times table becomes current")

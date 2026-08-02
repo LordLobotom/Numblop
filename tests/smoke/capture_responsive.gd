@@ -14,6 +14,7 @@ const SCREENS: Array[String] = [
     "map_detail",
     "map_unlock",
     "settings",
+    "settings_exit",
     "choice",
     "keypad",
     "reward",
@@ -99,7 +100,7 @@ func _create_screen(screen_name: String) -> Control:
         scene_path = "res://scenes/screens/TrophyScreen.tscn"
     elif screen_name in ["map", "map_detail", "map_unlock"]:
         scene_path = "res://scenes/screens/MapScreen.tscn"
-    elif screen_name == "settings":
+    elif screen_name in ["settings", "settings_exit"]:
         scene_path = "res://scenes/screens/SettingsScreen.tscn"
     elif screen_name == "reward":
         scene_path = "res://scenes/screens/RewardScreen.tscn"
@@ -219,10 +220,12 @@ func _configure_screen(screen: Control, screen_name: String, locale: String) -> 
             map_screen.set_stage_states(stage_states)
             if screen_name == "map_detail":
                 map_screen.show_table_details(4)
-        "settings":
+        "settings", "settings_exit":
             SettingsManager.locale_preference = locale
             var settings_screen := screen as SettingsScreen
             settings_screen.refresh_from_settings()
+            if screen_name == "settings_exit":
+                settings_screen.show_exit_confirmation()
         "choice":
             var practice := screen as PracticeScreen
             practice.show_question(

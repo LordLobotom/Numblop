@@ -42,9 +42,12 @@ No additional game modes are part of the MVP.
   receive equal horizontal space as the portrait window widens.
 - Map opens a read-only winding trail for the eight multiplication-table stages. Its bar and
   percentage move continuously with real mastery gains, while the next island unlocks only after
-  all 10 facts in the current table reach 80. Tapping an unlocked island opens a compact two-column
-  view of all 10 facts, their individual percentage bars, and the four learning bands. The winding
-  trail keeps a centered readable width when the portrait window becomes wider.
+  at least 9 of 10 facts in the current table reach 80. Tapping an unlocked island opens a compact
+  two-column view of all 10 facts, their individual percentage bars, and the four learning bands.
+  The winding trail keeps a centered readable width when the portrait window becomes wider. In the
+  detail,
+  the mastery band moves from red through yellow and gold to green: Mastered is gold and Automatic
+  is green.
 - A correct-answer streak continues across practice series and app restarts. Only an incorrect
   answer ends it. When an ended streak exceeds every previously ended streak, Trophies adds a
   milestone with its count and the local date and time of the interrupting mistake. Shorter ended
@@ -56,7 +59,8 @@ No additional game modes are part of the MVP.
   crown, duck, and moon necklaces have their own row. Tapping an owned item equips it. Tapping a
   locked item exposes a separate purchase action; purchases and selections persist locally.
 - Settings provides English/Czech crest choices, separate background-music and sound-effect
-  volume controls, a global mute, and a confirmed Close game action.
+  volume controls, a global mute, and a confirmed Close game action. The exit confirmation uses a
+  compact custom card: actions stack on narrow phones and share one row on wider portrait windows.
 
 Coins buy cosmetic items. Experience represents general progress. For the playable
 MVP, each correct answer in a completed series grants 1 coin and 1 experience point. A completed

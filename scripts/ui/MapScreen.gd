@@ -17,6 +17,10 @@ const BOLD_FONT: Font = preload("res://ui/fonts/FredokaBold.tres")
 const STAGE_SIZE := Vector2(132.0, 132.0)
 const STAGE_STEP := 145.0
 const MAP_CONTENT_WIDTH := 350.0
+const FACT_BUILDING_COLOR := Color(0.9, 0.25, 0.2)
+const FACT_PRACTICING_COLOR := Color(0.96, 0.73, 0.12)
+const FACT_MASTERED_COLOR := Color(0.95, 0.55, 0.08)
+const FACT_AUTOMATED_COLOR := Color(0.27, 0.7, 0.2)
 
 @onready var title_label: Label = %TitleLabel
 @onready var subtitle_label: Label = %SubtitleLabel
@@ -373,13 +377,13 @@ func _fact_status_key(status: StringName) -> StringName:
 func _fact_status_color(status: StringName) -> Color:
     match status:
         &"practicing":
-            return Color(0.48, 0.46, 0.9)
+            return FACT_PRACTICING_COLOR
         &"mastered":
-            return Color(0.35, 0.75, 0.17)
+            return FACT_MASTERED_COLOR
         &"automated":
-            return Color(0.94, 0.67, 0.08)
+            return FACT_AUTOMATED_COLOR
         _:
-            return Color(0.95, 0.45, 0.16)
+            return FACT_BUILDING_COLOR
 
 
 func _fact_card_style(color: Color) -> StyleBoxFlat:

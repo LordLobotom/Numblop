@@ -159,7 +159,8 @@ func _on_back_requested() -> void:
     elif cosmetics_screen.visible:
         _on_cosmetics_home_requested()
     elif settings_screen.visible:
-        _on_settings_home_requested()
+        if not settings_screen.close_exit_confirmation_if_open():
+            _on_settings_home_requested()
     elif map_screen.visible:
         if not map_screen.close_detail_if_open():
             _on_map_return_requested()

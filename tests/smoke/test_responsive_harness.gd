@@ -25,6 +25,7 @@ func test_responsive_harness_covers_every_m1_screen_state() -> void:
         "map_detail",
         "map_unlock",
         "settings",
+        "settings_exit",
         "choice",
         "keypad",
         "reward",

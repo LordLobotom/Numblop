@@ -118,6 +118,16 @@ func test_map_screen_has_all_stage_navigation_contracts() -> void:
     check(scene.get_node("%FactGrid") is GridContainer, "Two-column fact grid")
     equal(scene.get_node("%FactGrid").columns, 2, "Ten facts use two compact columns")
     check(scene.get_node("%FactDetailClose").custom_minimum_size.y >= 48.0, "Close touch target")
+    equal(
+        scene._fact_status_color(&"mastered"),
+        scene.FACT_MASTERED_COLOR,
+        "Mastered facts use orange-gold"
+    )
+    equal(
+        scene._fact_status_color(&"automated"),
+        scene.FACT_AUTOMATED_COLOR,
+        "Automated facts use green"
+    )
     check(scene.get_node_or_null("%BackButton") == null, "Map has no top back arrow")
     for button_name in ["OutfitButton", "MapButton", "HomeButton", "TrophyButton", "SettingsButton"]:
         var button: BaseButton = scene.get_node("%%%s" % button_name)
@@ -203,7 +213,39 @@ func test_settings_screen_has_language_audio_mute_and_safe_exit_controls() -> vo
         equal(slider.max_value, 100.0, "Audio percent range")
     check(scene.get_node("%MuteButton") is CheckButton, "Global mute control")
     check(scene.get_node("%ExitButton").custom_minimum_size.y >= 48.0, "Exit touch target")
-    check(scene.get_node("%ExitDialog") is ConfirmationDialog, "Exit confirmation")
+    check(scene.get_node("%ExitDialog") is Control, "Custom exit confirmation overlay")
+    check(scene.has_method("show_exit_confirmation"), "Settings can open the exit confirmation")
+    check(
+        scene.has_method("close_exit_confirmation_if_open"),
+        "Back can close the exit confirmation first"
+    )
+    check(scene.get_node("%DialogPanel") is PanelContainer, "Modern rounded dialog panel")
+    check(scene.get_node("%DialogButtons") is BoxContainer, "Responsive dialog button layout")
+    check(
+        scene.get_node("%CancelExitButton").custom_minimum_size.y >= 48.0,
+        "Cancel exit touch target"
+    )
+    check(
+        scene.get_node("%ConfirmExitButton").custom_minimum_size.y >= 48.0,
+        "Confirm exit touch target"
+    )
+    var scene_tree := Engine.get_main_loop() as SceneTree
+    scene_tree.root.add_child(scene)
+    scene.set_anchors_preset(Control.PRESET_TOP_LEFT)
+    scene.size = Vector2(390.0, 844.0)
+    scene._update_exit_dialog_layout()
+    check(scene.get_node("%DialogButtons").vertical, "Small dialog stacks its actions")
+    check(
+        scene.get_node("%DialogPanel").custom_minimum_size.x <= 350.0,
+        "Small dialog keeps safe side margins"
+    )
+    scene.size = Vector2(450.0, 900.0)
+    scene._update_exit_dialog_layout()
+    check(not scene.get_node("%DialogButtons").vertical, "Wide dialog uses one action row")
+    check(not scene.close_exit_confirmation_if_open(), "Closed dialog does not consume Back")
+    scene.get_node("%ExitDialog").visible = true
+    check(scene.close_exit_confirmation_if_open(), "Open dialog consumes Back")
+    check(not scene.get_node("%ExitDialog").visible, "Back hides only the exit dialog")
     equal(
         scene.get_node("%SettingsButton").texture_normal.resource_path,
         "res://ui/crests/crest_settings.png",

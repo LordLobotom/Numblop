@@ -186,7 +186,7 @@ func map_stage_states() -> Array[Dictionary]:
             })
         var final_stage_complete := (
             index == LearningRules.TABLES.size() - 1
-            and mastered_facts == LearningRules.MULTIPLIERS.size()
+            and mastered_facts >= LearningRules.REQUIRED_FACTS_TO_UNLOCK
         )
         var completed := index < profile.highest_unlocked_index or final_stage_complete
         if completed:

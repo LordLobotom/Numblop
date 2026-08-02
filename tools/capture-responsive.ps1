@@ -30,6 +30,7 @@ $expectedScreens = @(
     "map_detail",
     "map_unlock",
     "settings",
+    "settings_exit",
     "choice",
     "keypad",
     "reward"

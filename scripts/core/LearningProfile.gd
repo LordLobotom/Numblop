@@ -80,11 +80,10 @@ static func from_dictionary(data: Dictionary) -> LearningProfile:
 func _advance_unlocks() -> void:
     while highest_unlocked_index < LearningRules.TABLES.size() - 1:
         var table_value: int = LearningRules.TABLES[highest_unlocked_index]
-        var ready := true
+        var ready_facts := 0
         for multiplier in LearningRules.MULTIPLIERS:
-            if get_mastery(table_value, multiplier) < LearningRules.UNLOCK_MASTERY:
-                ready = false
-                break
-        if not ready:
+            if get_mastery(table_value, multiplier) >= LearningRules.UNLOCK_MASTERY:
+                ready_facts += 1
+        if ready_facts < LearningRules.REQUIRED_FACTS_TO_UNLOCK:
             return
         highest_unlocked_index += 1

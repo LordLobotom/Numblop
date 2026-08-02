@@ -105,8 +105,8 @@
   experience, and player level never unlock multiplication tables.
 - The current map island displays a continuous aggregate progress bar and matching percentage,
   capped at 80 points per fact, so improvement remains visible before a fact is fully ready.
-  Unlocking still requires all 10 facts to reach 80 independently.
-- Crossing the final mastery gate emits a table-unlocked domain event. After the reward reveal,
+  This original all-ten unlock rule is superseded by the 2026-08-02 nine-of-ten decision below.
+- Crossing the ninth mastery gate emits a table-unlocked domain event. After the reward reveal,
   the game opens the map, scrolls to the new island, and celebrates it in both languages.
 
 ## 2026-08-01 — Future Endless trail concept
@@ -123,7 +123,24 @@
 - Every unlocked island is a large touch target. Tapping it opens a dismissible detail with all ten
   facts, exact 0–100 progress bars, and the existing building/practicing/mastered/automatic bands
   supplied by application state. The overlay never mutates learning state.
-- Aggregate progress remains capped at 80 per fact. A stage that has not met all ten gates displays
-  at most 99%, avoiding a rounded 100% label before the next table unlocks.
+- Aggregate progress remains capped at 80 per fact. The original all-ten completion display is
+  superseded by the nine-of-ten gate below.
 - The winding trail uses a centered 350px content canvas. Wider portrait windows retain balanced
   margins instead of stretching the island path and status cards apart.
+
+## 2026-08-02 — Nine-of-ten island gate and mastery colors
+
+- The next island unlocks when at least 9 of the current table's 10 facts reach 80 mastery. Eight
+  ready facts are insufficient. Unlocks remain permanent, and the remaining weak fact continues
+  to appear in older-fact review.
+- A completed island presents 100% in the overview while its detail keeps every fact's real 0–100
+  value. Before the ninth fact crosses 80, the overview percentage remains capped at 99%.
+- Fact-detail colors follow a red, yellow, gold, green learning progression. `Mastered` / `Upevněno`
+  is orange-gold, while `Automatic` / `Automatizováno` is green.
+
+## 2026-08-02 — Responsive exit confirmation
+
+- Settings uses a themed in-game exit overlay instead of the platform `ConfirmationDialog`.
+  Its two 54px actions stack below 420px screen width and sit side by side on wider portraits.
+- Tapping outside, pressing Cancel, Escape, or Android Back closes the overlay without leaving
+  Settings. Confirming still flushes audio preferences before emitting the game-exit request.

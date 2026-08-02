@@ -1,4 +1,4 @@
-[gd_scene load_steps=16 format=3]
+[gd_scene load_steps=23 format=3]
 
 [ext_resource type="Script" path="res://scripts/ui/SettingsScreen.gd" id="1_script"]
 [ext_resource type="Texture2D" path="res://assets/backgrounds/mianscreen_background.png" id="2_background"]
@@ -73,6 +73,85 @@ corner_radius_top_left = 8
 corner_radius_top_right = 8
 corner_radius_bottom_right = 8
 corner_radius_bottom_left = 8
+
+[sub_resource type="StyleBoxFlat" id="ExitDialogPanel"]
+bg_color = Color(0.985, 1, 0.975, 0.99)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.68, 0.86, 0.57, 1)
+corner_radius_top_left = 28
+corner_radius_top_right = 28
+corner_radius_bottom_right = 28
+corner_radius_bottom_left = 28
+content_margin_left = 24.0
+content_margin_top = 22.0
+content_margin_right = 24.0
+content_margin_bottom = 22.0
+shadow_color = Color(0.08, 0.2, 0.12, 0.32)
+shadow_size = 14
+
+[sub_resource type="StyleBoxFlat" id="ExitCancelNormal"]
+bg_color = Color(0.91, 0.97, 0.88, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.67, 0.82, 0.58, 1)
+corner_radius_top_left = 16
+corner_radius_top_right = 16
+corner_radius_bottom_right = 16
+corner_radius_bottom_left = 16
+
+[sub_resource type="StyleBoxFlat" id="ExitCancelHover"]
+bg_color = Color(0.84, 0.94, 0.79, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.51, 0.72, 0.39, 1)
+corner_radius_top_left = 16
+corner_radius_top_right = 16
+corner_radius_bottom_right = 16
+corner_radius_bottom_left = 16
+
+[sub_resource type="StyleBoxFlat" id="ExitCancelPressed"]
+bg_color = Color(0.76, 0.9, 0.69, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.42, 0.64, 0.31, 1)
+corner_radius_top_left = 16
+corner_radius_top_right = 16
+corner_radius_bottom_right = 16
+corner_radius_bottom_left = 16
+
+[sub_resource type="StyleBoxFlat" id="ExitConfirmNormal"]
+bg_color = Color(0.35, 0.69, 0.16, 1)
+corner_radius_top_left = 16
+corner_radius_top_right = 16
+corner_radius_bottom_right = 16
+corner_radius_bottom_left = 16
+shadow_color = Color(0.16, 0.35, 0.07, 0.28)
+shadow_size = 4
+
+[sub_resource type="StyleBoxFlat" id="ExitConfirmHover"]
+bg_color = Color(0.42, 0.78, 0.18, 1)
+corner_radius_top_left = 16
+corner_radius_top_right = 16
+corner_radius_bottom_right = 16
+corner_radius_bottom_left = 16
+shadow_color = Color(0.16, 0.35, 0.07, 0.3)
+shadow_size = 5
+
+[sub_resource type="StyleBoxFlat" id="ExitConfirmPressed"]
+bg_color = Color(0.28, 0.58, 0.11, 1)
+corner_radius_top_left = 16
+corner_radius_top_right = 16
+corner_radius_bottom_right = 16
+corner_radius_bottom_left = 16
 
 [node name="SettingsScreen" type="Control"]
 layout_mode = 3
@@ -504,9 +583,105 @@ unique_name_in_owner = true
 wait_time = 0.35
 one_shot = true
 
-[node name="ExitDialog" type="ConfirmationDialog" parent="."]
+[node name="ExitDialog" type="Control" parent="."]
 unique_name_in_owner = true
-title = "SETTINGS_EXIT_TITLE"
-dialog_text = "SETTINGS_EXIT_CONFIRM"
-ok_button_text = "SETTINGS_EXIT_YES"
-cancel_button_text = "SETTINGS_EXIT_CANCEL"
+visible = false
+z_index = 100
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 1
+
+[node name="ExitScrim" type="ColorRect" parent="ExitDialog"]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_default_cursor_shape = 2
+color = Color(0.06, 0.16, 0.1, 0.58)
+
+[node name="DialogCenter" type="CenterContainer" parent="ExitDialog"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 1
+
+[node name="DialogPanel" type="PanelContainer" parent="ExitDialog/DialogCenter"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(350, 0)
+layout_mode = 2
+theme_override_styles/panel = SubResource("ExitDialogPanel")
+
+[node name="DialogContent" type="VBoxContainer" parent="ExitDialog/DialogCenter/DialogPanel"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="DialogTitle" type="Label" parent="ExitDialog/DialogCenter/DialogPanel/DialogContent"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.16, 0.32, 0.2, 1)
+theme_override_fonts/font = ExtResource("9_bold")
+theme_override_font_sizes/font_size = 26
+text = "SETTINGS_EXIT_TITLE"
+horizontal_alignment = 1
+autowrap_mode = 2
+
+[node name="DialogMessage" type="Label" parent="ExitDialog/DialogCenter/DialogPanel/DialogContent"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.29, 0.42, 0.31, 1)
+theme_override_font_sizes/font_size = 17
+text = "SETTINGS_EXIT_CONFIRM"
+horizontal_alignment = 1
+autowrap_mode = 2
+
+[node name="DialogDivider" type="HSeparator" parent="ExitDialog/DialogCenter/DialogPanel/DialogContent"]
+layout_mode = 2
+
+[node name="DialogButtons" type="BoxContainer" parent="ExitDialog/DialogCenter/DialogPanel/DialogContent"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="CancelExitButton" type="Button" parent="ExitDialog/DialogCenter/DialogPanel/DialogContent/DialogButtons"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 54)
+layout_mode = 2
+size_flags_horizontal = 3
+focus_mode = 2
+mouse_default_cursor_shape = 2
+theme_override_colors/font_color = Color(0.19, 0.37, 0.22, 1)
+theme_override_colors/font_hover_color = Color(0.14, 0.31, 0.17, 1)
+theme_override_colors/font_pressed_color = Color(0.12, 0.27, 0.14, 1)
+theme_override_fonts/font = ExtResource("9_bold")
+theme_override_font_sizes/font_size = 17
+theme_override_styles/normal = SubResource("ExitCancelNormal")
+theme_override_styles/hover = SubResource("ExitCancelHover")
+theme_override_styles/pressed = SubResource("ExitCancelPressed")
+text = "SETTINGS_EXIT_CANCEL"
+
+[node name="ConfirmExitButton" type="Button" parent="ExitDialog/DialogCenter/DialogPanel/DialogContent/DialogButtons"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 54)
+layout_mode = 2
+size_flags_horizontal = 3
+focus_mode = 2
+mouse_default_cursor_shape = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_hover_color = Color(1, 1, 1, 1)
+theme_override_colors/font_pressed_color = Color(1, 1, 1, 1)
+theme_override_fonts/font = ExtResource("9_bold")
+theme_override_font_sizes/font_size = 17
+theme_override_styles/normal = SubResource("ExitConfirmNormal")
+theme_override_styles/hover = SubResource("ExitConfirmHover")
+theme_override_styles/pressed = SubResource("ExitConfirmPressed")
+text = "SETTINGS_EXIT_YES"

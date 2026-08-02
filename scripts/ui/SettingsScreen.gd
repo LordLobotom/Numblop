@@ -25,7 +25,14 @@ signal exit_requested
 @onready var mute_button: CheckButton = %MuteButton
 @onready var hint_label: Label = %HintLabel
 @onready var exit_button: Button = %ExitButton
-@onready var exit_dialog: ConfirmationDialog = %ExitDialog
+@onready var exit_dialog: Control = %ExitDialog
+@onready var exit_scrim: ColorRect = %ExitScrim
+@onready var dialog_panel: PanelContainer = %DialogPanel
+@onready var dialog_title: Label = %DialogTitle
+@onready var dialog_message: Label = %DialogMessage
+@onready var dialog_buttons: BoxContainer = %DialogButtons
+@onready var cancel_exit_button: Button = %CancelExitButton
+@onready var confirm_exit_button: Button = %ConfirmExitButton
 @onready var outfit_button: TextureButton = %OutfitButton
 @onready var map_button: TextureButton = %MapButton
 @onready var home_button: TextureButton = %HomeButton
@@ -41,6 +48,10 @@ signal exit_requested
 
 var _syncing_controls := false
 
+const COMPACT_DIALOG_WIDTH := 420.0
+const DIALOG_SIDE_MARGIN := 20.0
+const DIALOG_MAX_WIDTH := 360.0
+
 
 func _ready() -> void:
     english_button.pressed.connect(_select_language.bind("en"))
@@ -49,8 +60,11 @@ func _ready() -> void:
     sfx_slider.value_changed.connect(_on_audio_value_changed)
     sfx_slider.drag_ended.connect(_on_sfx_drag_ended)
     mute_button.toggled.connect(_on_mute_toggled)
-    exit_button.pressed.connect(_show_exit_confirmation)
-    exit_dialog.confirmed.connect(_confirm_exit)
+    exit_button.pressed.connect(show_exit_confirmation)
+    cancel_exit_button.pressed.connect(hide_exit_confirmation)
+    confirm_exit_button.pressed.connect(_confirm_exit)
+    exit_scrim.gui_input.connect(_on_exit_scrim_input)
+    resized.connect(_update_exit_dialog_layout)
     outfit_button.pressed.connect(_request_future_feature.bind(outfit_requested))
     map_button.pressed.connect(_request_map)
     home_button.pressed.connect(_request_home)
@@ -58,6 +72,7 @@ func _ready() -> void:
     save_timer.timeout.connect(_save_audio_preferences)
     _sync_controls_from_settings()
     _refresh_text()
+    _update_exit_dialog_layout()
 
 
 func _notification(what: int) -> void:
@@ -95,10 +110,10 @@ func _refresh_text() -> void:
     sfx_label.text = tr("SETTINGS_SFX")
     mute_button.text = tr("SETTINGS_MUTE_ALL")
     exit_button.text = tr("SETTINGS_EXIT")
-    exit_dialog.title = tr("SETTINGS_EXIT_TITLE")
-    exit_dialog.dialog_text = tr("SETTINGS_EXIT_CONFIRM")
-    exit_dialog.get_ok_button().text = tr("SETTINGS_EXIT_YES")
-    exit_dialog.get_cancel_button().text = tr("SETTINGS_EXIT_CANCEL")
+    dialog_title.text = tr("SETTINGS_EXIT_TITLE")
+    dialog_message.text = tr("SETTINGS_EXIT_CONFIRM")
+    confirm_exit_button.text = tr("SETTINGS_EXIT_YES")
+    cancel_exit_button.text = tr("SETTINGS_EXIT_CANCEL")
     hint_label.text = tr("SETTINGS_HINT")
     outfit_label.text = tr("NAV_OUTFIT")
     map_label.text = tr("NAV_MAP")
@@ -198,11 +213,48 @@ func _request_future_feature(feature_signal: Signal) -> void:
     feature_signal.emit()
 
 
-func _show_exit_confirmation() -> void:
+func show_exit_confirmation() -> void:
     _flush_audio_preferences()
-    exit_dialog.popup_centered()
+    _update_exit_dialog_layout()
+    exit_dialog.visible = true
+    cancel_exit_button.grab_focus()
+
+
+func hide_exit_confirmation() -> void:
+    exit_dialog.visible = false
+    exit_button.grab_focus()
+
+
+func close_exit_confirmation_if_open() -> bool:
+    if not exit_dialog.visible:
+        return false
+    hide_exit_confirmation()
+    return true
+
+
+func _update_exit_dialog_layout() -> void:
+    var available_width := maxf(280.0, size.x - DIALOG_SIDE_MARGIN * 2.0)
+    dialog_panel.custom_minimum_size.x = minf(DIALOG_MAX_WIDTH, available_width)
+    dialog_buttons.vertical = size.x < COMPACT_DIALOG_WIDTH
+
+
+func _on_exit_scrim_input(event: InputEvent) -> void:
+    if (
+        event is InputEventMouseButton
+        and event.button_index == MOUSE_BUTTON_LEFT
+        and event.pressed
+    ):
+        hide_exit_confirmation()
+        exit_scrim.accept_event()
+
+
+func _unhandled_input(event: InputEvent) -> void:
+    if exit_dialog.visible and event.is_action_pressed("ui_cancel"):
+        hide_exit_confirmation()
+        get_viewport().set_input_as_handled()
 
 
 func _confirm_exit() -> void:
     _flush_audio_preferences()
+    exit_dialog.visible = false
     exit_requested.emit()

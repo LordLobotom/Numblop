@@ -25,10 +25,12 @@ func test_answer_scoring_uses_speed_without_a_countdown() -> void:
     equal(LearningRules.mastery_delta(false, 0.1, LearningRules.QuestionMode.CHOICE_FOUR), -2)
 
 
-func test_unlocked_tables_never_relock() -> void:
+func test_nine_ready_facts_unlock_and_tables_never_relock() -> void:
     var profile := LearningProfile.new()
-    for multiplier in LearningRules.MULTIPLIERS:
+    for multiplier in range(LearningRules.REQUIRED_FACTS_TO_UNLOCK - 1):
         profile.set_mastery(2, multiplier, 80)
+    equal(profile.current_table(), 2, "Eight ready facts keep table 3 locked")
+    profile.set_mastery(2, LearningRules.REQUIRED_FACTS_TO_UNLOCK - 1, 80)
     equal(profile.current_table(), 3, "Table 3 should unlock")
     profile.set_mastery(2, 4, 0)
     equal(profile.current_table(), 3, "An unlocked table must stay unlocked")
