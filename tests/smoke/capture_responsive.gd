@@ -121,6 +121,7 @@ func _configure_screen(screen: Control, screen_name: String, locale: String) -> 
             var home := screen as HomeScreen
             home.set_progress_totals(120, 240, 3)
             home.set_streak(18)
+            home.present_nickname("")
             var home_colors := _cosmetic_capture_items(
                 CosmeticCatalog.CATEGORY_BODY_COLOR,
                 CosmeticCatalog.DEFAULT_BODY_COLOR_ID

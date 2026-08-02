@@ -37,6 +37,7 @@ var _coins := 0
 var _experience := 0
 var _level := 1
 var _streak := 0
+var _nickname_override: Variant = null
 
 
 func _ready() -> void:
@@ -98,6 +99,12 @@ func show_future_feature() -> void:
     pet_hint.text = tr("HOME_FEATURE_LATER")
 
 
+func present_nickname(nickname: String) -> void:
+    _nickname_override = nickname
+    if is_node_ready():
+        _refresh_name_text()
+
+
 func show_name_dialog() -> void:
     name_input.text = AppState.nickname()
     name_dialog.visible = true
@@ -136,7 +143,9 @@ func _on_nickname_changed(_nickname: String) -> void:
 
 
 func _refresh_name_text() -> void:
-    var nickname := AppState.nickname()
+    var nickname: String = (
+        _nickname_override if _nickname_override is String else AppState.nickname()
+    )
     name_button.text = nickname if not nickname.is_empty() else tr("HOME_PROFILE")
     name_button.tooltip_text = tr("HOME_NAME_EDIT_HINT")
     name_dialog_title.text = tr("NAME_DIALOG_TITLE")
