@@ -7,7 +7,8 @@
 - Windows: x86-64 centered portrait window.
 - Web: adaptive static canvas; phone view fits the available viewport and 900×900 is the wide
   desktop QA reference.
-- Version starts at code `1`, name `0.1.0`.
+- The public version comes from `application/config/version`, starts at `0.1.0`, and stays
+  aligned with Android version name `0.1.0` (code `1`) and the Windows product version.
 
 ## Development artifacts
 

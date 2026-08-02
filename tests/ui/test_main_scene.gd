@@ -307,6 +307,9 @@ func test_settings_screen_has_language_audio_mute_and_safe_exit_controls() -> vo
     )
     var scene_tree := Engine.get_main_loop() as SceneTree
     scene_tree.root.add_child(scene)
+    var version_label: Label = scene.get_node("%VersionLabel")
+    var app_version := str(ProjectSettings.get_setting("application/config/version"))
+    check(version_label.text.contains(app_version), "Settings shows the configured app version")
     scene.set_anchors_preset(Control.PRESET_TOP_LEFT)
     scene.size = Vector2(390.0, 844.0)
     scene._update_exit_dialog_layout()

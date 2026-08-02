@@ -9,6 +9,7 @@ signal exit_requested
 
 @onready var title_label: Label = %TitleLabel
 @onready var subtitle_label: Label = %SubtitleLabel
+@onready var version_label: Label = %VersionLabel
 @onready var language_label: Label = %LanguageLabel
 @onready var english_button: TextureButton = %EnglishButton
 @onready var czech_button: TextureButton = %CzechButton
@@ -51,6 +52,8 @@ var _syncing_controls := false
 const COMPACT_DIALOG_WIDTH := 420.0
 const DIALOG_SIDE_MARGIN := 20.0
 const DIALOG_MAX_WIDTH := 360.0
+const VERSION_SETTING := "application/config/version"
+const VERSION_FALLBACK := "0.1.0"
 
 
 func _ready() -> void:
@@ -103,6 +106,8 @@ func _sync_controls_from_settings() -> void:
 func _refresh_text() -> void:
     title_label.text = tr("SETTINGS_TITLE")
     subtitle_label.text = tr("SETTINGS_SUBTITLE")
+    var app_version := str(ProjectSettings.get_setting(VERSION_SETTING, VERSION_FALLBACK))
+    version_label.text = tr("SETTINGS_VERSION").format({"version": app_version})
     language_label.text = tr("SETTINGS_LANGUAGE")
     english_label.text = tr("LANGUAGE_ENGLISH")
     czech_label.text = tr("LANGUAGE_CZECH")

@@ -71,6 +71,8 @@ Status values: `TODO`, `WIP(@agent)`, `BLOCKED(reason)`, `DONE`.
   UI, audio scene wiring, and UI tests.
 - `B19 DONE` Keep mastery-milestone feedback visible for 3.6 seconds while allowing an early
   full-overlay tap to continue. Owns: practice feedback scene/script, localization, and UI tests.
+- `B20 DONE` Show the localized public application version in the Settings header. Owns:
+  settings scene/script, localization, and UI tests.
 - `C1 DONE` Session controller, per-answer mastery saves, and discard-on-interruption behavior.
   Depends: A1. Owns: `scripts/app/SessionController.gd`, autoload changes, state tests.
 - `C2 DONE` Local coin/XP/level persistence and atomic application of the accuracy-linked M1
@@ -122,6 +124,8 @@ Status values: `TODO`, `WIP(@agent)`, `BLOCKED(reason)`, `DONE`.
 - `D12 DONE` Add a threadless adaptive Web export, targeted template installer, static HTTP/MIME
   smoke server, and 390×844/900×900 responsive QA coverage. Owns: Web preset, `tools/`, smoke
   tests, release documentation, and responsive harness.
+- `D13 DONE` Define the public application version in project configuration and verify that the
+  Windows and Android export versions stay aligned. Owns: project configuration and smoke tests.
 
 Claim the lowest-numbered unblocked task in your track. Only the stated owner changes the task's
 owned files; coordinate contract changes through the owning track.

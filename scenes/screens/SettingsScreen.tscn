@@ -234,6 +234,14 @@ text = "SETTINGS_SUBTITLE"
 horizontal_alignment = 1
 autowrap_mode = 2
 
+[node name="VersionLabel" type="Label" parent="SafeArea/Content/Header/HeaderRow/Heading"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.38, 0.52, 0.41, 1)
+theme_override_font_sizes/font_size = 12
+text = "SETTINGS_VERSION"
+horizontal_alignment = 1
+
 [node name="Scroll" type="ScrollContainer" parent="SafeArea/Content"]
 layout_mode = 2
 size_flags_vertical = 3
