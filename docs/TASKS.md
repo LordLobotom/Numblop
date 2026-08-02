@@ -75,6 +75,8 @@ Status values: `TODO`, `WIP(@agent)`, `BLOCKED(reason)`, `DONE`.
   bilingual responsive captures. Depends: B9. Owns: capture harness and artifact verification.
 - `D6 DONE` Add the shared streak bar and populated Trophy history to bilingual responsive capture
   coverage. Depends: B10, C8. Owns: capture harness and artifact verification.
+- `D7 DONE` Use the supplied Numblop branding icon for the project, Windows executable, and both
+  Android launcher export presets. Owns: project/export icon configuration and smoke contract.
 
 Claim the lowest-numbered unblocked task in your track. Only the stated owner changes the task's
 owned files; coordinate contract changes through the owning track.

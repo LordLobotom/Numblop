@@ -13,7 +13,7 @@ config_version=5
 config/name="Numblop"
 run/main_scene="res://scenes/Main.tscn"
 config/features=PackedStringArray("4.6", "GL Compatibility")
-config/icon="res://ui/app_icon.svg"
+config/icon="res://ui/branding/numblop_ico.png"
 
 [autoload]
 
