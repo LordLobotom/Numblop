@@ -28,6 +28,7 @@ func _ready() -> void:
     _choice_buttons.sort_custom(_sort_buttons_by_name)
     for button in _choice_buttons:
         button.pressed.connect(_on_choice_pressed.bind(button))
+    _configure_choice_hover(DisplayServer.is_touchscreen_available())
     numeric_keypad.value_submitted.connect(_on_numeric_submitted)
     exit_button.pressed.connect(exit_requested.emit)
     continue_button.pressed.connect(_on_continue_feedback_pressed)
@@ -110,11 +111,25 @@ func format_complete_equation(record: SessionResult.AnswerRecord) -> String:
 func _show_choices(choices: Array[int]) -> void:
     for index in _choice_buttons.size():
         var button := _choice_buttons[index]
+        button.release_focus()
         button.visible = index < choices.size()
         button.disabled = false
         if index < choices.size():
             button.text = str(choices[index])
             button.set_meta("answer_value", choices[index])
+
+
+func _configure_choice_hover(touchscreen_available: bool) -> void:
+    for button in _choice_buttons:
+        if touchscreen_available:
+            button.add_theme_stylebox_override("hover", button.get_theme_stylebox("normal"))
+            button.add_theme_color_override(
+                "font_hover_color",
+                button.get_theme_color("font_color")
+            )
+        else:
+            button.remove_theme_stylebox_override("hover")
+            button.remove_theme_color_override("font_hover_color")
 
 
 func _on_choice_pressed(button: Button) -> void:

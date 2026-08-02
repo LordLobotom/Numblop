@@ -98,8 +98,10 @@ func test_bottom_navigation_spreads_five_items_evenly_at_wider_sizes() -> void:
         scene.free()
 
 
-func test_secondary_screens_center_a_540_pixel_column_on_wide_displays() -> void:
+func test_navigation_screens_center_a_540_pixel_column_on_wide_displays() -> void:
     for scene_path in [
+        "res://scenes/screens/HomeScreen.tscn",
+        "res://scenes/screens/MapScreen.tscn",
         "res://scenes/screens/CosmeticsScreen.tscn",
         "res://scenes/screens/TrophyScreen.tscn",
         "res://scenes/screens/SettingsScreen.tscn",
@@ -115,6 +117,7 @@ func test_secondary_screens_center_a_540_pixel_column_on_wide_displays() -> void
             scene.free()
             continue
 
+        safe_area.set_anchors_preset(Control.PRESET_TOP_LEFT)
         safe_area.size = Vector2(390.0, 844.0)
         safe_area._update_side_margins()
         equal(safe_area.get_theme_constant("margin_left"), 14, "Phone left margin")
@@ -227,6 +230,28 @@ func test_main_scene_bundles_audible_music_and_confirm_sfx() -> void:
         "Screen transition sound"
     )
     check(music.volume_db > -20.0, "Music is not effectively silent")
+    scene.free()
+
+
+func test_web_audio_can_restart_on_the_first_user_gesture() -> void:
+    var packed: PackedScene = load("res://scenes/Main.tscn")
+    check(packed != null, "Main scene must load")
+    if packed == null:
+        return
+    var scene := packed.instantiate()
+    var scene_tree := Engine.get_main_loop() as SceneTree
+    scene_tree.root.add_child(scene)
+    var music: AudioStreamPlayer = scene.get_node("%MusicPlayer")
+    music.stop()
+
+    var touch := InputEventScreenTouch.new()
+    touch.pressed = true
+    scene._unlock_web_audio(touch)
+    check(music.playing, "First Web touch restarts music after autoplay blocking")
+
+    music.stop()
+    scene._unlock_web_audio(touch)
+    check(not music.playing, "Later touches do not restart music unexpectedly")
     scene.free()
 
 

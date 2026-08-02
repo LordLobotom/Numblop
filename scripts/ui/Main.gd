@@ -14,6 +14,7 @@ extends Control
 @onready var page_sfx_player: AudioStreamPlayer = %PageSfxPlayer
 
 var _pending_unlocked_table := 0
+var _web_audio_unlocked := false
 
 
 func _ready() -> void:
@@ -51,6 +52,29 @@ func _ready() -> void:
         music_player.play()
     if not OS.has_feature("mobile") and DisplayServer.get_name() != "headless":
         call_deferred("_center_desktop_window")
+
+
+func _input(event: InputEvent) -> void:
+    if OS.has_feature("web"):
+        _unlock_web_audio(event)
+
+
+func _unlock_web_audio(event: InputEvent) -> void:
+    if _web_audio_unlocked or not _is_audio_unlock_event(event):
+        return
+    _web_audio_unlocked = true
+    music_player.stop()
+    music_player.play()
+
+
+func _is_audio_unlock_event(event: InputEvent) -> bool:
+    if event is InputEventScreenTouch:
+        return event.pressed
+    if event is InputEventMouseButton:
+        return event.pressed
+    if event is InputEventKey:
+        return event.pressed and not event.echo
+    return false
 
 
 func _on_play_requested() -> void:

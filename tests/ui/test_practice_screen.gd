@@ -7,6 +7,8 @@ func test_practice_screen_has_four_and_six_choice_contracts() -> void:
     if packed == null:
         return
     var scene := packed.instantiate()
+    var scene_tree := Engine.get_main_loop() as SceneTree
+    scene_tree.root.add_child(scene)
     check(scene.has_signal("answer_submitted"), "Answer signal")
     check(scene.has_signal("exit_requested"), "Exit signal")
     check(scene.has_method("show_question"), "Question presentation method")
@@ -14,6 +16,36 @@ func test_practice_screen_has_four_and_six_choice_contracts() -> void:
     for index in range(1, 7):
         var button: Button = scene.get_node("%%Choice%d" % index)
         check(button.custom_minimum_size.y >= 48.0, "Choice %d touch target" % index)
+        check(
+            not button.has_theme_stylebox_override("hover"),
+            "Choice %d retains desktop hover styling" % index
+        )
+    scene._configure_choice_hover(true)
+    for index in range(1, 7):
+        var touch_button: Button = scene.get_node("%%Choice%d" % index)
+        check(
+            touch_button.get_theme_stylebox("hover")
+                == touch_button.get_theme_stylebox("normal"),
+            "Choice %d ignores sticky touch hover styling" % index
+        )
+        equal(
+            touch_button.get_theme_color("font_hover_color"),
+            touch_button.get_theme_color("font_color"),
+            "Choice %d keeps readable touch-hover text" % index
+        )
+    scene._configure_choice_hover(false)
+    for index in range(1, 7):
+        var desktop_button: Button = scene.get_node("%%Choice%d" % index)
+        check(
+            not desktop_button.has_theme_stylebox_override("hover"),
+            "Choice %d restores desktop hover styling" % index
+        )
+    var focused_button: Button = scene.get_node("%Choice1")
+    focused_button.grab_focus()
+    check(focused_button.has_focus(), "Choice can receive keyboard focus")
+    var replacement_choices: Array[int] = [6, 8, 10, 12]
+    scene._show_choices(replacement_choices)
+    check(not focused_button.has_focus(), "A new question clears retained answer focus")
     var exit_button: Button = scene.get_node("%ExitButton")
     check(exit_button.custom_minimum_size.y >= 48.0, "Exit touch target")
     scene.free()

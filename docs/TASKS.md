@@ -60,6 +60,12 @@ Status values: `TODO`, `WIP(@agent)`, `BLOCKED(reason)`, `DONE`.
 - `B15 DONE` Center the Cosmetics, Trophy, and Settings content in a 540 px column on wide
   displays while preserving the existing phone margins. Owns: shared responsive UI margin,
   affected scenes, and UI tests.
+- `B16 DONE` Clear retained answer focus, suppress sticky hover only on touch devices, and restart
+  Web music inside the first user gesture for mobile-browser audio policies. Owns: practice/main
+  UI and UI tests.
+- `B17 DONE` Apply the shared centered 540 px wide-display layout to Home and Map so their top
+  content, main content, and bottom navigation align with every other navigation screen. Owns:
+  Home/Map scenes and responsive UI tests.
 - `C1 DONE` Session controller, per-answer mastery saves, and discard-on-interruption behavior.
   Depends: A1. Owns: `scripts/app/SessionController.gd`, autoload changes, state tests.
 - `C2 DONE` Local coin/XP/level persistence and atomic application of the accuracy-linked M1
