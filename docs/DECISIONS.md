@@ -80,7 +80,8 @@
   coins, unlocks and equips the item, and updates the home Numblop.
 - A palette shader recolors the existing body, arms, and legs, so body-color variants require no
   duplicated PNG files. The belly, face, cheeks, and black outlines retain their source colors.
-- The four supplied hats, three pairs of glasses, and three necklaces join the shop at 100 coins
+- The supplied hats (four at first, later joined by the dino and pirate hats), three pairs of
+  glasses, and three necklaces join the shop at 100 coins
   each. They use rounded square cards with transparent crests, small borderless selected checks,
   the supplied lock icon, and a compact `100` plus coin crest price. A free empty card removes each
   category. The 768px accessory canvas is positioned at −128px horizontally and −175px vertically

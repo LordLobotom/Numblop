@@ -66,6 +66,20 @@ static func hats() -> Array[Dictionary]:
             Rect2(200.0, 139.0, 353.0, 239.0),
             ACCESSORY_PRICE
         ),
+        _accessory(
+            "hat_dino",
+            "COSMETICS_HAT_DINO",
+            "res://assets/cosmetics/hats/hat_dino.png",
+            Rect2(261.0, 112.0, 357.0, 387.0),
+            ACCESSORY_PRICE
+        ),
+        _accessory(
+            "hat_pirat",
+            "COSMETICS_HAT_PIRATE",
+            "res://assets/cosmetics/hats/hat_pirat.png",
+            Rect2(193.0, 88.0, 433.0, 312.0),
+            ACCESSORY_PRICE
+        ),
     ]
 
 

@@ -14,11 +14,11 @@ func test_body_color_catalog_has_one_free_and_five_paid_colors() -> void:
     equal(colors[5]["name_key"], "COSMETICS_YELLOW", "Yellow is localized")
 
 
-func test_supplied_accessory_catalog_has_free_empty_slots_and_ten_paid_items() -> void:
+func test_supplied_accessory_catalog_has_free_empty_slots_and_twelve_paid_items() -> void:
     var hats := CosmeticCatalog.hats()
     var glasses := CosmeticCatalog.glasses()
     var necklaces := CosmeticCatalog.necklaces()
-    equal(hats.size(), 5, "Empty slot plus four hats")
+    equal(hats.size(), 7, "Empty slot plus six hats")
     equal(glasses.size(), 4, "Empty slot plus three glasses")
     equal(necklaces.size(), 4, "Empty slot plus three necklaces")
     equal(hats[0]["price"], 0, "No-hat slot is free")
@@ -28,6 +28,8 @@ func test_supplied_accessory_catalog_has_free_empty_slots_and_ten_paid_items() -
         equal(item["price"], 100, "Supplied accessory price")
         check(ResourceLoader.exists(String(item["texture_path"])), "Accessory asset exists")
     equal(hats[4]["id"], "hat_duck", "Duck cap joins the hat catalog")
+    equal(hats[5]["id"], "hat_dino", "Dino hat joins the hat catalog")
+    equal(hats[6]["id"], "hat_pirat", "Pirate hat joins the hat catalog")
     equal(
         necklaces[2]["display_region"],
         Rect2(227.0, 404.0, 320.0, 136.0),
