@@ -82,6 +82,15 @@ COSMETICS_GLASSES_MOON,Moon glasses,Měsíční brýle
 COSMETICS_NECKLACE_CROWN,Crown necklace,Náhrdelník s korunou
 COSMETICS_NECKLACE_DUCK,Duck necklace,Kachní náhrdelník
 COSMETICS_NECKLACE_MOON,Moon necklace,Měsíční náhrdelník
+COSMETICS_TAB_COLOR,Color,Barva
+COSMETICS_TAB_HATS,Hats,Čepice
+COSMETICS_TAB_GLASSES,Glasses,Brýle
+COSMETICS_TAB_NECKLACES,Necklaces,Řetízky
+COSMETICS_WEAR,Wear,Nasadit
+COSMETICS_WORN,Worn,Nasazeno
+COSMETICS_WEAR_COLOR,Use color,Použít barvu
+COSMETICS_WORN_COLOR,In use,Používáš
+COSMETICS_TRY_HINT,Tap an item to try it on.,Klepni na věc a Numblop si ji zkusí.
 NAV_MAP,Map,Mapa
 NAV_TROPHY,Trophies,Poháry
 HOME_FEATURE_LATER,Coming in a later update!,Připravujeme do další aktualizace!

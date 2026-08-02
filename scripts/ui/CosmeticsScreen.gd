@@ -7,17 +7,52 @@ signal trophy_requested
 signal settings_requested
 
 const COIN_TEXTURE: Texture2D = preload("res://ui/crests/crest_coin.png")
+const ACCESSORY_CARD_SIZE := 96.0
+
+const CATEGORY_STATE_KEYS := {
+    CosmeticCatalog.CATEGORY_BODY_COLOR: "colors",
+    CosmeticCatalog.CATEGORY_HAT: "hats",
+    CosmeticCatalog.CATEGORY_GLASSES: "glasses",
+    CosmeticCatalog.CATEGORY_NECKLACE: "necklaces",
+}
+const CATEGORY_SELECTED_KEYS := {
+    CosmeticCatalog.CATEGORY_BODY_COLOR: "selected_body_color",
+    CosmeticCatalog.CATEGORY_HAT: "selected_hat",
+    CosmeticCatalog.CATEGORY_GLASSES: "selected_glasses",
+    CosmeticCatalog.CATEGORY_NECKLACE: "selected_necklace",
+}
+const CATEGORY_DEFAULT_IDS := {
+    CosmeticCatalog.CATEGORY_BODY_COLOR: CosmeticCatalog.DEFAULT_BODY_COLOR_ID,
+    CosmeticCatalog.CATEGORY_HAT: CosmeticCatalog.DEFAULT_HAT_ID,
+    CosmeticCatalog.CATEGORY_GLASSES: CosmeticCatalog.DEFAULT_GLASSES_ID,
+    CosmeticCatalog.CATEGORY_NECKLACE: CosmeticCatalog.DEFAULT_NECKLACE_ID,
+}
+const CATEGORY_TAB_KEYS := {
+    CosmeticCatalog.CATEGORY_BODY_COLOR: "COSMETICS_TAB_COLOR",
+    CosmeticCatalog.CATEGORY_HAT: "COSMETICS_TAB_HATS",
+    CosmeticCatalog.CATEGORY_GLASSES: "COSMETICS_TAB_GLASSES",
+    CosmeticCatalog.CATEGORY_NECKLACE: "COSMETICS_TAB_NECKLACES",
+}
 
 @onready var title_label: Label = %TitleLabel
 @onready var coins_label: Label = %CoinsLabel
-@onready var color_label: Label = %ColorLabel
+@onready var color_tab: Button = %ColorTab
+@onready var hats_tab: Button = %HatsTab
+@onready var glasses_tab: Button = %GlassesTab
+@onready var necklaces_tab: Button = %NecklacesTab
+@onready var scroll: ScrollContainer = %Scroll
+@onready var color_page: Control = %ColorPage
+@onready var hats_page: Control = %HatsPage
+@onready var glasses_page: Control = %GlassesPage
+@onready var necklaces_page: Control = %NecklacesPage
 @onready var color_grid: GridContainer = %ColorGrid
-@onready var hats_label: Label = %HatsLabel
 @onready var hats_grid: GridContainer = %HatsGrid
-@onready var glasses_label: Label = %GlassesLabel
 @onready var glasses_grid: GridContainer = %GlassesGrid
-@onready var necklaces_label: Label = %NecklacesLabel
 @onready var necklaces_grid: GridContainer = %NecklacesGrid
+@onready var preview_blob: BlobCharacter = %PreviewBlob
+@onready var item_name_label: Label = %ItemNameLabel
+@onready var price_label: Label = %PriceLabel
+@onready var price_coin_icon: TextureRect = %PriceCoinIcon
 @onready var purchase_button: Button = %PurchaseButton
 @onready var status_label: Label = %StatusLabel
 @onready var outfit_button: TextureButton = %OutfitButton
@@ -34,16 +69,46 @@ const COIN_TEXTURE: Texture2D = preload("res://ui/crests/crest_coin.png")
 @onready var purchase_player: AudioStreamPlayer = %PurchasePlayer
 
 var _state: Dictionary = {}
-var _preview_category := CosmeticCatalog.CATEGORY_BODY_COLOR
-var _preview_item_id := CosmeticCatalog.DEFAULT_BODY_COLOR_ID
+var _active_category := CosmeticCatalog.CATEGORY_BODY_COLOR
+var _selected_category := CosmeticCatalog.CATEGORY_BODY_COLOR
+var _selected_item_id := CosmeticCatalog.DEFAULT_BODY_COLOR_ID
+var _tab_buttons: Dictionary = {}
+var _page_nodes: Dictionary = {}
+var _grids: Dictionary = {}
+var _cards: Dictionary = {}
 
 
 func _ready() -> void:
+    _tab_buttons = {
+        CosmeticCatalog.CATEGORY_BODY_COLOR: color_tab,
+        CosmeticCatalog.CATEGORY_HAT: hats_tab,
+        CosmeticCatalog.CATEGORY_GLASSES: glasses_tab,
+        CosmeticCatalog.CATEGORY_NECKLACE: necklaces_tab,
+    }
+    _page_nodes = {
+        CosmeticCatalog.CATEGORY_BODY_COLOR: color_page,
+        CosmeticCatalog.CATEGORY_HAT: hats_page,
+        CosmeticCatalog.CATEGORY_GLASSES: glasses_page,
+        CosmeticCatalog.CATEGORY_NECKLACE: necklaces_page,
+    }
+    _grids = {
+        CosmeticCatalog.CATEGORY_BODY_COLOR: color_grid,
+        CosmeticCatalog.CATEGORY_HAT: hats_grid,
+        CosmeticCatalog.CATEGORY_GLASSES: glasses_grid,
+        CosmeticCatalog.CATEGORY_NECKLACE: necklaces_grid,
+    }
+    var tab_group := ButtonGroup.new()
+    for category in _tab_buttons:
+        var tab: Button = _tab_buttons[category]
+        tab.button_group = tab_group
+        tab.pressed.connect(_on_tab_pressed.bind(category))
+    price_coin_icon.texture = COIN_TEXTURE
+    preview_blob.set_preview_mode(true)
     map_button.pressed.connect(_request_screen.bind(map_requested))
     home_button.pressed.connect(_request_screen.bind(home_requested))
     trophy_button.pressed.connect(_request_screen.bind(trophy_requested))
     settings_button.pressed.connect(_request_screen.bind(settings_requested))
-    purchase_button.pressed.connect(_purchase_previewed_item)
+    purchase_button.pressed.connect(_on_action_pressed)
     refresh_from_state()
 
 
@@ -51,7 +116,7 @@ func _notification(what: int) -> void:
     if what == NOTIFICATION_TRANSLATION_CHANGED and is_node_ready():
         _refresh_text()
         _rebuild_catalog()
-        _refresh_purchase_action()
+        _refresh_dock()
 
 
 func refresh_from_state() -> void:
@@ -60,16 +125,13 @@ func refresh_from_state() -> void:
 
 func set_presentation_state(state: Dictionary) -> void:
     _state = state.duplicate(true)
-    _preview_category = CosmeticCatalog.CATEGORY_BODY_COLOR
-    _preview_item_id = String(_state.get(
-        "selected_body_color",
-        CosmeticCatalog.DEFAULT_BODY_COLOR_ID
-    ))
+    _restore_selection()
     if not is_node_ready():
         return
     _refresh_text()
     _rebuild_catalog()
-    _refresh_purchase_action()
+    _show_category(_active_category)
+    _refresh_dock()
 
 
 func show_future_feature() -> void:
@@ -77,31 +139,53 @@ func show_future_feature() -> void:
 
 
 func preview_body_color(color_id: String) -> void:
-    _preview_item(CosmeticCatalog.CATEGORY_BODY_COLOR, color_id)
+    preview_item(CosmeticCatalog.CATEGORY_BODY_COLOR, color_id)
 
 
-func _preview_item(category: String, item_id: String) -> void:
-    var item := _state_item(category, item_id)
-    if item.is_empty():
+func preview_item(category: String, item_id: String) -> void:
+    if _state_item(category, item_id).is_empty():
         return
-    _preview_category = category
-    _preview_item_id = item_id
-    if bool(item["owned"]):
-        if AppState.equip_cosmetic(category, item_id):
-            refresh_from_state()
-            _show_status(tr("COSMETICS_EQUIPPED"))
-    else:
-        _show_status(tr("COSMETICS_TAP_BUY"))
-        _refresh_purchase_action()
+    _selected_category = category
+    _selected_item_id = item_id
+    if _active_category != category:
+        _show_category(category)
+    _refresh_dock()
+
+
+func _restore_selection() -> void:
+    if not CATEGORY_STATE_KEYS.has(_active_category):
+        _active_category = CosmeticCatalog.CATEGORY_BODY_COLOR
+    if not _state_item(_selected_category, _selected_item_id).is_empty():
+        return
+    _selected_category = _active_category
+    _selected_item_id = _equipped_id(_active_category)
+
+
+func _equipped_id(category: String) -> String:
+    return String(_state.get(
+        CATEGORY_SELECTED_KEYS[category],
+        CATEGORY_DEFAULT_IDS[category]
+    ))
+
+
+func _show_category(category: String) -> void:
+    _active_category = category
+    for page_category in _page_nodes:
+        var page: Control = _page_nodes[page_category]
+        page.visible = page_category == category
+    for tab_category in _tab_buttons:
+        var tab: Button = _tab_buttons[tab_category]
+        tab.set_pressed_no_signal(tab_category == category)
+    scroll.scroll_vertical = 0
 
 
 func _refresh_text() -> void:
     title_label.text = tr("COSMETICS_TITLE")
     coins_label.text = str(int(_state.get("coins", 0)))
-    color_label.text = tr("COSMETICS_BODY_COLOR")
-    hats_label.text = tr("COSMETICS_HATS")
-    glasses_label.text = tr("COSMETICS_GLASSES")
-    necklaces_label.text = tr("COSMETICS_NECKLACES")
+    for category in _tab_buttons:
+        var tab: Button = _tab_buttons[category]
+        tab.text = tr(CATEGORY_TAB_KEYS[category])
+        tab.tooltip_text = tab.text
     outfit_label.text = tr("NAV_OUTFIT")
     map_label.text = tr("NAV_MAP")
     home_label.text = tr("NAV_HOME")
@@ -116,12 +200,11 @@ func _refresh_text() -> void:
 
 
 func _rebuild_catalog() -> void:
+    _cards.clear()
     _clear_grid(color_grid)
-    for item in _state.get("colors", []):
+    for item_value in _state.get("colors", []):
+        var item: Dictionary = item_value
         var item_id := String(item["id"])
-        var item_column := _item_column(Vector2(48.0, 68.0))
-        color_grid.add_child(item_column)
-
         var swatch := CosmeticSwatch.new()
         swatch.configure(
             item_id,
@@ -134,8 +217,8 @@ func _rebuild_catalog() -> void:
             CosmeticCatalog.CATEGORY_BODY_COLOR,
             item_id
         ))
-        item_column.add_child(swatch)
-        _add_price_row(item_column, item)
+        color_grid.add_child(swatch)
+        _cards[_card_key(CosmeticCatalog.CATEGORY_BODY_COLOR, item_id)] = swatch
 
     _rebuild_accessories(
         hats_grid,
@@ -152,6 +235,7 @@ func _rebuild_catalog() -> void:
         CosmeticCatalog.CATEGORY_NECKLACE,
         _state.get("necklaces", [])
     )
+    _refresh_card_marks()
 
 
 func _rebuild_accessories(
@@ -163,50 +247,17 @@ func _rebuild_accessories(
     for item_value in items:
         var item: Dictionary = item_value
         var item_id := String(item["id"])
-        var item_column := _item_column(Vector2(58.0, 78.0))
-        grid.add_child(item_column)
-
         var card := CosmeticItemCard.new()
+        card.card_size = ACCESSORY_CARD_SIZE
         card.configure(item, not bool(item["owned"]), bool(item["selected"]))
         card.tooltip_text = tr(String(item["name_key"]))
         card.pressed.connect(_on_item_pressed.bind(category, item_id))
-        item_column.add_child(card)
-        _add_price_row(item_column, item)
+        grid.add_child(card)
+        _cards[_card_key(category, item_id)] = card
 
 
-func _item_column(minimum_size: Vector2) -> VBoxContainer:
-    var item_column := VBoxContainer.new()
-    item_column.custom_minimum_size = minimum_size
-    item_column.alignment = BoxContainer.ALIGNMENT_CENTER
-    item_column.add_theme_constant_override("separation", 0)
-    return item_column
-
-
-func _add_price_row(parent: VBoxContainer, item: Dictionary) -> void:
-    var price_center := CenterContainer.new()
-    price_center.custom_minimum_size = Vector2(0.0, 18.0)
-    parent.add_child(price_center)
-    if bool(item["owned"]) or int(item["price"]) <= 0:
-        return
-
-    var price_row := HBoxContainer.new()
-    price_row.add_theme_constant_override("separation", 1)
-    price_row.alignment = BoxContainer.ALIGNMENT_CENTER
-    price_center.add_child(price_row)
-
-    var price_label := Label.new()
-    price_label.add_theme_font_size_override("font_size", 13)
-    price_label.add_theme_color_override("font_color", Color(0.34, 0.27, 0.12))
-    price_label.text = str(int(item["price"]))
-    price_row.add_child(price_label)
-
-    var coin_icon := TextureRect.new()
-    coin_icon.custom_minimum_size = Vector2(14.0, 14.0)
-    coin_icon.texture = COIN_TEXTURE
-    coin_icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-    coin_icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-    coin_icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
-    price_row.add_child(coin_icon)
+func _card_key(category: String, item_id: String) -> String:
+    return "%s|%s" % [category, item_id]
 
 
 func _clear_grid(grid: GridContainer) -> void:
@@ -215,46 +266,109 @@ func _clear_grid(grid: GridContainer) -> void:
         child.queue_free()
 
 
+func _refresh_card_marks() -> void:
+    var selected_key := _card_key(_selected_category, _selected_item_id)
+    for card_key in _cards:
+        var card: Control = _cards[card_key]
+        if is_instance_valid(card):
+            card.set_previewed(card_key == selected_key)
+
+
+func _refresh_dock() -> void:
+    var item := _state_item(_selected_category, _selected_item_id)
+    if item.is_empty():
+        return
+    preview_blob.apply_cosmetics(_preview_cosmetics_state())
+    item_name_label.text = tr(String(item["name_key"]))
+    _refresh_price_row(item)
+    _refresh_action_button(item)
+    _refresh_card_marks()
+
+
+func _preview_cosmetics_state() -> Dictionary:
+    var previewed := _state.duplicate(true)
+    previewed[CATEGORY_SELECTED_KEYS[_selected_category]] = _selected_item_id
+    return previewed
+
+
+func _refresh_price_row(item: Dictionary) -> void:
+    var price := int(item["price"])
+    if bool(item["owned"]):
+        price_label.text = tr("COSMETICS_OWNED")
+        price_coin_icon.visible = false
+    elif price <= 0:
+        price_label.text = tr("COSMETICS_FREE")
+        price_coin_icon.visible = false
+    else:
+        price_label.text = str(price)
+        price_coin_icon.visible = true
+
+
+func _refresh_action_button(item: Dictionary) -> void:
+    var owned := bool(item["owned"])
+    var worn := _equipped_id(_selected_category) == _selected_item_id
+    var is_color := _selected_category == CosmeticCatalog.CATEGORY_BODY_COLOR
+    purchase_button.visible = true
+    if not owned:
+        var price := int(item["price"])
+        var can_afford := int(_state.get("coins", 0)) >= price
+        purchase_button.disabled = not can_afford
+        purchase_button.text = (
+            tr("COSMETICS_BUY").format({"price": price})
+            if can_afford
+            else tr("COSMETICS_NEED_COINS").format({"price": price})
+        )
+    elif worn:
+        purchase_button.disabled = true
+        purchase_button.text = tr(
+            "COSMETICS_WORN_COLOR" if is_color else "COSMETICS_WORN"
+        )
+    else:
+        purchase_button.disabled = false
+        purchase_button.text = tr(
+            "COSMETICS_WEAR_COLOR" if is_color else "COSMETICS_WEAR"
+        )
+
+
 func _on_item_pressed(category: String, item_id: String) -> void:
     selection_player.play()
-    _preview_item(category, item_id)
+    preview_item(category, item_id)
 
 
-func _purchase_previewed_item() -> void:
-    if not AppState.purchase_cosmetic(_preview_category, _preview_item_id):
-        _show_status(tr("COSMETICS_NOT_ENOUGH"))
+func _on_tab_pressed(category: String) -> void:
+    if _active_category == category:
         return
-    purchase_player.play()
-    refresh_from_state()
-    _show_status(tr("COSMETICS_PURCHASED"))
+    selection_player.play()
+    _show_category(category)
+    _selected_category = category
+    _selected_item_id = _equipped_id(category)
+    _refresh_dock()
 
 
-func _refresh_purchase_action() -> void:
-    var item := _state_item(_preview_category, _preview_item_id)
-    if item.is_empty() or bool(item["owned"]):
-        purchase_button.visible = false
+func _on_action_pressed() -> void:
+    var item := _state_item(_selected_category, _selected_item_id)
+    if item.is_empty():
         return
-    var price := int(item["price"])
-    var can_afford := int(_state.get("coins", 0)) >= price
-    purchase_button.visible = true
-    purchase_button.disabled = not can_afford
-    purchase_button.text = (
-        tr("COSMETICS_BUY").format({"price": price})
-        if can_afford
-        else tr("COSMETICS_NEED_COINS").format({"price": price})
-    )
+    if not bool(item["owned"]):
+        if not AppState.purchase_cosmetic(_selected_category, _selected_item_id):
+            _show_status(tr("COSMETICS_NOT_ENOUGH"))
+            return
+        purchase_player.play()
+        refresh_from_state()
+        _show_status(tr("COSMETICS_PURCHASED"))
+        return
+    if _equipped_id(_selected_category) == _selected_item_id:
+        return
+    if AppState.equip_cosmetic(_selected_category, _selected_item_id):
+        selection_player.play()
+        refresh_from_state()
+        _show_status(tr("COSMETICS_EQUIPPED"))
 
 
 func _state_item(category: String, item_id: String) -> Dictionary:
-    var state_key := "colors"
-    match category:
-        CosmeticCatalog.CATEGORY_HAT:
-            state_key = "hats"
-        CosmeticCatalog.CATEGORY_GLASSES:
-            state_key = "glasses"
-        CosmeticCatalog.CATEGORY_NECKLACE:
-            state_key = "necklaces"
-    for item in _state.get(state_key, []):
+    if not CATEGORY_STATE_KEYS.has(category):
+        return {}
+    for item in _state.get(CATEGORY_STATE_KEYS[category], []):
         if String(item["id"]) == item_id:
             return item
     return {}

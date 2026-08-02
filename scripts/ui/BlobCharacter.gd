@@ -27,6 +27,9 @@ const BODY_COLOR_SHADER: Shader = preload("res://ui/shaders/numblop_body_color.g
 @onready var idle_timer: Timer = %IdleTimer
 @onready var giggle_player: AudioStreamPlayer = %GigglePlayer
 
+@export var preview_mode := false:
+    set = set_preview_mode
+
 var _idle_tween: Tween
 var _reaction_tween: Tween
 var _reacting := false
@@ -50,6 +53,14 @@ func _ready() -> void:
     resized.connect(_update_pivot)
     _update_pivot()
     _start_idle_animation()
+    set_preview_mode(preview_mode)
+
+
+func set_preview_mode(enabled: bool) -> void:
+    preview_mode = enabled
+    mouse_filter = (
+        Control.MOUSE_FILTER_IGNORE if enabled else Control.MOUSE_FILTER_STOP
+    )
 
 
 func set_body_color(color: Color, recolor_strength: float = 1.0) -> void:
@@ -137,6 +148,8 @@ func _prepare_body_color_materials() -> void:
 
 
 func _on_gui_input(event: InputEvent) -> void:
+    if preview_mode:
+        return
     var pressed: bool = (
         event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT
     ) or (event is InputEventScreenTouch and event.pressed)
@@ -146,7 +159,7 @@ func _on_gui_input(event: InputEvent) -> void:
 
 
 func react_to_pet() -> void:
-    if _reacting:
+    if preview_mode or _reacting:
         return
     _reacting = true
     petted.emit()
