@@ -11,18 +11,21 @@ const ACCESSORY_CARD_SIZE := 96.0
 
 const CATEGORY_STATE_KEYS := {
     CosmeticCatalog.CATEGORY_BODY_COLOR: "colors",
+    CosmeticCatalog.CATEGORY_BELLY_COLOR: "belly_colors",
     CosmeticCatalog.CATEGORY_HAT: "hats",
     CosmeticCatalog.CATEGORY_GLASSES: "glasses",
     CosmeticCatalog.CATEGORY_NECKLACE: "necklaces",
 }
 const CATEGORY_SELECTED_KEYS := {
     CosmeticCatalog.CATEGORY_BODY_COLOR: "selected_body_color",
+    CosmeticCatalog.CATEGORY_BELLY_COLOR: "selected_belly_color",
     CosmeticCatalog.CATEGORY_HAT: "selected_hat",
     CosmeticCatalog.CATEGORY_GLASSES: "selected_glasses",
     CosmeticCatalog.CATEGORY_NECKLACE: "selected_necklace",
 }
 const CATEGORY_DEFAULT_IDS := {
     CosmeticCatalog.CATEGORY_BODY_COLOR: CosmeticCatalog.DEFAULT_BODY_COLOR_ID,
+    CosmeticCatalog.CATEGORY_BELLY_COLOR: CosmeticCatalog.DEFAULT_BELLY_COLOR_ID,
     CosmeticCatalog.CATEGORY_HAT: CosmeticCatalog.DEFAULT_HAT_ID,
     CosmeticCatalog.CATEGORY_GLASSES: CosmeticCatalog.DEFAULT_GLASSES_ID,
     CosmeticCatalog.CATEGORY_NECKLACE: CosmeticCatalog.DEFAULT_NECKLACE_ID,
@@ -46,6 +49,9 @@ const CATEGORY_TAB_KEYS := {
 @onready var glasses_page: Control = %GlassesPage
 @onready var necklaces_page: Control = %NecklacesPage
 @onready var color_grid: GridContainer = %ColorGrid
+@onready var belly_grid: GridContainer = %BellyGrid
+@onready var body_color_label: Label = %BodyColorLabel
+@onready var belly_label: Label = %BellyLabel
 @onready var hats_grid: GridContainer = %HatsGrid
 @onready var glasses_grid: GridContainer = %GlassesGrid
 @onready var necklaces_grid: GridContainer = %NecklacesGrid
@@ -169,6 +175,8 @@ func _equipped_id(category: String) -> String:
 
 
 func _show_category(category: String) -> void:
+    if category == CosmeticCatalog.CATEGORY_BELLY_COLOR:
+        category = CosmeticCatalog.CATEGORY_BODY_COLOR
     _active_category = category
     for page_category in _page_nodes:
         var page: Control = _page_nodes[page_category]
@@ -186,6 +194,8 @@ func _refresh_text() -> void:
         var tab: Button = _tab_buttons[category]
         tab.text = tr(CATEGORY_TAB_KEYS[category])
         tab.tooltip_text = tab.text
+    body_color_label.text = tr("COSMETICS_BODY_COLOR")
+    belly_label.text = tr("COSMETICS_BELLY")
     outfit_label.text = tr("NAV_OUTFIT")
     map_label.text = tr("NAV_MAP")
     home_label.text = tr("NAV_HOME")
@@ -201,25 +211,16 @@ func _refresh_text() -> void:
 
 func _rebuild_catalog() -> void:
     _cards.clear()
-    _clear_grid(color_grid)
-    for item_value in _state.get("colors", []):
-        var item: Dictionary = item_value
-        var item_id := String(item["id"])
-        var swatch := CosmeticSwatch.new()
-        swatch.configure(
-            item_id,
-            Color(item["color"]),
-            not bool(item["owned"]),
-            bool(item["selected"])
-        )
-        swatch.tooltip_text = tr(String(item["name_key"]))
-        swatch.pressed.connect(_on_item_pressed.bind(
-            CosmeticCatalog.CATEGORY_BODY_COLOR,
-            item_id
-        ))
-        color_grid.add_child(swatch)
-        _cards[_card_key(CosmeticCatalog.CATEGORY_BODY_COLOR, item_id)] = swatch
-
+    _rebuild_swatches(
+        color_grid,
+        CosmeticCatalog.CATEGORY_BODY_COLOR,
+        _state.get("colors", [])
+    )
+    _rebuild_swatches(
+        belly_grid,
+        CosmeticCatalog.CATEGORY_BELLY_COLOR,
+        _state.get("belly_colors", [])
+    )
     _rebuild_accessories(
         hats_grid,
         CosmeticCatalog.CATEGORY_HAT,
@@ -236,6 +237,28 @@ func _rebuild_catalog() -> void:
         _state.get("necklaces", [])
     )
     _refresh_card_marks()
+
+
+func _rebuild_swatches(
+    grid: GridContainer,
+    category: String,
+    items: Array
+) -> void:
+    _clear_grid(grid)
+    for item_value in items:
+        var item: Dictionary = item_value
+        var item_id := String(item["id"])
+        var swatch := CosmeticSwatch.new()
+        swatch.configure(
+            item_id,
+            Color(item["color"]),
+            not bool(item["owned"]),
+            bool(item["selected"])
+        )
+        swatch.tooltip_text = tr(String(item["name_key"]))
+        swatch.pressed.connect(_on_item_pressed.bind(category, item_id))
+        grid.add_child(swatch)
+        _cards[_card_key(category, item_id)] = swatch
 
 
 func _rebuild_accessories(
@@ -307,7 +330,10 @@ func _refresh_price_row(item: Dictionary) -> void:
 func _refresh_action_button(item: Dictionary) -> void:
     var owned := bool(item["owned"])
     var worn := _equipped_id(_selected_category) == _selected_item_id
-    var is_color := _selected_category == CosmeticCatalog.CATEGORY_BODY_COLOR
+    var is_color := _selected_category in [
+        CosmeticCatalog.CATEGORY_BODY_COLOR,
+        CosmeticCatalog.CATEGORY_BELLY_COLOR,
+    ]
     purchase_button.visible = true
     if not owned:
         var price := int(item["price"])

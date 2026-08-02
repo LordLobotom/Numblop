@@ -14,6 +14,64 @@ func test_body_color_catalog_has_one_free_and_five_paid_colors() -> void:
     equal(colors[5]["name_key"], "COSMETICS_YELLOW", "Yellow is localized")
 
 
+func test_belly_color_catalog_has_one_free_cream_and_six_paid_pastels() -> void:
+    var belly_colors := CosmeticCatalog.belly_colors()
+    equal(belly_colors.size(), 7, "Cream plus six pastel belly shades")
+    equal(belly_colors[0]["id"], CosmeticCatalog.DEFAULT_BELLY_COLOR_ID, "Default cream belly")
+    equal(belly_colors[0]["price"], 0, "Original belly is free")
+    for index in range(1, belly_colors.size()):
+        equal(belly_colors[index]["price"], 100, "Paid belly shade price")
+
+
+func test_belly_color_purchase_equip_and_reload_follow_the_color_contract() -> void:
+    _remove_test_file()
+    var cosmetics := LocalCosmetics.new()
+    equal(cosmetics.selected_belly_color, "cream", "Cream starts selected")
+    equal(
+        cosmetics.purchase_and_equip_item(
+            CosmeticCatalog.CATEGORY_BELLY_COLOR, "pink", 99
+        ),
+        -1,
+        "Insufficient coins for a belly shade"
+    )
+    equal(
+        cosmetics.purchase_and_equip_item(
+            CosmeticCatalog.CATEGORY_BELLY_COLOR, "pink", 100
+        ),
+        100,
+        "Belly shade purchase price"
+    )
+    equal(cosmetics.selected_belly_color, "pink", "Purchased belly shade equipped")
+
+    equal(
+        SaveManager.save_game_state(
+            LearningProfile.new(), 5, 9, TEST_PATH, cosmetics.to_dictionary()
+        ),
+        OK,
+        "Belly save"
+    )
+    var loaded := LocalCosmetics.new(SaveManager.load_cosmetics(TEST_PATH))
+    equal(loaded.selected_belly_color, "pink", "Equipped belly shade survives reload")
+    check(
+        loaded.owns_item(CosmeticCatalog.CATEGORY_BELLY_COLOR, "pink"),
+        "Belly ownership survives reload"
+    )
+    _remove_test_file()
+
+
+func test_legacy_save_defaults_to_the_cream_belly() -> void:
+    var loaded := LocalCosmetics.new({"selected_body_color": "green"})
+    equal(loaded.selected_belly_color, "cream", "Legacy profile keeps the original belly")
+    check(
+        loaded.owns_item(CosmeticCatalog.CATEGORY_BELLY_COLOR, "cream"),
+        "Cream belly is always owned"
+    )
+    check(
+        not loaded.owns_item(CosmeticCatalog.CATEGORY_BELLY_COLOR, "pink"),
+        "Paid belly shades stay locked in legacy saves"
+    )
+
+
 func test_supplied_accessory_catalog_has_free_empty_slots_and_thirteen_paid_items() -> void:
     var hats := CosmeticCatalog.hats()
     var glasses := CosmeticCatalog.glasses()

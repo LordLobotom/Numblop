@@ -146,14 +146,20 @@ Status values: `TODO`, `WIP(@agent)`, `BLOCKED(reason)`, `DONE`.
   theme, scene font references, UI tests, docs.
 - `B25 DONE` Add the supplied pirate eye patch to the glasses catalog under the 100-coin contract.
   Owns: cosmetic catalog, localization, and state tests.
+- `B26 DONE` Belly-color row in the Cosmetics color tab: labeled body/belly swatch rows, shared
+  swatch preview/purchase flow, and shader belly mask on the blob. Depends: C15. Owns: cosmetics
+  scene/script, blob character, shader, localization, UI tests, capture harness.
 - `C14 DONE` Save version 7: optional sanitized nickname (`LocalNickname`, max 16 chars) and a
   stable random `profile_id`, preserved across every save path and cleared on profile reset.
   Owns: save manager, app state, event bus, and state tests.
+- `C15 DONE` Belly-color catalog (free cream + six 100-coin pastels) with backward-compatible
+  cosmetics persistence in save v7. Owns: cosmetic catalog, local cosmetics, app state, state
+  tests.
 - `D14 DONE` Adaptive Android launcher icons (foreground/background/monochrome 432px), proper
   192px legacy icon, and branded boot splash. Owns: `ui/branding/android/`, project/export
   configuration, and smoke contract.
 - `D15 DONE` Release manifest fixes: VIBRATE permission for the chest haptic, Android device
-  backup enabled, and the 1.0.0 / version-code-2 bump across all presets. Owns: export presets,
+  backup enabled, and the 0.2.1 / version-code-2 bump across all presets. Owns: export presets,
   project configuration, smoke contract, `docs/RELEASES.md`.
 - `D16 DONE` AAB verification tool (`tools/verify-aab.ps1`): structure, both ABIs, jarsigner
   signature, and optional bundletool manifest assertions. Owns: `tools/`, release documentation.

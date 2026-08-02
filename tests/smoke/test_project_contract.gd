@@ -3,7 +3,7 @@ extends NumblopTestCase
 
 func test_public_identity_and_portrait_window_are_pinned() -> void:
     equal(ProjectSettings.get_setting("application/config/name"), "Numblop", "Public name")
-    equal(ProjectSettings.get_setting("application/config/version"), "1.0.0", "Public version")
+    equal(ProjectSettings.get_setting("application/config/version"), "0.2.1", "Public version")
     equal(
         ProjectSettings.get_setting("application/config/icon"),
         "res://ui/branding/numblop_ico.png",
@@ -34,7 +34,7 @@ func test_android_identity_and_offline_export_contract_are_pinned() -> void:
     check(config.contains('package/unique_name="cz.gutcloud.numblop"'), "Permanent package ID")
     check(config.contains("permissions/internet=false"), "Android exports remain offline")
     check(config.contains('gradle_build/export_format=1'), "Release preset builds an AAB")
-    equal(config.count('version/name="1.0.0"'), 2, "Android exports use the public version")
+    equal(config.count('version/name="0.2.1"'), 2, "Android exports use the public version")
     equal(config.count("version/code=2"), 2, "Android exports share the Play version code")
     equal(config.count("permissions/vibrate=true"), 2, "Reward chest haptic needs VIBRATE")
     equal(config.count("user_data_backup/allow=true"), 2, "Profile survives device migration")

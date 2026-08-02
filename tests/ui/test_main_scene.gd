@@ -402,6 +402,9 @@ func test_cosmetics_screen_has_previewing_shop_purchase_and_navigation_contracts
 
     check(scene.get_node("%ColorGrid") is GridContainer, "Body-color swatch grid")
     equal(scene.get_node("%ColorGrid").columns, 6, "Six colors share one compact row")
+    check(scene.get_node("%BellyGrid") is GridContainer, "Belly-color swatch grid")
+    equal(scene.get_node("%BellyGrid").columns, 7, "Seven belly shades share one compact row")
+    check(scene.get_node("%BellyLabel") is Label, "Belly row is labeled")
     check(scene.get_node("%HatsGrid") is GridContainer, "Hat shop grid")
     equal(scene.get_node("%HatsGrid").columns, 3, "Hats use three identifiable cards per row")
     check(scene.get_node("%GlassesGrid") is GridContainer, "Glasses shop grid")
@@ -411,7 +414,7 @@ func test_cosmetics_screen_has_previewing_shop_purchase_and_navigation_contracts
         3,
         "Necklaces use three identifiable cards per row"
     )
-    for grid_name in ["ColorGrid", "HatsGrid", "GlassesGrid", "NecklacesGrid"]:
+    for grid_name in ["ColorGrid", "BellyGrid", "HatsGrid", "GlassesGrid", "NecklacesGrid"]:
         var grid: GridContainer = scene.get_node("%%%s" % grid_name)
         check(
             grid.size_flags_horizontal == Control.SIZE_SHRINK_CENTER,
@@ -514,6 +517,7 @@ func test_blob_home_has_idle_pet_and_heart_reactions() -> void:
         "Blob body asset"
     )
     check(blob.has_method("set_body_color"), "Blob accepts shader-based body colors")
+    check(blob.has_method("set_belly_color"), "Blob accepts shader-based belly colors")
     check(blob.has_method("set_hat"), "Blob accepts 768 px hat overlays")
     check(blob.has_method("set_glasses"), "Blob accepts 768 px glasses overlays")
     check(blob.has_method("set_necklace"), "Blob accepts 768 px necklace overlays")

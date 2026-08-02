@@ -60,7 +60,7 @@ Acceptance: progression improves willingness to practice again without distracti
 
 - ☑ Final icons (adaptive foreground/background/monochrome), boot splash, store text and
   9:16 screenshots (`store/`), privacy disclosure (`docs/privacy/`, GitHub Pages), and
-  versioning (1.0.0 / code 2). ☐ Release keystore generation remains a manual step.
+  versioning (0.2.1 / code 2). ☐ Release keystore generation remains a manual step.
 - ☐ Signed AAB verified via `tools/verify-aab.ps1` and installed through an internal test track.
 - ☐ Physical-device lifecycle, safe areas, package size, and offline behavior verified.
 - Windows and Web builds remain convenient matching test targets.

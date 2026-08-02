@@ -2,10 +2,12 @@ class_name CosmeticCatalog
 extends RefCounted
 
 const CATEGORY_BODY_COLOR := "body_color"
+const CATEGORY_BELLY_COLOR := "belly_color"
 const CATEGORY_HAT := "hat"
 const CATEGORY_GLASSES := "glasses"
 const CATEGORY_NECKLACE := "necklace"
 const DEFAULT_BODY_COLOR_ID := "green"
+const DEFAULT_BELLY_COLOR_ID := "cream"
 const DEFAULT_HAT_ID := "hat_none"
 const DEFAULT_GLASSES_ID := "glasses_none"
 const DEFAULT_NECKLACE_ID := "necklace_none"
@@ -33,6 +35,18 @@ static func body_color(color_id: String) -> Dictionary:
 
 static func has_body_color(color_id: String) -> bool:
     return not body_color(color_id).is_empty()
+
+
+static func belly_colors() -> Array[Dictionary]:
+    return [
+        _body_color(DEFAULT_BELLY_COLOR_ID, "COSMETICS_CREAM", Color("f6f2dc"), 0),
+        _body_color("green", "COSMETICS_GREEN", Color("e4f6ae"), BODY_COLOR_PRICE),
+        _body_color("blue", "COSMETICS_BLUE", Color("c9ecf9"), BODY_COLOR_PRICE),
+        _body_color("pink", "COSMETICS_PINK", Color("fcd9e9"), BODY_COLOR_PRICE),
+        _body_color("purple", "COSMETICS_PURPLE", Color("e2d8f8"), BODY_COLOR_PRICE),
+        _body_color("orange", "COSMETICS_ORANGE", Color("fce3bd"), BODY_COLOR_PRICE),
+        _body_color("yellow", "COSMETICS_YELLOW", Color("fbf2c0"), BODY_COLOR_PRICE),
+    ]
 
 
 static func hats() -> Array[Dictionary]:
@@ -148,6 +162,8 @@ static func items(category: String) -> Array[Dictionary]:
     match category:
         CATEGORY_BODY_COLOR:
             return body_colors()
+        CATEGORY_BELLY_COLOR:
+            return belly_colors()
         CATEGORY_HAT:
             return hats()
         CATEGORY_GLASSES:

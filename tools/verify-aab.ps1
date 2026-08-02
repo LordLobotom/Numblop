@@ -1,7 +1,7 @@
 [CmdletBinding()]
 param(
     [string]$AabPath = "",
-    [string]$ExpectedVersionName = "1.0.0",
+    [string]$ExpectedVersionName = "0.2.1",
     [int]$ExpectedVersionCode = 2
 )
 

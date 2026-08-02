@@ -2,6 +2,8 @@ shader_type canvas_item;
 
 uniform vec4 target_color : source_color = vec4(0.7804, 0.8824, 0.2627, 1.0);
 uniform float recolor_strength : hint_range(0.0, 1.0) = 0.0;
+uniform vec4 belly_color : source_color = vec4(1.0, 1.0, 1.0, 1.0);
+uniform float belly_strength : hint_range(0.0, 1.0) = 0.0;
 
 const float SOURCE_BRIGHTNESS = 0.8824;
 
@@ -14,5 +16,11 @@ void fragment() {
     float brightness = max(pixel.r, max(pixel.g, pixel.b)) / SOURCE_BRIGHTNESS;
     vec3 recolored = clamp(target_color.rgb * brightness, vec3(0.0), vec3(1.0));
     pixel.rgb = mix(pixel.rgb, recolored, color_mask * recolor_strength);
+    // The cream belly is the only large bright low-saturation region; multiply
+    // keeps its painted shading while shifting it toward the chosen pastel.
+    float belly_mask = smoothstep(0.72, 0.86, min(pixel.r, min(pixel.g, pixel.b)))
+        * pixel.a * (1.0 - color_mask);
+    vec3 belly_recolored = clamp(pixel.rgb * belly_color.rgb, vec3(0.0), vec3(1.0));
+    pixel.rgb = mix(pixel.rgb, belly_recolored, belly_mask * belly_strength);
     COLOR = pixel;
 }

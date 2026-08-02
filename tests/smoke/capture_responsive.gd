@@ -176,9 +176,15 @@ func _configure_screen(screen: Control, screen_name: String, locale: String) -> 
                 CosmeticCatalog.CATEGORY_NECKLACE,
                 CosmeticCatalog.DEFAULT_NECKLACE_ID
             )
+            var belly_colors := _cosmetic_capture_items(
+                CosmeticCatalog.CATEGORY_BELLY_COLOR,
+                CosmeticCatalog.DEFAULT_BELLY_COLOR_ID
+            )
             cosmetics_screen.set_presentation_state({
                 "coins": 240,
                 "selected_body_color": selected_id,
+                "selected_belly_color": CosmeticCatalog.DEFAULT_BELLY_COLOR_ID,
+                "belly_colors": belly_colors,
                 "selected_hat": CosmeticCatalog.DEFAULT_HAT_ID,
                 "selected_glasses": CosmeticCatalog.DEFAULT_GLASSES_ID,
                 "selected_necklace": CosmeticCatalog.DEFAULT_NECKLACE_ID,

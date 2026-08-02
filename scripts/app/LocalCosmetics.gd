@@ -3,6 +3,8 @@ extends RefCounted
 
 var unlocked_body_colors: Array[String] = [CosmeticCatalog.DEFAULT_BODY_COLOR_ID]
 var selected_body_color := CosmeticCatalog.DEFAULT_BODY_COLOR_ID
+var unlocked_belly_colors: Array[String] = [CosmeticCatalog.DEFAULT_BELLY_COLOR_ID]
+var selected_belly_color := CosmeticCatalog.DEFAULT_BELLY_COLOR_ID
 var unlocked_hats: Array[String] = [CosmeticCatalog.DEFAULT_HAT_ID]
 var selected_hat := CosmeticCatalog.DEFAULT_HAT_ID
 var unlocked_glasses: Array[String] = [CosmeticCatalog.DEFAULT_GLASSES_ID]
@@ -16,6 +18,11 @@ func _init(data: Dictionary = {}) -> void:
         data.get("unlocked_body_colors", []),
         CosmeticCatalog.CATEGORY_BODY_COLOR,
         unlocked_body_colors
+    )
+    _load_unlocked_items(
+        data.get("unlocked_belly_colors", []),
+        CosmeticCatalog.CATEGORY_BELLY_COLOR,
+        unlocked_belly_colors
     )
     _load_unlocked_items(
         data.get("unlocked_hats", []),
@@ -38,6 +45,12 @@ func _init(data: Dictionary = {}) -> void:
     ))
     if owns_item(CosmeticCatalog.CATEGORY_BODY_COLOR, loaded_selected):
         selected_body_color = loaded_selected
+    loaded_selected = String(data.get(
+        "selected_belly_color",
+        CosmeticCatalog.DEFAULT_BELLY_COLOR_ID
+    ))
+    if owns_item(CosmeticCatalog.CATEGORY_BELLY_COLOR, loaded_selected):
+        selected_belly_color = loaded_selected
     loaded_selected = String(data.get("selected_hat", CosmeticCatalog.DEFAULT_HAT_ID))
     if owns_item(CosmeticCatalog.CATEGORY_HAT, loaded_selected):
         selected_hat = loaded_selected
@@ -87,6 +100,8 @@ func owns_item(category: String, item_id: String) -> bool:
     match category:
         CosmeticCatalog.CATEGORY_BODY_COLOR:
             return unlocked_body_colors.has(item_id)
+        CosmeticCatalog.CATEGORY_BELLY_COLOR:
+            return unlocked_belly_colors.has(item_id)
         CosmeticCatalog.CATEGORY_HAT:
             return unlocked_hats.has(item_id)
         CosmeticCatalog.CATEGORY_GLASSES:
@@ -102,6 +117,8 @@ func equip_item(category: String, item_id: String) -> bool:
     match category:
         CosmeticCatalog.CATEGORY_BODY_COLOR:
             selected_body_color = item_id
+        CosmeticCatalog.CATEGORY_BELLY_COLOR:
+            selected_belly_color = item_id
         CosmeticCatalog.CATEGORY_HAT:
             selected_hat = item_id
         CosmeticCatalog.CATEGORY_GLASSES:
@@ -130,6 +147,8 @@ func purchase_and_equip_item(
     match category:
         CosmeticCatalog.CATEGORY_BODY_COLOR:
             unlocked_body_colors.append(item_id)
+        CosmeticCatalog.CATEGORY_BELLY_COLOR:
+            unlocked_belly_colors.append(item_id)
         CosmeticCatalog.CATEGORY_HAT:
             unlocked_hats.append(item_id)
         CosmeticCatalog.CATEGORY_GLASSES:
@@ -146,6 +165,8 @@ func to_dictionary() -> Dictionary:
     return {
         "unlocked_body_colors": unlocked_body_colors.duplicate(),
         "selected_body_color": selected_body_color,
+        "unlocked_belly_colors": unlocked_belly_colors.duplicate(),
+        "selected_belly_color": selected_belly_color,
         "unlocked_hats": unlocked_hats.duplicate(),
         "selected_hat": selected_hat,
         "unlocked_glasses": unlocked_glasses.duplicate(),

@@ -132,12 +132,17 @@ func cosmetics_state() -> Dictionary:
     return {
         "coins": progress.coins,
         "selected_body_color": cosmetics.selected_body_color,
+        "selected_belly_color": cosmetics.selected_belly_color,
         "selected_hat": cosmetics.selected_hat,
         "selected_glasses": cosmetics.selected_glasses,
         "selected_necklace": cosmetics.selected_necklace,
         "colors": _cosmetic_items_state(
             CosmeticCatalog.CATEGORY_BODY_COLOR,
             cosmetics.selected_body_color
+        ),
+        "belly_colors": _cosmetic_items_state(
+            CosmeticCatalog.CATEGORY_BELLY_COLOR,
+            cosmetics.selected_belly_color
         ),
         "hats": _cosmetic_items_state(
             CosmeticCatalog.CATEGORY_HAT,

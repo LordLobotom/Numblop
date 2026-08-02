@@ -201,6 +201,17 @@
 - Web saves remain in browser storage for the deployment origin. Clearing site data or moving the
   build to a different origin starts a new local profile; no account or cloud migration is added.
 
+## 2026-08-02 — Belly color row in the Cosmetics color tab
+
+- The Colors tab gains a second labeled swatch row for the belly. The original cream belly is
+  free and default; six pastel shades derived from the body palette cost the standard 100 coins
+  each and follow the existing purchase/equip/local-save contract.
+- Rendering reuses the body-color shader with a second mask: the bright low-saturation belly
+  region is multiplied toward the chosen pastel, preserving painted shading. The cream default
+  applies zero strength, leaving the original artwork untouched.
+- Persistence adds `unlocked_belly_colors` / `selected_belly_color` to the cosmetics dictionary
+  inside save v7; older saves default to cream without migration.
+
 ## 2026-08-02 — Baloo 2 replaces Fredoka as the primary typeface
 
 - Baloo 2 (variable, Google Fonts, SIL OFL 1.1) is the primary UI font, keeping the existing

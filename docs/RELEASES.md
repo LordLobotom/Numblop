@@ -7,7 +7,7 @@
 - Windows: x86-64 centered portrait window.
 - Web: adaptive static canvas; phone view fits the available viewport and 900×900 is the wide
   desktop QA reference.
-- The public version comes from `application/config/version` (currently `1.0.0`) and stays
+- The public version comes from `application/config/version` (currently `0.2.1`) and stays
   aligned with the Android version name (Play version code `2`) and the Windows product version.
   All four values are pinned by `tests/smoke/test_project_contract.gd`; bump them together.
 - Privacy policy URL for Play Console (data safety + store listing):

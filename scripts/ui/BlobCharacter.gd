@@ -37,6 +37,8 @@ var _heart_direction := 1.0
 var _body_materials: Array[ShaderMaterial] = []
 var _pending_body_color := Color("c7e143")
 var _pending_recolor_strength := 0.0
+var _pending_belly_color := Color(1.0, 1.0, 1.0)
+var _pending_belly_strength := 0.0
 var _pending_hat_id := CosmeticCatalog.DEFAULT_HAT_ID
 var _pending_glasses_id := CosmeticCatalog.DEFAULT_GLASSES_ID
 var _pending_necklace_id := CosmeticCatalog.DEFAULT_NECKLACE_ID
@@ -45,6 +47,7 @@ var _pending_necklace_id := CosmeticCatalog.DEFAULT_NECKLACE_ID
 func _ready() -> void:
     _prepare_body_color_materials()
     set_body_color(_pending_body_color, _pending_recolor_strength)
+    set_belly_color(_pending_belly_color, _pending_belly_strength)
     set_hat(_pending_hat_id)
     set_glasses(_pending_glasses_id)
     set_necklace(_pending_necklace_id)
@@ -69,6 +72,14 @@ func set_body_color(color: Color, recolor_strength: float = 1.0) -> void:
     for body_material in _body_materials:
         body_material.set_shader_parameter("target_color", color)
         body_material.set_shader_parameter("recolor_strength", _pending_recolor_strength)
+
+
+func set_belly_color(color: Color, belly_strength: float = 1.0) -> void:
+    _pending_belly_color = color
+    _pending_belly_strength = clampf(belly_strength, 0.0, 1.0)
+    for body_material in _body_materials:
+        body_material.set_shader_parameter("belly_color", color)
+        body_material.set_shader_parameter("belly_strength", _pending_belly_strength)
 
 
 func set_hat(hat_id: String) -> void:
@@ -107,6 +118,17 @@ func apply_cosmetics(state: Dictionary) -> void:
             set_body_color(
                 Color(item["color"]),
                 0.0 if selected_color_id == CosmeticCatalog.DEFAULT_BODY_COLOR_ID else 1.0
+            )
+            break
+    var selected_belly_id := String(state.get(
+        "selected_belly_color",
+        CosmeticCatalog.DEFAULT_BELLY_COLOR_ID
+    ))
+    for item in state.get("belly_colors", []):
+        if String(item["id"]) == selected_belly_id:
+            set_belly_color(
+                Color(item["color"]),
+                0.0 if selected_belly_id == CosmeticCatalog.DEFAULT_BELLY_COLOR_ID else 1.0
             )
             break
     set_hat(String(state.get("selected_hat", CosmeticCatalog.DEFAULT_HAT_ID)))
