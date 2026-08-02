@@ -125,9 +125,10 @@ powershell -ExecutionPolicy Bypass -File tools/export.ps1 -Target web
 
 If the Web templates are missing, run `tools/install-web-templates.ps1`. Validate the generated
 HTML, JavaScript, WebAssembly, and pack files with `tools/web-smoke.ps1 -SkipExport`, or serve the
-build locally with `tools/serve-web.ps1`. These commands produce ignored development artifacts in
-`build/`. Android release signing values must come from environment variables and must never be
-stored in the repository. See
+build locally by double-clicking `tools/start-web.cmd`. Do not open `build/web/index.html` directly:
+WebAssembly and the game pack must be fetched over HTTP, and a `file://` launch will fail. These
+commands produce ignored development artifacts in `build/`. Android release signing values must
+come from environment variables and must never be stored in the repository. See
 [`docs/RELEASES.md`](docs/RELEASES.md) for the signed AAB workflow and release checklist.
 
 ## Repository map

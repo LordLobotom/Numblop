@@ -32,10 +32,12 @@ powershell -ExecutionPolicy Bypass -File tools/export.ps1 -Target web
 powershell -ExecutionPolicy Bypass -File tools/web-smoke.ps1 -SkipExport
 ```
 
-For a manual browser check, run `tools/serve-web.ps1` and open `http://127.0.0.1:8060/`. Check at
-390×844 and 900×900. The canvas must fill the available mobile viewport; on desktop the navigation
-and full-width panels may expand, while the map trail, practice controls, dialogs, and item grids
-remain centered and readable.
+For a manual browser check, double-click `tools/start-web.cmd`, or run
+`tools/serve-web.ps1 -Open`. Keep its terminal open while playing and press Ctrl+C to stop. Never
+open `build/web/index.html` through `file://`: browsers will block the required `.wasm` and `.pck`
+fetches. Check at 390×844 and 900×900. The canvas must fill the available mobile viewport; on
+desktop the navigation and full-width panels may expand, while the map trail, practice controls,
+dialogs, and item grids remain centered and readable.
 
 Deploy the complete `build/web/` directory through HTTPS with `.wasm` served as
 `application/wasm` and `.pck` as `application/octet-stream`. The threadless preset avoids requiring

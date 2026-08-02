@@ -16,6 +16,7 @@ func test_web_commands_install_export_serve_and_validate_real_artifacts() -> voi
     var export_script := _read("res://tools/export.ps1")
     var installer := _read("res://tools/install-web-templates.ps1")
     var server := _read("res://tools/serve-web.ps1")
+    var launcher := _read("res://tools/start-web.cmd")
     var smoke := _read("res://tools/web-smoke.ps1")
     check(export_script.contains('"web"'), "Scripted Web export target")
     check(export_script.contains('"Web"'), "Web preset invocation")
@@ -25,6 +26,8 @@ func test_web_commands_install_export_serve_and_validate_real_artifacts() -> voi
     check(installer.contains("web_nothreads_release.zip"), "Release Web template installer")
     check(server.contains('"application/wasm"'), "Correct WASM MIME type")
     check(server.contains('"application/octet-stream"'), "Correct pack MIME type")
+    check(server.contains("[switch]$Open"), "Server can open the correct HTTP URL")
+    check(launcher.contains("serve-web.ps1"), "Explorer-friendly Web launcher")
     check(smoke.contains("NUMBLOP_WEB_HTTP_SMOKE_OK"), "Web HTTP smoke marker")
 
 

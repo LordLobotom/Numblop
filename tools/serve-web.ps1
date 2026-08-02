@@ -1,7 +1,8 @@
 [CmdletBinding()]
 param(
     [int]$Port = 8060,
-    [string]$RootPath = ""
+    [string]$RootPath = "",
+    [switch]$Open
 )
 
 Set-StrictMode -Version Latest
@@ -27,9 +28,14 @@ $mimeTypes = @{
 }
 
 $listener = [Net.HttpListener]::new()
-$listener.Prefixes.Add("http://127.0.0.1:$Port/")
+$webUrl = "http://127.0.0.1:$Port/"
+$listener.Prefixes.Add($webUrl)
 $listener.Start()
-Write-Host "NUMBLOP_WEB_SERVER http://127.0.0.1:$Port/"
+Write-Host "NUMBLOP_WEB_SERVER $webUrl"
+if ($Open) {
+    Start-Process -FilePath $webUrl
+    Write-Host "Numblop opened in the default browser. Keep this window open; press Ctrl+C to stop."
+}
 
 try {
     while ($listener.IsListening) {
