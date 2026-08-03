@@ -1,8 +1,8 @@
 [CmdletBinding()]
 param(
     [string]$AabPath = "",
-    [string]$ExpectedVersionName = "0.2.2",
-    [int]$ExpectedVersionCode = 4
+    [string]$ExpectedVersionName = "0.2.3",
+    [int]$ExpectedVersionCode = 5
 )
 
 Set-StrictMode -Version Latest
