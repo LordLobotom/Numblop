@@ -2,7 +2,10 @@
 .godot/
 .nomedia
 build/
-android/
+# Anchored: only the Gradle build template Godot regenerates at the repo root.
+# Unanchored it also swallowed ui/branding/android/, keeping the launcher icons
+# out of git and breaking Android exports from a fresh checkout.
+/android/
 artifacts/
 input/
 .tmp_*/
