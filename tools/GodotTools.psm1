@@ -122,4 +122,73 @@ function Initialize-NumblopProject {
     )
 }
 
-Export-ModuleMember -Function Resolve-NumblopGodot, Invoke-NumblopGodot, Initialize-NumblopProject
+function Resolve-NumblopJarsigner {
+    param([string]$JarsignerPath = "")
+
+    if ($JarsignerPath) {
+        if (-not (Test-Path -LiteralPath $JarsignerPath -PathType Leaf)) {
+            throw "jarsigner not found: $JarsignerPath"
+        }
+        return (Resolve-Path -LiteralPath $JarsignerPath).Path
+    }
+
+    if ($env:JAVA_HOME) {
+        $candidate = Join-Path $env:JAVA_HOME "bin\jarsigner.exe"
+        if (Test-Path -LiteralPath $candidate -PathType Leaf) {
+            return $candidate
+        }
+    }
+
+    $command = Get-Command jarsigner -ErrorAction SilentlyContinue
+    if ($null -ne $command) {
+        return $command.Source
+    }
+
+    # Godot's Android export uses a JDK 17 that is often installed without JAVA_HOME or PATH.
+    $jdkRoots = @(
+        (Join-Path ${env:ProgramFiles} "Eclipse Adoptium"),
+        (Join-Path ${env:ProgramFiles} "Java")
+    )
+    foreach ($jdkRoot in $jdkRoots) {
+        if (-not (Test-Path -LiteralPath $jdkRoot -PathType Container)) {
+            continue
+        }
+        $candidate = Get-ChildItem -LiteralPath $jdkRoot -Directory -ErrorAction SilentlyContinue |
+            Sort-Object Name -Descending |
+            ForEach-Object { Join-Path $_.FullName "bin\jarsigner.exe" } |
+            Where-Object { Test-Path -LiteralPath $_ -PathType Leaf } |
+            Select-Object -First 1
+        if ($null -ne $candidate) {
+            return $candidate
+        }
+    }
+
+    throw "jarsigner not found. Set JAVA_HOME to the JDK used for Android exports."
+}
+
+function Unprotect-NumblopPassword {
+    param([Parameter(Mandatory)] [string]$PasswordFile)
+
+    if (-not (Test-Path -LiteralPath $PasswordFile -PathType Leaf)) {
+        throw "Password file not found: $PasswordFile"
+    }
+    try {
+        $secure = ConvertTo-SecureString (Get-Content -LiteralPath $PasswordFile -Raw).Trim()
+    }
+    catch {
+        throw ("Could not decrypt $PasswordFile. DPAPI ciphertext only opens for the " +
+            "Windows account and machine that created it. Recreate it with " +
+            "tools/save-keystore-password.ps1.")
+    }
+
+    $bstr = [Runtime.InteropServices.Marshal]::SecureStringToBSTR($secure)
+    try {
+        return [Runtime.InteropServices.Marshal]::PtrToStringBSTR($bstr)
+    }
+    finally {
+        [Runtime.InteropServices.Marshal]::ZeroFreeBSTR($bstr)
+        $secure.Dispose()
+    }
+}
+
+Export-ModuleMember -Function Resolve-NumblopGodot, Invoke-NumblopGodot, Initialize-NumblopProject, Resolve-NumblopJarsigner, Unprotect-NumblopPassword

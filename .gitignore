@@ -18,6 +18,8 @@ export_credentials.cfg
 *.p12
 *.pfx
 *.mobileprovision
+# Keystore passwords belong next to the keystore, outside the repo; this is a backstop.
+*.pwd
 
 # Exported application artifacts
 *.apk

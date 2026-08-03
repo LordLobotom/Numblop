@@ -1,13 +1,14 @@
 [CmdletBinding()]
 param(
     [string]$AabPath = "",
-    [string]$ExpectedVersionName = "0.2.1",
-    [int]$ExpectedVersionCode = 2
+    [string]$ExpectedVersionName = "0.2.2",
+    [int]$ExpectedVersionCode = 4
 )
 
 Set-StrictMode -Version Latest
 $ErrorActionPreference = "Stop"
 
+Import-Module (Join-Path $PSScriptRoot "GodotTools.psm1") -Force
 $repoRoot = Split-Path $PSScriptRoot -Parent
 if ($AabPath -eq "") {
     $AabPath = Join-Path $repoRoot "build\Numblop.aab"
@@ -49,31 +50,29 @@ foreach ($abi in @("arm64-v8a", "armeabi-v7a")) {
     Write-Host "OK native libs $abi ($($libEntries.Count))"
 }
 
-$jarsigner = $null
-if ($env:JAVA_HOME) {
-    $candidate = Join-Path $env:JAVA_HOME "bin\jarsigner.exe"
-    if (Test-Path $candidate) {
-        $jarsigner = $candidate
-    }
-}
-if ($null -eq $jarsigner) {
-    $command = Get-Command jarsigner -ErrorAction SilentlyContinue
-    if ($null -ne $command) {
-        $jarsigner = $command.Source
-    }
-}
-if ($null -eq $jarsigner) {
-    throw "jarsigner not found. Set JAVA_HOME to the JDK used for Android exports."
-}
+$jarsigner = Resolve-NumblopJarsigner
 $signOutput = & $jarsigner -verify -strict $aabItem.FullName
-if ($LASTEXITCODE -ne 0 -or ($signOutput -join "`n") -notmatch "jar verified") {
+$signExitCode = $LASTEXITCODE
+
+# -strict reports its findings as a bit mask. A Play upload key is deliberately a
+# self-signed certificate that chains to nothing, so those two bits are the expected
+# result rather than a failure. Every other bit still fails the check.
+$expectedStrictBits = 4 -bor 64   # chainNotValidated, signerSelfSigned
+$unexpectedStrictBits = $signExitCode -band (-bnot $expectedStrictBits)
+if ($unexpectedStrictBits -ne 0 -or ($signOutput -join "`n") -notmatch "jar verified") {
     Write-Host ($signOutput -join "`n")
-    throw "jarsigner did not verify the AAB upload signature."
+    throw ("jarsigner did not verify the AAB upload signature " +
+        "(exit $signExitCode, unexpected bits $unexpectedStrictBits).")
 }
-Write-Host "OK upload signature (jarsigner)"
+Write-Host "OK upload signature (jarsigner, self-signed upload key as expected)"
 
 if ($env:NUMBLOP_BUNDLETOOL_JAR -and (Test-Path $env:NUMBLOP_BUNDLETOOL_JAR)) {
-    $manifest = (& java -jar $env:NUMBLOP_BUNDLETOOL_JAR dump manifest --bundle $aabItem.FullName) -join "`n"
+    # The JDK that provides jarsigner also provides java, which is often not on PATH.
+    $java = Join-Path (Split-Path $jarsigner -Parent) "java.exe"
+    if (-not (Test-Path -LiteralPath $java -PathType Leaf)) {
+        $java = "java"
+    }
+    $manifest = (& $java -jar $env:NUMBLOP_BUNDLETOOL_JAR dump manifest --bundle $aabItem.FullName) -join "`n"
     if ($LASTEXITCODE -ne 0) {
         throw "bundletool failed to dump the manifest."
     }
