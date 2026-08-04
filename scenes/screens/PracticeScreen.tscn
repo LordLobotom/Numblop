@@ -41,6 +41,18 @@ corner_radius_bottom_left = 22
 shadow_color = Color(0.12, 0.3, 0.2, 0.18)
 shadow_size = 5
 
+[sub_resource type="StyleBoxFlat" id="ChoiceDisabled"]
+bg_color = Color(0.9, 0.92, 0.89, 0.92)
+border_width_left = 3
+border_width_top = 3
+border_width_right = 3
+border_width_bottom = 3
+border_color = Color(0.72, 0.76, 0.69, 1)
+corner_radius_top_left = 22
+corner_radius_top_right = 22
+corner_radius_bottom_right = 22
+corner_radius_bottom_left = 22
+
 [sub_resource type="StyleBoxFlat" id="ChoicePressed"]
 bg_color = Color(0.79, 0.95, 0.42, 1)
 border_width_left = 3
@@ -188,6 +200,7 @@ theme_override_colors/font_color = Color(0.25, 0.17, 0.34, 1)
 theme_override_font_sizes/font_size = 36
 theme_override_styles/normal = SubResource("ChoiceNormal")
 theme_override_styles/pressed = SubResource("ChoicePressed")
+theme_override_styles/disabled = SubResource("ChoiceDisabled")
 text = "0"
 
 [node name="Choice2" type="Button" parent="SafeArea/Content/AnswerCenter/ChoiceGrid" groups=["practice_choice_buttons"]]
@@ -198,6 +211,7 @@ theme_override_colors/font_color = Color(0.25, 0.17, 0.34, 1)
 theme_override_font_sizes/font_size = 36
 theme_override_styles/normal = SubResource("ChoiceNormal")
 theme_override_styles/pressed = SubResource("ChoicePressed")
+theme_override_styles/disabled = SubResource("ChoiceDisabled")
 text = "2"
 
 [node name="Choice3" type="Button" parent="SafeArea/Content/AnswerCenter/ChoiceGrid" groups=["practice_choice_buttons"]]
@@ -208,6 +222,7 @@ theme_override_colors/font_color = Color(0.25, 0.17, 0.34, 1)
 theme_override_font_sizes/font_size = 36
 theme_override_styles/normal = SubResource("ChoiceNormal")
 theme_override_styles/pressed = SubResource("ChoicePressed")
+theme_override_styles/disabled = SubResource("ChoiceDisabled")
 text = "4"
 
 [node name="Choice4" type="Button" parent="SafeArea/Content/AnswerCenter/ChoiceGrid" groups=["practice_choice_buttons"]]
@@ -218,6 +233,7 @@ theme_override_colors/font_color = Color(0.25, 0.17, 0.34, 1)
 theme_override_font_sizes/font_size = 36
 theme_override_styles/normal = SubResource("ChoiceNormal")
 theme_override_styles/pressed = SubResource("ChoicePressed")
+theme_override_styles/disabled = SubResource("ChoiceDisabled")
 text = "6"
 
 [node name="Choice5" type="Button" parent="SafeArea/Content/AnswerCenter/ChoiceGrid" groups=["practice_choice_buttons"]]
@@ -228,6 +244,7 @@ theme_override_colors/font_color = Color(0.25, 0.17, 0.34, 1)
 theme_override_font_sizes/font_size = 36
 theme_override_styles/normal = SubResource("ChoiceNormal")
 theme_override_styles/pressed = SubResource("ChoicePressed")
+theme_override_styles/disabled = SubResource("ChoiceDisabled")
 text = "8"
 
 [node name="Choice6" type="Button" parent="SafeArea/Content/AnswerCenter/ChoiceGrid" groups=["practice_choice_buttons"]]
@@ -238,6 +255,7 @@ theme_override_colors/font_color = Color(0.25, 0.17, 0.34, 1)
 theme_override_font_sizes/font_size = 36
 theme_override_styles/normal = SubResource("ChoiceNormal")
 theme_override_styles/pressed = SubResource("ChoicePressed")
+theme_override_styles/disabled = SubResource("ChoiceDisabled")
 text = "10"
 
 [node name="NumericKeypad" parent="SafeArea/Content/AnswerCenter" instance=ExtResource("3_keypad")]
@@ -403,12 +421,12 @@ text = "PRACTICE_CONTINUE"
 [node name="MilestoneBlobCenter" type="CenterContainer" parent="FeedbackOverlay/Center/FeedbackStack"]
 unique_name_in_owner = true
 visible = false
-custom_minimum_size = Vector2(0, 190)
+custom_minimum_size = Vector2(0, 304)
 layout_mode = 2
 
 [node name="MilestoneBlob" parent="FeedbackOverlay/Center/FeedbackStack/MilestoneBlobCenter" instance=ExtResource("7_blob")]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(190, 190)
+custom_minimum_size = Vector2(304, 304)
 layout_mode = 2
 preview_mode = true
 

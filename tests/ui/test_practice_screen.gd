@@ -186,6 +186,61 @@ func _correct_record(table_value: int, multiplier: int) -> SessionResult.AnswerR
     return SessionResult.AnswerRecord.new(0, question, table_value * multiplier, 1.0, 20)
 
 
+func test_dimmed_answers_keep_the_rounded_card_shape() -> void:
+    # Without an explicit disabled style Godot falls back to its built-in default, a
+    # square-cornered grey box, so locking the answers turned the rounded cards into
+    # rectangles. The theme has no Button disabled style either, so the fallback
+    # reached every disabled button in the app.
+    var packed: PackedScene = load("res://scenes/screens/PracticeScreen.tscn")
+    var scene := packed.instantiate()
+    for index in range(1, 7):
+        var choice: Button = scene.get_node("%%Choice%d" % index)
+        var normal := choice.get_theme_stylebox("normal") as StyleBoxFlat
+        var disabled := choice.get_theme_stylebox("disabled") as StyleBoxFlat
+        check(disabled != null, "Choice %d has its own disabled style" % index)
+        if disabled == null:
+            continue
+        equal(
+            disabled.corner_radius_top_left,
+            normal.corner_radius_top_left,
+            "Choice %d keeps its corner radius while dimmed" % index
+        )
+        equal(
+            disabled.corner_radius_bottom_right,
+            normal.corner_radius_bottom_right,
+            "Choice %d keeps its bottom corner radius while dimmed" % index
+        )
+    scene.free()
+
+    var keypad_packed: PackedScene = load("res://scenes/components/NumericKeypad.tscn")
+    var keypad := keypad_packed.instantiate()
+    for key in keypad.get_node("%ButtonGrid").get_children():
+        var button := key as Button
+        if button == null:
+            continue
+        var key_normal := button.get_theme_stylebox("normal") as StyleBoxFlat
+        var key_disabled := button.get_theme_stylebox("disabled") as StyleBoxFlat
+        check(key_disabled != null, "%s has its own disabled style" % button.name)
+        if key_disabled == null:
+            continue
+        equal(
+            key_disabled.corner_radius_top_left,
+            key_normal.corner_radius_top_left,
+            "%s keeps its corner radius while dimmed" % button.name
+        )
+    keypad.free()
+
+    var theme: Theme = load("res://ui/theme.tres")
+    var fallback := theme.get_stylebox("disabled", "Button") as StyleBoxFlat
+    check(fallback != null, "Every other disabled button has a rounded fallback")
+    if fallback != null:
+        equal(
+            fallback.corner_radius_top_left,
+            (theme.get_stylebox("normal", "Button") as StyleBoxFlat).corner_radius_top_left,
+            "The shared disabled button matches the normal radius"
+        )
+
+
 func test_the_streak_flash_fires_on_every_tenth_and_once_per_new_record() -> void:
     var packed: PackedScene = load("res://scenes/screens/PracticeScreen.tscn")
     var scene := packed.instantiate()

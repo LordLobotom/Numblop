@@ -64,14 +64,21 @@ func test_home_crest_navigation_uses_requested_artwork_and_bold_play_font() -> v
         "res://ui/fonts/Baloo2Bold.tres",
         "Play uses the bold font"
     )
-    # The label is a full-rect child of the 340x104 %PlayButton, so both offsets exist
-    # only to re-centre it on the artwork rather than on the button box. Measured from
+    # The label is a full-rect child of the 340x104 %PlayButton, so these offsets exist
+    # only to place it on the artwork rather than on the button box. Measured from
     # ui/buttons/button_play.png (512x256):
-    #   the play triangle's left edge is x=402, so usable text width ends there
-    #     -> (34 + 402) / 2 = 218 of 512 -> 145 of 340, i.e. ~21 px left of centre
     #   the lit pill face spans y=57..172 (the band below it is the dark 3D edge)
     #     -> centre y=115 of 256 -> 46.7 of 104, i.e. ~5.3 px above centre
-    equal(play_label.offset_right, -42.0, "Play label clears the triangle glyph")
+    # Horizontally the measured centre was 149, sitting between the pill's left edge and
+    # the triangle glyph at x=402 (267 in button space). Nudged 20 px right by eye to
+    # 169, so the offsets stay 20 apart in width but shift as a pair.
+    equal(play_label.offset_left, 20.0, "Play label sits right of the pill's left edge")
+    equal(play_label.offset_right, -22.0, "Play label still clears the triangle glyph")
+    equal(
+        (play_label.offset_left + 340.0 + play_label.offset_right) / 2.0,
+        169.0,
+        "Play text centres 169 px across the button"
+    )
     equal(play_label.offset_bottom, -11.0, "Play label sits on the lit pill face")
     scene.free()
 

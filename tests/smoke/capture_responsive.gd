@@ -287,6 +287,20 @@ func _configure_screen(screen: Control, screen_name: String, locale: String) -> 
                 "mastery": 84,
                 "reward_coins": 5,
             })
+            # The celebrating avatar wears whatever the player has equipped, which would
+            # make this capture depend on the local save file. Pin it to the defaults.
+            practice.milestone_blob.apply_cosmetics({
+                "selected_body_color": CosmeticCatalog.DEFAULT_BODY_COLOR_ID,
+                "selected_belly_color": CosmeticCatalog.DEFAULT_BELLY_COLOR_ID,
+                "selected_hat": CosmeticCatalog.DEFAULT_HAT_ID,
+                "selected_glasses": CosmeticCatalog.DEFAULT_GLASSES_ID,
+                "selected_necklace": CosmeticCatalog.DEFAULT_NECKLACE_ID,
+                "selected_footwear": CosmeticCatalog.DEFAULT_FOOTWEAR_ID,
+                "colors": _cosmetic_capture_items(
+                    CosmeticCatalog.CATEGORY_BODY_COLOR,
+                    CosmeticCatalog.DEFAULT_BODY_COLOR_ID
+                ),
+            })
         "streak_flash":
             var flashing := screen as PracticeScreen
             var flash_question := PracticeQuestion.new(

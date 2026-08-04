@@ -19,6 +19,18 @@ corner_radius_bottom_left = 16
 shadow_color = Color(0.12, 0.3, 0.2, 0.16)
 shadow_size = 4
 
+[sub_resource type="StyleBoxFlat" id="KeyDisabled"]
+bg_color = Color(0.9, 0.92, 0.89, 0.92)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.72, 0.76, 0.69, 1)
+corner_radius_top_left = 16
+corner_radius_top_right = 16
+corner_radius_bottom_right = 16
+corner_radius_bottom_left = 16
+
 [sub_resource type="StyleBoxFlat" id="KeyPressed"]
 bg_color = Color(0.76, 0.93, 0.39, 1)
 border_width_left = 2
@@ -70,6 +82,7 @@ layout_mode = 2
 theme_override_font_sizes/font_size = 28
 theme_override_styles/normal = SubResource("KeyNormal")
 theme_override_styles/pressed = SubResource("KeyPressed")
+theme_override_styles/disabled = SubResource("KeyDisabled")
 text = "7"
 metadata/digit = 7
 
@@ -79,6 +92,7 @@ layout_mode = 2
 theme_override_font_sizes/font_size = 28
 theme_override_styles/normal = SubResource("KeyNormal")
 theme_override_styles/pressed = SubResource("KeyPressed")
+theme_override_styles/disabled = SubResource("KeyDisabled")
 text = "8"
 metadata/digit = 8
 
@@ -88,6 +102,7 @@ layout_mode = 2
 theme_override_font_sizes/font_size = 28
 theme_override_styles/normal = SubResource("KeyNormal")
 theme_override_styles/pressed = SubResource("KeyPressed")
+theme_override_styles/disabled = SubResource("KeyDisabled")
 text = "9"
 metadata/digit = 9
 
@@ -97,6 +112,7 @@ layout_mode = 2
 theme_override_font_sizes/font_size = 28
 theme_override_styles/normal = SubResource("KeyNormal")
 theme_override_styles/pressed = SubResource("KeyPressed")
+theme_override_styles/disabled = SubResource("KeyDisabled")
 text = "4"
 metadata/digit = 4
 
@@ -106,6 +122,7 @@ layout_mode = 2
 theme_override_font_sizes/font_size = 28
 theme_override_styles/normal = SubResource("KeyNormal")
 theme_override_styles/pressed = SubResource("KeyPressed")
+theme_override_styles/disabled = SubResource("KeyDisabled")
 text = "5"
 metadata/digit = 5
 
@@ -115,6 +132,7 @@ layout_mode = 2
 theme_override_font_sizes/font_size = 28
 theme_override_styles/normal = SubResource("KeyNormal")
 theme_override_styles/pressed = SubResource("KeyPressed")
+theme_override_styles/disabled = SubResource("KeyDisabled")
 text = "6"
 metadata/digit = 6
 
@@ -124,6 +142,7 @@ layout_mode = 2
 theme_override_font_sizes/font_size = 28
 theme_override_styles/normal = SubResource("KeyNormal")
 theme_override_styles/pressed = SubResource("KeyPressed")
+theme_override_styles/disabled = SubResource("KeyDisabled")
 text = "1"
 metadata/digit = 1
 
@@ -133,6 +152,7 @@ layout_mode = 2
 theme_override_font_sizes/font_size = 28
 theme_override_styles/normal = SubResource("KeyNormal")
 theme_override_styles/pressed = SubResource("KeyPressed")
+theme_override_styles/disabled = SubResource("KeyDisabled")
 text = "2"
 metadata/digit = 2
 
@@ -142,6 +162,7 @@ layout_mode = 2
 theme_override_font_sizes/font_size = 28
 theme_override_styles/normal = SubResource("KeyNormal")
 theme_override_styles/pressed = SubResource("KeyPressed")
+theme_override_styles/disabled = SubResource("KeyDisabled")
 text = "3"
 metadata/digit = 3
 
@@ -152,6 +173,7 @@ layout_mode = 2
 theme_override_font_sizes/font_size = 28
 theme_override_styles/normal = SubResource("KeyNormal")
 theme_override_styles/pressed = SubResource("KeyPressed")
+theme_override_styles/disabled = SubResource("KeyDisabled")
 text = ""
 
 [node name="DeleteArrow" type="Control" parent="ButtonGrid/DeleteButton"]
@@ -177,6 +199,7 @@ layout_mode = 2
 theme_override_font_sizes/font_size = 28
 theme_override_styles/normal = SubResource("KeyNormal")
 theme_override_styles/pressed = SubResource("KeyPressed")
+theme_override_styles/disabled = SubResource("KeyDisabled")
 text = "0"
 metadata/digit = 0
 
@@ -188,6 +211,7 @@ theme_override_colors/font_color = Color(1, 1, 1, 1)
 theme_override_font_sizes/font_size = 28
 theme_override_styles/normal = SubResource("KeyPressed")
 theme_override_styles/pressed = SubResource("KeyNormal")
+theme_override_styles/disabled = SubResource("KeyDisabled")
 text = ""
 
 [node name="SubmitCheck" type="Control" parent="ButtonGrid/SubmitButton"]
