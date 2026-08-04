@@ -212,11 +212,13 @@ static func footwear() -> Array[Dictionary]:
             Rect2(214.0, 559.0, 348.0, 116.0),
             ACCESSORY_PRICE
         ),
+        # Two stray specks sit near the top of the source canvas. Framing the boots
+        # rather than the whole opaque bounds keeps the shop card centred.
         _accessory(
             "footwear_star",
             "COSMETICS_FOOTWEAR_STAR",
             "res://assets/cosmetics/footwear/footwear_star.png",
-            Rect2(218.0, 242.0, 405.0, 415.0),
+            Rect2(219.0, 533.0, 338.0, 124.0),
             ACCESSORY_PRICE
         ),
     ]

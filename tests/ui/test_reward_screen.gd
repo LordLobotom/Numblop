@@ -83,6 +83,26 @@ func test_mastery_summary_stays_hidden_until_the_chest_is_open() -> void:
     scene.free()
 
 
+func test_mastery_rows_leave_a_gutter_for_the_scrollbar() -> void:
+    # With enough improved facts the list scrolls, and the "+N" column is right-aligned
+    # against the very edge of the scroll area. Godot reserves the bar's width, so the
+    # number is not clipped, but it ends up flush against the bar with no daylight.
+    var packed: PackedScene = load("res://scenes/screens/RewardScreen.tscn")
+    check(packed != null, "Reward scene must load")
+    if packed == null:
+        return
+    var scene := packed.instantiate()
+    var gutter: MarginContainer = scene.get_node(
+        "SafeArea/Content/MasteryPanel/MasteryRows/MasteryScroll/MasteryListMargin"
+    )
+    check(
+        gutter.get_theme_constant("margin_right") >= 8,
+        "Mastery gains clear the scrollbar"
+    )
+    check(gutter.is_ancestor_of(scene.get_node("%MasteryList")), "Gutter wraps the list")
+    scene.free()
+
+
 func test_a_round_without_mastery_gains_shows_no_summary_panel() -> void:
     var packed: PackedScene = load("res://scenes/screens/RewardScreen.tscn")
     var scene: RewardScreen = packed.instantiate()

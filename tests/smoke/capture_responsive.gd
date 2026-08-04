@@ -30,6 +30,7 @@ const SCREENS: Array[String] = [
     "keypad",
     "reward",
     "reward_opened",
+    "reward_scrolling",
 ]
 const OUTPUT_DIRECTORY := "res://artifacts/responsive"
 
@@ -114,7 +115,7 @@ func _create_screen(screen_name: String) -> Control:
         scene_path = "res://scenes/screens/MapScreen.tscn"
     elif screen_name in ["settings", "settings_exit"]:
         scene_path = "res://scenes/screens/SettingsScreen.tscn"
-    elif screen_name in ["reward", "reward_opened"]:
+    elif screen_name in ["reward", "reward_opened", "reward_scrolling"]:
         scene_path = "res://scenes/screens/RewardScreen.tscn"
     var packed: PackedScene = load(scene_path)
     return packed.instantiate()
@@ -313,7 +314,7 @@ func _configure_screen(screen: Control, screen_name: String, locale: String) -> 
                 8,
                 LearningRules.SESSION_LENGTH
             )
-        "reward", "reward_opened":
+        "reward", "reward_opened", "reward_scrolling":
             var reward_screen := screen as RewardScreen
             var reward := {
                 "coins": 20,
@@ -354,7 +355,20 @@ func _configure_screen(screen: Control, screen_name: String, locale: String) -> 
                     },
                 ],
             }
-            if screen_name == "reward_opened":
+            if screen_name == "reward_scrolling":
+                var many: Array = []
+                for multiplier in range(2, 10):
+                    many.append({
+                        "fact_key": "3_x_%d" % multiplier,
+                        "table_value": 3,
+                        "multiplier": multiplier,
+                        "mastery_before": 40 + multiplier,
+                        "mastery_after": 48 + multiplier,
+                        "mastery_gained": 8,
+                    })
+                reward["mastery_gains"] = many
+                reward_screen.preview_opened_state(reward)
+            elif screen_name == "reward_opened":
                 reward_screen.preview_opened_state(reward)
             else:
                 reward_screen.start_reward(reward)
