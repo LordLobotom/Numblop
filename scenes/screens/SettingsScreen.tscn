@@ -248,13 +248,32 @@ alignment = 1
 
 [node name="EnglishButton" type="TextureButton" parent="SafeArea/Content/Scroll/SettingsPanel/SettingsContent/LanguageButtons/EnglishItem"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(96, 96)
+custom_minimum_size = Vector2(48, 48)
 layout_mode = 2
+size_flags_horizontal = 4
 focus_mode = 2
 mouse_default_cursor_shape = 2
-texture_normal = ExtResource("3_english")
 ignore_texture_size = true
 stretch_mode = 0
+
+[node name="EnglishFlag" type="TextureRect" parent="SafeArea/Content/Scroll/SettingsPanel/SettingsContent/LanguageButtons/EnglishItem/EnglishButton"]
+custom_minimum_size = Vector2(38, 38)
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -19.0
+offset_top = -19.0
+offset_right = 19.0
+offset_bottom = 19.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+texture = ExtResource("3_english")
+expand_mode = 1
+stretch_mode = 5
 
 [node name="EnglishCheck" type="Control" parent="SafeArea/Content/Scroll/SettingsPanel/SettingsContent/LanguageButtons/EnglishItem/EnglishButton"]
 unique_name_in_owner = true
@@ -262,23 +281,15 @@ layout_mode = 1
 anchors_preset = 1
 anchor_left = 1.0
 anchor_right = 1.0
-offset_left = -34.0
-offset_bottom = 36.0
+offset_left = -20.0
+offset_bottom = 22.0
 grow_horizontal = 0
 mouse_filter = 2
 script = ExtResource("13_checkmark")
-line_width = 4.0
-scale_factor = 1.5
+line_width = 3.0
+scale_factor = 0.9
 outline_color = Color(1, 1, 1, 1)
-outline_width = 8.0
-
-[node name="EnglishLabel" type="Label" parent="SafeArea/Content/Scroll/SettingsPanel/SettingsContent/LanguageButtons/EnglishItem"]
-unique_name_in_owner = true
-layout_mode = 2
-theme_override_colors/font_color = Color(0.22, 0.36, 0.26, 1)
-theme_override_font_sizes/font_size = 15
-text = "LANGUAGE_ENGLISH"
-horizontal_alignment = 1
+outline_width = 6.0
 
 [node name="CzechItem" type="VBoxContainer" parent="SafeArea/Content/Scroll/SettingsPanel/SettingsContent/LanguageButtons"]
 layout_mode = 2
@@ -286,13 +297,32 @@ alignment = 1
 
 [node name="CzechButton" type="TextureButton" parent="SafeArea/Content/Scroll/SettingsPanel/SettingsContent/LanguageButtons/CzechItem"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(96, 96)
+custom_minimum_size = Vector2(48, 48)
 layout_mode = 2
+size_flags_horizontal = 4
 focus_mode = 2
 mouse_default_cursor_shape = 2
-texture_normal = ExtResource("4_czech")
 ignore_texture_size = true
 stretch_mode = 0
+
+[node name="CzechFlag" type="TextureRect" parent="SafeArea/Content/Scroll/SettingsPanel/SettingsContent/LanguageButtons/CzechItem/CzechButton"]
+custom_minimum_size = Vector2(38, 38)
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -19.0
+offset_top = -19.0
+offset_right = 19.0
+offset_bottom = 19.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+texture = ExtResource("4_czech")
+expand_mode = 1
+stretch_mode = 5
 
 [node name="CzechCheck" type="Control" parent="SafeArea/Content/Scroll/SettingsPanel/SettingsContent/LanguageButtons/CzechItem/CzechButton"]
 unique_name_in_owner = true
@@ -300,23 +330,15 @@ layout_mode = 1
 anchors_preset = 1
 anchor_left = 1.0
 anchor_right = 1.0
-offset_left = -34.0
-offset_bottom = 36.0
+offset_left = -20.0
+offset_bottom = 22.0
 grow_horizontal = 0
 mouse_filter = 2
 script = ExtResource("13_checkmark")
-line_width = 4.0
-scale_factor = 1.5
+line_width = 3.0
+scale_factor = 0.9
 outline_color = Color(1, 1, 1, 1)
-outline_width = 8.0
-
-[node name="CzechLabel" type="Label" parent="SafeArea/Content/Scroll/SettingsPanel/SettingsContent/LanguageButtons/CzechItem"]
-unique_name_in_owner = true
-layout_mode = 2
-theme_override_colors/font_color = Color(0.22, 0.36, 0.26, 1)
-theme_override_font_sizes/font_size = 15
-text = "LANGUAGE_CZECH"
-horizontal_alignment = 1
+outline_width = 6.0
 
 [node name="Divider" type="HSeparator" parent="SafeArea/Content/Scroll/SettingsPanel/SettingsContent"]
 layout_mode = 2
@@ -394,6 +416,18 @@ theme_override_colors/font_hover_pressed_color = Color(0.19, 0.34, 0.24, 1)
 theme_override_colors/font_focus_color = Color(0.19, 0.34, 0.24, 1)
 theme_override_font_sizes/font_size = 18
 text = "SETTINGS_MUTE_ALL"
+
+[node name="HapticsButton" type="CheckButton" parent="SafeArea/Content/Scroll/SettingsPanel/SettingsContent"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 56)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.19, 0.34, 0.24, 1)
+theme_override_colors/font_pressed_color = Color(0.19, 0.34, 0.24, 1)
+theme_override_colors/font_hover_color = Color(0.19, 0.34, 0.24, 1)
+theme_override_colors/font_hover_pressed_color = Color(0.19, 0.34, 0.24, 1)
+theme_override_colors/font_focus_color = Color(0.19, 0.34, 0.24, 1)
+theme_override_font_sizes/font_size = 18
+text = "SETTINGS_HAPTICS"
 
 [node name="ExitButton" type="Button" parent="SafeArea/Content/Scroll/SettingsPanel/SettingsContent"]
 unique_name_in_owner = true

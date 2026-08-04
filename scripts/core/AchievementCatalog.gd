@@ -15,8 +15,10 @@ const KIND_ISLAND := "island"
 
 const FIRST_STEPS_ID := "first_steps"
 const FIRST_STEPS_REWARD_COINS := 100
-const STREAK_TARGETS: Array[int] = [10, 20, 50, 100]
-const EXPERIENCE_TARGETS: Array[int] = [100, 500, 1000, 5000, 10000]
+const STREAK_TARGETS: Array[int] = [10, 20, 50, 100, 500, 1000]
+## A streak pays one coin per answer in it, but never more than a collection is worth.
+const STREAK_MAX_REWARD_COINS := 50
+const EXPERIENCE_TARGETS: Array[int] = [500, 1000, 5000, 10000]
 const EXPERIENCE_ID_PREFIX := "experience_"
 const EXPERIENCE_REWARD_COINS := 50
 const COLLECTION_ID_PREFIX := "collection_"
@@ -60,7 +62,7 @@ static func definitions() -> Array[Dictionary]:
             "format_args": {"count": target},
             "table": 0,
             "target": target,
-            "reward_coins": target,
+            "reward_coins": mini(target, STREAK_MAX_REWARD_COINS),
         })
     for target in EXPERIENCE_TARGETS:
         catalog.append({

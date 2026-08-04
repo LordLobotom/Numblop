@@ -60,6 +60,45 @@ func test_audio_preferences_are_clamped_saved_and_applied_to_separate_buses() ->
     _remove_test_file()
 
 
+func test_vibration_defaults_to_on_and_survives_a_restart() -> void:
+    var previous_preference := SettingsManager.locale_preference
+    var previous_haptics := SettingsManager.haptics_enabled
+    _remove_test_file()
+
+    SettingsManager.load_settings(TEST_PATH)
+    check(SettingsManager.haptics_enabled, "A profile without settings buzzes by default")
+
+    equal(SettingsManager.set_haptics_enabled(false, TEST_PATH), OK, "Save vibration off")
+    SettingsManager.haptics_enabled = true
+    SettingsManager.load_settings(TEST_PATH)
+    check(not SettingsManager.haptics_enabled, "Vibration stays off after a restart")
+    # A silenced device must stay silent no matter which pattern asks for a buzz.
+    for pattern_name in SettingsManager.HAPTIC_PATTERNS:
+        SettingsManager.play_haptic(String(pattern_name))
+
+    SettingsManager.haptics_enabled = previous_haptics
+    SettingsManager.locale_preference = previous_preference
+    SettingsManager.apply_locale()
+    _remove_test_file()
+
+
+func test_every_haptic_pattern_is_long_enough_to_be_felt() -> void:
+    equal(SettingsManager.HAPTIC_PATTERNS.size(), 3, "Three moments buzz, and no more")
+    for pattern_name in SettingsManager.HAPTIC_PATTERNS:
+        var pattern: Dictionary = SettingsManager.HAPTIC_PATTERNS[pattern_name]
+        # Below roughly 20 ms several Android vendors drop the pulse entirely.
+        check(int(pattern["duration_ms"]) >= 20, "%s lasts long enough" % pattern_name)
+        check(int(pattern["duration_ms"]) <= 120, "%s is a buzz, not a rumble" % pattern_name)
+        var amplitude := float(pattern["amplitude"])
+        check(amplitude > 0.0 and amplitude <= 1.0, "%s has a real amplitude" % pattern_name)
+    var celebration: Dictionary = SettingsManager.HAPTIC_PATTERNS[SettingsManager.HAPTIC_CELEBRATION]
+    var tap: Dictionary = SettingsManager.HAPTIC_PATTERNS[SettingsManager.HAPTIC_TAP]
+    check(
+        float(celebration["amplitude"]) > float(tap["amplitude"]),
+        "The chest opening outweighs the tap that opened it"
+    )
+
+
 func _remove_test_file() -> void:
     if FileAccess.file_exists(TEST_PATH):
         DirAccess.remove_absolute(ProjectSettings.globalize_path(TEST_PATH))

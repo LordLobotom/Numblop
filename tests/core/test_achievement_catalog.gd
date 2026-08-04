@@ -41,7 +41,9 @@ func test_reward_values_match_the_agreed_coin_amounts() -> void:
     equal(AchievementCatalog.reward_coins("streak_10"), 10, "Streak 10")
     equal(AchievementCatalog.reward_coins("streak_20"), 20, "Streak 20")
     equal(AchievementCatalog.reward_coins("streak_50"), 50, "Streak 50")
-    equal(AchievementCatalog.reward_coins("streak_100"), 100, "Streak 100")
+    equal(AchievementCatalog.reward_coins("streak_100"), 50, "Streak 100 is capped at 50")
+    equal(AchievementCatalog.reward_coins("streak_500"), 50, "Streak 500")
+    equal(AchievementCatalog.reward_coins("streak_1000"), 50, "Streak 1000")
     equal(AchievementCatalog.reward_coins("island_2"), 50, "Island reward")
     for target in AchievementCatalog.EXPERIENCE_TARGETS:
         equal(
@@ -70,6 +72,8 @@ func test_streak_and_first_round_progress_track_the_player_statistics() -> void:
     check(not bool(evaluated["streak_50"]["completed"]), "Streak 50 still open")
     equal(int(evaluated["streak_50"]["progress"]), 23, "Partial streak progress")
     equal(int(evaluated["streak_50"]["target"]), 50, "Streak target")
+    check(not bool(evaluated["streak_1000"]["completed"]), "The longest streak stays open")
+    equal(int(evaluated["streak_1000"]["target"]), 1000, "Longest streak target")
 
 
 func test_island_completes_only_when_every_fact_reaches_full_mastery() -> void:
@@ -97,15 +101,17 @@ func test_progress_never_reports_more_than_the_target() -> void:
 
 func test_experience_tiers_track_the_lifetime_correct_answer_count() -> void:
     var evaluated := _evaluate(LearningProfile.new(), 3, 0, 500)
-    check(bool(evaluated["experience_100"]["completed"]), "100 XP reached")
     check(bool(evaluated["experience_500"]["completed"]), "500 XP reached exactly")
     check(not bool(evaluated["experience_1000"]["completed"]), "1000 XP still open")
     equal(int(evaluated["experience_1000"]["progress"]), 500, "Partial XP progress")
     equal(int(evaluated["experience_10000"]["target"]), 10000, "Highest XP target")
 
-    evaluated = _evaluate(LearningProfile.new(), 0, 0, 0)
-    check(not bool(evaluated["experience_100"]["completed"]), "No XP yet")
-    equal(int(evaluated["experience_100"]["progress"]), 0, "No XP progress")
+    evaluated = _evaluate(LearningProfile.new(), 3, 0, 499)
+    check(not bool(evaluated["experience_500"]["completed"]), "One answer short of 500")
+    check(
+        not AchievementCatalog.has_achievement("experience_100"),
+        "The 100 XP tier was too easy to be worth a trophy"
+    )
 
 
 func test_a_collection_completes_only_when_every_paid_item_is_owned() -> void:

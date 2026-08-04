@@ -244,6 +244,7 @@
   persisted, it is simply no longer displayed.
 - The catalog is fixed: First Steps (finish one round, 100 coins), Streak 10/20/50/100 (coins
   equal to the streak target), and one island achievement per multiplication table (50 coins).
+  Superseded on 2026-08-05: the streak ladder runs to 1000 and its payout is capped at 50 coins.
 - An island achievement completes only when every one of its ten facts reaches mastery 100. This
   is deliberately stricter than the map's progress bar, which fills at the unlock threshold 80.
 - A streak achievement completes the moment the streak is reached. It does not have to be ended
@@ -389,7 +390,8 @@
 
 ## 2026-08-05 — XP achievement tier
 
-- The catalog gains five XP achievements: 100, 500, 1000, 5000 and 10000, each paying 50 coins.
+- The catalog gains four XP achievements: 500, 1000, 5000 and 10000, each paying 50 coins. A 100
+  XP tier was cut: ten rounds reach it, which is too little to be worth a trophy.
 - XP is the lifetime count of correctly answered questions. A finished round grants one point of
   experience per correct answer (`LocalProgress.apply_completed_session`), so `progress.experience`
   is that count and no separate counter is stored. The one-point minimum for a round without a
@@ -411,3 +413,31 @@
 - The shop grants collection rewards the moment the last item is bought: `purchase_cosmetic`
   ends with `sync_achievements()`. The coins land immediately, while the unlock is announced with
   the next finished round, which is the queueing rule every other achievement already follows.
+
+## 2026-08-05 — Longer streak ladder, capped payout
+
+- Streak achievements now run 10/20/50/100/500/1000. The two new rungs give the flame somewhere
+  to go long after the tables are mastered.
+- The reward is `min(target, 50)`, so 10/20/50 still pay their own length while 100 and above all
+  pay 50. Paying one coin per answer would have made a single lucky run worth ten shop items,
+  which is more than a whole cosmetic collection is worth.
+- Streak 100 therefore drops from 100 coins to 50. Anyone who already claimed it keeps the 100
+  they were paid: a reward is granted once, and the granted set never re-evaluates the amount.
+
+## 2026-08-05 — Haptics: three moments, one switch
+
+- Vibration is reserved for three moments and nothing else: the chest tap (25 ms at amplitude
+  0.5), the chest opening (90 ms at 1.0) and the mastery-milestone cheer (80 ms at 0.8). The
+  opening is the strongest buzz in the game, because it is the payoff of the whole round.
+- Amplitude, not duration, is what makes a buzz noticeable. The previous single call was
+  `vibrate_handheld(35)` at the device default strength, which on a modern LRA phone is a tick
+  a child does not register. Nothing runs below 20 ms, because several Android vendors drop
+  shorter pulses entirely. Amplitude needs API 26, so Android 24 and 25 fall back to the default
+  strength on their own — a graceful degrade that needs no guard.
+- A wrong answer never buzzes. A buzz on failure reads as a physical scolding, and vibration is
+  documented as reinforcement that is never required to understand a state. Correct answers do
+  not buzz either: ten per round would turn the phone into a pager and drain a battery a child
+  uses daily.
+- `SettingsManager.play_haptic` is the only caller of `Input.vibrate_handheld`, so the Settings
+  toggle cannot be bypassed by a new call site. Settings stores it under `haptics/enabled` and it
+  defaults to on; switching it on plays the tap pattern so the child feels what they enabled.

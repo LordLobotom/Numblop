@@ -208,12 +208,17 @@ theme_override_styles/hover = SubResource("NameButtonPill")
 theme_override_styles/pressed = SubResource("NameButtonPill")
 text = "HOME_PROFILE"
 
-[node name="BlobCenter" type="CenterContainer" parent="SafeArea/Content"]
+[node name="BlobOffset" type="MarginContainer" parent="SafeArea/Content"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/margin_top = 40
+
+[node name="BlobCenter" type="CenterContainer" parent="SafeArea/Content/BlobOffset"]
 custom_minimum_size = Vector2(0, 340)
 layout_mode = 2
 size_flags_vertical = 3
 
-[node name="BlobCharacter" parent="SafeArea/Content/BlobCenter" instance=ExtResource("6_blob")]
+[node name="BlobCharacter" parent="SafeArea/Content/BlobOffset/BlobCenter" instance=ExtResource("6_blob")]
 custom_minimum_size = Vector2(340, 340)
 layout_mode = 2
 

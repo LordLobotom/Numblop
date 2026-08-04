@@ -46,6 +46,7 @@ var _accepting_input := false
 var _feedback_cancelled := false
 var _active_milestone: Dictionary = {}
 var _celebrated_record_this_run := false
+var _milestone_feedback_visible := false
 var _streak_flash_tween: Tween
 
 
@@ -198,6 +199,10 @@ func _refresh_mastery_milestone_feedback() -> void:
     # The blob only hops while the milestone is on screen, so the tween is not left
     # looping behind a hidden panel for the rest of the session.
     milestone_blob.set_cheering(visible)
+    # Only the moment the cheer appears buzzes; a redraw of the same milestone must not.
+    if visible and not _milestone_feedback_visible:
+        SettingsManager.play_haptic(SettingsManager.HAPTIC_MILESTONE)
+    _milestone_feedback_visible = visible
     if not visible:
         return
     # It is the child's own avatar that celebrates, so it wears what they have equipped.

@@ -7,7 +7,7 @@
 - Windows: x86-64 centered portrait window.
 - Web: adaptive static canvas; phone view fits the available viewport and 900×900 is the wide
   desktop QA reference.
-- The public version comes from `application/config/version` (currently `0.3.0`) and stays
+- The public version comes from `application/config/version` (currently `0.3.1`) and stays
   aligned with the Android version name and the Windows product version. All three are pinned by
   `tests/smoke/test_project_contract.gd`; bump them together.
 - The Play version code (currently `8`) is pinned by the same test but moves on its own: every

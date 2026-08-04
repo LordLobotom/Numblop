@@ -684,9 +684,23 @@ func test_settings_screen_has_language_audio_mute_and_safe_exit_controls() -> vo
     check(scene.has_signal("home_requested"), "Settings footer can return home")
     check(scene.has_signal("exit_requested"), "Settings exposes confirmed exit")
     check(scene.get_node_or_null("%BackButton") == null, "Settings has no top back arrow")
-    for language_button_name in ["EnglishButton", "CzechButton"]:
-        var language_button: TextureButton = scene.get_node("%%%s" % language_button_name)
+    # The flags are the only label the language row has, so they are drawn smaller than the
+    # button they sit in: the picture is 38 px, the finger still gets its 48.
+    for language_flag in [["EnglishButton", "EnglishFlag"], ["CzechButton", "CzechFlag"]]:
+        var language_button: TextureButton = scene.get_node("%%%s" % language_flag[0])
         check(language_button.custom_minimum_size.y >= 48.0, "Language crest touch target")
+        var flag: TextureRect = language_button.get_node(String(language_flag[1]))
+        check(flag.texture != null, "%s shows its flag" % language_flag[0])
+        equal(flag.custom_minimum_size, Vector2(38.0, 38.0), "Flag picture size")
+        check(
+            flag.custom_minimum_size.y < language_button.custom_minimum_size.y,
+            "The flag is smaller than the touch target it sits in"
+        )
+    check(
+        scene.get_node_or_null("%EnglishLabel") == null
+        and scene.get_node_or_null("%CzechLabel") == null,
+        "Language names are tooltips, not printed captions"
+    )
     check(scene.get_node("%EnglishCheck") is CheckmarkIcon, "English uses a drawn checkmark")
     check(scene.get_node("%CzechCheck") is CheckmarkIcon, "Czech uses a drawn checkmark")
     for slider_name in ["MusicSlider", "SfxSlider"]:
@@ -694,6 +708,8 @@ func test_settings_screen_has_language_audio_mute_and_safe_exit_controls() -> vo
         check(slider.custom_minimum_size.y >= 48.0, "Audio slider touch target")
         equal(slider.max_value, 100.0, "Audio percent range")
     check(scene.get_node("%MuteButton") is CheckButton, "Global mute control")
+    var haptics_button: CheckButton = scene.get_node("%HapticsButton")
+    check(haptics_button.custom_minimum_size.y >= 48.0, "Vibration toggle touch target")
     check(scene.get_node("%ExitButton").custom_minimum_size.y >= 48.0, "Exit touch target")
     check(scene.get_node("%ExitDialog") is Control, "Custom exit confirmation overlay")
     check(scene.has_method("show_exit_confirmation"), "Settings can open the exit confirmation")

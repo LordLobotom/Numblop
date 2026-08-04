@@ -98,7 +98,7 @@ func _on_chest_pressed() -> void:
     _tap_locked = true
     accepted_taps += 1
     chest_tap_player.play()
-    Input.vibrate_handheld(35)
+    SettingsManager.play_haptic(SettingsManager.HAPTIC_TAP)
     _update_tap_hint()
     await _shake_chest()
     if accepted_taps == REQUIRED_TAPS:
@@ -121,6 +121,8 @@ func _open_and_count() -> void:
     phase = Phase.OPENING
     chest_button.disabled = true
     reward_player.play()
+    # The payoff of the whole round, and the strongest buzz in the game.
+    SettingsManager.play_haptic(SettingsManager.HAPTIC_CELEBRATION)
     var squash := create_tween()
     squash.tween_property(chest_button, "scale", Vector2(1.08, 0.9), 0.12)
     squash.tween_property(chest_button, "scale", Vector2.ONE, 0.16) \

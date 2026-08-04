@@ -6,10 +6,25 @@ const SUPPORTED_LOCALES: Array[String] = ["en", "cs"]
 const DEFAULT_MUSIC_VOLUME := 0.75
 const DEFAULT_SFX_VOLUME := 0.9
 
+## The only three moments that buzz, and how hard.
+##
+## Amplitude matters more than length: a short pulse at the device default is a tick nobody
+## notices. Nothing runs below 20 ms because several Android vendors swallow shorter pulses.
+## Amplitude needs API 26, so Android 24 and 25 fall back to the default strength on their own.
+const HAPTIC_TAP := "tap"
+const HAPTIC_CELEBRATION := "celebration"
+const HAPTIC_MILESTONE := "milestone"
+const HAPTIC_PATTERNS := {
+    HAPTIC_TAP: {"duration_ms": 25, "amplitude": 0.5},
+    HAPTIC_CELEBRATION: {"duration_ms": 90, "amplitude": 1.0},
+    HAPTIC_MILESTONE: {"duration_ms": 80, "amplitude": 0.8},
+}
+
 var locale_preference := SYSTEM_LOCALE
 var music_volume := DEFAULT_MUSIC_VOLUME
 var sfx_volume := DEFAULT_SFX_VOLUME
 var audio_muted := false
+var haptics_enabled := true
 
 
 func _ready() -> void:
@@ -23,6 +38,7 @@ func load_settings(path: String = SETTINGS_PATH) -> void:
     music_volume = DEFAULT_MUSIC_VOLUME
     sfx_volume = DEFAULT_SFX_VOLUME
     audio_muted = false
+    haptics_enabled = true
     var config := ConfigFile.new()
     if config.load(path) == OK:
         var saved := str(config.get_value("language", "locale", SYSTEM_LOCALE))
@@ -39,6 +55,7 @@ func load_settings(path: String = SETTINGS_PATH) -> void:
             1.0
         )
         audio_muted = bool(config.get_value("audio", "muted", false))
+        haptics_enabled = bool(config.get_value("haptics", "enabled", true))
 
 
 func set_locale_preference(locale: String, path: String = SETTINGS_PATH) -> Error:
@@ -86,6 +103,25 @@ func audio_preferences() -> Dictionary:
     }
 
 
+func set_haptics_enabled(enabled: bool, path: String = SETTINGS_PATH) -> Error:
+    haptics_enabled = enabled
+    return _save_settings(path)
+
+
+## Buzzes one of the named patterns, unless the child turned vibration off.
+##
+## `Input.vibrate_handheld` is a no-op away from a handheld device, so Windows and Web need no
+## guard of their own.
+func play_haptic(pattern_name: String) -> void:
+    if not haptics_enabled:
+        return
+    var pattern: Dictionary = HAPTIC_PATTERNS.get(pattern_name, {})
+    if pattern.is_empty():
+        push_error("Unknown haptic pattern: %s" % pattern_name)
+        return
+    Input.vibrate_handheld(int(pattern["duration_ms"]), float(pattern["amplitude"]))
+
+
 func effective_locale() -> String:
     if locale_preference != SYSTEM_LOCALE:
         return locale_preference
@@ -119,4 +155,5 @@ func _save_settings(path: String) -> Error:
     config.set_value("audio", "music_volume", music_volume)
     config.set_value("audio", "sfx_volume", sfx_volume)
     config.set_value("audio", "muted", audio_muted)
+    config.set_value("haptics", "enabled", haptics_enabled)
     return config.save(path)
