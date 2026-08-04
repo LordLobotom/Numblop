@@ -25,6 +25,7 @@ const SCREENS: Array[String] = [
     "settings_exit",
     "choice",
     "milestone",
+    "streak_flash",
     "correction",
     "correction_max",
     "keypad",
@@ -105,7 +106,7 @@ func _capture_screen(locale: String, capture_size: Vector2i, screen_name: String
 
 func _create_screen(screen_name: String) -> Control:
     var scene_path := "res://scenes/screens/HomeScreen.tscn"
-    if screen_name in ["choice", "milestone", "keypad", "correction", "correction_max"]:
+    if screen_name in ["choice", "milestone", "streak_flash", "keypad", "correction", "correction_max"]:
         scene_path = "res://scenes/screens/PracticeScreen.tscn"
     elif screen_name in ["cosmetics", "cosmetics_color", "cosmetics_buy", "cosmetics_hat", "cosmetics_footwear"]:
         scene_path = "res://scenes/screens/CosmeticsScreen.tscn"
@@ -286,6 +287,17 @@ func _configure_screen(screen: Control, screen_name: String, locale: String) -> 
                 "mastery": 84,
                 "reward_coins": 5,
             })
+        "streak_flash":
+            var flashing := screen as PracticeScreen
+            var flash_question := PracticeQuestion.new(
+                6,
+                7,
+                LearningRules.QuestionMode.CHOICE_SIX,
+                [36, 42, 48, 30, 54, 24]
+            )
+            flashing.show_question(flash_question, 5, LearningRules.SESSION_LENGTH)
+            flashing._show_streak_flash(10)
+
         "correction", "correction_max":
             var practice := screen as PracticeScreen
             # 7x4 is the typical split-face case; 9x9 is the heaviest layout the solver can hit.

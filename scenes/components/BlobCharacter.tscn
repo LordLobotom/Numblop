@@ -1,4 +1,4 @@
-[gd_scene load_steps=20 format=3]
+[gd_scene load_steps=21 format=3]
 
 [ext_resource type="Script" path="res://scripts/ui/BlobCharacter.gd" id="1_script"]
 [ext_resource type="Texture2D" path="res://assets/characters/numblop/leg_left/leg_left_bare_idle.png" id="2_leg_left"]
@@ -7,6 +7,7 @@
 [ext_resource type="Texture2D" path="res://assets/characters/numblop/hand_left/hand_left_idle.png" id="5_hand_left"]
 [ext_resource type="Texture2D" path="res://assets/characters/numblop/hand_left/hand_lef_vawe.png" id="6_hand_wave"]
 [ext_resource type="Texture2D" path="res://assets/characters/numblop/hand_right/hand_right_idle.png" id="7_hand_right"]
+[ext_resource type="Texture2D" path="res://assets/characters/numblop/hand_right/hand_right_vawe.png" id="19_hand_right_wave"]
 [ext_resource type="Texture2D" path="res://assets/characters/numblop/cheeks/cheeks_happy.png" id="8_cheeks_happy"]
 [ext_resource type="Texture2D" path="res://assets/characters/numblop/cheeks/cheeks_shy.png" id="9_cheeks_shy"]
 [ext_resource type="Texture2D" path="res://assets/characters/numblop/eyes/eye_left/eye_left_open.png" id="10_left_open"]
@@ -120,6 +121,20 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 texture = ExtResource("7_hand_right")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="RightHandWave" type="TextureRect" parent="Visual"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+texture = ExtResource("19_hand_right_wave")
 expand_mode = 1
 stretch_mode = 5
 

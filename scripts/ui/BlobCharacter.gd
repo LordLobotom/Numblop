@@ -25,6 +25,7 @@ const BODY_COLOR_SHADER: Shader = preload("res://ui/shaders/numblop_body_color.g
 @onready var left_hand_idle: TextureRect = %LeftHandIdle
 @onready var left_hand_wave: TextureRect = %LeftHandWave
 @onready var right_hand: TextureRect = %RightHand
+@onready var right_hand_wave: TextureRect = %RightHandWave
 @onready var idle_timer: Timer = %IdleTimer
 @onready var giggle_player: AudioStreamPlayer = %GigglePlayer
 
@@ -34,6 +35,8 @@ const BODY_COLOR_SHADER: Shader = preload("res://ui/shaders/numblop_body_color.g
 var _idle_tween: Tween
 var _reaction_tween: Tween
 var _reacting := false
+var _cheering := false
+var _cheer_tween: Tween
 var _heart_direction := 1.0
 var _body_materials: Array[ShaderMaterial] = []
 var _pending_body_color := Color("c7e143")
@@ -60,6 +63,8 @@ func _ready() -> void:
     _update_pivot()
     _start_idle_animation()
     set_preview_mode(preview_mode)
+    if _cheering:
+        _apply_cheer_state()
 
 
 func set_preview_mode(enabled: bool) -> void:
@@ -178,6 +183,7 @@ func _prepare_body_color_materials() -> void:
         left_hand_idle,
         left_hand_wave,
         right_hand,
+        right_hand_wave,
     ]
     for body_part in body_parts:
         var body_material := ShaderMaterial.new()
@@ -197,8 +203,57 @@ func _on_gui_input(event: InputEvent) -> void:
         react_to_pet()
 
 
+## Celebrates a mastery milestone: both hands up, happy face, hopping on the spot.
+##
+## Distinct from the pet reaction, which raises one hand and settles back after a beat.
+## A cheer holds until it is switched off, so the caller controls how long it lasts.
+func set_cheering(enabled: bool) -> void:
+    if _cheering == enabled:
+        return
+    _cheering = enabled
+    # Callers set this straight after instantiating, before the node enters the tree.
+    if is_node_ready():
+        _apply_cheer_state()
+
+
+func _apply_cheer_state() -> void:
+    _set_happy_face(_cheering)
+    right_hand.visible = not _cheering
+    right_hand_wave.visible = _cheering
+    if _idle_tween != null:
+        _idle_tween.kill()
+    if _cheer_tween != null:
+        _cheer_tween.kill()
+    if not _cheering:
+        visual.position.y = 0.0
+        _start_idle_animation()
+        return
+    _start_cheer_animation()
+
+
+func _start_cheer_animation() -> void:
+    visual.rotation = 0.0
+    var hop_height := -size.y * 0.06
+    _cheer_tween = create_tween().set_loops()
+    # Crouch, spring up, then land with a small squash so the hop reads as bouncy
+    # rather than as the whole avatar sliding up and down.
+    _cheer_tween.tween_property(visual, "scale", Vector2(1.06, 0.94), 0.12) \
+        .set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+    _cheer_tween.tween_property(visual, "position:y", hop_height, 0.18) \
+        .set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+    _cheer_tween.parallel().tween_property(visual, "scale", Vector2(0.96, 1.05), 0.18) \
+        .set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+    _cheer_tween.tween_property(visual, "position:y", 0.0, 0.16) \
+        .set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
+    _cheer_tween.parallel().tween_property(visual, "scale", Vector2(1.05, 0.95), 0.16) \
+        .set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
+    _cheer_tween.tween_property(visual, "scale", Vector2.ONE, 0.14) \
+        .set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+    _cheer_tween.tween_interval(0.12)
+
+
 func react_to_pet() -> void:
-    if preview_mode or _reacting:
+    if preview_mode or _reacting or _cheering:
         return
     _reacting = true
     petted.emit()

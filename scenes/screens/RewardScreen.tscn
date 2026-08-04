@@ -1,4 +1,4 @@
-[gd_scene load_steps=16 format=3]
+[gd_scene load_steps=19 format=3]
 
 [ext_resource type="Script" path="res://scripts/ui/RewardScreen.gd" id="1_script"]
 [ext_resource type="Texture2D" path="res://assets/backgrounds/mianscreen_background.png" id="2_background"]
@@ -11,8 +11,19 @@
 [ext_resource type="AudioStream" path="res://audio/sfx/xp_gain.wav" id="9_xp"]
 [ext_resource type="AudioStream" path="res://audio/sfx/button.mp3" id="10_tap"]
 [ext_resource type="AudioStream" path="res://audio/sfx/coin2.wav" id="11_coin"]
+[ext_resource type="AudioStream" path="res://audio/sfx/multicoin_payout_1.mp3" id="15_payout_1"]
+[ext_resource type="AudioStream" path="res://audio/sfx/multicoin_payout_2.mp3" id="16_payout_2"]
+
 [ext_resource type="Font" path="res://ui/fonts/Baloo2Bold.tres" id="12_bold"]
 [ext_resource type="Script" path="res://scripts/ui/CenteredContentMargin.gd" id="14_centered_margin"]
+
+[sub_resource type="AudioStreamRandomizer" id="PayoutStreams"]
+playback_mode = 0
+streams_count = 2
+stream_0/stream = ExtResource("15_payout_1")
+stream_0/weight = 1.0
+stream_1/stream = ExtResource("16_payout_2")
+stream_1/weight = 1.0
 
 [sub_resource type="StyleBoxFlat" id="RewardPanel"]
 bg_color = Color(1, 1, 1, 0.94)
@@ -330,4 +341,10 @@ bus = &"SFX"
 unique_name_in_owner = true
 stream = ExtResource("11_coin")
 volume_db = -6.0
+bus = &"SFX"
+
+[node name="PayoutPlayer" type="AudioStreamPlayer" parent="."]
+unique_name_in_owner = true
+stream = SubResource("PayoutStreams")
+volume_db = -3.0
 bus = &"SFX"

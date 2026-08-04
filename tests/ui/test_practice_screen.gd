@@ -186,6 +186,100 @@ func _correct_record(table_value: int, multiplier: int) -> SessionResult.AnswerR
     return SessionResult.AnswerRecord.new(0, question, table_value * multiplier, 1.0, 20)
 
 
+func test_the_streak_flash_fires_on_every_tenth_and_once_per_new_record() -> void:
+    var packed: PackedScene = load("res://scenes/screens/PracticeScreen.tscn")
+    var scene := packed.instantiate()
+    var scene_tree := Engine.get_main_loop() as SceneTree
+    scene_tree.root.add_child(scene)
+    var flash: CenterContainer = scene.get_node("%StreakFlash")
+    var label: Label = scene.get_node("%StreakFlashLabel")
+    check(not flash.visible, "Nothing is celebrated before a streak builds")
+
+    # An ordinary answer inside a modest run says nothing.
+    scene._on_streak_changed(3, 20)
+    check(not flash.visible, "A short run does not interrupt the question")
+
+    # Every tenth answer in a row earns the flash.
+    scene._on_streak_changed(10, 20)
+    check(flash.visible, "The tenth answer in a row is celebrated")
+    equal(label.text, "10", "The flash shows the running count")
+
+    flash.visible = false
+    scene._on_streak_changed(11, 20)
+    check(not flash.visible, "The eleventh answer is not a milestone")
+
+    # Beating the child's own record is celebrated once, not on every answer after it.
+    # `all_time_high` is only written when a run ends, so without the guard every
+    # further correct answer would still read as a new record.
+    scene._on_streak_changed(21, 20)
+    check(flash.visible, "Passing the old record is celebrated")
+    equal(label.text, "21", "The record flash shows the new count")
+
+    flash.visible = false
+    scene._on_streak_changed(22, 20)
+    check(not flash.visible, "The record is not re-celebrated on the next answer")
+    scene._on_streak_changed(23, 20)
+    check(not flash.visible, "Nor on the one after that")
+
+    # A dropped streak arms the next record celebration again.
+    scene._on_streak_changed(0, 23)
+    scene._on_streak_changed(24, 23)
+    check(flash.visible, "A fresh run can beat the record again")
+
+    scene_tree.root.remove_child(scene)
+    scene.free()
+
+
+func test_the_milestone_popup_shows_a_cheering_avatar_that_stops_when_it_closes() -> void:
+    var packed: PackedScene = load("res://scenes/screens/PracticeScreen.tscn")
+    var scene := packed.instantiate()
+    var scene_tree := Engine.get_main_loop() as SceneTree
+    scene_tree.root.add_child(scene)
+
+    var blob: BlobCharacter = scene.get_node("%MilestoneBlob")
+    var blob_center: CenterContainer = scene.get_node("%MilestoneBlobCenter")
+    check(not blob_center.visible, "No avatar before a milestone lands")
+    check(blob.preview_mode, "The celebrating avatar is not pettable")
+
+    scene._active_milestone = {
+        "table_value": 7,
+        "multiplier": 4,
+        "status": &"mastered",
+        "reward_coins": 5,
+    }
+    scene._refresh_mastery_milestone_feedback()
+    check(blob_center.visible, "The avatar celebrates the milestone")
+    check(blob.get_node("%LeftHandWave").visible, "Left hand goes up")
+    check(blob.get_node("%RightHandWave").visible, "Right hand goes up")
+    check(not blob.get_node("%RightHand").visible, "Idle right hand steps aside")
+    check(not blob.get_node("%LeftHandIdle").visible, "Idle left hand steps aside")
+    check(blob.get_node("%SmileOpen").visible, "Cheering blob is grinning")
+
+    # A hop tween left looping behind a hidden panel would run for the whole session.
+    scene._active_milestone.clear()
+    scene._refresh_mastery_milestone_feedback()
+    check(not blob_center.visible, "The avatar leaves with the popup")
+    check(not blob.get_node("%RightHandWave").visible, "Hands come back down")
+    check(blob.get_node("%RightHand").visible, "Idle right hand returns")
+    equal(blob.get_node("%Visual").position.y, 0.0, "The hop is reset, not left mid-air")
+
+    scene_tree.root.remove_child(scene)
+    scene.free()
+
+
+func test_petting_the_blob_still_raises_only_one_hand() -> void:
+    # The milestone cheer has to stay distinguishable from an everyday pet.
+    var packed: PackedScene = load("res://scenes/components/BlobCharacter.tscn")
+    var blob: BlobCharacter = packed.instantiate()
+    var scene_tree := Engine.get_main_loop() as SceneTree
+    scene_tree.root.add_child(blob)
+    blob.react_to_pet()
+    check(blob.get_node("%LeftHandWave").visible, "Pet raises the left hand")
+    check(not blob.get_node("%RightHandWave").visible, "Pet leaves the right hand down")
+    scene_tree.root.remove_child(blob)
+    blob.free()
+
+
 func test_mastery_milestone_feedback_names_fact_band_and_coin_bonus_in_czech() -> void:
     var packed: PackedScene = load("res://scenes/screens/PracticeScreen.tscn")
     var scene := packed.instantiate()

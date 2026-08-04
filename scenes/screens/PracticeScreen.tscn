@@ -1,4 +1,4 @@
-[gd_scene load_steps=11 format=3]
+[gd_scene load_steps=13 format=3]
 
 [ext_resource type="Script" path="res://scripts/ui/PracticeScreen.gd" id="1_script"]
 [ext_resource type="Texture2D" path="res://assets/backgrounds/mianscreen_background.png" id="2_background"]
@@ -6,6 +6,8 @@
 [ext_resource type="Font" path="res://ui/fonts/Baloo2Bold.tres" id="4_bold"]
 [ext_resource type="Script" path="res://scripts/ui/DotFactVisual.gd" id="5_dot_visual"]
 [ext_resource type="Script" path="res://scripts/ui/CenteredContentMargin.gd" id="6_centered_margin"]
+[ext_resource type="PackedScene" path="res://scenes/components/BlobCharacter.tscn" id="7_blob"]
+[ext_resource type="Texture2D" path="res://ui/crests/crest_flame.png" id="8_flame"]
 
 [sub_resource type="StyleBoxFlat" id="QuestionCard"]
 bg_color = Color(1, 1, 1, 0.94)
@@ -243,6 +245,45 @@ unique_name_in_owner = true
 visible = false
 layout_mode = 2
 
+[node name="StreakFlash" type="CenterContainer" parent="."]
+unique_name_in_owner = true
+visible = false
+modulate = Color(1, 1, 1, 0)
+z_index = 30
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_top = 64.0
+offset_bottom = 132.0
+grow_horizontal = 2
+mouse_filter = 2
+
+[node name="StreakFlashRow" type="HBoxContainer" parent="StreakFlash"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/separation = 6
+alignment = 1
+
+[node name="FlameIcon" type="TextureRect" parent="StreakFlash/StreakFlashRow"]
+custom_minimum_size = Vector2(60, 60)
+layout_mode = 2
+size_flags_vertical = 4
+mouse_filter = 2
+texture = ExtResource("8_flame")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="StreakFlashLabel" type="Label" parent="StreakFlash/StreakFlashRow"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.85, 0.25, 0.06, 1)
+theme_override_colors/font_outline_color = Color(1, 1, 1, 0.92)
+theme_override_constants/outline_size = 6
+theme_override_fonts/font = ExtResource("4_bold")
+theme_override_font_sizes/font_size = 36
+text = "10"
+vertical_alignment = 1
+
 [node name="FeedbackOverlay" type="Control" parent="."]
 unique_name_in_owner = true
 visible = false
@@ -272,17 +313,21 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="FeedbackPanel" type="PanelContainer" parent="FeedbackOverlay/Center"]
+[node name="FeedbackStack" type="VBoxContainer" parent="FeedbackOverlay/Center"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="FeedbackPanel" type="PanelContainer" parent="FeedbackOverlay/Center/FeedbackStack"]
 custom_minimum_size = Vector2(340, 290)
 layout_mode = 2
 theme_override_styles/panel = SubResource("FeedbackPanel")
 
-[node name="Content" type="VBoxContainer" parent="FeedbackOverlay/Center/FeedbackPanel"]
+[node name="Content" type="VBoxContainer" parent="FeedbackOverlay/Center/FeedbackStack/FeedbackPanel"]
 layout_mode = 2
 theme_override_constants/separation = 18
 alignment = 1
 
-[node name="FeedbackTitle" type="Label" parent="FeedbackOverlay/Center/FeedbackPanel/Content"]
+[node name="FeedbackTitle" type="Label" parent="FeedbackOverlay/Center/FeedbackStack/FeedbackPanel/Content"]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_font_sizes/font_size = 28
@@ -290,7 +335,7 @@ text = "PRACTICE_CORRECT"
 horizontal_alignment = 1
 autowrap_mode = 2
 
-[node name="MilestoneFactLabel" type="Label" parent="FeedbackOverlay/Center/FeedbackPanel/Content"]
+[node name="MilestoneFactLabel" type="Label" parent="FeedbackOverlay/Center/FeedbackStack/FeedbackPanel/Content"]
 unique_name_in_owner = true
 visible = false
 layout_mode = 2
@@ -300,7 +345,7 @@ theme_override_font_sizes/font_size = 42
 text = "7 × 4"
 horizontal_alignment = 1
 
-[node name="MilestoneStatusLabel" type="Label" parent="FeedbackOverlay/Center/FeedbackPanel/Content"]
+[node name="MilestoneStatusLabel" type="Label" parent="FeedbackOverlay/Center/FeedbackStack/FeedbackPanel/Content"]
 unique_name_in_owner = true
 visible = false
 layout_mode = 2
@@ -311,7 +356,7 @@ text = "MAP_FACT_MASTERED"
 horizontal_alignment = 1
 autowrap_mode = 2
 
-[node name="MilestoneRewardLabel" type="Label" parent="FeedbackOverlay/Center/FeedbackPanel/Content"]
+[node name="MilestoneRewardLabel" type="Label" parent="FeedbackOverlay/Center/FeedbackStack/FeedbackPanel/Content"]
 unique_name_in_owner = true
 visible = false
 layout_mode = 2
@@ -321,7 +366,7 @@ text = "PRACTICE_MILESTONE_REWARD"
 horizontal_alignment = 1
 autowrap_mode = 2
 
-[node name="CorrectEquation" type="Label" parent="FeedbackOverlay/Center/FeedbackPanel/Content"]
+[node name="CorrectEquation" type="Label" parent="FeedbackOverlay/Center/FeedbackStack/FeedbackPanel/Content"]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_colors/font_color = Color(0.28, 0.16, 0.39, 1)
@@ -330,7 +375,7 @@ text = "7 × 4 = 28"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="DotFactVisual" type="Control" parent="FeedbackOverlay/Center/FeedbackPanel/Content"]
+[node name="DotFactVisual" type="Control" parent="FeedbackOverlay/Center/FeedbackStack/FeedbackPanel/Content"]
 unique_name_in_owner = true
 visible = false
 custom_minimum_size = Vector2(0, 120)
@@ -338,7 +383,7 @@ layout_mode = 2
 mouse_filter = 2
 script = ExtResource("5_dot_visual")
 
-[node name="DotHint" type="Label" parent="FeedbackOverlay/Center/FeedbackPanel/Content"]
+[node name="DotHint" type="Label" parent="FeedbackOverlay/Center/FeedbackStack/FeedbackPanel/Content"]
 unique_name_in_owner = true
 visible = false
 layout_mode = 2
@@ -348,12 +393,24 @@ text = "PRACTICE_DOTS_HINT"
 horizontal_alignment = 1
 autowrap_mode = 2
 
-[node name="ContinueButton" type="Button" parent="FeedbackOverlay/Center/FeedbackPanel/Content"]
+[node name="ContinueButton" type="Button" parent="FeedbackOverlay/Center/FeedbackStack/FeedbackPanel/Content"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 64)
 layout_mode = 2
 theme_override_font_sizes/font_size = 22
 text = "PRACTICE_CONTINUE"
+
+[node name="MilestoneBlobCenter" type="CenterContainer" parent="FeedbackOverlay/Center/FeedbackStack"]
+unique_name_in_owner = true
+visible = false
+custom_minimum_size = Vector2(0, 190)
+layout_mode = 2
+
+[node name="MilestoneBlob" parent="FeedbackOverlay/Center/FeedbackStack/MilestoneBlobCenter" instance=ExtResource("7_blob")]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(190, 190)
+layout_mode = 2
+preview_mode = true
 
 [node name="MilestoneSkipButton" type="Button" parent="FeedbackOverlay"]
 unique_name_in_owner = true

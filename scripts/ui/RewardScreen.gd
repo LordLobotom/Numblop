@@ -13,6 +13,8 @@ const MASTERY_ROW_DELAY_SECONDS := 0.12
 
 const BREAKDOWN_ROW_HEIGHT := 26.0
 const BREAKDOWN_ROW_DELAY_SECONDS := 0.14
+## Keeps the coin payout off the same frame as the experience sound.
+const PAYOUT_SFX_DELAY_SECONDS := 0.18
 
 const BOLD_FONT: Font = preload("res://ui/fonts/Baloo2Bold.tres")
 const COIN_TEXTURE: Texture2D = preload("res://ui/crests/crest_coin.png")
@@ -48,6 +50,7 @@ enum Phase {
 @onready var xp_player: AudioStreamPlayer = %XpPlayer
 @onready var chest_tap_player: AudioStreamPlayer = %ChestTapPlayer
 @onready var coin_player: AudioStreamPlayer = %CoinPlayer
+@onready var payout_player: AudioStreamPlayer = %PayoutPlayer
 
 var phase := Phase.TAPPING
 var accepted_taps := 0
@@ -332,6 +335,13 @@ func _total_reward_coins() -> int:
     return int(_reward.get("coins", 0))
 
 
+func _play_payout_after(delay_seconds: float) -> void:
+    if delay_seconds <= 0.0:
+        payout_player.play()
+        return
+    get_tree().create_timer(delay_seconds).timeout.connect(payout_player.play)
+
+
 func _clear_breakdown_list() -> void:
     breakdown_separator.visible = false
     for child in breakdown_list.get_children():
@@ -366,8 +376,11 @@ func _count_rewards() -> void:
             .set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
         await get_tree().create_timer(BREAKDOWN_ROW_DELAY_SECONDS).timeout
 
+    # The whole round's coins land here, so this gets the fuller payout sound rather
+    # than the single-coin tick used for the breakdown lines above. Offset from the XP
+    # sound, which used to start on the very same frame.
     xp_player.play()
-    coin_player.play()
+    _play_payout_after(PAYOUT_SFX_DELAY_SECONDS)
     var count_up := create_tween().set_parallel(true)
     count_up.tween_method(_set_coin_count, 0, _total_reward_coins(), 0.8)
     count_up.tween_method(_set_xp_count, 0, int(_reward.get("experience", 0)), 0.8)

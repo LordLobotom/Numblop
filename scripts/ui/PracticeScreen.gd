@@ -10,6 +10,12 @@ const MILESTONE_FEEDBACK_SECONDS := 3.6
 ## The correction picture fills in over this long before Continue appears, so the explanation
 ## cannot be tapped away before it has been seen. After that the child has all the time they want.
 const WRONG_DOTS_REVEAL_SECONDS := 1.2
+## Every tenth answer in a row gets a flash, and so does the first answer that beats the
+## child's own record. The record is only celebrated once per run: `all_time_high` is
+## not written until a streak ends, so `current_count > all_time_high` stays true for
+## every answer after the record falls, and flashing on each would drain the moment.
+const STREAK_FLASH_INTERVAL := 10
+const STREAK_FLASH_HOLD_SECONDS := 1.1
 
 @onready var progress_label: Label = %ProgressLabel
 @onready var exit_button: Button = %ExitButton
@@ -27,6 +33,11 @@ const WRONG_DOTS_REVEAL_SECONDS := 1.2
 @onready var dot_hint: Label = %DotHint
 @onready var continue_button: Button = %ContinueButton
 @onready var milestone_skip_button: Button = %MilestoneSkipButton
+@onready var milestone_blob_center: CenterContainer = %MilestoneBlobCenter
+@onready var milestone_blob: BlobCharacter = %MilestoneBlob
+@onready var streak_flash: CenterContainer = %StreakFlash
+@onready var streak_flash_row: HBoxContainer = %StreakFlashRow
+@onready var streak_flash_label: Label = %StreakFlashLabel
 
 var _question: PracticeQuestion
 var _choice_buttons: Array[Button] = []
@@ -34,6 +45,8 @@ var _question_started_msec := 0
 var _accepting_input := false
 var _feedback_cancelled := false
 var _active_milestone: Dictionary = {}
+var _celebrated_record_this_run := false
+var _streak_flash_tween: Tween
 
 
 func _ready() -> void:
@@ -46,6 +59,7 @@ func _ready() -> void:
     exit_button.pressed.connect(exit_requested.emit)
     continue_button.pressed.connect(_on_continue_feedback_pressed)
     milestone_skip_button.pressed.connect(_on_milestone_skip_pressed)
+    EventBus.streak_changed.connect(_on_streak_changed)
     _refresh_text()
 
 
@@ -167,8 +181,14 @@ func _refresh_mastery_milestone_feedback() -> void:
     milestone_status_label.visible = visible
     milestone_reward_label.visible = visible
     milestone_skip_button.visible = visible
+    milestone_blob_center.visible = visible
+    # The blob only hops while the milestone is on screen, so the tween is not left
+    # looping behind a hidden panel for the rest of the session.
+    milestone_blob.set_cheering(visible)
     if not visible:
         return
+    # It is the child's own avatar that celebrates, so it wears what they have equipped.
+    milestone_blob.apply_cosmetics(AppState.cosmetics_state())
     var table_value := int(_active_milestone.get("table_value", 0))
     var multiplier := int(_active_milestone.get("multiplier", 0))
     var status := StringName(_active_milestone.get("status", &"building"))
@@ -180,6 +200,42 @@ func _refresh_mastery_milestone_feedback() -> void:
     milestone_reward_label.text = tr("PRACTICE_MILESTONE_REWARD").format({
         "coins": reward_coins,
     })
+
+
+func _on_streak_changed(current_count: int, all_time_high: int) -> void:
+    if current_count <= 0:
+        # The run ended, so the next record is worth celebrating again.
+        _celebrated_record_this_run = false
+        return
+    if current_count % STREAK_FLASH_INTERVAL == 0:
+        _show_streak_flash(current_count)
+        return
+    if current_count > all_time_high and not _celebrated_record_this_run:
+        _celebrated_record_this_run = true
+        _show_streak_flash(current_count)
+
+
+## Pops the flame and the running count over the question for a moment.
+##
+## Deliberately transient: the streak has no permanent place on this screen, so it
+## appears only when it has just been earned and then gets out of the way.
+func _show_streak_flash(count: int) -> void:
+    streak_flash_label.text = str(count)
+    streak_flash.visible = true
+    if _streak_flash_tween != null:
+        _streak_flash_tween.kill()
+    streak_flash_row.pivot_offset = streak_flash_row.size / 2.0
+    streak_flash_row.scale = Vector2(0.6, 0.6)
+    streak_flash.modulate.a = 0.0
+    _streak_flash_tween = create_tween()
+    _streak_flash_tween.tween_property(streak_flash_row, "scale", Vector2(1.18, 1.18), 0.18) \
+        .set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+    _streak_flash_tween.parallel().tween_property(streak_flash, "modulate:a", 1.0, 0.14)
+    _streak_flash_tween.tween_property(streak_flash_row, "scale", Vector2.ONE, 0.16) \
+        .set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+    _streak_flash_tween.tween_interval(STREAK_FLASH_HOLD_SECONDS)
+    _streak_flash_tween.tween_property(streak_flash, "modulate:a", 0.0, 0.3)
+    _streak_flash_tween.tween_callback(func() -> void: streak_flash.visible = false)
 
 
 func _fact_status_key(status: StringName) -> StringName:

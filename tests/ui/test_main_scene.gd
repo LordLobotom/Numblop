@@ -557,7 +557,7 @@ func test_main_scene_bundles_audible_music_and_confirm_sfx() -> void:
     )
     equal(
         scene.get_node("%MilestoneSfxPlayer").stream.resource_path,
-        "res://audio/sfx/level_up.wav",
+        "res://audio/sfx/level_up_chime.mp3",
         "Mastery milestone level-up sound"
     )
     equal(
@@ -567,6 +567,68 @@ func test_main_scene_bundles_audible_music_and_confirm_sfx() -> void:
     )
     check(music.volume_db > -20.0, "Music is not effectively silent")
     scene.free()
+
+
+func test_the_cheer_picks_a_different_clip_each_time() -> void:
+    var packed: PackedScene = load("res://scenes/Main.tscn")
+    check(packed != null, "Main scene must load")
+    if packed == null:
+        return
+    var scene := packed.instantiate()
+    var cheer: AudioStreamPlayer = scene.get_node("%CheerSfxPlayer")
+    var randomizer := cheer.stream as AudioStreamRandomizer
+    check(randomizer != null, "The cheer draws from a pool, not a single clip")
+    if randomizer == null:
+        scene.free()
+        return
+    equal(randomizer.streams_count, 4, "All four cheer takes are in the pool")
+    equal(
+        randomizer.playback_mode,
+        AudioStreamRandomizer.PLAYBACK_RANDOM_NO_REPEATS,
+        "The same cheer never lands twice in a row"
+    )
+    var clips: Array[String] = []
+    for index in randomizer.streams_count:
+        clips.append(randomizer.get_stream(index).resource_path)
+    clips.sort()
+    equal(
+        clips,
+        [
+            "res://audio/sfx/cheers_wee_1.mp3",
+            "res://audio/sfx/cheers_wee_2.mp3",
+            "res://audio/sfx/cheers_yeah.mp3",
+            "res://audio/sfx/cheers_yoho.mp3",
+        ],
+        "Cheer pool contents"
+    )
+    equal(cheer.bus, "SFX", "The cheer follows the sound-effects volume")
+    scene.free()
+
+
+func test_celebration_sounds_never_start_on_the_same_frame() -> void:
+    # A milestone fires four sounds. They are meant to overlap at the tails and read as
+    # one celebration, but starting together just sounds like a single noisy blast.
+    var main: GDScript = load("res://scripts/ui/Main.gd")
+    var offsets: Array[float] = [
+        0.0,  # the answer click, played the instant an answer is submitted
+        main.MILESTONE_CHIME_DELAY_SECONDS,
+        main.MILESTONE_CHEER_DELAY_SECONDS,
+        main.MILESTONE_COIN_DELAY_SECONDS,
+    ]
+    for index in range(1, offsets.size()):
+        check(
+            offsets[index] - offsets[index - 1] >= 0.1,
+            "Milestone sound %d starts clear of the one before it" % index
+        )
+    check(
+        main.CORRECT_SFX_DELAY_SECONDS >= 0.1,
+        "An ordinary correct answer does not stack two sounds on one frame"
+    )
+    var reward: GDScript = load("res://scripts/ui/RewardScreen.gd")
+    check(
+        reward.PAYOUT_SFX_DELAY_SECONDS >= 0.1,
+        "The coin payout starts clear of the experience sound"
+    )
 
 
 func test_main_scene_defers_streamed_music_until_web_audio_is_unlocked() -> void:

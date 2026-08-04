@@ -17,6 +17,13 @@ const WEB_AUDIO_RESUME_SCRIPT := """
 """
 const WEB_AUDIO_UNLOCK_VERIFY_DELAY := 0.25
 
+## Offsets that keep celebration sounds from all starting on the same frame. Measured
+## from the answer click, which plays the instant an answer is submitted.
+const CORRECT_SFX_DELAY_SECONDS := 0.12
+const MILESTONE_CHIME_DELAY_SECONDS := 0.18
+const MILESTONE_CHEER_DELAY_SECONDS := 0.62
+const MILESTONE_COIN_DELAY_SECONDS := 1.24
+
 @onready var home_screen: HomeScreen = %HomeScreen
 @onready var map_screen: MapScreen = %MapScreen
 @onready var settings_screen: SettingsScreen = %SettingsScreen
@@ -30,6 +37,7 @@ const WEB_AUDIO_UNLOCK_VERIFY_DELAY := 0.25
 @onready var correct_sfx_player: AudioStreamPlayer = %CorrectSfxPlayer
 @onready var page_sfx_player: AudioStreamPlayer = %PageSfxPlayer
 @onready var milestone_sfx_player: AudioStreamPlayer = %MilestoneSfxPlayer
+@onready var cheer_sfx_player: AudioStreamPlayer = %CheerSfxPlayer
 @onready var coin_sfx_player: AudioStreamPlayer = %CoinSfxPlayer
 
 var _pending_unlocked_table := 0
@@ -149,7 +157,8 @@ func _on_answer_submitted(value: int, elapsed_seconds: float) -> void:
     if not milestone.is_empty():
         _play_mastery_milestone_sfx()
     elif record.correct:
-        correct_sfx_player.play()
+        # Offset from the answer click above, which fires on the same frame.
+        _play_delayed(correct_sfx_player, CORRECT_SFX_DELAY_SECONDS)
     var result := AppState.active_session_result
     var reward: Dictionary = {}
     if result.is_complete():
@@ -335,9 +344,23 @@ func _play_page_sfx() -> void:
     page_sfx_player.play()
 
 
+## Spaces the milestone sounds out so they read as one celebration, not one noise.
+##
+## Submitting an answer already plays its own click, so nothing else starts on the same
+## frame: the chime lands just after it, the blob cheers once its popup is on screen,
+## and the coins arrive last. The tails still overlap, which is what makes it feel like
+## a single moment rather than four separate beeps.
 func _play_mastery_milestone_sfx() -> void:
-    milestone_sfx_player.play()
-    get_tree().create_timer(0.3).timeout.connect(coin_sfx_player.play)
+    _play_delayed(milestone_sfx_player, MILESTONE_CHIME_DELAY_SECONDS)
+    _play_delayed(cheer_sfx_player, MILESTONE_CHEER_DELAY_SECONDS)
+    _play_delayed(coin_sfx_player, MILESTONE_COIN_DELAY_SECONDS)
+
+
+func _play_delayed(player: AudioStreamPlayer, delay_seconds: float) -> void:
+    if delay_seconds <= 0.0:
+        player.play()
+        return
+    get_tree().create_timer(delay_seconds).timeout.connect(player.play)
 
 
 func _center_desktop_window() -> void:

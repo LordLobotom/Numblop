@@ -1,4 +1,4 @@
-[gd_scene load_steps=18 format=3]
+[gd_scene load_steps=23 format=3]
 
 [ext_resource type="Script" path="res://scripts/ui/Main.gd" id="1_main"]
 [ext_resource type="Theme" path="res://ui/theme.tres" id="2_theme"]
@@ -15,8 +15,25 @@
 [ext_resource type="AudioStream" path="res://audio/sfx/turn_page.wav" id="13_page"]
 [ext_resource type="PackedScene" path="res://scenes/screens/CosmeticsScreen.tscn" id="14_cosmetics"]
 [ext_resource type="PackedScene" path="res://scenes/screens/TrophyScreen.tscn" id="15_trophy"]
-[ext_resource type="AudioStream" path="res://audio/sfx/level_up.wav" id="16_milestone"]
+[ext_resource type="AudioStream" path="res://audio/sfx/level_up_chime.mp3" id="16_milestone"]
 [ext_resource type="AudioStream" path="res://audio/sfx/coin2.wav" id="17_coin"]
+[ext_resource type="AudioStream" path="res://audio/sfx/cheers_wee_1.mp3" id="18_cheer_wee_1"]
+[ext_resource type="AudioStream" path="res://audio/sfx/cheers_wee_2.mp3" id="19_cheer_wee_2"]
+[ext_resource type="AudioStream" path="res://audio/sfx/cheers_yoho.mp3" id="20_cheer_yoho"]
+[ext_resource type="AudioStream" path="res://audio/sfx/cheers_yeah.mp3" id="21_cheer_yeah"]
+
+[sub_resource type="AudioStreamRandomizer" id="CheerStreams"]
+playback_mode = 0
+random_pitch = 1.05
+streams_count = 4
+stream_0/stream = ExtResource("18_cheer_wee_1")
+stream_0/weight = 1.0
+stream_1/stream = ExtResource("19_cheer_wee_2")
+stream_1/weight = 1.0
+stream_2/stream = ExtResource("20_cheer_yoho")
+stream_2/weight = 1.0
+stream_3/stream = ExtResource("21_cheer_yeah")
+stream_3/weight = 1.0
 
 [node name="Main" type="Control"]
 layout_mode = 3
@@ -104,6 +121,12 @@ unique_name_in_owner = true
 stream = ExtResource("16_milestone")
 volume_db = -4.0
 max_polyphony = 2
+bus = &"SFX"
+
+[node name="CheerSfxPlayer" type="AudioStreamPlayer" parent="."]
+unique_name_in_owner = true
+stream = SubResource("CheerStreams")
+volume_db = -3.0
 bus = &"SFX"
 
 [node name="CoinSfxPlayer" type="AudioStreamPlayer" parent="."]
