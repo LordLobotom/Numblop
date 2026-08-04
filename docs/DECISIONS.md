@@ -386,3 +386,28 @@
   Reactions come every few hundred milliseconds under a continuous stroke, which is faster than
   a clip finishes, and restarting on each one chopped the giggle into a stutter. The visual
   reaction still plays; only the voice waits its turn.
+
+## 2026-08-05 — XP achievement tier
+
+- The catalog gains five XP achievements: 100, 500, 1000, 5000 and 10000, each paying 50 coins.
+- XP is the lifetime count of correctly answered questions. A finished round grants one point of
+  experience per correct answer (`LocalProgress.apply_completed_session`), so `progress.experience`
+  is that count and no separate counter is stored. The one-point minimum for a round without a
+  single correct answer is the only place the two differ, and it errs in the child's favour.
+- Progress is therefore retroactive for free: an existing save already carries the experience, so
+  the tiers a child has passed are granted the moment the save loads, like every other achievement.
+
+## 2026-08-05 — Collection achievements, one per cosmetic category
+
+- Six collection achievements, 50 coins each: body colors, belly colors, hats, glasses,
+  necklaces and shoes. A collection completes when every *paid* item of its category is owned;
+  the free default item of each category is not part of the count, so a fresh profile starts
+  every collection at zero.
+- `AchievementCatalog.COLLECTION_TARGETS` restates the paid item count per category rather than
+  reading `CosmeticCatalog`, which lives in the app layer. The core stays free of app
+  dependencies, and a state test pins the two lists together, so adding a cosmetic fails the
+  suite until the target is bumped deliberately — an added item changes what the achievement is
+  worth earning, and that should never happen silently.
+- The shop grants collection rewards the moment the last item is bought: `purchase_cosmetic`
+  ends with `sync_achievements()`. The coins land immediately, while the unlock is announced with
+  the next finished round, which is the queueing rule every other achievement already follows.

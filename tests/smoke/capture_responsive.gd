@@ -411,6 +411,8 @@ func _trophy_capture_state(islands_only: bool) -> Dictionary:
     for entry in AchievementCatalog.evaluate(profile, {
         "completed_sessions": 24,
         "best_streak": 37,
+        "experience": 240,
+        "owned_cosmetics": {"body_color": 5, "hat": 2},
     }):
         if islands_only and String(entry["kind"]) != AchievementCatalog.KIND_ISLAND:
             continue

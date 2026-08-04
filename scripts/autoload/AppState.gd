@@ -256,7 +256,24 @@ func _achievement_statistics() -> Dictionary:
         "completed_sessions": progress.completed_sessions,
         # A streak counts the moment it is reached; it does not have to be ended by a mistake.
         "best_streak": maxi(streak.all_time_high, streak.current_count),
+        # One experience point per correct answer, so this is the lifetime correct-answer count.
+        "experience": progress.experience,
+        "owned_cosmetics": _owned_paid_cosmetics(),
     }
+
+
+## Purchased item count per cosmetic category. Free default items are never counted, so a fresh
+## profile starts every collection at zero.
+func _owned_paid_cosmetics() -> Dictionary:
+    var owned: Dictionary = {}
+    for category in AchievementCatalog.COLLECTION_TARGETS:
+        var category_name := String(category)
+        var count := 0
+        for item in CosmeticCatalog.items(category_name):
+            if int(item["price"]) > 0 and cosmetics.owns_item(category_name, String(item["id"])):
+                count += 1
+        owned[category_name] = count
+    return owned
 
 
 func cosmetics_state() -> Dictionary:
@@ -337,6 +354,9 @@ func purchase_cosmetic(category: String, item_id: String) -> bool:
     cosmetics = updated_cosmetics
     EventBus.progress_changed.emit(progress.coins, progress.experience, progress.level())
     _emit_cosmetics_changed()
+    # Buying the last paid item of a category completes its collection achievement. The coins are
+    # banked here; the unlock itself is announced with the next finished round like every other.
+    sync_achievements()
     return true
 
 

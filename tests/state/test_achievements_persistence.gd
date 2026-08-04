@@ -110,6 +110,21 @@ func test_a_fresh_save_reports_no_finished_rounds() -> void:
     _remove_test_file()
 
 
+func test_collection_targets_match_the_paid_items_in_the_cosmetics_catalog() -> void:
+    for category in AchievementCatalog.COLLECTION_TARGETS:
+        var category_name := String(category)
+        var paid_items := 0
+        for item in CosmeticCatalog.items(category_name):
+            if int(item["price"]) > 0:
+                paid_items += 1
+        check(paid_items > 0, "%s is a real cosmetic category" % category_name)
+        equal(
+            int(AchievementCatalog.COLLECTION_TARGETS[category]),
+            paid_items,
+            "%s collection target matches the shop" % category_name
+        )
+
+
 func _remove_test_file() -> void:
     if FileAccess.file_exists(TEST_PATH):
         DirAccess.remove_absolute(ProjectSettings.globalize_path(TEST_PATH))

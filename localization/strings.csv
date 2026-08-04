@@ -7,6 +7,20 @@ ACHIEVEMENT_FIRST_STEPS_TITLE,First Steps,První kroky
 ACHIEVEMENT_FIRST_STEPS_DESC,Finish your first round,Dokonči své první kolo
 ACHIEVEMENT_STREAK_TITLE,Streak {count},Série {count}
 ACHIEVEMENT_STREAK_DESC,Answer {count} in a row,Odpověz {count} příkladů v řadě
+ACHIEVEMENT_EXPERIENCE_TITLE,{count} XP,{count} XP
+ACHIEVEMENT_EXPERIENCE_DESC,Answer {count} examples correctly,Odpověz správně {count} příkladů
+ACHIEVEMENT_COLLECTION_BODY_COLOR_TITLE,Body color collection,Sbírka barev těla
+ACHIEVEMENT_COLLECTION_BODY_COLOR_DESC,Unlock all {count} body colors,Odemkni všech {count} barev těla
+ACHIEVEMENT_COLLECTION_BELLY_COLOR_TITLE,Belly color collection,Sbírka barev bříška
+ACHIEVEMENT_COLLECTION_BELLY_COLOR_DESC,Unlock all {count} belly colors,Odemkni všech {count} barev bříška
+ACHIEVEMENT_COLLECTION_HAT_TITLE,Hat collection,Sbírka čepic
+ACHIEVEMENT_COLLECTION_HAT_DESC,Unlock all {count} hats,Odemkni všech {count} čepic
+ACHIEVEMENT_COLLECTION_GLASSES_TITLE,Glasses collection,Sbírka brýlí
+ACHIEVEMENT_COLLECTION_GLASSES_DESC,Unlock all {count} glasses,Odemkni všech {count} brýlí
+ACHIEVEMENT_COLLECTION_NECKLACE_TITLE,Necklace collection,Sbírka řetízků
+ACHIEVEMENT_COLLECTION_NECKLACE_DESC,Unlock all {count} necklaces,Odemkni všech {count} řetízků
+ACHIEVEMENT_COLLECTION_FOOTWEAR_TITLE,Shoe collection,Sbírka bot
+ACHIEVEMENT_COLLECTION_FOOTWEAR_DESC,Unlock all {count} shoes,Odemkni všech {count} bot
 ACHIEVEMENT_ISLAND_TITLE,Island {table}× mastery,Mistrovství ostrova {table}×
 ACHIEVEMENT_ISLAND_DESC,Master every {table}× fact to 100 %,Zvládni všechny spoje {table}× na 100 %
 REWARD_MASTERY_TITLE,What you improved,Co se ti zlepšilo
