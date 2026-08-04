@@ -1,4 +1,4 @@
-[gd_scene load_steps=21 format=3]
+[gd_scene load_steps=22 format=3]
 
 [ext_resource type="Script" path="res://scripts/ui/SettingsScreen.gd" id="1_script"]
 [ext_resource type="Texture2D" path="res://assets/backgrounds/mianscreen_background.png" id="2_background"]
@@ -10,6 +10,7 @@
 [ext_resource type="Script" path="res://scripts/ui/CheckmarkIcon.gd" id="13_checkmark"]
 [ext_resource type="PackedScene" path="res://scenes/components/NavBar.tscn" id="14_navbar"]
 [ext_resource type="StyleBox" path="res://ui/styles/header_panel.tres" id="15_header_style"]
+[ext_resource type="Script" path="res://scripts/ui/TouchScrollContainer.gd" id="16_touchscroll"]
 
 [sub_resource type="StyleBoxFlat" id="SettingsPanel"]
 bg_color = Color(1, 1, 1, 0.94)
@@ -211,9 +212,11 @@ text = "SETTINGS_VERSION"
 horizontal_alignment = 1
 
 [node name="Scroll" type="ScrollContainer" parent="SafeArea/Content"]
+script = ExtResource("16_touchscroll")
 layout_mode = 2
 size_flags_vertical = 3
 horizontal_scroll_mode = 0
+vertical_scroll_mode = 3
 
 [node name="SettingsPanel" type="PanelContainer" parent="SafeArea/Content/Scroll"]
 custom_minimum_size = Vector2(336, 500)

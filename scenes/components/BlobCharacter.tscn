@@ -1,4 +1,4 @@
-[gd_scene load_steps=21 format=3]
+[gd_scene load_steps=24 format=3]
 
 [ext_resource type="Script" path="res://scripts/ui/BlobCharacter.gd" id="1_script"]
 [ext_resource type="Texture2D" path="res://assets/characters/numblop/leg_left/leg_left_bare_idle.png" id="2_leg_left"]
@@ -19,9 +19,22 @@
 [ext_resource type="Texture2D" path="res://assets/characters/numblop/mouth/mouth_smile_open.png" id="16_smile_open"]
 [ext_resource type="AudioStream" path="res://audio/sfx/giggle.mp3" id="17_giggle"]
 [ext_resource type="Shader" path="res://ui/shaders/necklace_artifact_clip.gdshader" id="18_necklace_clip"]
+[ext_resource type="AudioStream" path="res://audio/sfx/cheers_wee_1.mp3" id="21_wee_1"]
+[ext_resource type="AudioStream" path="res://audio/sfx/cheers_wee_2.mp3" id="22_wee_2"]
 
 [sub_resource type="ShaderMaterial" id="NecklaceClipMaterial"]
 shader = ExtResource("18_necklace_clip")
+
+[sub_resource type="AudioStreamRandomizer" id="PetSounds"]
+playback_mode = 0
+random_pitch = 1.05
+streams_count = 3
+stream_0/stream = ExtResource("17_giggle")
+stream_0/weight = 1.0
+stream_1/stream = ExtResource("21_wee_1")
+stream_1/weight = 1.0
+stream_2/stream = ExtResource("22_wee_2")
+stream_2/weight = 1.0
 
 [node name="BlobCharacter" type="Control"]
 unique_name_in_owner = true
@@ -326,8 +339,8 @@ unique_name_in_owner = true
 wait_time = 2.8
 autostart = true
 
-[node name="GigglePlayer" type="AudioStreamPlayer" parent="."]
+[node name="PetVoicePlayer" type="AudioStreamPlayer" parent="."]
 unique_name_in_owner = true
-stream = ExtResource("17_giggle")
+stream = SubResource("PetSounds")
 volume_db = -3.0
 bus = &"SFX"

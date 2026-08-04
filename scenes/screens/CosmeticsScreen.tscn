@@ -1,4 +1,4 @@
-[gd_scene load_steps=20 format=3]
+[gd_scene load_steps=21 format=3]
 
 [ext_resource type="Script" path="res://scripts/ui/CosmeticsScreen.gd" id="1_script"]
 [ext_resource type="PackedScene" path="res://scenes/components/BlobCharacter.tscn" id="14_blob"]
@@ -10,6 +10,7 @@
 [ext_resource type="Script" path="res://scripts/ui/CenteredContentMargin.gd" id="13_centered_margin"]
 [ext_resource type="PackedScene" path="res://scenes/components/NavBar.tscn" id="15_navbar"]
 [ext_resource type="StyleBox" path="res://ui/styles/header_panel.tres" id="16_header_style"]
+[ext_resource type="Script" path="res://scripts/ui/TouchScrollContainer.gd" id="17_touchscroll"]
 
 [sub_resource type="StyleBoxFlat" id="CosmeticsPanel"]
 bg_color = Color(1, 1, 1, 0.94)
@@ -297,10 +298,12 @@ icon_alignment = 1
 vertical_icon_alignment = 1
 
 [node name="Scroll" type="ScrollContainer" parent="SafeArea/Content"]
+script = ExtResource("17_touchscroll")
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_vertical = 3
 horizontal_scroll_mode = 0
+vertical_scroll_mode = 3
 
 [node name="CosmeticsPanel" type="PanelContainer" parent="SafeArea/Content/Scroll"]
 custom_minimum_size = Vector2(336, 0)
@@ -356,7 +359,7 @@ layout_mode = 2
 size_flags_horizontal = 4
 theme_override_constants/h_separation = 2
 theme_override_constants/v_separation = 6
-columns = 6
+columns = 4
 
 [node name="BellyLabel" type="Label" parent="SafeArea/Content/Scroll/CosmeticsPanel/Pages/ColorPage"]
 unique_name_in_owner = true

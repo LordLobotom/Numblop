@@ -1,4 +1,4 @@
-[gd_scene load_steps=9 format=3]
+[gd_scene load_steps=10 format=3]
 
 [ext_resource type="Script" path="res://scripts/ui/MapScreen.gd" id="1_script"]
 [ext_resource type="Script" path="res://scripts/ui/MapPath.gd" id="2_path"]
@@ -7,6 +7,7 @@
 [ext_resource type="Script" path="res://scripts/ui/CenteredContentMargin.gd" id="10_centered_margin"]
 [ext_resource type="PackedScene" path="res://scenes/components/NavBar.tscn" id="11_navbar"]
 [ext_resource type="StyleBox" path="res://ui/styles/header_panel.tres" id="12_header_style"]
+[ext_resource type="Script" path="res://scripts/ui/TouchScrollContainer.gd" id="13_touchscroll"]
 
 [sub_resource type="StyleBoxFlat" id="FactDetailPanel"]
 bg_color = Color(0.98, 1, 0.97, 0.99)
@@ -98,10 +99,12 @@ horizontal_alignment = 1
 autowrap_mode = 2
 
 [node name="Scroll" type="ScrollContainer" parent="SafeArea/Content"]
+script = ExtResource("13_touchscroll")
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_vertical = 3
 horizontal_scroll_mode = 0
+vertical_scroll_mode = 3
 
 [node name="MapCenter" type="CenterContainer" parent="SafeArea/Content/Scroll"]
 unique_name_in_owner = true

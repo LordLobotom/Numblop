@@ -35,7 +35,7 @@ OPENING_LANGUAGE_PROMPT,Choose your language,Vyber si jazyk
 HOME_COINS,Coins: {count},Mince: {count}
 HOME_XP,Experience: {count},Zkušenosti: {count}
 HOME_LEVEL,Level {level},Úroveň {level}
-HOME_PET_HINT,Tap the blob to say hello!,Klepni na Numblopa a pozdrav ho!
+HOME_PET_HINT,Stroke the blob to say hello!,Pohlaď Numblopa a pozdrav ho!
 HOME_PET_REACTION,Numblop is happy to see you!,Numblop tě rád vidí!
 HOME_PET_ACCESSIBLE,Pet Numblop,Pohladit Numblopa
 HOME_REWARD_REACTION,Great practice! Numblop is proud of you.,Skvělé procvičování! Numblop je na tebe pyšný.

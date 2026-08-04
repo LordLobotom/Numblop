@@ -1,4 +1,4 @@
-[gd_scene load_steps=11 format=3]
+[gd_scene load_steps=12 format=3]
 
 [ext_resource type="Script" path="res://scripts/ui/TrophyScreen.gd" id="1_script"]
 [ext_resource type="Texture2D" path="res://assets/backgrounds/mianscreen_background.png" id="2_background"]
@@ -8,6 +8,7 @@
 [ext_resource type="Script" path="res://scripts/ui/CenteredContentMargin.gd" id="10_centered_margin"]
 [ext_resource type="PackedScene" path="res://scenes/components/NavBar.tscn" id="11_navbar"]
 [ext_resource type="StyleBox" path="res://ui/styles/header_panel.tres" id="12_header_style"]
+[ext_resource type="Script" path="res://scripts/ui/TouchScrollContainer.gd" id="13_touchscroll"]
 
 [sub_resource type="StyleBoxFlat" id="SummaryPanel"]
 bg_color = Color(1, 0.98, 0.86, 0.94)
@@ -141,8 +142,10 @@ size_flags_vertical = 3
 theme_override_styles/panel = SubResource("ListPanel")
 
 [node name="Scroll" type="ScrollContainer" parent="SafeArea/Content/AchievementsPanel"]
+script = ExtResource("13_touchscroll")
 layout_mode = 2
 horizontal_scroll_mode = 0
+vertical_scroll_mode = 3
 
 [node name="AchievementList" type="VBoxContainer" parent="SafeArea/Content/AchievementsPanel/Scroll"]
 unique_name_in_owner = true

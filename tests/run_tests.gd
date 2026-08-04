@@ -12,10 +12,12 @@ var _has_run := false
 
 func _process(_delta: float) -> bool:
     if _has_run:
-        return true
+        # Returning true here would end the main loop, and a test that spans frames would
+        # never resume. The suite ends itself with quit() once it has scored everything.
+        return false
     _has_run = true
     _run_suite()
-    return true
+    return false
 
 
 func _run_suite() -> void:
@@ -33,7 +35,10 @@ func _run_suite() -> void:
             if not method_name.begins_with("test_"):
                 continue
             var failure_count := test.failures.size()
-            test.call(method_name)
+            # Awaited so a test may span frames. A gesture, an animation or a screen
+            # transition cannot be judged inside one call, and a coroutine test that was
+            # merely called would report its result after the runner had already scored it.
+            await test.call(method_name)
             if test.failures.size() == failure_count:
                 passed += 1
                 print("PASS %s :: %s" % [path.get_file(), method_name])

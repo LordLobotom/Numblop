@@ -204,6 +204,14 @@ Status values: `TODO`, `WIP(@agent)`, `BLOCKED(reason)`, `DONE`.
 - `B31 DONE` Cosmetics color page fits the readable column (wrapped belly row, inset color-tab
   icon) and the Play caption sits on the pill face. Owns: cosmetics scene/script, home scene,
   UI tests.
+- `B32 DONE` Drag-anywhere touch scrolling on every scrolling screen, with the child's press
+  canceled once the gesture is taken over, plus hidden scrollbars. Owns: `scripts/ui/TouchScrollContainer.gd`,
+  scrolling scenes, UI tests.
+- `D21 DONE` Test runner awaits each test so gestures can be exercised across real frames.
+  Owns: `tests/run_tests.gd`.
+- `B33 DONE` Petting is a stroke across the avatar; a tap does nothing. Bilingual hint updated,
+  and the reaction draws its voice from a three-clip no-repeat pool.
+  Owns: `scripts/ui/BlobCharacter.gd`, blob scene audio, localization, UI tests.
 
 Claim the lowest-numbered unblocked task in your track. Only the stated owner changes the task's
 owned files; coordinate contract changes through the owning track.

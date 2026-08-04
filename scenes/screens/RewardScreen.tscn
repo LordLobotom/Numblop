@@ -1,4 +1,4 @@
-[gd_scene load_steps=19 format=3]
+[gd_scene load_steps=20 format=3]
 
 [ext_resource type="Script" path="res://scripts/ui/RewardScreen.gd" id="1_script"]
 [ext_resource type="Texture2D" path="res://assets/backgrounds/mianscreen_background.png" id="2_background"]
@@ -16,6 +16,7 @@
 
 [ext_resource type="Font" path="res://ui/fonts/Baloo2Bold.tres" id="12_bold"]
 [ext_resource type="Script" path="res://scripts/ui/CenteredContentMargin.gd" id="14_centered_margin"]
+[ext_resource type="Script" path="res://scripts/ui/TouchScrollContainer.gd" id="17_touchscroll"]
 
 [sub_resource type="AudioStreamRandomizer" id="PayoutStreams"]
 playback_mode = 0
@@ -144,9 +145,11 @@ text = "REWARD_MASTERY_TITLE"
 horizontal_alignment = 1
 
 [node name="MasteryScroll" type="ScrollContainer" parent="SafeArea/Content/MasteryPanel/MasteryRows"]
+script = ExtResource("17_touchscroll")
 layout_mode = 2
 size_flags_vertical = 3
 horizontal_scroll_mode = 0
+vertical_scroll_mode = 3
 
 [node name="MasteryListMargin" type="MarginContainer" parent="SafeArea/Content/MasteryPanel/MasteryRows/MasteryScroll"]
 layout_mode = 2

@@ -3,6 +3,11 @@ extends Control
 
 signal petted
 
+## Petting is a stroke, not a tap: this is how far a finger has to travel across Numblop
+## before he reacts. Comfortably past the jitter in a tap, and short enough that one small
+## rub is plenty for a child's hand.
+const PET_STROKE_DISTANCE := 44.0
+
 const HEART_TEXTURE: Texture2D = preload("res://assets/vfx/hearh.png")
 const BODY_COLOR_SHADER: Shader = preload("res://ui/shaders/numblop_body_color.gdshader")
 
@@ -27,7 +32,7 @@ const BODY_COLOR_SHADER: Shader = preload("res://ui/shaders/numblop_body_color.g
 @onready var right_hand: TextureRect = %RightHand
 @onready var right_hand_wave: TextureRect = %RightHandWave
 @onready var idle_timer: Timer = %IdleTimer
-@onready var giggle_player: AudioStreamPlayer = %GigglePlayer
+@onready var pet_voice_player: AudioStreamPlayer = %PetVoicePlayer
 
 @export var preview_mode := false:
     set = set_preview_mode
@@ -38,6 +43,9 @@ var _reacting := false
 var _cheering := false
 var _cheer_tween: Tween
 var _heart_direction := 1.0
+var _stroking := false
+var _stroke_position := Vector2.ZERO
+var _stroke_distance := 0.0
 var _body_materials: Array[ShaderMaterial] = []
 var _pending_body_color := Color("c7e143")
 var _pending_recolor_strength := 0.0
@@ -192,15 +200,49 @@ func _prepare_body_color_materials() -> void:
         _body_materials.append(body_material)
 
 
+## Petting is a stroke across Numblop, the way a child would actually pet an animal.
+##
+## A tap does nothing at all: it used to be enough, so every accidental touch on the way to
+## the Play button set him off. He now answers a gentle rub, and keeps answering as long as
+## the stroking continues, one reaction per stroke.
 func _on_gui_input(event: InputEvent) -> void:
     if preview_mode:
         return
-    var pressed: bool = (
-        event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT
-    ) or (event is InputEventScreenTouch and event.pressed)
-    if pressed:
+    if event is InputEventScreenTouch:
+        _begin_or_end_stroke(event.pressed, event.position)
         accept_event()
-        react_to_pet()
+    elif event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT:
+        _begin_or_end_stroke(event.pressed, event.position)
+        accept_event()
+    elif event is InputEventScreenDrag:
+        _continue_stroke(event.position)
+        accept_event()
+    elif event is InputEventMouseMotion:
+        if (event.button_mask & MOUSE_BUTTON_MASK_LEFT) != 0:
+            _continue_stroke(event.position)
+            accept_event()
+
+
+func _begin_or_end_stroke(pressed: bool, position: Vector2) -> void:
+    _stroking = pressed
+    _stroke_position = position
+    _stroke_distance = 0.0
+
+
+func _continue_stroke(position: Vector2) -> void:
+    if not _stroking:
+        return
+    var motion := position - _stroke_position
+    _stroke_position = position
+    # Path length, not displacement, so rubbing back and forth over one spot counts.
+    _stroke_distance += motion.length()
+    if _stroke_distance < PET_STROKE_DISTANCE:
+        return
+    _stroke_distance = 0.0
+    # The hearts drift the way the hand was moving.
+    if not is_zero_approx(motion.x):
+        _heart_direction = signf(motion.x)
+    react_to_pet()
 
 
 ## Celebrates a mastery milestone: both hands up, happy face, hopping on the spot.
@@ -259,7 +301,7 @@ func react_to_pet() -> void:
     petted.emit()
     _set_happy_face(true)
     _spawn_heart()
-    giggle_player.play()
+    _speak()
     if _idle_tween != null:
         _idle_tween.kill()
     if _reaction_tween != null:
@@ -277,6 +319,17 @@ func react_to_pet() -> void:
     _set_happy_face(false)
     _reacting = false
     _start_idle_animation()
+
+
+## Gives the reaction a voice, unless he is still using the one he has.
+##
+## A stroke fires a reaction every few hundred milliseconds, which is faster than a clip
+## takes to finish. Restarting it each time chopped the giggle into a stutter, so a
+## reaction that arrives mid-sentence is simply silent and the next one speaks.
+func _speak() -> void:
+    if pet_voice_player.playing:
+        return
+    pet_voice_player.play()
 
 
 func _blink() -> void:

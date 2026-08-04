@@ -344,3 +344,45 @@
 - The color tab's icon is a generated palette. `expand_icon` scales an icon until it fills the
   tab, so an image made only of color went edge to edge while the four artwork tabs kept their
   own empty space. The generated image now carries a transparent border of its own.
+
+## 2026-08-04 — Drag anywhere to scroll, and no scrollbars
+
+- `gui/common/default_scroll_deadzone` alone never fixed touch scrolling. A pressed control
+  keeps the gesture for as long as the finger is down, so a drag that began on an island, a
+  card, a swatch or a slider was delivered to that control and the page did not move -- and
+  those controls cover most of Map, Trophy, Settings, Cosmetics and the reward summary.
+- `scripts/ui/TouchScrollContainer.gd` watches the gesture in `_input`, which runs before the
+  pressed control's own handling, and takes it over once the finger passes the deadzone. The
+  child's press is then *canceled* rather than released, exactly as a native list does: the
+  control stops looking held and never fires.
+- Below the deadzone nothing is intercepted, so a short tap still activates whatever is under
+  it. Lifting the finger after a drag is swallowed too, so the release cannot land as a tap on
+  whatever scrolled under it.
+- Releasing mid-drag throws the page with a short coast. Speed comes from the last motion, so a
+  slow drag stops where it was let go and a flick keeps going.
+- Scrollbars are hidden (`SCROLL_MODE_SHOW_NEVER`) now that the whole page is the scroll
+  handle. Nothing else changed size; the panels keep the gutter they already had.
+- The test runner now awaits each test, so a gesture can be exercised over real frames through
+  the real input pipeline rather than by poking the component's internals. `_process` returns
+  false while the suite runs, because returning true ends the main loop and a test that spans
+  frames would never resume.
+
+## 2026-08-04 — Petting is a stroke, not a tap
+
+- Numblop reacts to a gentle rub across him, not to a tap. A tap was enough before, so every
+  accidental touch on the way to the Play button set him off, and the gesture taught nothing
+  about petting an animal.
+- The trigger is 44 px of travel *along the path*, so rubbing back and forth over one spot
+  counts as much as one sweep across. That is far enough that the jitter inside a tap can never
+  reach it, and short enough for a small hand.
+- Stroking keeps working for as long as the finger is down: one reaction per stroke length.
+  The hearts drift the way the hand was moving.
+- The home hint now says to stroke him in both languages. A preview avatar stays untouchable.
+- Stroking draws its voice at random from the giggle and the two “wee” cheers, never repeating
+  the same clip twice in a row, with a touch of pitch variation. One clip cannot carry a gesture
+  a child repeats; the node is now `PetVoicePlayer` rather than `GigglePlayer`, because it is no
+  longer one sound.
+- A reaction that arrives while he is still speaking is silent rather than restarting the clip.
+  Reactions come every few hundred milliseconds under a continuous stroke, which is faster than
+  a clip finishes, and restarting on each one chopped the giggle into a stutter. The visual
+  reaction still plays; only the voice waits its turn.

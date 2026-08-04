@@ -791,7 +791,19 @@ func test_cosmetics_screen_has_previewing_shop_purchase_and_navigation_contracts
         )
 
     check(scene.get_node("%ColorGrid") is GridContainer, "Body-color swatch grid")
-    equal(scene.get_node("%ColorGrid").columns, 6, "Six colors share one compact row")
+    # Body and belly are the same kind of choice, so they wrap on the same grid: same
+    # column count, same separations, both centered.
+    equal(scene.get_node("%ColorGrid").columns, 4, "Body colors wrap like the belly row")
+    equal(
+        scene.get_node("%ColorGrid").get_theme_constant("h_separation"),
+        scene.get_node("%BellyGrid").get_theme_constant("h_separation"),
+        "Both color grids space their swatches alike"
+    )
+    equal(
+        scene.get_node("%ColorGrid").size_flags_horizontal,
+        scene.get_node("%BellyGrid").size_flags_horizontal,
+        "Both color grids align alike"
+    )
     check(scene.get_node("%BellyGrid") is GridContainer, "Belly-color swatch grid")
     # Seven 48 px swatches in one row are 348 wide, which is wider than the readable
     # column. A hidden page costs nothing, but while the color page was open that pushed
@@ -1031,11 +1043,29 @@ func test_blob_home_has_idle_pet_and_heart_reactions() -> void:
     check(blob.has_method("react_to_pet"), "Blob pet reaction")
     check(blob.get_node("%IdleTimer").autostart, "Blob idle timer")
     check(blob.has_node("HeartLayer"), "Heart reaction layer")
-    equal(
-        blob.get_node("%GigglePlayer").stream.resource_path,
-        "res://audio/sfx/giggle.mp3",
-        "Numblop giggle"
-    )
+    # Petting is now a stroke a child repeats, so one clip on a loop would wear out fast.
+    var pet_voice := blob.get_node("%PetVoicePlayer").stream as AudioStreamRandomizer
+    check(pet_voice != null, "Petting draws from a pool, not a single clip")
+    if pet_voice != null:
+        equal(
+            pet_voice.playback_mode,
+            AudioStreamRandomizer.PLAYBACK_RANDOM_NO_REPEATS,
+            "The same pet sound never lands twice in a row"
+        )
+        var pet_clips: Array[String] = []
+        for index in pet_voice.streams_count:
+            pet_clips.append(pet_voice.get_stream(index).resource_path)
+        pet_clips.sort()
+        equal(
+            pet_clips,
+            [
+                "res://audio/sfx/cheers_wee_1.mp3",
+                "res://audio/sfx/cheers_wee_2.mp3",
+                "res://audio/sfx/giggle.mp3",
+            ],
+            "Numblop giggles or cheers when stroked"
+        )
+    equal(blob.get_node("%PetVoicePlayer").bus, "SFX", "Pet sounds follow the SFX volume")
     equal(
         blob.get_node("%Body").texture.resource_path,
         "res://assets/characters/numblop/body/body.png",
