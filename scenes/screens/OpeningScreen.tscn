@@ -1,4 +1,4 @@
-[gd_scene load_steps=7 format=3]
+[gd_scene load_steps=8 format=3]
 
 [ext_resource type="Script" path="res://scripts/ui/OpeningScreen.gd" id="1_script"]
 [ext_resource type="Texture2D" path="res://assets/backgrounds/mianscreen_background.png" id="2_background"]
@@ -6,6 +6,7 @@
 [ext_resource type="Texture2D" path="res://ui/buttons/button_language_english.png" id="4_english"]
 [ext_resource type="Texture2D" path="res://ui/buttons/button_language_czech.png" id="5_czech"]
 [ext_resource type="AudioStream" path="res://audio/sfx/button.mp3" id="6_button"]
+[ext_resource type="Script" path="res://scripts/ui/CenteredContentMargin.gd" id="7_centered_margin"]
 
 [node name="OpeningScreen" type="Control"]
 layout_mode = 3
@@ -46,10 +47,9 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_constants/margin_left = 20
-theme_override_constants/margin_top = 36
-theme_override_constants/margin_right = 20
-theme_override_constants/margin_bottom = 36
+script = ExtResource("7_centered_margin")
+base_top_margin = 36
+base_bottom_margin = 36
 
 [node name="Content" type="VBoxContainer" parent="SafeMargin"]
 layout_mode = 2
@@ -97,7 +97,7 @@ layout_mode = 2
 theme_override_colors/font_color = Color(0.18, 0.3, 0.45, 1)
 theme_override_colors/font_outline_color = Color(1, 1, 1, 0.9)
 theme_override_constants/outline_size = 5
-theme_override_font_sizes/font_size = 24
+theme_override_font_sizes/font_size = 28
 text = "OPENING_LANGUAGE_PROMPT"
 horizontal_alignment = 1
 autowrap_mode = 2

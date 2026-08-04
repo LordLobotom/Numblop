@@ -34,18 +34,9 @@ signal exit_requested
 @onready var dialog_buttons: BoxContainer = %DialogButtons
 @onready var cancel_exit_button: Button = %CancelExitButton
 @onready var confirm_exit_button: Button = %ConfirmExitButton
-@onready var outfit_button: TextureButton = %OutfitButton
-@onready var map_button: TextureButton = %MapButton
-@onready var home_button: TextureButton = %HomeButton
-@onready var trophy_button: TextureButton = %TrophyButton
-@onready var settings_button: TextureButton = %SettingsButton
-@onready var outfit_label: Label = %OutfitLabel
-@onready var map_label: Label = %MapLabel
-@onready var home_label: Label = %HomeLabel
-@onready var trophy_label: Label = %TrophyLabel
-@onready var settings_label: Label = %SettingsLabel
 @onready var preview_player: AudioStreamPlayer = %PreviewPlayer
 @onready var save_timer: Timer = %SaveTimer
+@onready var navigation: NavBar = $SafeArea/Content/Navigation
 
 var _syncing_controls := false
 
@@ -68,10 +59,10 @@ func _ready() -> void:
     confirm_exit_button.pressed.connect(_confirm_exit)
     exit_scrim.gui_input.connect(_on_exit_scrim_input)
     resized.connect(_update_exit_dialog_layout)
-    outfit_button.pressed.connect(_request_future_feature.bind(outfit_requested))
-    map_button.pressed.connect(_request_map)
-    home_button.pressed.connect(_request_home)
-    trophy_button.pressed.connect(_request_future_feature.bind(trophy_requested))
+    navigation.outfit_requested.connect(_request_future_feature.bind(outfit_requested))
+    navigation.map_requested.connect(_request_map)
+    navigation.home_requested.connect(_request_home)
+    navigation.trophy_requested.connect(_request_future_feature.bind(trophy_requested))
     save_timer.timeout.connect(_save_audio_preferences)
     _sync_controls_from_settings()
     _refresh_text()
@@ -120,18 +111,8 @@ func _refresh_text() -> void:
     confirm_exit_button.text = tr("SETTINGS_EXIT_YES")
     cancel_exit_button.text = tr("SETTINGS_EXIT_CANCEL")
     hint_label.text = tr("SETTINGS_HINT")
-    outfit_label.text = tr("NAV_OUTFIT")
-    map_label.text = tr("NAV_MAP")
-    home_label.text = tr("NAV_HOME")
-    trophy_label.text = tr("NAV_TROPHY")
-    settings_label.text = tr("NAV_SETTINGS")
     english_button.tooltip_text = tr("LANGUAGE_ENGLISH")
     czech_button.tooltip_text = tr("LANGUAGE_CZECH")
-    outfit_button.tooltip_text = tr("NAV_OUTFIT")
-    map_button.tooltip_text = tr("NAV_MAP")
-    home_button.tooltip_text = tr("NAV_HOME")
-    trophy_button.tooltip_text = tr("NAV_TROPHY")
-    settings_button.tooltip_text = tr("NAV_SETTINGS")
     _refresh_volume_values()
 
 

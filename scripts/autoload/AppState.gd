@@ -228,6 +228,7 @@ func cosmetics_state() -> Dictionary:
         "selected_hat": cosmetics.selected_hat,
         "selected_glasses": cosmetics.selected_glasses,
         "selected_necklace": cosmetics.selected_necklace,
+        "selected_footwear": cosmetics.selected_footwear,
         "colors": _cosmetic_items_state(
             CosmeticCatalog.CATEGORY_BODY_COLOR,
             cosmetics.selected_body_color
@@ -247,6 +248,10 @@ func cosmetics_state() -> Dictionary:
         "necklaces": _cosmetic_items_state(
             CosmeticCatalog.CATEGORY_NECKLACE,
             cosmetics.selected_necklace
+        ),
+        "footwear": _cosmetic_items_state(
+            CosmeticCatalog.CATEGORY_FOOTWEAR,
+            cosmetics.selected_footwear
         ),
     }
 

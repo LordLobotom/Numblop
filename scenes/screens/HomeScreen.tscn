@@ -1,4 +1,4 @@
-[gd_scene load_steps=19 format=3]
+[gd_scene load_steps=14 format=3]
 
 [ext_resource type="Script" path="res://scripts/ui/HomeScreen.gd" id="1_script"]
 [ext_resource type="Texture2D" path="res://assets/backgrounds/mianscreen_background.png" id="2_background"]
@@ -6,14 +6,10 @@
 [ext_resource type="Texture2D" path="res://ui/crests/crest_xp.png" id="4_xp"]
 [ext_resource type="Texture2D" path="res://ui/buttons/button_play.png" id="5_play"]
 [ext_resource type="PackedScene" path="res://scenes/components/BlobCharacter.tscn" id="6_blob"]
-[ext_resource type="Texture2D" path="res://ui/crests/crest_outfit.png" id="7_outfit"]
-[ext_resource type="Texture2D" path="res://ui/crests/crest_map.png" id="8_map"]
-[ext_resource type="Texture2D" path="res://ui/crests/crest_trophy.png" id="9_trophy"]
 [ext_resource type="Font" path="res://ui/fonts/Baloo2Bold.tres" id="10_bold"]
-[ext_resource type="Texture2D" path="res://ui/crests/crest_settings.png" id="11_settings"]
-[ext_resource type="Texture2D" path="res://ui/crests/crest_home.png" id="12_home"]
 [ext_resource type="Texture2D" path="res://ui/crests/crest_flame.png" id="13_flame"]
 [ext_resource type="Script" path="res://scripts/ui/CenteredContentMargin.gd" id="14_centered_margin"]
+[ext_resource type="PackedScene" path="res://scenes/components/NavBar.tscn" id="15_navbar"]
 
 [sub_resource type="StyleBoxFlat" id="StatPanel"]
 bg_color = Color(1, 1, 1, 0.92)
@@ -29,25 +25,12 @@ corner_radius_bottom_left = 22
 shadow_color = Color(0.1, 0.35, 0.4, 0.18)
 shadow_size = 5
 
-[sub_resource type="StyleBoxFlat" id="NavPanel"]
-bg_color = Color(1, 1, 1, 0.9)
-corner_radius_top_left = 24
-corner_radius_top_right = 24
-corner_radius_bottom_right = 24
-corner_radius_bottom_left = 24
-content_margin_left = 10.0
-content_margin_top = 4.0
-content_margin_right = 10.0
-content_margin_bottom = 4.0
-shadow_color = Color(0.1, 0.3, 0.26, 0.18)
-shadow_size = 5
-
 [sub_resource type="StyleBoxFlat" id="NameButtonPill"]
 bg_color = Color(1, 1, 1, 0.85)
-corner_radius_top_left = 20
-corner_radius_top_right = 20
-corner_radius_bottom_right = 20
-corner_radius_bottom_left = 20
+corner_radius_top_left = 22
+corner_radius_top_right = 22
+corner_radius_bottom_right = 22
+corner_radius_bottom_left = 22
 content_margin_left = 20.0
 content_margin_top = 6.0
 content_margin_right = 20.0
@@ -101,10 +84,6 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_constants/margin_left = 14
-theme_override_constants/margin_top = 20
-theme_override_constants/margin_right = 14
-theme_override_constants/margin_bottom = 18
 script = ExtResource("14_centered_margin")
 
 [node name="Content" type="VBoxContainer" parent="SafeArea"]
@@ -147,7 +126,7 @@ stretch_mode = 5
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_colors/font_color = Color(0.27, 0.16, 0.12, 1)
-theme_override_font_sizes/font_size = 17
+theme_override_font_sizes/font_size = 18
 text = "0"
 vertical_alignment = 1
 
@@ -169,7 +148,7 @@ stretch_mode = 5
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_colors/font_color = Color(0.31, 0.19, 0.46, 1)
-theme_override_font_sizes/font_size = 17
+theme_override_font_sizes/font_size = 18
 text = "0"
 vertical_alignment = 1
 
@@ -223,7 +202,7 @@ theme_override_colors/font_color = Color(0.18, 0.35, 0.28, 1)
 theme_override_colors/font_hover_color = Color(0.14, 0.31, 0.22, 1)
 theme_override_colors/font_pressed_color = Color(0.12, 0.27, 0.18, 1)
 theme_override_fonts/font = ExtResource("10_bold")
-theme_override_font_sizes/font_size = 19
+theme_override_font_sizes/font_size = 18
 theme_override_styles/normal = SubResource("NameButtonPill")
 theme_override_styles/hover = SubResource("NameButtonPill")
 theme_override_styles/pressed = SubResource("NameButtonPill")
@@ -271,6 +250,7 @@ anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 offset_right = -42.0
+offset_bottom = -11.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
@@ -283,146 +263,9 @@ text = "HOME_PLAY"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="Navigation" type="PanelContainer" parent="SafeArea/Content"]
-custom_minimum_size = Vector2(0, 104)
+[node name="Navigation" parent="SafeArea/Content" instance=ExtResource("15_navbar")]
 layout_mode = 2
-theme_override_styles/panel = SubResource("NavPanel")
-
-[node name="NavigationRow" type="HBoxContainer" parent="SafeArea/Content/Navigation"]
-layout_mode = 2
-theme_override_constants/separation = 4
-alignment = 1
-
-[node name="OutfitItem" type="VBoxContainer" parent="SafeArea/Content/Navigation/NavigationRow"]
-custom_minimum_size = Vector2(64, 0)
-layout_mode = 2
-size_flags_horizontal = 3
-theme_override_constants/separation = -5
-alignment = 1
-
-[node name="OutfitButton" type="TextureButton" parent="SafeArea/Content/Navigation/NavigationRow/OutfitItem"]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(56, 56)
-layout_mode = 2
-size_flags_horizontal = 4
-focus_mode = 2
-mouse_default_cursor_shape = 2
-texture_normal = ExtResource("7_outfit")
-ignore_texture_size = true
-stretch_mode = 0
-
-[node name="OutfitLabel" type="Label" parent="SafeArea/Content/Navigation/NavigationRow/OutfitItem"]
-unique_name_in_owner = true
-layout_mode = 2
-theme_override_colors/font_color = Color(0.2, 0.33, 0.27, 1)
-theme_override_font_sizes/font_size = 12
-text = "NAV_OUTFIT"
-horizontal_alignment = 1
-
-[node name="MapItem" type="VBoxContainer" parent="SafeArea/Content/Navigation/NavigationRow"]
-custom_minimum_size = Vector2(64, 0)
-layout_mode = 2
-size_flags_horizontal = 3
-theme_override_constants/separation = -5
-alignment = 1
-
-[node name="MapButton" type="TextureButton" parent="SafeArea/Content/Navigation/NavigationRow/MapItem"]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(56, 56)
-layout_mode = 2
-size_flags_horizontal = 4
-focus_mode = 2
-mouse_default_cursor_shape = 2
-texture_normal = ExtResource("8_map")
-ignore_texture_size = true
-stretch_mode = 0
-
-[node name="MapLabel" type="Label" parent="SafeArea/Content/Navigation/NavigationRow/MapItem"]
-unique_name_in_owner = true
-layout_mode = 2
-theme_override_colors/font_color = Color(0.2, 0.33, 0.27, 1)
-theme_override_font_sizes/font_size = 12
-text = "NAV_MAP"
-horizontal_alignment = 1
-
-[node name="HomeItem" type="VBoxContainer" parent="SafeArea/Content/Navigation/NavigationRow"]
-custom_minimum_size = Vector2(64, 0)
-layout_mode = 2
-size_flags_horizontal = 3
-theme_override_constants/separation = -5
-alignment = 1
-
-[node name="HomeButton" type="TextureButton" parent="SafeArea/Content/Navigation/NavigationRow/HomeItem"]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(62, 62)
-layout_mode = 2
-size_flags_horizontal = 4
-focus_mode = 2
-mouse_default_cursor_shape = 2
-texture_normal = ExtResource("12_home")
-ignore_texture_size = true
-stretch_mode = 0
-
-[node name="HomeLabel" type="Label" parent="SafeArea/Content/Navigation/NavigationRow/HomeItem"]
-unique_name_in_owner = true
-layout_mode = 2
-theme_override_colors/font_color = Color(0.28, 0.58, 0.09, 1)
-theme_override_fonts/font = ExtResource("10_bold")
-theme_override_font_sizes/font_size = 12
-text = "NAV_HOME"
-horizontal_alignment = 1
-
-[node name="TrophyItem" type="VBoxContainer" parent="SafeArea/Content/Navigation/NavigationRow"]
-custom_minimum_size = Vector2(64, 0)
-layout_mode = 2
-size_flags_horizontal = 3
-theme_override_constants/separation = -5
-alignment = 1
-
-[node name="TrophyButton" type="TextureButton" parent="SafeArea/Content/Navigation/NavigationRow/TrophyItem"]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(56, 56)
-layout_mode = 2
-size_flags_horizontal = 4
-focus_mode = 2
-mouse_default_cursor_shape = 2
-texture_normal = ExtResource("9_trophy")
-ignore_texture_size = true
-stretch_mode = 0
-
-[node name="TrophyLabel" type="Label" parent="SafeArea/Content/Navigation/NavigationRow/TrophyItem"]
-unique_name_in_owner = true
-layout_mode = 2
-theme_override_colors/font_color = Color(0.2, 0.33, 0.27, 1)
-theme_override_font_sizes/font_size = 12
-text = "NAV_TROPHY"
-horizontal_alignment = 1
-
-[node name="SettingsItem" type="VBoxContainer" parent="SafeArea/Content/Navigation/NavigationRow"]
-custom_minimum_size = Vector2(64, 0)
-layout_mode = 2
-size_flags_horizontal = 3
-theme_override_constants/separation = -5
-alignment = 1
-
-[node name="SettingsButton" type="TextureButton" parent="SafeArea/Content/Navigation/NavigationRow/SettingsItem"]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(56, 56)
-layout_mode = 2
-size_flags_horizontal = 4
-focus_mode = 2
-mouse_default_cursor_shape = 2
-texture_normal = ExtResource("11_settings")
-ignore_texture_size = true
-stretch_mode = 0
-
-[node name="SettingsLabel" type="Label" parent="SafeArea/Content/Navigation/NavigationRow/SettingsItem"]
-unique_name_in_owner = true
-layout_mode = 2
-theme_override_colors/font_color = Color(0.2, 0.33, 0.27, 1)
-theme_override_font_sizes/font_size = 12
-text = "NAV_SETTINGS"
-horizontal_alignment = 1
+active_item = 2
 
 [node name="NameDialog" type="Control" parent="."]
 unique_name_in_owner = true
@@ -476,7 +319,7 @@ unique_name_in_owner = true
 layout_mode = 2
 theme_override_colors/font_color = Color(0.16, 0.32, 0.2, 1)
 theme_override_fonts/font = ExtResource("10_bold")
-theme_override_font_sizes/font_size = 26
+theme_override_font_sizes/font_size = 28
 text = "NAME_DIALOG_TITLE"
 horizontal_alignment = 1
 autowrap_mode = 2
@@ -485,7 +328,7 @@ autowrap_mode = 2
 unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 54)
 layout_mode = 2
-theme_override_font_sizes/font_size = 20
+theme_override_font_sizes/font_size = 22
 placeholder_text = "NAME_DIALOG_PLACEHOLDER"
 alignment = 1
 max_length = 16
@@ -506,7 +349,7 @@ size_flags_horizontal = 3
 focus_mode = 2
 mouse_default_cursor_shape = 2
 theme_override_fonts/font = ExtResource("10_bold")
-theme_override_font_sizes/font_size = 17
+theme_override_font_sizes/font_size = 18
 text = "NAME_CANCEL"
 
 [node name="NameSaveButton" type="Button" parent="NameDialog/NameDialogTop/NameDialogPanel/NameDialogContent/NameDialogButtons"]
@@ -517,5 +360,5 @@ size_flags_horizontal = 3
 focus_mode = 2
 mouse_default_cursor_shape = 2
 theme_override_fonts/font = ExtResource("10_bold")
-theme_override_font_sizes/font_size = 17
+theme_override_font_sizes/font_size = 18
 text = "NAME_SAVE"

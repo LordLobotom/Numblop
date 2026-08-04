@@ -12,10 +12,10 @@ border_width_top = 2
 border_width_right = 2
 border_width_bottom = 2
 border_color = Color(0.51, 0.76, 0.29, 1)
-corner_radius_top_left = 18
-corner_radius_top_right = 18
-corner_radius_bottom_right = 18
-corner_radius_bottom_left = 18
+corner_radius_top_left = 16
+corner_radius_top_right = 16
+corner_radius_bottom_right = 16
+corner_radius_bottom_left = 16
 shadow_color = Color(0.12, 0.3, 0.2, 0.16)
 shadow_size = 4
 
@@ -26,17 +26,17 @@ border_width_top = 2
 border_width_right = 2
 border_width_bottom = 2
 border_color = Color(0.32, 0.62, 0.12, 1)
-corner_radius_top_left = 18
-corner_radius_top_right = 18
-corner_radius_bottom_right = 18
-corner_radius_bottom_left = 18
+corner_radius_top_left = 16
+corner_radius_top_right = 16
+corner_radius_bottom_right = 16
+corner_radius_bottom_left = 16
 
 [sub_resource type="Theme" id="KeyTheme"]
 Button/colors/font_color = Color(0.25, 0.17, 0.34, 1)
 Button/colors/font_hover_color = Color(0.25, 0.17, 0.34, 1)
 Button/colors/font_pressed_color = Color(0.25, 0.17, 0.34, 1)
 Button/colors/font_focus_color = Color(0.25, 0.17, 0.34, 1)
-Button/font_sizes/font_size = 30
+Button/font_sizes/font_size = 28
 
 [node name="NumericKeypad" type="VBoxContainer"]
 unique_name_in_owner = true
@@ -67,7 +67,7 @@ columns = 3
 [node name="Digit7" type="Button" parent="ButtonGrid"]
 custom_minimum_size = Vector2(103, 72)
 layout_mode = 2
-theme_override_font_sizes/font_size = 30
+theme_override_font_sizes/font_size = 28
 theme_override_styles/normal = SubResource("KeyNormal")
 theme_override_styles/pressed = SubResource("KeyPressed")
 text = "7"
@@ -76,7 +76,7 @@ metadata/digit = 7
 [node name="Digit8" type="Button" parent="ButtonGrid"]
 custom_minimum_size = Vector2(103, 72)
 layout_mode = 2
-theme_override_font_sizes/font_size = 30
+theme_override_font_sizes/font_size = 28
 theme_override_styles/normal = SubResource("KeyNormal")
 theme_override_styles/pressed = SubResource("KeyPressed")
 text = "8"
@@ -85,7 +85,7 @@ metadata/digit = 8
 [node name="Digit9" type="Button" parent="ButtonGrid"]
 custom_minimum_size = Vector2(103, 72)
 layout_mode = 2
-theme_override_font_sizes/font_size = 30
+theme_override_font_sizes/font_size = 28
 theme_override_styles/normal = SubResource("KeyNormal")
 theme_override_styles/pressed = SubResource("KeyPressed")
 text = "9"
@@ -94,7 +94,7 @@ metadata/digit = 9
 [node name="Digit4" type="Button" parent="ButtonGrid"]
 custom_minimum_size = Vector2(103, 72)
 layout_mode = 2
-theme_override_font_sizes/font_size = 30
+theme_override_font_sizes/font_size = 28
 theme_override_styles/normal = SubResource("KeyNormal")
 theme_override_styles/pressed = SubResource("KeyPressed")
 text = "4"
@@ -103,7 +103,7 @@ metadata/digit = 4
 [node name="Digit5" type="Button" parent="ButtonGrid"]
 custom_minimum_size = Vector2(103, 72)
 layout_mode = 2
-theme_override_font_sizes/font_size = 30
+theme_override_font_sizes/font_size = 28
 theme_override_styles/normal = SubResource("KeyNormal")
 theme_override_styles/pressed = SubResource("KeyPressed")
 text = "5"
@@ -112,7 +112,7 @@ metadata/digit = 5
 [node name="Digit6" type="Button" parent="ButtonGrid"]
 custom_minimum_size = Vector2(103, 72)
 layout_mode = 2
-theme_override_font_sizes/font_size = 30
+theme_override_font_sizes/font_size = 28
 theme_override_styles/normal = SubResource("KeyNormal")
 theme_override_styles/pressed = SubResource("KeyPressed")
 text = "6"
@@ -121,7 +121,7 @@ metadata/digit = 6
 [node name="Digit1" type="Button" parent="ButtonGrid"]
 custom_minimum_size = Vector2(103, 72)
 layout_mode = 2
-theme_override_font_sizes/font_size = 30
+theme_override_font_sizes/font_size = 28
 theme_override_styles/normal = SubResource("KeyNormal")
 theme_override_styles/pressed = SubResource("KeyPressed")
 text = "1"
@@ -130,7 +130,7 @@ metadata/digit = 1
 [node name="Digit2" type="Button" parent="ButtonGrid"]
 custom_minimum_size = Vector2(103, 72)
 layout_mode = 2
-theme_override_font_sizes/font_size = 30
+theme_override_font_sizes/font_size = 28
 theme_override_styles/normal = SubResource("KeyNormal")
 theme_override_styles/pressed = SubResource("KeyPressed")
 text = "2"
@@ -139,7 +139,7 @@ metadata/digit = 2
 [node name="Digit3" type="Button" parent="ButtonGrid"]
 custom_minimum_size = Vector2(103, 72)
 layout_mode = 2
-theme_override_font_sizes/font_size = 30
+theme_override_font_sizes/font_size = 28
 theme_override_styles/normal = SubResource("KeyNormal")
 theme_override_styles/pressed = SubResource("KeyPressed")
 text = "3"
@@ -174,7 +174,7 @@ script = ExtResource("4_backspace")
 [node name="Digit0" type="Button" parent="ButtonGrid"]
 custom_minimum_size = Vector2(103, 72)
 layout_mode = 2
-theme_override_font_sizes/font_size = 30
+theme_override_font_sizes/font_size = 28
 theme_override_styles/normal = SubResource("KeyNormal")
 theme_override_styles/pressed = SubResource("KeyPressed")
 text = "0"

@@ -11,6 +11,8 @@ var unlocked_glasses: Array[String] = [CosmeticCatalog.DEFAULT_GLASSES_ID]
 var selected_glasses := CosmeticCatalog.DEFAULT_GLASSES_ID
 var unlocked_necklaces: Array[String] = [CosmeticCatalog.DEFAULT_NECKLACE_ID]
 var selected_necklace := CosmeticCatalog.DEFAULT_NECKLACE_ID
+var unlocked_footwear: Array[String] = [CosmeticCatalog.DEFAULT_FOOTWEAR_ID]
+var selected_footwear := CosmeticCatalog.DEFAULT_FOOTWEAR_ID
 
 
 func _init(data: Dictionary = {}) -> void:
@@ -39,6 +41,11 @@ func _init(data: Dictionary = {}) -> void:
         CosmeticCatalog.CATEGORY_NECKLACE,
         unlocked_necklaces
     )
+    _load_unlocked_items(
+        data.get("unlocked_footwear", []),
+        CosmeticCatalog.CATEGORY_FOOTWEAR,
+        unlocked_footwear
+    )
     var loaded_selected := String(data.get(
         "selected_body_color",
         CosmeticCatalog.DEFAULT_BODY_COLOR_ID
@@ -66,6 +73,12 @@ func _init(data: Dictionary = {}) -> void:
     ))
     if owns_item(CosmeticCatalog.CATEGORY_NECKLACE, loaded_selected):
         selected_necklace = loaded_selected
+    loaded_selected = String(data.get(
+        "selected_footwear",
+        CosmeticCatalog.DEFAULT_FOOTWEAR_ID
+    ))
+    if owns_item(CosmeticCatalog.CATEGORY_FOOTWEAR, loaded_selected):
+        selected_footwear = loaded_selected
 
 
 func _load_unlocked_items(
@@ -108,6 +121,8 @@ func owns_item(category: String, item_id: String) -> bool:
             return unlocked_glasses.has(item_id)
         CosmeticCatalog.CATEGORY_NECKLACE:
             return unlocked_necklaces.has(item_id)
+        CosmeticCatalog.CATEGORY_FOOTWEAR:
+            return unlocked_footwear.has(item_id)
     return false
 
 
@@ -125,6 +140,8 @@ func equip_item(category: String, item_id: String) -> bool:
             selected_glasses = item_id
         CosmeticCatalog.CATEGORY_NECKLACE:
             selected_necklace = item_id
+        CosmeticCatalog.CATEGORY_FOOTWEAR:
+            selected_footwear = item_id
         _:
             return false
     return true
@@ -155,6 +172,8 @@ func purchase_and_equip_item(
             unlocked_glasses.append(item_id)
         CosmeticCatalog.CATEGORY_NECKLACE:
             unlocked_necklaces.append(item_id)
+        CosmeticCatalog.CATEGORY_FOOTWEAR:
+            unlocked_footwear.append(item_id)
         _:
             return -1
     equip_item(category, item_id)
@@ -173,4 +192,6 @@ func to_dictionary() -> Dictionary:
         "selected_glasses": selected_glasses,
         "unlocked_necklaces": unlocked_necklaces.duplicate(),
         "selected_necklace": selected_necklace,
+        "unlocked_footwear": unlocked_footwear.duplicate(),
+        "selected_footwear": selected_footwear,
     }

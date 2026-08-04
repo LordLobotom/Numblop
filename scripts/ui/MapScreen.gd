@@ -16,7 +16,9 @@ const CLOSED_STAGE_TEXTURE: Texture2D = preload(
 const BOLD_FONT: Font = preload("res://ui/fonts/Baloo2Bold.tres")
 const STAGE_SIZE := Vector2(132.0, 132.0)
 const STAGE_STEP := 145.0
-const MAP_CONTENT_WIDTH := 350.0
+# Narrower than the readable column so the canvas still clears the scrollbar once
+# CenteredContentMargin has taken its side inset out of a 390 px viewport.
+const MAP_CONTENT_WIDTH := 336.0
 const FACT_BUILDING_COLOR := Color(0.9, 0.25, 0.2)
 const FACT_PRACTICING_COLOR := Color(0.58, 0.37, 0.78)
 const FACT_MASTERED_COLOR := Color(0.95, 0.55, 0.08)
@@ -26,16 +28,6 @@ const FACT_AUTOMATED_COLOR := Color(0.27, 0.7, 0.2)
 @onready var subtitle_label: Label = %SubtitleLabel
 @onready var scroll: ScrollContainer = %Scroll
 @onready var map_canvas: MapPath = %MapCanvas
-@onready var outfit_button: TextureButton = %OutfitButton
-@onready var map_button: TextureButton = %MapButton
-@onready var home_button: TextureButton = %HomeButton
-@onready var trophy_button: TextureButton = %TrophyButton
-@onready var settings_button: TextureButton = %SettingsButton
-@onready var outfit_label: Label = %OutfitLabel
-@onready var map_label: Label = %MapLabel
-@onready var home_label: Label = %HomeLabel
-@onready var trophy_label: Label = %TrophyLabel
-@onready var settings_label: Label = %SettingsLabel
 @onready var feature_hint: Label = %FeatureHint
 @onready var fact_detail_overlay: Control = %FactDetailOverlay
 @onready var dismiss_button: Button = %DismissButton
@@ -44,6 +36,7 @@ const FACT_AUTOMATED_COLOR := Color(0.27, 0.7, 0.2)
 @onready var fact_detail_overall: Label = %FactDetailOverall
 @onready var fact_grid: GridContainer = %FactGrid
 @onready var legend_grid: GridContainer = %LegendGrid
+@onready var navigation: NavBar = $SafeArea/Content/Navigation
 
 var _stage_states: Array[Dictionary] = []
 var _unlocked_table_announcement := 0
@@ -51,10 +44,10 @@ var _selected_stage_state: Dictionary = {}
 
 
 func _ready() -> void:
-    home_button.pressed.connect(return_home_requested.emit)
-    outfit_button.pressed.connect(outfit_requested.emit)
-    trophy_button.pressed.connect(trophy_requested.emit)
-    settings_button.pressed.connect(settings_requested.emit)
+    navigation.home_requested.connect(return_home_requested.emit)
+    navigation.outfit_requested.connect(outfit_requested.emit)
+    navigation.trophy_requested.connect(trophy_requested.emit)
+    navigation.settings_requested.connect(settings_requested.emit)
     dismiss_button.pressed.connect(hide_table_details)
     fact_detail_close.pressed.connect(hide_table_details)
     _refresh_text()
@@ -96,22 +89,12 @@ func show_future_feature() -> void:
 func _refresh_text() -> void:
     title_label.text = tr("MAP_TITLE")
     subtitle_label.text = tr("MAP_SUBTITLE")
-    outfit_label.text = tr("NAV_OUTFIT")
-    map_label.text = tr("NAV_MAP")
-    home_label.text = tr("NAV_HOME")
-    trophy_label.text = tr("NAV_TROPHY")
-    settings_label.text = tr("NAV_SETTINGS")
     if _unlocked_table_announcement > 0:
         feature_hint.text = tr("MAP_STAGE_UNLOCKED").format({
             "table": _unlocked_table_announcement,
         })
     else:
         feature_hint.text = tr("MAP_HINT")
-    outfit_button.tooltip_text = tr("NAV_OUTFIT")
-    map_button.tooltip_text = tr("NAV_MAP")
-    home_button.tooltip_text = tr("NAV_HOME")
-    trophy_button.tooltip_text = tr("NAV_TROPHY")
-    settings_button.tooltip_text = tr("NAV_SETTINGS")
     fact_detail_close.tooltip_text = tr("MAP_FACT_DETAIL_CLOSE")
     if fact_detail_overlay.visible and not _selected_stage_state.is_empty():
         _refresh_fact_detail()

@@ -1,35 +1,20 @@
-[gd_scene load_steps=15 format=3]
+[gd_scene load_steps=11 format=3]
 
 [ext_resource type="Script" path="res://scripts/ui/TrophyScreen.gd" id="1_script"]
 [ext_resource type="Texture2D" path="res://assets/backgrounds/mianscreen_background.png" id="2_background"]
 [ext_resource type="Texture2D" path="res://ui/crests/crest_trophy.png" id="3_trophy"]
 [ext_resource type="Texture2D" path="res://ui/crests/crest_flame.png" id="4_flame"]
-[ext_resource type="Texture2D" path="res://ui/crests/crest_outfit.png" id="5_outfit"]
-[ext_resource type="Texture2D" path="res://ui/crests/crest_map.png" id="6_map"]
-[ext_resource type="Texture2D" path="res://ui/crests/crest_home.png" id="7_home"]
-[ext_resource type="Texture2D" path="res://ui/crests/crest_settings.png" id="8_settings"]
 [ext_resource type="Font" path="res://ui/fonts/Baloo2Bold.tres" id="9_bold"]
 [ext_resource type="Script" path="res://scripts/ui/CenteredContentMargin.gd" id="10_centered_margin"]
-
-[sub_resource type="StyleBoxFlat" id="HeaderPanel"]
-bg_color = Color(1, 1, 1, 0.92)
-corner_radius_top_left = 24
-corner_radius_top_right = 24
-corner_radius_bottom_right = 24
-corner_radius_bottom_left = 24
-content_margin_left = 12.0
-content_margin_top = 5.0
-content_margin_right = 12.0
-content_margin_bottom = 5.0
-shadow_color = Color(0.1, 0.3, 0.26, 0.18)
-shadow_size = 6
+[ext_resource type="PackedScene" path="res://scenes/components/NavBar.tscn" id="11_navbar"]
+[ext_resource type="StyleBox" path="res://ui/styles/header_panel.tres" id="12_header_style"]
 
 [sub_resource type="StyleBoxFlat" id="SummaryPanel"]
 bg_color = Color(1, 0.98, 0.86, 0.94)
-corner_radius_top_left = 24
-corner_radius_top_right = 24
-corner_radius_bottom_right = 24
-corner_radius_bottom_left = 24
+corner_radius_top_left = 22
+corner_radius_top_right = 22
+corner_radius_bottom_right = 22
+corner_radius_bottom_left = 22
 content_margin_left = 14.0
 content_margin_top = 10.0
 content_margin_right = 14.0
@@ -39,29 +24,16 @@ shadow_size = 5
 
 [sub_resource type="StyleBoxFlat" id="ListPanel"]
 bg_color = Color(1, 1, 1, 0.9)
-corner_radius_top_left = 26
-corner_radius_top_right = 26
-corner_radius_bottom_right = 26
-corner_radius_bottom_left = 26
+corner_radius_top_left = 28
+corner_radius_top_right = 28
+corner_radius_bottom_right = 28
+corner_radius_bottom_left = 28
 content_margin_left = 14.0
 content_margin_top = 14.0
 content_margin_right = 14.0
 content_margin_bottom = 14.0
 shadow_color = Color(0.1, 0.3, 0.26, 0.16)
 shadow_size = 6
-
-[sub_resource type="StyleBoxFlat" id="NavPanel"]
-bg_color = Color(1, 1, 1, 0.92)
-corner_radius_top_left = 24
-corner_radius_top_right = 24
-corner_radius_bottom_right = 24
-corner_radius_bottom_left = 24
-content_margin_left = 8.0
-content_margin_top = 4.0
-content_margin_right = 8.0
-content_margin_bottom = 4.0
-shadow_color = Color(0.1, 0.3, 0.26, 0.18)
-shadow_size = 5
 
 [node name="TrophyScreen" type="Control"]
 layout_mode = 3
@@ -101,10 +73,6 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_constants/margin_left = 14
-theme_override_constants/margin_top = 18
-theme_override_constants/margin_right = 14
-theme_override_constants/margin_bottom = 14
 script = ExtResource("10_centered_margin")
 
 [node name="Content" type="VBoxContainer" parent="SafeArea"]
@@ -113,7 +81,7 @@ theme_override_constants/separation = 8
 
 [node name="Header" type="PanelContainer" parent="SafeArea/Content"]
 layout_mode = 2
-theme_override_styles/panel = SubResource("HeaderPanel")
+theme_override_styles/panel = ExtResource("12_header_style")
 
 [node name="HeaderRow" type="HBoxContainer" parent="SafeArea/Content/Header"]
 layout_mode = 2
@@ -133,7 +101,7 @@ unique_name_in_owner = true
 layout_mode = 2
 theme_override_colors/font_color = Color(0.32, 0.25, 0.08, 1)
 theme_override_fonts/font = ExtResource("9_bold")
-theme_override_font_sizes/font_size = 27
+theme_override_font_sizes/font_size = 28
 text = "TROPHY_TITLE"
 vertical_alignment = 1
 
@@ -182,143 +150,8 @@ layout_mode = 2
 size_flags_horizontal = 3
 theme_override_constants/separation = 8
 
-[node name="Navigation" type="PanelContainer" parent="SafeArea/Content"]
-custom_minimum_size = Vector2(0, 104)
+[node name="Navigation" parent="SafeArea/Content" instance=ExtResource("11_navbar")]
 layout_mode = 2
-theme_override_styles/panel = SubResource("NavPanel")
+active_item = 3
+active_color = Color(0.67, 0.42, 0.04, 1)
 
-[node name="NavigationRow" type="HBoxContainer" parent="SafeArea/Content/Navigation"]
-layout_mode = 2
-theme_override_constants/separation = 3
-alignment = 1
-
-[node name="OutfitItem" type="VBoxContainer" parent="SafeArea/Content/Navigation/NavigationRow"]
-custom_minimum_size = Vector2(64, 0)
-layout_mode = 2
-size_flags_horizontal = 3
-theme_override_constants/separation = -5
-alignment = 1
-
-[node name="OutfitButton" type="TextureButton" parent="SafeArea/Content/Navigation/NavigationRow/OutfitItem"]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(56, 56)
-layout_mode = 2
-size_flags_horizontal = 4
-focus_mode = 2
-mouse_default_cursor_shape = 2
-texture_normal = ExtResource("5_outfit")
-ignore_texture_size = true
-stretch_mode = 0
-
-[node name="OutfitLabel" type="Label" parent="SafeArea/Content/Navigation/NavigationRow/OutfitItem"]
-unique_name_in_owner = true
-layout_mode = 2
-theme_override_colors/font_color = Color(0.2, 0.33, 0.27, 1)
-theme_override_font_sizes/font_size = 12
-text = "NAV_OUTFIT"
-horizontal_alignment = 1
-
-[node name="MapItem" type="VBoxContainer" parent="SafeArea/Content/Navigation/NavigationRow"]
-custom_minimum_size = Vector2(64, 0)
-layout_mode = 2
-size_flags_horizontal = 3
-theme_override_constants/separation = -5
-alignment = 1
-
-[node name="MapButton" type="TextureButton" parent="SafeArea/Content/Navigation/NavigationRow/MapItem"]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(56, 56)
-layout_mode = 2
-size_flags_horizontal = 4
-focus_mode = 2
-mouse_default_cursor_shape = 2
-texture_normal = ExtResource("6_map")
-ignore_texture_size = true
-stretch_mode = 0
-
-[node name="MapLabel" type="Label" parent="SafeArea/Content/Navigation/NavigationRow/MapItem"]
-unique_name_in_owner = true
-layout_mode = 2
-theme_override_colors/font_color = Color(0.2, 0.33, 0.27, 1)
-theme_override_font_sizes/font_size = 12
-text = "NAV_MAP"
-horizontal_alignment = 1
-
-[node name="HomeItem" type="VBoxContainer" parent="SafeArea/Content/Navigation/NavigationRow"]
-custom_minimum_size = Vector2(64, 0)
-layout_mode = 2
-size_flags_horizontal = 3
-theme_override_constants/separation = -5
-alignment = 1
-
-[node name="HomeButton" type="TextureButton" parent="SafeArea/Content/Navigation/NavigationRow/HomeItem"]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(56, 56)
-layout_mode = 2
-size_flags_horizontal = 4
-focus_mode = 2
-mouse_default_cursor_shape = 2
-texture_normal = ExtResource("7_home")
-ignore_texture_size = true
-stretch_mode = 0
-
-[node name="HomeLabel" type="Label" parent="SafeArea/Content/Navigation/NavigationRow/HomeItem"]
-unique_name_in_owner = true
-layout_mode = 2
-theme_override_colors/font_color = Color(0.2, 0.33, 0.27, 1)
-theme_override_font_sizes/font_size = 12
-text = "NAV_HOME"
-horizontal_alignment = 1
-
-[node name="TrophyItem" type="VBoxContainer" parent="SafeArea/Content/Navigation/NavigationRow"]
-custom_minimum_size = Vector2(64, 0)
-layout_mode = 2
-size_flags_horizontal = 3
-theme_override_constants/separation = -5
-alignment = 1
-
-[node name="TrophyButton" type="TextureButton" parent="SafeArea/Content/Navigation/NavigationRow/TrophyItem"]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(62, 62)
-layout_mode = 2
-size_flags_horizontal = 4
-focus_mode = 2
-mouse_default_cursor_shape = 2
-texture_normal = ExtResource("3_trophy")
-ignore_texture_size = true
-stretch_mode = 0
-
-[node name="TrophyLabel" type="Label" parent="SafeArea/Content/Navigation/NavigationRow/TrophyItem"]
-unique_name_in_owner = true
-layout_mode = 2
-theme_override_colors/font_color = Color(0.67, 0.42, 0.04, 1)
-theme_override_fonts/font = ExtResource("9_bold")
-theme_override_font_sizes/font_size = 12
-text = "NAV_TROPHY"
-horizontal_alignment = 1
-
-[node name="SettingsItem" type="VBoxContainer" parent="SafeArea/Content/Navigation/NavigationRow"]
-custom_minimum_size = Vector2(64, 0)
-layout_mode = 2
-size_flags_horizontal = 3
-theme_override_constants/separation = -5
-alignment = 1
-
-[node name="SettingsButton" type="TextureButton" parent="SafeArea/Content/Navigation/NavigationRow/SettingsItem"]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(56, 56)
-layout_mode = 2
-size_flags_horizontal = 4
-focus_mode = 2
-mouse_default_cursor_shape = 2
-texture_normal = ExtResource("8_settings")
-ignore_texture_size = true
-stretch_mode = 0
-
-[node name="SettingsLabel" type="Label" parent="SafeArea/Content/Navigation/NavigationRow/SettingsItem"]
-unique_name_in_owner = true
-layout_mode = 2
-theme_override_colors/font_color = Color(0.2, 0.33, 0.27, 1)
-theme_override_font_sizes/font_size = 12
-text = "NAV_SETTINGS"
-horizontal_alignment = 1

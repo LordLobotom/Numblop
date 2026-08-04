@@ -25,6 +25,25 @@ func test_public_identity_and_portrait_window_are_pinned() -> void:
     equal(ProjectSettings.get_setting("display/window/handheld/orientation"), 1, "Portrait orientation")
 
 
+func test_stretch_settings_guarantee_the_design_height_is_never_squeezed() -> void:
+    # With canvas_items + expand the scale is min(window.x / 390, window.y / 844), so the
+    # viewport is 844 tall whenever the display is relatively wider than the design, and
+    # taller otherwise. Height therefore never drops below 844 and only width grows
+    # (390 on a 19.5:9 phone, 474 on 16:9, 633 on a 4:3 tablet). That is what lets every
+    # screen author a fixed vertical stack and stay responsive on the horizontal axis
+    # alone. Changing either setting reintroduces vertical overflow.
+    equal(
+        ProjectSettings.get_setting("display/window/stretch/mode"),
+        "canvas_items",
+        "Stretch mode keeps the design resolution as the layout unit"
+    )
+    equal(
+        ProjectSettings.get_setting("display/window/stretch/aspect"),
+        "expand",
+        "Expand grows the viewport instead of letterboxing or squeezing it"
+    )
+
+
 func test_android_identity_and_offline_export_contract_are_pinned() -> void:
     var file := FileAccess.open("res://export_presets.cfg", FileAccess.READ)
     check(file != null, "Export presets must open")

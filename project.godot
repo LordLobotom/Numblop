@@ -36,6 +36,13 @@ window/stretch/mode="canvas_items"
 window/stretch/aspect="expand"
 window/handheld/orientation=1
 
+[gui]
+
+; Lets a ScrollContainer claim a touch drag that started on a child which consumes
+; input (map islands, trophy cards, settings sliders, cosmetic swatches). At the
+; default 0 the child keeps the gesture and the screen refuses to scroll.
+common/default_scroll_deadzone=12
+
 [internationalization]
 
 locale/translations=PackedStringArray("res://localization/strings.en.translation", "res://localization/strings.cs.translation")

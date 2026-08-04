@@ -12,7 +12,7 @@
 [ext_resource type="AudioStream" path="res://audio/sfx/button.mp3" id="10_tap"]
 [ext_resource type="AudioStream" path="res://audio/sfx/coin2.wav" id="11_coin"]
 [ext_resource type="Font" path="res://ui/fonts/Baloo2Bold.tres" id="12_bold"]
-[ext_resource type="Texture2D" path="res://ui/crests/crest_trophy.png" id="13_trophy"]
+[ext_resource type="Script" path="res://scripts/ui/CenteredContentMargin.gd" id="14_centered_margin"]
 
 [sub_resource type="StyleBoxFlat" id="RewardPanel"]
 bg_color = Color(1, 1, 1, 0.94)
@@ -21,10 +21,10 @@ border_width_top = 3
 border_width_right = 3
 border_width_bottom = 3
 border_color = Color(1, 0.88, 0.42, 0.9)
-corner_radius_top_left = 26
-corner_radius_top_right = 26
-corner_radius_bottom_right = 26
-corner_radius_bottom_left = 26
+corner_radius_top_left = 28
+corner_radius_top_right = 28
+corner_radius_bottom_right = 28
+corner_radius_bottom_left = 28
 shadow_color = Color(0.3, 0.22, 0.08, 0.2)
 shadow_size = 8
 content_margin_left = 18.0
@@ -83,10 +83,9 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_constants/margin_left = 20
-theme_override_constants/margin_top = 34
-theme_override_constants/margin_right = 20
-theme_override_constants/margin_bottom = 28
+script = ExtResource("14_centered_margin")
+base_top_margin = 34
+base_bottom_margin = 28
 
 [node name="Content" type="VBoxContainer" parent="SafeArea"]
 layout_mode = 2
@@ -99,7 +98,7 @@ layout_mode = 2
 theme_override_colors/font_color = Color(0.39, 0.21, 0.5, 1)
 theme_override_colors/font_outline_color = Color(1, 1, 1, 0.92)
 theme_override_constants/outline_size = 6
-theme_override_font_sizes/font_size = 34
+theme_override_font_sizes/font_size = 36
 text = "REWARD_TITLE"
 horizontal_alignment = 1
 autowrap_mode = 2
@@ -109,7 +108,7 @@ unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 36)
 layout_mode = 2
 theme_override_colors/font_color = Color(0.28, 0.34, 0.3, 1)
-theme_override_font_sizes/font_size = 20
+theme_override_font_sizes/font_size = 22
 text = "REWARD_TAP_PROGRESS"
 horizontal_alignment = 1
 vertical_alignment = 1
@@ -129,7 +128,7 @@ theme_override_constants/separation = 6
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_colors/font_color = Color(0.25, 0.42, 0.19, 1)
-theme_override_font_sizes/font_size = 17
+theme_override_font_sizes/font_size = 18
 text = "REWARD_MASTERY_TITLE"
 horizontal_alignment = 1
 
@@ -208,7 +207,7 @@ layout_mode = 2
 size_flags_horizontal = 3
 theme_override_colors/font_color = Color(0.32, 0.25, 0.08, 1)
 theme_override_fonts/font = ExtResource("12_bold")
-theme_override_font_sizes/font_size = 19
+theme_override_font_sizes/font_size = 18
 text = "REWARD_TOTAL"
 vertical_alignment = 1
 
@@ -218,7 +217,7 @@ custom_minimum_size = Vector2(62, 0)
 layout_mode = 2
 theme_override_colors/font_color = Color(0.56, 0.35, 0.05, 1)
 theme_override_fonts/font = ExtResource("12_bold")
-theme_override_font_sizes/font_size = 27
+theme_override_font_sizes/font_size = 28
 text = "+10"
 horizontal_alignment = 2
 vertical_alignment = 1
@@ -241,7 +240,7 @@ unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_colors/font_color = Color(0.32, 0.25, 0.08, 1)
-theme_override_font_sizes/font_size = 17
+theme_override_font_sizes/font_size = 18
 text = "REWARD_XP_EARNED"
 vertical_alignment = 1
 
@@ -251,7 +250,7 @@ custom_minimum_size = Vector2(62, 0)
 layout_mode = 2
 theme_override_colors/font_color = Color(0.39, 0.23, 0.62, 1)
 theme_override_fonts/font = ExtResource("12_bold")
-theme_override_font_sizes/font_size = 23
+theme_override_font_sizes/font_size = 22
 text = "+10"
 horizontal_alignment = 2
 vertical_alignment = 1
@@ -281,7 +280,7 @@ vertical_alignment = 1
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_colors/font_color = Color(0.35, 0.21, 0.5, 1)
-theme_override_font_sizes/font_size = 20
+theme_override_font_sizes/font_size = 22
 text = "HOME_LEVEL"
 horizontal_alignment = 1
 

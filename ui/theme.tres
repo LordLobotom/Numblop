@@ -46,10 +46,10 @@ content_margin_bottom = 14.0
 
 [sub_resource type="StyleBoxFlat" id="Option"]
 bg_color = Color(0.92, 0.88, 1, 1)
-corner_radius_top_left = 14
-corner_radius_top_right = 14
-corner_radius_bottom_right = 14
-corner_radius_bottom_left = 14
+corner_radius_top_left = 16
+corner_radius_top_right = 16
+corner_radius_bottom_right = 16
+corner_radius_bottom_left = 16
 content_margin_left = 16.0
 content_margin_top = 10.0
 content_margin_right = 16.0
@@ -57,7 +57,19 @@ content_margin_bottom = 10.0
 
 [resource]
 default_font = ExtResource("1_baloo2")
-default_font_size = 20
+default_font_size = 18
+Caption/base_type = &"Label"
+Caption/font_sizes/font_size = 12
+Tag/base_type = &"Label"
+Tag/font_sizes/font_size = 15
+Body/base_type = &"Label"
+Body/font_sizes/font_size = 18
+Heading/base_type = &"Label"
+Heading/font_sizes/font_size = 22
+Title/base_type = &"Label"
+Title/font_sizes/font_size = 28
+Display/base_type = &"Label"
+Display/font_sizes/font_size = 36
 PanelContainer/styles/panel = SubResource("Panel")
 Button/colors/font_color = Color(1, 1, 1, 1)
 Button/colors/font_hover_color = Color(1, 1, 1, 1)

@@ -15,6 +15,7 @@ const SCREENS: Array[String] = [
     "cosmetics_color",
     "cosmetics_buy",
     "cosmetics_hat",
+    "cosmetics_footwear",
     "trophy",
     "trophy_islands",
     "map",
@@ -105,7 +106,7 @@ func _create_screen(screen_name: String) -> Control:
     var scene_path := "res://scenes/screens/HomeScreen.tscn"
     if screen_name in ["choice", "milestone", "keypad", "correction", "correction_max"]:
         scene_path = "res://scenes/screens/PracticeScreen.tscn"
-    elif screen_name in ["cosmetics", "cosmetics_color", "cosmetics_buy", "cosmetics_hat"]:
+    elif screen_name in ["cosmetics", "cosmetics_color", "cosmetics_buy", "cosmetics_hat", "cosmetics_footwear"]:
         scene_path = "res://scenes/screens/CosmeticsScreen.tscn"
     elif screen_name in ["trophy", "trophy_islands"]:
         scene_path = "res://scenes/screens/TrophyScreen.tscn"
@@ -135,6 +136,7 @@ func _configure_screen(screen: Control, screen_name: String, locale: String) -> 
                 "selected_hat": CosmeticCatalog.DEFAULT_HAT_ID,
                 "selected_glasses": CosmeticCatalog.DEFAULT_GLASSES_ID,
                 "selected_necklace": CosmeticCatalog.DEFAULT_NECKLACE_ID,
+                "selected_footwear": CosmeticCatalog.DEFAULT_FOOTWEAR_ID,
                 "colors": home_colors,
             })
             if screen_name == "home_accessories":
@@ -156,7 +158,7 @@ func _configure_screen(screen: Control, screen_name: String, locale: String) -> 
             elif screen_name == "home_name":
                 home.show_name_dialog()
                 home.name_input.text = "Anička"
-        "cosmetics", "cosmetics_color", "cosmetics_buy", "cosmetics_hat":
+        "cosmetics", "cosmetics_color", "cosmetics_buy", "cosmetics_hat", "cosmetics_footwear":
             var cosmetics_screen := screen as CosmeticsScreen
             var selected_id := (
                 "blue" if screen_name == "cosmetics_color" else "green"
@@ -180,6 +182,10 @@ func _configure_screen(screen: Control, screen_name: String, locale: String) -> 
                 CosmeticCatalog.CATEGORY_NECKLACE,
                 CosmeticCatalog.DEFAULT_NECKLACE_ID
             )
+            var footwear := _cosmetic_capture_items(
+                CosmeticCatalog.CATEGORY_FOOTWEAR,
+                CosmeticCatalog.DEFAULT_FOOTWEAR_ID
+            )
             var belly_colors := _cosmetic_capture_items(
                 CosmeticCatalog.CATEGORY_BELLY_COLOR,
                 CosmeticCatalog.DEFAULT_BELLY_COLOR_ID
@@ -196,11 +202,17 @@ func _configure_screen(screen: Control, screen_name: String, locale: String) -> 
                 "hats": hats,
                 "glasses": glasses,
                 "necklaces": necklaces,
+                "footwear": footwear,
             })
             if screen_name == "cosmetics_buy":
                 cosmetics_screen.preview_body_color("pink")
             elif screen_name == "cosmetics_hat":
                 cosmetics_screen.preview_item(CosmeticCatalog.CATEGORY_HAT, "hat_crown")
+            elif screen_name == "cosmetics_footwear":
+                cosmetics_screen.preview_item(
+                    CosmeticCatalog.CATEGORY_FOOTWEAR,
+                    "footwear_sneakers"
+                )
         "trophy", "trophy_islands":
             var trophy_screen := screen as TrophyScreen
             # The island cards sit below the fold, so they get their own capture.

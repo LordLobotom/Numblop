@@ -1,0 +1,18 @@
+[gd_resource type="StyleBoxFlat" format=3]
+
+; The card behind every screen title. Map, Cosmetics, Trophy and Settings each carried
+; their own copy, which had drifted to two background alphas and two vertical paddings.
+; Their contents legitimately differ -- a subtitle, a coin pill, a crest, a version line
+; -- so the shared piece is this style, not the layout.
+[resource]
+bg_color = Color(1, 1, 1, 0.92)
+corner_radius_top_left = 22
+corner_radius_top_right = 22
+corner_radius_bottom_right = 22
+corner_radius_bottom_left = 22
+content_margin_left = 12.0
+content_margin_top = 8.0
+content_margin_right = 12.0
+content_margin_bottom = 8.0
+shadow_color = Color(0.1, 0.3, 0.26, 0.18)
+shadow_size = 6

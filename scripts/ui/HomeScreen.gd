@@ -14,16 +14,6 @@ signal settings_requested
 @onready var pet_hint: Label = %PetHint
 @onready var play_button: TextureButton = %PlayButton
 @onready var play_label: Label = %PlayLabel
-@onready var map_button: TextureButton = %MapButton
-@onready var home_button: TextureButton = %HomeButton
-@onready var outfit_button: TextureButton = %OutfitButton
-@onready var trophy_button: TextureButton = %TrophyButton
-@onready var settings_button: TextureButton = %SettingsButton
-@onready var map_label: Label = %MapLabel
-@onready var home_label: Label = %HomeLabel
-@onready var outfit_label: Label = %OutfitLabel
-@onready var trophy_label: Label = %TrophyLabel
-@onready var settings_label: Label = %SettingsLabel
 @onready var blob: BlobCharacter = %BlobCharacter
 @onready var name_button: Button = %NameButton
 @onready var name_dialog: Control = %NameDialog
@@ -32,6 +22,7 @@ signal settings_requested
 @onready var name_input: LineEdit = %NameInput
 @onready var name_save_button: Button = %NameSaveButton
 @onready var name_cancel_button: Button = %NameCancelButton
+@onready var navigation: NavBar = $SafeArea/Content/Navigation
 
 var _coins := 0
 var _experience := 0
@@ -42,10 +33,10 @@ var _nickname_override: Variant = null
 
 func _ready() -> void:
     play_button.pressed.connect(play_requested.emit)
-    map_button.pressed.connect(map_requested.emit)
-    outfit_button.pressed.connect(outfit_requested.emit)
-    trophy_button.pressed.connect(trophy_requested.emit)
-    settings_button.pressed.connect(settings_requested.emit)
+    navigation.map_requested.connect(map_requested.emit)
+    navigation.outfit_requested.connect(outfit_requested.emit)
+    navigation.trophy_requested.connect(trophy_requested.emit)
+    navigation.settings_requested.connect(settings_requested.emit)
     blob.petted.connect(_on_blob_petted)
     name_button.pressed.connect(show_name_dialog)
     name_save_button.pressed.connect(_save_nickname)
@@ -157,17 +148,7 @@ func _refresh_name_text() -> void:
 func _refresh_text() -> void:
     play_label.text = tr("HOME_PLAY")
     pet_hint.text = tr("HOME_PET_HINT")
-    outfit_label.text = tr("NAV_OUTFIT")
-    map_label.text = tr("NAV_MAP")
-    home_label.text = tr("NAV_HOME")
-    trophy_label.text = tr("NAV_TROPHY")
-    settings_label.text = tr("NAV_SETTINGS")
     play_button.tooltip_text = tr("HOME_PLAY")
-    outfit_button.tooltip_text = tr("NAV_OUTFIT")
-    map_button.tooltip_text = tr("NAV_MAP")
-    home_button.tooltip_text = tr("NAV_HOME")
-    trophy_button.tooltip_text = tr("NAV_TROPHY")
-    settings_button.tooltip_text = tr("NAV_SETTINGS")
     blob.tooltip_text = tr("HOME_PET_ACCESSIBLE")
     _refresh_name_text()
     _refresh_progress_text()

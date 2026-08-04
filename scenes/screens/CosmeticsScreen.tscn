@@ -1,31 +1,15 @@
-[gd_scene load_steps=24 format=3]
+[gd_scene load_steps=20 format=3]
 
 [ext_resource type="Script" path="res://scripts/ui/CosmeticsScreen.gd" id="1_script"]
 [ext_resource type="PackedScene" path="res://scenes/components/BlobCharacter.tscn" id="14_blob"]
 [ext_resource type="Texture2D" path="res://assets/backgrounds/mianscreen_background.png" id="2_background"]
 [ext_resource type="Texture2D" path="res://ui/crests/crest_coin.png" id="4_coin"]
-[ext_resource type="Texture2D" path="res://ui/crests/crest_outfit.png" id="5_outfit"]
-[ext_resource type="Texture2D" path="res://ui/crests/crest_map.png" id="6_map"]
-[ext_resource type="Texture2D" path="res://ui/crests/crest_home.png" id="7_home"]
-[ext_resource type="Texture2D" path="res://ui/crests/crest_trophy.png" id="8_trophy"]
-[ext_resource type="Texture2D" path="res://ui/crests/crest_settings.png" id="9_settings"]
 [ext_resource type="Font" path="res://ui/fonts/Baloo2Bold.tres" id="10_bold"]
 [ext_resource type="AudioStream" path="res://audio/sfx/Menu_Select_00.wav" id="11_select"]
 [ext_resource type="AudioStream" path="res://audio/sfx/sell_buy_item.wav" id="12_purchase"]
 [ext_resource type="Script" path="res://scripts/ui/CenteredContentMargin.gd" id="13_centered_margin"]
-
-[sub_resource type="StyleBoxFlat" id="HeaderPanel"]
-bg_color = Color(1, 1, 1, 0.92)
-corner_radius_top_left = 24
-corner_radius_top_right = 24
-corner_radius_bottom_right = 24
-corner_radius_bottom_left = 24
-content_margin_left = 12.0
-content_margin_top = 5.0
-content_margin_right = 12.0
-content_margin_bottom = 5.0
-shadow_color = Color(0.1, 0.3, 0.26, 0.18)
-shadow_size = 6
+[ext_resource type="PackedScene" path="res://scenes/components/NavBar.tscn" id="15_navbar"]
+[ext_resource type="StyleBox" path="res://ui/styles/header_panel.tres" id="16_header_style"]
 
 [sub_resource type="StyleBoxFlat" id="CosmeticsPanel"]
 bg_color = Color(1, 1, 1, 0.94)
@@ -45,39 +29,26 @@ content_margin_bottom = 10.0
 shadow_color = Color(0.1, 0.3, 0.26, 0.18)
 shadow_size = 8
 
-[sub_resource type="StyleBoxFlat" id="NavPanel"]
-bg_color = Color(1, 1, 1, 0.92)
-corner_radius_top_left = 24
-corner_radius_top_right = 24
-corner_radius_bottom_right = 24
-corner_radius_bottom_left = 24
-content_margin_left = 8.0
-content_margin_top = 4.0
-content_margin_right = 8.0
-content_margin_bottom = 4.0
-shadow_color = Color(0.1, 0.3, 0.26, 0.18)
-shadow_size = 5
-
 [sub_resource type="StyleBoxFlat" id="BuyNormal"]
 bg_color = Color(0.31, 0.77, 0.12, 1)
-corner_radius_top_left = 20
-corner_radius_top_right = 20
-corner_radius_bottom_right = 20
-corner_radius_bottom_left = 20
+corner_radius_top_left = 22
+corner_radius_top_right = 22
+corner_radius_bottom_right = 22
+corner_radius_bottom_left = 22
 
 [sub_resource type="StyleBoxFlat" id="BuyHover"]
 bg_color = Color(0.4, 0.84, 0.16, 1)
-corner_radius_top_left = 20
-corner_radius_top_right = 20
-corner_radius_bottom_right = 20
-corner_radius_bottom_left = 20
+corner_radius_top_left = 22
+corner_radius_top_right = 22
+corner_radius_bottom_right = 22
+corner_radius_bottom_left = 22
 
 [sub_resource type="StyleBoxFlat" id="BuyDisabled"]
 bg_color = Color(0.68, 0.71, 0.65, 1)
-corner_radius_top_left = 20
-corner_radius_top_right = 20
-corner_radius_bottom_right = 20
-corner_radius_bottom_left = 20
+corner_radius_top_left = 22
+corner_radius_top_right = 22
+corner_radius_bottom_right = 22
+corner_radius_bottom_left = 22
 
 [sub_resource type="StyleBoxFlat" id="TabPanel"]
 bg_color = Color(1, 1, 1, 0.92)
@@ -94,10 +65,10 @@ shadow_size = 5
 
 [sub_resource type="StyleBoxFlat" id="TabIdle"]
 bg_color = Color(0.9, 0.95, 0.88, 1)
-corner_radius_top_left = 18
-corner_radius_top_right = 18
-corner_radius_bottom_right = 18
-corner_radius_bottom_left = 18
+corner_radius_top_left = 16
+corner_radius_top_right = 16
+corner_radius_bottom_right = 16
+corner_radius_bottom_left = 16
 content_margin_left = 4.0
 content_margin_top = 6.0
 content_margin_right = 4.0
@@ -105,10 +76,10 @@ content_margin_bottom = 6.0
 
 [sub_resource type="StyleBoxFlat" id="TabActive"]
 bg_color = Color(0.31, 0.77, 0.12, 1)
-corner_radius_top_left = 18
-corner_radius_top_right = 18
-corner_radius_bottom_right = 18
-corner_radius_bottom_left = 18
+corner_radius_top_left = 16
+corner_radius_top_right = 16
+corner_radius_bottom_right = 16
+corner_radius_bottom_left = 16
 content_margin_left = 4.0
 content_margin_top = 6.0
 content_margin_right = 4.0
@@ -134,10 +105,10 @@ shadow_size = 8
 
 [sub_resource type="StyleBoxFlat" id="PreviewSlot"]
 bg_color = Color(0.93, 0.97, 0.9, 1)
-corner_radius_top_left = 24
-corner_radius_top_right = 24
-corner_radius_bottom_right = 24
-corner_radius_bottom_left = 24
+corner_radius_top_left = 22
+corner_radius_top_right = 22
+corner_radius_bottom_right = 22
+corner_radius_bottom_left = 22
 
 [node name="CosmeticsScreen" type="Control"]
 layout_mode = 3
@@ -177,10 +148,6 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_constants/margin_left = 14
-theme_override_constants/margin_top = 18
-theme_override_constants/margin_right = 14
-theme_override_constants/margin_bottom = 14
 script = ExtResource("13_centered_margin")
 
 [node name="Content" type="VBoxContainer" parent="SafeArea"]
@@ -189,7 +156,7 @@ theme_override_constants/separation = 8
 
 [node name="Header" type="PanelContainer" parent="SafeArea/Content"]
 layout_mode = 2
-theme_override_styles/panel = SubResource("HeaderPanel")
+theme_override_styles/panel = ExtResource("16_header_style")
 
 [node name="HeaderRow" type="HBoxContainer" parent="SafeArea/Content/Header"]
 layout_mode = 2
@@ -253,13 +220,15 @@ theme_override_colors/font_focus_color = Color(0.19, 0.34, 0.24, 1)
 theme_override_colors/font_pressed_color = Color(1, 1, 1, 1)
 theme_override_colors/font_hover_pressed_color = Color(1, 1, 1, 1)
 theme_override_fonts/font = ExtResource("10_bold")
-theme_override_font_sizes/font_size = 14
+theme_override_font_sizes/font_size = 15
 theme_override_styles/normal = SubResource("TabIdle")
 theme_override_styles/hover = SubResource("TabIdle")
 theme_override_styles/focus = SubResource("TabIdle")
 theme_override_styles/pressed = SubResource("TabActive")
 theme_override_styles/hover_pressed = SubResource("TabActive")
-text = "COSMETICS_TAB_COLOR"
+expand_icon = true
+icon_alignment = 1
+vertical_icon_alignment = 1
 
 [node name="HatsTab" type="Button" parent="SafeArea/Content/TabBar/TabRow"]
 unique_name_in_owner = true
@@ -273,13 +242,15 @@ theme_override_colors/font_focus_color = Color(0.19, 0.34, 0.24, 1)
 theme_override_colors/font_pressed_color = Color(1, 1, 1, 1)
 theme_override_colors/font_hover_pressed_color = Color(1, 1, 1, 1)
 theme_override_fonts/font = ExtResource("10_bold")
-theme_override_font_sizes/font_size = 14
+theme_override_font_sizes/font_size = 15
 theme_override_styles/normal = SubResource("TabIdle")
 theme_override_styles/hover = SubResource("TabIdle")
 theme_override_styles/focus = SubResource("TabIdle")
 theme_override_styles/pressed = SubResource("TabActive")
 theme_override_styles/hover_pressed = SubResource("TabActive")
-text = "COSMETICS_TAB_HATS"
+expand_icon = true
+icon_alignment = 1
+vertical_icon_alignment = 1
 
 [node name="GlassesTab" type="Button" parent="SafeArea/Content/TabBar/TabRow"]
 unique_name_in_owner = true
@@ -293,13 +264,15 @@ theme_override_colors/font_focus_color = Color(0.19, 0.34, 0.24, 1)
 theme_override_colors/font_pressed_color = Color(1, 1, 1, 1)
 theme_override_colors/font_hover_pressed_color = Color(1, 1, 1, 1)
 theme_override_fonts/font = ExtResource("10_bold")
-theme_override_font_sizes/font_size = 14
+theme_override_font_sizes/font_size = 15
 theme_override_styles/normal = SubResource("TabIdle")
 theme_override_styles/hover = SubResource("TabIdle")
 theme_override_styles/focus = SubResource("TabIdle")
 theme_override_styles/pressed = SubResource("TabActive")
 theme_override_styles/hover_pressed = SubResource("TabActive")
-text = "COSMETICS_TAB_GLASSES"
+expand_icon = true
+icon_alignment = 1
+vertical_icon_alignment = 1
 
 [node name="NecklacesTab" type="Button" parent="SafeArea/Content/TabBar/TabRow"]
 unique_name_in_owner = true
@@ -313,13 +286,15 @@ theme_override_colors/font_focus_color = Color(0.19, 0.34, 0.24, 1)
 theme_override_colors/font_pressed_color = Color(1, 1, 1, 1)
 theme_override_colors/font_hover_pressed_color = Color(1, 1, 1, 1)
 theme_override_fonts/font = ExtResource("10_bold")
-theme_override_font_sizes/font_size = 14
+theme_override_font_sizes/font_size = 15
 theme_override_styles/normal = SubResource("TabIdle")
 theme_override_styles/hover = SubResource("TabIdle")
 theme_override_styles/focus = SubResource("TabIdle")
 theme_override_styles/pressed = SubResource("TabActive")
 theme_override_styles/hover_pressed = SubResource("TabActive")
-text = "COSMETICS_TAB_NECKLACES"
+expand_icon = true
+icon_alignment = 1
+vertical_icon_alignment = 1
 
 [node name="Scroll" type="ScrollContainer" parent="SafeArea/Content"]
 unique_name_in_owner = true
@@ -328,11 +303,33 @@ size_flags_vertical = 3
 horizontal_scroll_mode = 0
 
 [node name="CosmeticsPanel" type="PanelContainer" parent="SafeArea/Content/Scroll"]
-custom_minimum_size = Vector2(350, 0)
+custom_minimum_size = Vector2(336, 0)
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 theme_override_styles/panel = SubResource("CosmeticsPanel")
+
+[node name="FootwearTab" type="Button" parent="SafeArea/Content/TabBar/TabRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 48)
+layout_mode = 2
+size_flags_horizontal = 3
+toggle_mode = true
+theme_override_colors/font_color = Color(0.19, 0.34, 0.24, 1)
+theme_override_colors/font_hover_color = Color(0.19, 0.34, 0.24, 1)
+theme_override_colors/font_focus_color = Color(0.19, 0.34, 0.24, 1)
+theme_override_colors/font_pressed_color = Color(1, 1, 1, 1)
+theme_override_colors/font_hover_pressed_color = Color(1, 1, 1, 1)
+theme_override_fonts/font = ExtResource("10_bold")
+theme_override_font_sizes/font_size = 15
+theme_override_styles/normal = SubResource("TabIdle")
+theme_override_styles/hover = SubResource("TabIdle")
+theme_override_styles/focus = SubResource("TabIdle")
+theme_override_styles/pressed = SubResource("TabActive")
+theme_override_styles/hover_pressed = SubResource("TabActive")
+expand_icon = true
+icon_alignment = 1
+vertical_icon_alignment = 1
 
 [node name="Pages" type="VBoxContainer" parent="SafeArea/Content/Scroll/CosmeticsPanel"]
 unique_name_in_owner = true
@@ -416,6 +413,19 @@ theme_override_constants/h_separation = 8
 theme_override_constants/v_separation = 8
 columns = 3
 
+[node name="FootwearPage" type="VBoxContainer" parent="SafeArea/Content/Scroll/CosmeticsPanel/Pages"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+
+[node name="FootwearGrid" type="GridContainer" parent="SafeArea/Content/Scroll/CosmeticsPanel/Pages/FootwearPage"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_constants/h_separation = 8
+theme_override_constants/v_separation = 8
+columns = 3
+
 [node name="Dock" type="PanelContainer" parent="SafeArea/Content"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 168)
@@ -453,7 +463,7 @@ unique_name_in_owner = true
 layout_mode = 2
 theme_override_colors/font_color = Color(0.19, 0.34, 0.24, 1)
 theme_override_fonts/font = ExtResource("10_bold")
-theme_override_font_sizes/font_size = 20
+theme_override_font_sizes/font_size = 22
 autowrap_mode = 2
 max_lines_visible = 2
 
@@ -491,13 +501,41 @@ theme_override_colors/font_hover_pressed_color = Color(1, 1, 1, 1)
 theme_override_colors/font_focus_color = Color(1, 1, 1, 1)
 theme_override_colors/font_disabled_color = Color(0.94, 0.94, 0.92, 1)
 theme_override_fonts/font = ExtResource("10_bold")
-theme_override_font_sizes/font_size = 19
+theme_override_font_sizes/font_size = 18
 theme_override_styles/normal = SubResource("BuyNormal")
 theme_override_styles/hover = SubResource("BuyHover")
 theme_override_styles/pressed = SubResource("BuyHover")
 theme_override_styles/focus = SubResource("BuyNormal")
 theme_override_styles/disabled = SubResource("BuyDisabled")
-text = "COSMETICS_BUY"
+
+[node name="BuyContent" type="HBoxContainer" parent="SafeArea/Content/Dock/DockRow/DockInfo/PurchaseButton"]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_constants/separation = 6
+alignment = 1
+
+[node name="BuyPriceLabel" type="Label" parent="SafeArea/Content/Dock/DockRow/DockInfo/PurchaseButton/BuyContent"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_fonts/font = ExtResource("10_bold")
+theme_override_font_sizes/font_size = 22
+vertical_alignment = 1
+
+[node name="BuyCoinIcon" type="TextureRect" parent="SafeArea/Content/Dock/DockRow/DockInfo/PurchaseButton/BuyContent"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(24, 24)
+layout_mode = 2
+size_flags_vertical = 4
+texture = ExtResource("4_coin")
+expand_mode = 1
+stretch_mode = 5
 
 [node name="StatusLabel" type="Label" parent="SafeArea/Content/Dock/DockRow/DockInfo"]
 unique_name_in_owner = true
@@ -505,150 +543,13 @@ visible = false
 custom_minimum_size = Vector2(0, 16)
 layout_mode = 2
 theme_override_colors/font_color = Color(0.28, 0.42, 0.32, 1)
-theme_override_font_sizes/font_size = 13
+theme_override_font_sizes/font_size = 12
 vertical_alignment = 1
 autowrap_mode = 2
 
-[node name="Navigation" type="PanelContainer" parent="SafeArea/Content"]
-custom_minimum_size = Vector2(0, 104)
+[node name="Navigation" parent="SafeArea/Content" instance=ExtResource("15_navbar")]
 layout_mode = 2
-theme_override_styles/panel = SubResource("NavPanel")
-
-[node name="NavigationRow" type="HBoxContainer" parent="SafeArea/Content/Navigation"]
-layout_mode = 2
-theme_override_constants/separation = 3
-alignment = 1
-
-[node name="OutfitItem" type="VBoxContainer" parent="SafeArea/Content/Navigation/NavigationRow"]
-custom_minimum_size = Vector2(64, 0)
-layout_mode = 2
-size_flags_horizontal = 3
-theme_override_constants/separation = -5
-alignment = 1
-
-[node name="OutfitButton" type="TextureButton" parent="SafeArea/Content/Navigation/NavigationRow/OutfitItem"]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(62, 62)
-layout_mode = 2
-size_flags_horizontal = 4
-focus_mode = 2
-mouse_default_cursor_shape = 2
-texture_normal = ExtResource("5_outfit")
-ignore_texture_size = true
-stretch_mode = 0
-
-[node name="OutfitLabel" type="Label" parent="SafeArea/Content/Navigation/NavigationRow/OutfitItem"]
-unique_name_in_owner = true
-layout_mode = 2
-theme_override_colors/font_color = Color(0.28, 0.58, 0.09, 1)
-theme_override_fonts/font = ExtResource("10_bold")
-theme_override_font_sizes/font_size = 12
-text = "NAV_OUTFIT"
-horizontal_alignment = 1
-
-[node name="MapItem" type="VBoxContainer" parent="SafeArea/Content/Navigation/NavigationRow"]
-custom_minimum_size = Vector2(64, 0)
-layout_mode = 2
-size_flags_horizontal = 3
-theme_override_constants/separation = -5
-alignment = 1
-
-[node name="MapButton" type="TextureButton" parent="SafeArea/Content/Navigation/NavigationRow/MapItem"]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(56, 56)
-layout_mode = 2
-size_flags_horizontal = 4
-focus_mode = 2
-mouse_default_cursor_shape = 2
-texture_normal = ExtResource("6_map")
-ignore_texture_size = true
-stretch_mode = 0
-
-[node name="MapLabel" type="Label" parent="SafeArea/Content/Navigation/NavigationRow/MapItem"]
-unique_name_in_owner = true
-layout_mode = 2
-theme_override_colors/font_color = Color(0.2, 0.33, 0.27, 1)
-theme_override_font_sizes/font_size = 12
-text = "NAV_MAP"
-horizontal_alignment = 1
-
-[node name="HomeItem" type="VBoxContainer" parent="SafeArea/Content/Navigation/NavigationRow"]
-custom_minimum_size = Vector2(64, 0)
-layout_mode = 2
-size_flags_horizontal = 3
-theme_override_constants/separation = -5
-alignment = 1
-
-[node name="HomeButton" type="TextureButton" parent="SafeArea/Content/Navigation/NavigationRow/HomeItem"]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(56, 56)
-layout_mode = 2
-size_flags_horizontal = 4
-focus_mode = 2
-mouse_default_cursor_shape = 2
-texture_normal = ExtResource("7_home")
-ignore_texture_size = true
-stretch_mode = 0
-
-[node name="HomeLabel" type="Label" parent="SafeArea/Content/Navigation/NavigationRow/HomeItem"]
-unique_name_in_owner = true
-layout_mode = 2
-theme_override_colors/font_color = Color(0.2, 0.33, 0.27, 1)
-theme_override_font_sizes/font_size = 12
-text = "NAV_HOME"
-horizontal_alignment = 1
-
-[node name="TrophyItem" type="VBoxContainer" parent="SafeArea/Content/Navigation/NavigationRow"]
-custom_minimum_size = Vector2(64, 0)
-layout_mode = 2
-size_flags_horizontal = 3
-theme_override_constants/separation = -5
-alignment = 1
-
-[node name="TrophyButton" type="TextureButton" parent="SafeArea/Content/Navigation/NavigationRow/TrophyItem"]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(56, 56)
-layout_mode = 2
-size_flags_horizontal = 4
-focus_mode = 2
-mouse_default_cursor_shape = 2
-texture_normal = ExtResource("8_trophy")
-ignore_texture_size = true
-stretch_mode = 0
-
-[node name="TrophyLabel" type="Label" parent="SafeArea/Content/Navigation/NavigationRow/TrophyItem"]
-unique_name_in_owner = true
-layout_mode = 2
-theme_override_colors/font_color = Color(0.2, 0.33, 0.27, 1)
-theme_override_font_sizes/font_size = 12
-text = "NAV_TROPHY"
-horizontal_alignment = 1
-
-[node name="SettingsItem" type="VBoxContainer" parent="SafeArea/Content/Navigation/NavigationRow"]
-custom_minimum_size = Vector2(64, 0)
-layout_mode = 2
-size_flags_horizontal = 3
-theme_override_constants/separation = -5
-alignment = 1
-
-[node name="SettingsButton" type="TextureButton" parent="SafeArea/Content/Navigation/NavigationRow/SettingsItem"]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(56, 56)
-layout_mode = 2
-size_flags_horizontal = 4
-focus_mode = 2
-mouse_default_cursor_shape = 2
-texture_normal = ExtResource("9_settings")
-ignore_texture_size = true
-stretch_mode = 0
-
-[node name="SettingsLabel" type="Label" parent="SafeArea/Content/Navigation/NavigationRow/SettingsItem"]
-unique_name_in_owner = true
-layout_mode = 2
-theme_override_colors/font_color = Color(0.2, 0.33, 0.27, 1)
-theme_override_font_sizes/font_size = 12
-text = "NAV_SETTINGS"
-horizontal_alignment = 1
+active_item = 0
 
 [node name="SelectionPlayer" type="AudioStreamPlayer" parent="."]
 unique_name_in_owner = true

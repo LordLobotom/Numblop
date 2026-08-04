@@ -8,6 +8,10 @@ signal settings_requested
 
 const COIN_TEXTURE: Texture2D = preload("res://ui/crests/crest_coin.png")
 const ACCESSORY_CARD_SIZE := 96.0
+# Price shown on the action button; matches the button's own font_disabled_color so a
+# price the player cannot afford reads as dimmed rather than as a separate message.
+const CAN_AFFORD_COLOR := Color(1.0, 1.0, 1.0, 1.0)
+const CANNOT_AFFORD_COLOR := Color(0.94, 0.94, 0.92, 1.0)
 
 const CATEGORY_STATE_KEYS := {
     CosmeticCatalog.CATEGORY_BODY_COLOR: "colors",
@@ -15,6 +19,7 @@ const CATEGORY_STATE_KEYS := {
     CosmeticCatalog.CATEGORY_HAT: "hats",
     CosmeticCatalog.CATEGORY_GLASSES: "glasses",
     CosmeticCatalog.CATEGORY_NECKLACE: "necklaces",
+    CosmeticCatalog.CATEGORY_FOOTWEAR: "footwear",
 }
 const CATEGORY_SELECTED_KEYS := {
     CosmeticCatalog.CATEGORY_BODY_COLOR: "selected_body_color",
@@ -22,6 +27,7 @@ const CATEGORY_SELECTED_KEYS := {
     CosmeticCatalog.CATEGORY_HAT: "selected_hat",
     CosmeticCatalog.CATEGORY_GLASSES: "selected_glasses",
     CosmeticCatalog.CATEGORY_NECKLACE: "selected_necklace",
+    CosmeticCatalog.CATEGORY_FOOTWEAR: "selected_footwear",
 }
 const CATEGORY_DEFAULT_IDS := {
     CosmeticCatalog.CATEGORY_BODY_COLOR: CosmeticCatalog.DEFAULT_BODY_COLOR_ID,
@@ -29,12 +35,21 @@ const CATEGORY_DEFAULT_IDS := {
     CosmeticCatalog.CATEGORY_HAT: CosmeticCatalog.DEFAULT_HAT_ID,
     CosmeticCatalog.CATEGORY_GLASSES: CosmeticCatalog.DEFAULT_GLASSES_ID,
     CosmeticCatalog.CATEGORY_NECKLACE: CosmeticCatalog.DEFAULT_NECKLACE_ID,
+    CosmeticCatalog.CATEGORY_FOOTWEAR: CosmeticCatalog.DEFAULT_FOOTWEAR_ID,
+}
+## The item whose artwork stands in for each category on its tab.
+const TAB_ICON_ITEM_IDS := {
+    CosmeticCatalog.CATEGORY_HAT: "hat_pirat",
+    CosmeticCatalog.CATEGORY_GLASSES: "glasses_star",
+    CosmeticCatalog.CATEGORY_NECKLACE: "necklace_crown",
+    CosmeticCatalog.CATEGORY_FOOTWEAR: "footwear_sneakers",
 }
 const CATEGORY_TAB_KEYS := {
     CosmeticCatalog.CATEGORY_BODY_COLOR: "COSMETICS_TAB_COLOR",
     CosmeticCatalog.CATEGORY_HAT: "COSMETICS_TAB_HATS",
     CosmeticCatalog.CATEGORY_GLASSES: "COSMETICS_TAB_GLASSES",
     CosmeticCatalog.CATEGORY_NECKLACE: "COSMETICS_TAB_NECKLACES",
+    CosmeticCatalog.CATEGORY_FOOTWEAR: "COSMETICS_TAB_FOOTWEAR",
 }
 
 @onready var title_label: Label = %TitleLabel
@@ -43,11 +58,13 @@ const CATEGORY_TAB_KEYS := {
 @onready var hats_tab: Button = %HatsTab
 @onready var glasses_tab: Button = %GlassesTab
 @onready var necklaces_tab: Button = %NecklacesTab
+@onready var footwear_tab: Button = %FootwearTab
 @onready var scroll: ScrollContainer = %Scroll
 @onready var color_page: Control = %ColorPage
 @onready var hats_page: Control = %HatsPage
 @onready var glasses_page: Control = %GlassesPage
 @onready var necklaces_page: Control = %NecklacesPage
+@onready var footwear_page: Control = %FootwearPage
 @onready var color_grid: GridContainer = %ColorGrid
 @onready var belly_grid: GridContainer = %BellyGrid
 @onready var body_color_label: Label = %BodyColorLabel
@@ -55,24 +72,20 @@ const CATEGORY_TAB_KEYS := {
 @onready var hats_grid: GridContainer = %HatsGrid
 @onready var glasses_grid: GridContainer = %GlassesGrid
 @onready var necklaces_grid: GridContainer = %NecklacesGrid
+@onready var footwear_grid: GridContainer = %FootwearGrid
 @onready var preview_blob: BlobCharacter = %PreviewBlob
 @onready var item_name_label: Label = %ItemNameLabel
+@onready var price_row: HBoxContainer = %PriceRow
 @onready var price_label: Label = %PriceLabel
 @onready var price_coin_icon: TextureRect = %PriceCoinIcon
 @onready var purchase_button: Button = %PurchaseButton
+@onready var buy_content: HBoxContainer = %BuyContent
+@onready var buy_price_label: Label = %BuyPriceLabel
+@onready var buy_coin_icon: TextureRect = %BuyCoinIcon
 @onready var status_label: Label = %StatusLabel
-@onready var outfit_button: TextureButton = %OutfitButton
-@onready var map_button: TextureButton = %MapButton
-@onready var home_button: TextureButton = %HomeButton
-@onready var trophy_button: TextureButton = %TrophyButton
-@onready var settings_button: TextureButton = %SettingsButton
-@onready var outfit_label: Label = %OutfitLabel
-@onready var map_label: Label = %MapLabel
-@onready var home_label: Label = %HomeLabel
-@onready var trophy_label: Label = %TrophyLabel
-@onready var settings_label: Label = %SettingsLabel
 @onready var selection_player: AudioStreamPlayer = %SelectionPlayer
 @onready var purchase_player: AudioStreamPlayer = %PurchasePlayer
+@onready var navigation: NavBar = $SafeArea/Content/Navigation
 
 var _state: Dictionary = {}
 var _active_category := CosmeticCatalog.CATEGORY_BODY_COLOR
@@ -90,18 +103,21 @@ func _ready() -> void:
         CosmeticCatalog.CATEGORY_HAT: hats_tab,
         CosmeticCatalog.CATEGORY_GLASSES: glasses_tab,
         CosmeticCatalog.CATEGORY_NECKLACE: necklaces_tab,
+        CosmeticCatalog.CATEGORY_FOOTWEAR: footwear_tab,
     }
     _page_nodes = {
         CosmeticCatalog.CATEGORY_BODY_COLOR: color_page,
         CosmeticCatalog.CATEGORY_HAT: hats_page,
         CosmeticCatalog.CATEGORY_GLASSES: glasses_page,
         CosmeticCatalog.CATEGORY_NECKLACE: necklaces_page,
+        CosmeticCatalog.CATEGORY_FOOTWEAR: footwear_page,
     }
     _grids = {
         CosmeticCatalog.CATEGORY_BODY_COLOR: color_grid,
         CosmeticCatalog.CATEGORY_HAT: hats_grid,
         CosmeticCatalog.CATEGORY_GLASSES: glasses_grid,
         CosmeticCatalog.CATEGORY_NECKLACE: necklaces_grid,
+        CosmeticCatalog.CATEGORY_FOOTWEAR: footwear_grid,
     }
     var tab_group := ButtonGroup.new()
     for category in _tab_buttons:
@@ -109,11 +125,12 @@ func _ready() -> void:
         tab.button_group = tab_group
         tab.pressed.connect(_on_tab_pressed.bind(category))
     price_coin_icon.texture = COIN_TEXTURE
+    _apply_tab_icons()
     preview_blob.set_preview_mode(true)
-    map_button.pressed.connect(_request_screen.bind(map_requested))
-    home_button.pressed.connect(_request_screen.bind(home_requested))
-    trophy_button.pressed.connect(_request_screen.bind(trophy_requested))
-    settings_button.pressed.connect(_request_screen.bind(settings_requested))
+    navigation.map_requested.connect(_request_screen.bind(map_requested))
+    navigation.home_requested.connect(_request_screen.bind(home_requested))
+    navigation.trophy_requested.connect(_request_screen.bind(trophy_requested))
+    navigation.settings_requested.connect(_request_screen.bind(settings_requested))
     purchase_button.pressed.connect(_on_action_pressed)
     refresh_from_state()
 
@@ -192,21 +209,57 @@ func _refresh_text() -> void:
     coins_label.text = str(int(_state.get("coins", 0)))
     for category in _tab_buttons:
         var tab: Button = _tab_buttons[category]
-        tab.text = tr(CATEGORY_TAB_KEYS[category])
-        tab.tooltip_text = tab.text
+        # Five tabs no longer fit a word each at 390 px wide, so the caption moves to
+        # the tooltip and the tab shows an item from its own category instead.
+        tab.tooltip_text = tr(CATEGORY_TAB_KEYS[category])
     body_color_label.text = tr("COSMETICS_BODY_COLOR")
     belly_label.text = tr("COSMETICS_BELLY")
-    outfit_label.text = tr("NAV_OUTFIT")
-    map_label.text = tr("NAV_MAP")
-    home_label.text = tr("NAV_HOME")
-    trophy_label.text = tr("NAV_TROPHY")
-    settings_label.text = tr("NAV_SETTINGS")
-    outfit_button.tooltip_text = tr("NAV_OUTFIT")
-    map_button.tooltip_text = tr("NAV_MAP")
-    home_button.tooltip_text = tr("NAV_HOME")
-    trophy_button.tooltip_text = tr("NAV_TROPHY")
-    settings_button.tooltip_text = tr("NAV_SETTINGS")
     _show_status("")
+
+
+## Gives each tab an icon cropped from one of its own items.
+##
+## Reusing the catalog artwork keeps the tabs honest -- the picture on a tab is a thing
+## the child can actually buy inside it -- and means no separate icon set to keep in
+## step. The colour tab has no artwork, so it gets a swatch of the body colours instead.
+func _apply_tab_icons() -> void:
+    for category in TAB_ICON_ITEM_IDS:
+        var tab: Button = _tab_buttons.get(category)
+        if tab == null:
+            continue
+        tab.icon = _category_icon(category, String(TAB_ICON_ITEM_IDS[category]))
+    color_tab.icon = _body_color_swatch()
+
+
+func _category_icon(category: String, item_id: String) -> Texture2D:
+    var item := CosmeticCatalog.item(category, item_id)
+    var texture_path := String(item.get("texture_path", ""))
+    if texture_path.is_empty():
+        return null
+    var region: Rect2 = item.get("display_region", Rect2())
+    var source := load(texture_path) as Texture2D
+    if source == null or region.size.length_squared() <= 0.0:
+        return source
+    var atlas := AtlasTexture.new()
+    atlas.atlas = source
+    atlas.region = region
+    return atlas
+
+
+func _body_color_swatch() -> Texture2D:
+    # Laid out as a block rather than a strip: a six-by-one image stretches to a thin
+    # bar once the button scales it to fit, which reads as a rule, not a palette.
+    var colors := CosmeticCatalog.body_colors()
+    var columns := 3
+    var rows := int(ceil(colors.size() / float(columns)))
+    var image := Image.create(columns, rows, false, Image.FORMAT_RGBA8)
+    for index in colors.size():
+        image.set_pixel(
+            index % columns,
+            index / columns,
+            Color(colors[index]["color"])
+        )
+    return ImageTexture.create_from_image(image)
 
 
 func _rebuild_catalog() -> void:
@@ -235,6 +288,11 @@ func _rebuild_catalog() -> void:
         necklaces_grid,
         CosmeticCatalog.CATEGORY_NECKLACE,
         _state.get("necklaces", [])
+    )
+    _rebuild_accessories(
+        footwear_grid,
+        CosmeticCatalog.CATEGORY_FOOTWEAR,
+        _state.get("footwear", [])
     )
     _refresh_card_marks()
 
@@ -315,16 +373,14 @@ func _preview_cosmetics_state() -> Dictionary:
 
 
 func _refresh_price_row(item: Dictionary) -> void:
-    var price := int(item["price"])
-    if bool(item["owned"]):
+    # Only owned items get a row of their own. While an item is still for sale the
+    # action button carries the cost, so repeating it here would print the same
+    # figure twice in one dock.
+    var owned := bool(item["owned"])
+    price_row.visible = owned
+    if owned:
         price_label.text = tr("COSMETICS_OWNED")
         price_coin_icon.visible = false
-    elif price <= 0:
-        price_label.text = tr("COSMETICS_FREE")
-        price_coin_icon.visible = false
-    else:
-        price_label.text = str(price)
-        price_coin_icon.visible = true
 
 
 func _refresh_action_button(item: Dictionary) -> void:
@@ -335,15 +391,25 @@ func _refresh_action_button(item: Dictionary) -> void:
         CosmeticCatalog.CATEGORY_BELLY_COLOR,
     ]
     purchase_button.visible = true
-    if not owned:
-        var price := int(item["price"])
+    var price := int(item["price"])
+    var shows_price := not owned and price > 0
+    buy_content.visible = shows_price
+    if shows_price:
         var can_afford := int(_state.get("coins", 0)) >= price
         purchase_button.disabled = not can_afford
-        purchase_button.text = (
-            tr("COSMETICS_BUY").format({"price": price})
-            if can_afford
-            else tr("COSMETICS_NEED_COINS").format({"price": price})
+        # The button's own text stays empty: BuyContent draws "<price> (coin)" on top.
+        # Affordability is carried by the disabled style plus a dimmed number, because
+        # a disabled Button cannot recolor a child Label for us.
+        purchase_button.text = ""
+        buy_price_label.text = str(price)
+        buy_price_label.add_theme_color_override(
+            "font_color",
+            CAN_AFFORD_COLOR if can_afford else CANNOT_AFFORD_COLOR
         )
+        buy_coin_icon.modulate = Color(1.0, 1.0, 1.0, 1.0 if can_afford else 0.6)
+    elif not owned:
+        purchase_button.disabled = false
+        purchase_button.text = tr("COSMETICS_FREE")
     elif worn:
         purchase_button.disabled = true
         purchase_button.text = tr(

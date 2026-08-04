@@ -1,10 +1,11 @@
-[gd_scene load_steps=10 format=3]
+[gd_scene load_steps=11 format=3]
 
 [ext_resource type="Script" path="res://scripts/ui/PracticeScreen.gd" id="1_script"]
 [ext_resource type="Texture2D" path="res://assets/backgrounds/mianscreen_background.png" id="2_background"]
 [ext_resource type="PackedScene" path="res://scenes/components/NumericKeypad.tscn" id="3_keypad"]
 [ext_resource type="Font" path="res://ui/fonts/Baloo2Bold.tres" id="4_bold"]
 [ext_resource type="Script" path="res://scripts/ui/DotFactVisual.gd" id="5_dot_visual"]
+[ext_resource type="Script" path="res://scripts/ui/CenteredContentMargin.gd" id="6_centered_margin"]
 
 [sub_resource type="StyleBoxFlat" id="QuestionCard"]
 bg_color = Color(1, 1, 1, 0.94)
@@ -13,10 +14,10 @@ border_width_top = 3
 border_width_right = 3
 border_width_bottom = 3
 border_color = Color(1, 1, 1, 0.8)
-corner_radius_top_left = 30
-corner_radius_top_right = 30
-corner_radius_bottom_right = 30
-corner_radius_bottom_left = 30
+corner_radius_top_left = 28
+corner_radius_top_right = 28
+corner_radius_bottom_right = 28
+corner_radius_bottom_left = 28
 shadow_color = Color(0.12, 0.32, 0.42, 0.2)
 shadow_size = 8
 content_margin_left = 20.0
@@ -106,10 +107,9 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_constants/margin_left = 20
-theme_override_constants/margin_top = 24
-theme_override_constants/margin_right = 20
-theme_override_constants/margin_bottom = 24
+script = ExtResource("6_centered_margin")
+base_top_margin = 24
+base_bottom_margin = 24
 
 [node name="Content" type="VBoxContainer" parent="SafeArea"]
 layout_mode = 2
@@ -306,7 +306,7 @@ visible = false
 layout_mode = 2
 theme_override_colors/font_outline_color = Color(1, 1, 1, 0.9)
 theme_override_constants/outline_size = 3
-theme_override_font_sizes/font_size = 24
+theme_override_font_sizes/font_size = 28
 text = "MAP_FACT_MASTERED"
 horizontal_alignment = 1
 autowrap_mode = 2
@@ -316,7 +316,7 @@ unique_name_in_owner = true
 visible = false
 layout_mode = 2
 theme_override_colors/font_color = Color(0.83, 0.48, 0.05, 1)
-theme_override_font_sizes/font_size = 24
+theme_override_font_sizes/font_size = 28
 text = "PRACTICE_MILESTONE_REWARD"
 horizontal_alignment = 1
 autowrap_mode = 2

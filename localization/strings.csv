@@ -79,8 +79,6 @@ COSMETICS_SELECTED,Selected,Vybraná
 COSMETICS_OWNED,Owned,Vlastníš
 COSMETICS_FREE,Free,Zdarma
 COSMETICS_PRICE,{price} coins,{price} mincí
-COSMETICS_BUY,Buy for {price},Koupit za {price}
-COSMETICS_NEED_COINS,Need {price} coins,Potřebuješ {price} mincí
 COSMETICS_EQUIPPED,Equipped!,Nasazeno!
 COSMETICS_PREVIEWING,Previewing: {color},Zkoušíš: {color}
 COSMETICS_NOT_ENOUGH,Not enough coins yet.,Zatím nemáš dost mincí.
@@ -109,10 +107,19 @@ COSMETICS_GLASSES_PIRATE,Pirate eye patch,Pirátská páska
 COSMETICS_NECKLACE_CROWN,Crown necklace,Náhrdelník s korunou
 COSMETICS_NECKLACE_DUCK,Duck necklace,Kachní náhrdelník
 COSMETICS_NECKLACE_MOON,Moon necklace,Měsíční náhrdelník
+COSMETICS_GLASSES_STAR,Star glasses,Hvězdné brýle
+COSMETICS_NECKLACE_BOW_TIE,Bow tie,Motýlek
+COSMETICS_NECKLACE_SCARF,Scarf,Šála
 COSMETICS_TAB_COLOR,Color,Barva
 COSMETICS_TAB_HATS,Hats,Čepice
 COSMETICS_TAB_GLASSES,Glasses,Brýle
 COSMETICS_TAB_NECKLACES,Necklaces,Řetízky
+COSMETICS_TAB_FOOTWEAR,Shoes,Boty
+COSMETICS_FOOTWEAR_SNEAKERS,Sneakers,Tenisky
+COSMETICS_FOOTWEAR_ROLLER,Roller skates,Kolečkové brusle
+COSMETICS_FOOTWEAR_RABBIT,Bunny slippers,Zaječí bačkory
+COSMETICS_FOOTWEAR_DUCK,Duck boots,Kachní holínky
+COSMETICS_FOOTWEAR_STAR,Star boots,Hvězdné boty
 COSMETICS_WEAR,Wear,Nasadit
 COSMETICS_WORN,Worn,Nasazeno
 COSMETICS_WEAR_COLOR,Use color,Použít barvu

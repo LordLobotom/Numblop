@@ -77,8 +77,8 @@ func test_supplied_accessory_catalog_has_free_empty_slots_and_thirteen_paid_item
     var glasses := CosmeticCatalog.glasses()
     var necklaces := CosmeticCatalog.necklaces()
     equal(hats.size(), 7, "Empty slot plus six hats")
-    equal(glasses.size(), 5, "Empty slot plus four glasses")
-    equal(necklaces.size(), 4, "Empty slot plus three necklaces")
+    equal(glasses.size(), 6, "Empty slot plus five glasses")
+    equal(necklaces.size(), 6, "Empty slot plus five necklaces")
     equal(hats[0]["price"], 0, "No-hat slot is free")
     equal(glasses[0]["price"], 0, "No-glasses slot is free")
     equal(necklaces[0]["price"], 0, "No-necklace slot is free")
@@ -89,10 +89,69 @@ func test_supplied_accessory_catalog_has_free_empty_slots_and_thirteen_paid_item
     equal(hats[5]["id"], "hat_dino", "Dino hat joins the hat catalog")
     equal(hats[6]["id"], "hat_pirat", "Pirate hat joins the hat catalog")
     equal(glasses[4]["id"], "glasses_pirat", "Pirate eye patch joins the glasses catalog")
+    equal(glasses[5]["id"], "glasses_star", "Star glasses join the glasses catalog")
+    equal(necklaces[4]["id"], "necklace_bow_tie", "Bow tie joins the necklace catalog")
+    equal(necklaces[5]["id"], "necklace_skarf", "Scarf joins the necklace catalog")
+    var footwear := CosmeticCatalog.footwear()
+    equal(footwear.size(), 6, "Empty slot plus five footwear")
+    equal(footwear[0]["price"], 0, "Bare feet stay free")
+    for item in footwear.slice(1):
+        equal(item["price"], 100, "Supplied footwear price")
+        check(ResourceLoader.exists(String(item["texture_path"])), "Footwear asset exists")
     equal(
         necklaces[2]["display_region"],
         Rect2(227.0, 404.0, 320.0, 136.0),
         "Duck necklace preview ignores stray source pixels"
+    )
+
+
+func test_footwear_is_owned_equipped_and_saved_like_any_other_slot() -> void:
+    var cosmetics := LocalCosmetics.new()
+    equal(
+        cosmetics.selected_footwear,
+        CosmeticCatalog.DEFAULT_FOOTWEAR_ID,
+        "A new blob starts barefoot"
+    )
+    check(
+        not cosmetics.owns_item(CosmeticCatalog.CATEGORY_FOOTWEAR, "footwear_sneakers"),
+        "Sneakers are not free"
+    )
+    equal(
+        cosmetics.purchase_and_equip_item(
+            CosmeticCatalog.CATEGORY_FOOTWEAR,
+            "footwear_sneakers",
+            50
+        ),
+        -1,
+        "Fifty coins cannot buy a hundred-coin pair"
+    )
+    equal(
+        cosmetics.purchase_and_equip_item(
+            CosmeticCatalog.CATEGORY_FOOTWEAR,
+            "footwear_sneakers",
+            100
+        ),
+        100,
+        "Sneakers cost their catalog price"
+    )
+    equal(cosmetics.selected_footwear, "footwear_sneakers", "Purchase equips the pair")
+
+    var reloaded := LocalCosmetics.new(cosmetics.to_dictionary())
+    equal(reloaded.selected_footwear, "footwear_sneakers", "Equipped footwear survives reload")
+    check(
+        reloaded.owns_item(CosmeticCatalog.CATEGORY_FOOTWEAR, "footwear_sneakers"),
+        "Owned footwear survives reload"
+    )
+
+    # A save written before footwear existed must still load, barefoot.
+    var legacy := cosmetics.to_dictionary()
+    legacy.erase("unlocked_footwear")
+    legacy.erase("selected_footwear")
+    var migrated := LocalCosmetics.new(legacy)
+    equal(
+        migrated.selected_footwear,
+        CosmeticCatalog.DEFAULT_FOOTWEAR_ID,
+        "Older saves open barefoot instead of failing"
     )
 
 

@@ -1,6 +1,18 @@
 extends NumblopTestCase
 
 
+## Resolves a footer crest by path.
+##
+## The five items now live in scenes/components/NavBar.tscn, so their unique names
+## belong to that scene's owner and no longer resolve from a screen root. The path
+## itself is unchanged, and is what the navigation contract pins.
+func _nav_button(screen: Node, button_name: String) -> BaseButton:
+    var item_name := button_name.replace("Button", "Item")
+    return screen.get_node(
+        "SafeArea/Content/Navigation/NavigationRow/%s/%s" % [item_name, button_name]
+    )
+
+
 func test_main_scene_has_touch_ready_portrait_controls() -> void:
     var packed: PackedScene = load("res://scenes/Main.tscn")
     check(packed != null, "Main scene must load")
@@ -9,7 +21,7 @@ func test_main_scene_has_touch_ready_portrait_controls() -> void:
     var play_button: TextureButton = home.get_node("%PlayButton")
     check(play_button.custom_minimum_size.y >= 48.0, "Play touch target")
     for button_name in ["OutfitButton", "MapButton", "HomeButton", "TrophyButton", "SettingsButton"]:
-        var crest_button: TextureButton = home.get_node("%%%s" % button_name)
+        var crest_button := _nav_button(home, button_name)
         check(crest_button.custom_minimum_size.y >= 48.0, "%s touch target" % button_name)
     check(home.get_node_or_null("%LanguageSelect") == null, "No language picker on home")
     check(scene.has_node("HomeScreen"), "Main scene must contain the blob home")
@@ -35,7 +47,7 @@ func test_home_crest_navigation_uses_requested_artwork_and_bold_play_font() -> v
         "SettingsButton": "res://ui/crests/crest_settings.png",
     }
     for button_name in expected_paths:
-        var button: TextureButton = scene.get_node("%%%s" % button_name)
+        var button := _nav_button(scene, button_name)
         equal(button.texture_normal.resource_path, expected_paths[button_name], button_name)
     var navigation_row := scene.get_node("SafeArea/Content/Navigation/NavigationRow")
     var navigation_order: Array[String] = []
@@ -52,6 +64,15 @@ func test_home_crest_navigation_uses_requested_artwork_and_bold_play_font() -> v
         "res://ui/fonts/Baloo2Bold.tres",
         "Play uses the bold font"
     )
+    # The label is a full-rect child of the 340x104 %PlayButton, so both offsets exist
+    # only to re-centre it on the artwork rather than on the button box. Measured from
+    # ui/buttons/button_play.png (512x256):
+    #   the play triangle's left edge is x=402, so usable text width ends there
+    #     -> (34 + 402) / 2 = 218 of 512 -> 145 of 340, i.e. ~21 px left of centre
+    #   the lit pill face spans y=57..172 (the band below it is the dark 3D edge)
+    #     -> centre y=115 of 256 -> 46.7 of 104, i.e. ~5.3 px above centre
+    equal(play_label.offset_right, -42.0, "Play label clears the triangle glyph")
+    equal(play_label.offset_bottom, -11.0, "Play label sits on the lit pill face")
     scene.free()
 
 
@@ -98,6 +119,115 @@ func test_bottom_navigation_spreads_five_items_evenly_at_wider_sizes() -> void:
         scene.free()
 
 
+func test_every_screen_highlights_its_own_navigation_item() -> void:
+    # Each screen used to hand-encode the active item twice, by sizing one crest larger
+    # and bolding its label, with nothing tying the two together or checking the screen
+    # highlighted itself. The component derives both from one property.
+    var expected_active := {
+        "res://scenes/screens/HomeScreen.tscn": NavBar.Item.HOME,
+        "res://scenes/screens/MapScreen.tscn": NavBar.Item.MAP,
+        "res://scenes/screens/CosmeticsScreen.tscn": NavBar.Item.OUTFIT,
+        "res://scenes/screens/TrophyScreen.tscn": NavBar.Item.TROPHY,
+        "res://scenes/screens/SettingsScreen.tscn": NavBar.Item.SETTINGS,
+    }
+    var button_for_item := {
+        NavBar.Item.OUTFIT: "OutfitButton",
+        NavBar.Item.MAP: "MapButton",
+        NavBar.Item.HOME: "HomeButton",
+        NavBar.Item.TROPHY: "TrophyButton",
+        NavBar.Item.SETTINGS: "SettingsButton",
+    }
+    for scene_path in expected_active:
+        var packed: PackedScene = load(scene_path)
+        check(packed != null, "Screen loads: %s" % scene_path)
+        if packed == null:
+            continue
+        var scene := packed.instantiate()
+        var navigation := scene.get_node("SafeArea/Content/Navigation") as NavBar
+        check(navigation != null, "%s uses the shared footer" % scene_path.get_file())
+        if navigation == null:
+            scene.free()
+            continue
+        var active: NavBar.Item = expected_active[scene_path]
+        equal(navigation.active_item, active, "%s highlights itself" % scene_path.get_file())
+        for item in button_for_item:
+            var button := _nav_button(scene, button_for_item[item])
+            check(
+                button.custom_minimum_size.y >= 48.0,
+                "%s stays a touch target" % button_for_item[item]
+            )
+        scene.free()
+
+
+func test_title_headers_share_one_stylebox() -> void:
+    # The four headers had drifted to two background alphas and two vertical paddings.
+    # Their contents differ for good reasons, so the shared piece is the card style.
+    for scene_path in [
+        "res://scenes/screens/MapScreen.tscn",
+        "res://scenes/screens/CosmeticsScreen.tscn",
+        "res://scenes/screens/TrophyScreen.tscn",
+        "res://scenes/screens/SettingsScreen.tscn",
+    ]:
+        var packed: PackedScene = load(scene_path)
+        check(packed != null, "Screen loads: %s" % scene_path)
+        if packed == null:
+            continue
+        var scene := packed.instantiate()
+        var header: PanelContainer = scene.get_node("SafeArea/Content/Header")
+        var style := header.get_theme_stylebox("panel")
+        equal(
+            style.resource_path,
+            "res://ui/styles/header_panel.tres",
+            "%s uses the shared header card" % scene_path.get_file()
+        )
+        scene.free()
+
+
+func test_nav_bar_grows_and_bolds_only_the_active_item() -> void:
+    # Exercised through the component's real lifecycle: the highlight is applied in
+    # _ready, so a scene that never enters the tree still carries the authored sizes.
+    var packed: PackedScene = load("res://scenes/components/NavBar.tscn")
+    check(packed != null, "NavBar component must load")
+    if packed == null:
+        return
+    var button_for_item := {
+        NavBar.Item.OUTFIT: "OutfitButton",
+        NavBar.Item.MAP: "MapButton",
+        NavBar.Item.HOME: "HomeButton",
+        NavBar.Item.TROPHY: "TrophyButton",
+        NavBar.Item.SETTINGS: "SettingsButton",
+    }
+    var label_for_item := {
+        NavBar.Item.OUTFIT: "OutfitLabel",
+        NavBar.Item.MAP: "MapLabel",
+        NavBar.Item.HOME: "HomeLabel",
+        NavBar.Item.TROPHY: "TrophyLabel",
+        NavBar.Item.SETTINGS: "SettingsLabel",
+    }
+    var scene_tree := Engine.get_main_loop() as SceneTree
+    for active in button_for_item:
+        var navigation: NavBar = packed.instantiate()
+        navigation.active_item = active
+        scene_tree.root.add_child(navigation)
+        for item in button_for_item:
+            var button: BaseButton = navigation.get_node("%%%s" % button_for_item[item])
+            var label: Label = navigation.get_node("%%%s" % label_for_item[item])
+            var is_active: bool = item == active
+            equal(
+                button.custom_minimum_size,
+                NavBar.ACTIVE_CREST_SIZE if is_active else NavBar.IDLE_CREST_SIZE,
+                "%s crest size when %s is active" % [button_for_item[item], active]
+            )
+            check(button.custom_minimum_size.y >= 48.0, "Crest stays a touch target")
+            equal(
+                label.get_theme_font("font") == NavBar.BOLD_FONT,
+                is_active,
+                "%s bold only when active" % label_for_item[item]
+            )
+        scene_tree.root.remove_child(navigation)
+        navigation.free()
+
+
 func test_navigation_screens_center_a_540_pixel_column_on_wide_displays() -> void:
     for scene_path in [
         "res://scenes/screens/HomeScreen.tscn",
@@ -119,12 +249,16 @@ func test_navigation_screens_center_a_540_pixel_column_on_wide_displays() -> voi
 
         safe_area.set_anchors_preset(Control.PRESET_TOP_LEFT)
         safe_area.size = Vector2(390.0, 844.0)
-        safe_area._update_side_margins()
-        equal(safe_area.get_theme_constant("margin_left"), 14, "Phone left margin")
-        equal(safe_area.get_theme_constant("margin_right"), 14, "Phone right margin")
+        safe_area._update_margins()
+        equal(safe_area.get_theme_constant("margin_left"), 16, "Phone left margin")
+        equal(safe_area.get_theme_constant("margin_right"), 16, "Phone right margin")
+        # Vertical insets are the authored base off-device; a notch or gesture bar is
+        # added on top of these only when running on a handset.
+        equal(safe_area.get_theme_constant("margin_top"), 20, "Phone top margin")
+        equal(safe_area.get_theme_constant("margin_bottom"), 16, "Phone bottom margin")
 
         safe_area.size = Vector2(900.0, 900.0)
-        safe_area._update_side_margins()
+        safe_area._update_margins()
         equal(safe_area.get_theme_constant("margin_left"), 180, "Wide left margin")
         equal(safe_area.get_theme_constant("margin_right"), 180, "Wide right margin")
         equal(
@@ -135,6 +269,186 @@ func test_navigation_screens_center_a_540_pixel_column_on_wide_displays() -> voi
             "Wide content uses sixty percent of the responsive viewport"
         )
         scene.free()
+
+
+func test_scene_typography_and_radii_stay_on_the_shared_scale() -> void:
+    # The UI had accumulated 23 font sizes and 9 corner radii, with steps like 22-vs-23
+    # carrying no meaning. Anything outside these sets is drift, not a decision.
+    # 42, 50 and 58 are the numeric-hero tier: the equation, the keypad readout and the
+    # milestone fact, which are read as figures rather than as text. The title step is
+    # 28 rather than 27 so the milestone fact stays exactly 1.5x it.
+    var allowed_font_sizes := [12, 15, 18, 22, 28, 36, 42, 50, 58]
+    var allowed_radii := [8, 16, 22, 28]
+    for scene_path in _all_scene_paths():
+        var file := FileAccess.open(scene_path, FileAccess.READ)
+        if file == null:
+            continue
+        var line_number := 0
+        while file.get_position() < file.get_length():
+            var line := file.get_line().strip_edges()
+            line_number += 1
+            var value := line.get_slice(" = ", 1)
+            if line.contains("font_sizes/font_size = "):
+                check(
+                    allowed_font_sizes.has(int(value)),
+                    "%s:%d font size %s is off the scale" % [
+                        scene_path.get_file(), line_number, value
+                    ]
+                )
+            elif line.begins_with("corner_radius_"):
+                check(
+                    allowed_radii.has(int(value)),
+                    "%s:%d corner radius %s is off the scale" % [
+                        scene_path.get_file(), line_number, value
+                    ]
+                )
+
+
+func test_theme_publishes_the_font_scale_as_reusable_variations() -> void:
+    var theme: Theme = load("res://ui/theme.tres")
+    check(theme != null, "Theme must load")
+    if theme == null:
+        return
+    var expected := {"Caption": 12, "Tag": 15, "Body": 18, "Heading": 22, "Title": 28, "Display": 36}
+    for variation in expected:
+        equal(
+            theme.get_type_variation_base(variation),
+            &"Label",
+            "%s varies Label" % variation
+        )
+        equal(
+            theme.get_font_size("font_size", variation),
+            expected[variation],
+            "%s font size" % variation
+        )
+    equal(theme.default_font_size, 18, "Theme default is the body step")
+
+
+func _all_scene_paths() -> Array[String]:
+    var paths: Array[String] = []
+    for directory in ["res://scenes/screens", "res://scenes/components", "res://scenes"]:
+        var access := DirAccess.open(directory)
+        if access == null:
+            continue
+        access.list_dir_begin()
+        var file_name := access.get_next()
+        while not file_name.is_empty():
+            if not access.current_is_dir() and file_name.ends_with(".tscn"):
+                paths.append("%s/%s" % [directory, file_name])
+            file_name = access.get_next()
+        access.list_dir_end()
+    return paths
+
+
+func test_every_screen_keeps_its_content_off_the_display_edge() -> void:
+    # Practice, Reward and Opening used to hardcode their own insets, so they neither
+    # centered on wide displays nor knew about a notch or gesture bar.
+    var expected_bases := {
+        "res://scenes/screens/HomeScreen.tscn": Vector2i(20, 16),
+        "res://scenes/screens/MapScreen.tscn": Vector2i(20, 16),
+        "res://scenes/screens/CosmeticsScreen.tscn": Vector2i(20, 16),
+        "res://scenes/screens/TrophyScreen.tscn": Vector2i(20, 16),
+        "res://scenes/screens/SettingsScreen.tscn": Vector2i(20, 16),
+        "res://scenes/screens/PracticeScreen.tscn": Vector2i(24, 24),
+        "res://scenes/screens/RewardScreen.tscn": Vector2i(34, 28),
+        "res://scenes/screens/OpeningScreen.tscn": Vector2i(36, 36),
+    }
+    for scene_path in expected_bases:
+        var packed: PackedScene = load(scene_path)
+        check(packed != null, "Screen loads: %s" % scene_path)
+        if packed == null:
+            continue
+        var scene := packed.instantiate()
+        # Opening still calls its container SafeMargin.
+        var safe_area := scene.get_node_or_null("SafeArea") as CenteredContentMargin
+        if safe_area == null:
+            safe_area = scene.get_node_or_null("SafeMargin") as CenteredContentMargin
+        check(safe_area != null, "%s manages its own edge insets" % scene_path.get_file())
+        if safe_area != null:
+            var expected: Vector2i = expected_bases[scene_path]
+            equal(safe_area.base_top_margin, expected.x, "%s top base" % scene_path.get_file())
+            equal(
+                safe_area.base_bottom_margin,
+                expected.y,
+                "%s bottom base" % scene_path.get_file()
+            )
+            equal(safe_area.compact_side_margin, 16, "%s side base" % scene_path.get_file())
+        _release_audio_streams(scene)
+        scene.free()
+
+
+## Drops stream references before a screen is freed.
+##
+## These screens are instantiated outside the scene tree, so nothing ever runs the
+## teardown that would normally release their audio. Godot then reports the stream as
+## still in use at exit, which the test runner treats as a failure.
+func _release_audio_streams(node: Node) -> void:
+    if node is AudioStreamPlayer:
+        node.stream = null
+    for child in node.get_children():
+        _release_audio_streams(child)
+
+
+func test_scroll_panels_stay_clear_of_the_scrollbar_at_the_narrowest_width() -> void:
+    # At 390 wide the side insets leave 358 units, and a vertical scrollbar eats into
+    # that. Panels sized to the old 350 readable column overflowed by a few pixels.
+    var narrowest_content := 390.0 - 2.0 * 16.0
+    for entry in [
+        ["res://scenes/screens/MapScreen.tscn", "%MapCanvas"],
+        ["res://scenes/screens/CosmeticsScreen.tscn", "SafeArea/Content/Scroll/CosmeticsPanel"],
+        ["res://scenes/screens/SettingsScreen.tscn", "SafeArea/Content/Scroll/SettingsPanel"],
+    ]:
+        var packed: PackedScene = load(entry[0])
+        check(packed != null, "Screen loads: %s" % entry[0])
+        if packed == null:
+            continue
+        var scene := packed.instantiate()
+        var panel: Control = scene.get_node(entry[1])
+        check(
+            panel.custom_minimum_size.x <= narrowest_content - 16.0,
+            "%s leaves room for the scrollbar" % entry[1]
+        )
+        scene.free()
+
+
+func test_scrollable_screens_can_steal_a_touch_drag_from_their_children() -> void:
+    # Every scrollable screen is packed with controls that consume input (map islands,
+    # trophy cards, settings sliders, cosmetic swatches). With a zero deadzone the child
+    # keeps the gesture and the screen refuses to scroll under a finger on Android.
+    var expected_deadzone := int(
+        ProjectSettings.get_setting("gui/common/default_scroll_deadzone")
+    )
+    check(expected_deadzone > 0, "Touch drags must be claimable by ScrollContainers")
+    for scene_path in [
+        "res://scenes/screens/MapScreen.tscn",
+        "res://scenes/screens/TrophyScreen.tscn",
+        "res://scenes/screens/SettingsScreen.tscn",
+        "res://scenes/screens/CosmeticsScreen.tscn",
+        "res://scenes/screens/RewardScreen.tscn",
+    ]:
+        var packed: PackedScene = load(scene_path)
+        check(packed != null, "Scrollable scene loads: %s" % scene_path)
+        if packed == null:
+            continue
+        var scene := packed.instantiate()
+        var scrolls := _find_scroll_containers(scene)
+        check(not scrolls.is_empty(), "%s has a ScrollContainer" % scene_path)
+        for scroll in scrolls:
+            equal(
+                scroll.scroll_deadzone,
+                expected_deadzone,
+                "%s :: %s inherits the touch deadzone" % [scene_path.get_file(), scroll.name]
+            )
+        scene.free()
+
+
+func _find_scroll_containers(node: Node) -> Array[ScrollContainer]:
+    var found: Array[ScrollContainer] = []
+    if node is ScrollContainer:
+        found.append(node)
+    for child in node.get_children():
+        found.append_array(_find_scroll_containers(child))
+    return found
 
 
 func test_map_screen_has_all_stage_navigation_contracts() -> void:
@@ -149,7 +463,7 @@ func test_map_screen_has_all_stage_navigation_contracts() -> void:
     check(scene.get_node("%Scroll") is ScrollContainer, "Map can reveal the new island")
     check(scene.get_node("%MapCanvas") is MapPath, "Winding trail canvas")
     check(scene.get_node("%MapCenter") is CenterContainer, "Wide map remains centered")
-    equal(scene.get_node("%MapCanvas").custom_minimum_size.x, 350.0, "Readable map width")
+    equal(scene.get_node("%MapCanvas").custom_minimum_size.x, 336.0, "Readable map width")
     check(scene.has_method("show_table_details"), "Unlocked island opens fact mastery")
     check(scene.has_method("close_detail_if_open"), "Back closes fact mastery first")
     check(scene.has_signal("fact_detail_opened"), "Island detail exposes selection feedback")
@@ -174,7 +488,7 @@ func test_map_screen_has_all_stage_navigation_contracts() -> void:
     )
     check(scene.get_node_or_null("%BackButton") == null, "Map has no top back arrow")
     for button_name in ["OutfitButton", "MapButton", "HomeButton", "TrophyButton", "SettingsButton"]:
-        var button: BaseButton = scene.get_node("%%%s" % button_name)
+        var button := _nav_button(scene, button_name)
         check(button.custom_minimum_size.y >= 48.0, "%s touch target" % button_name)
 
     var scene_tree := Engine.get_main_loop() as SceneTree
@@ -342,12 +656,12 @@ func test_settings_screen_has_language_audio_mute_and_safe_exit_controls() -> vo
     check(scene.close_exit_confirmation_if_open(), "Open dialog consumes Back")
     check(not scene.get_node("%ExitDialog").visible, "Back hides only the exit dialog")
     equal(
-        scene.get_node("%SettingsButton").texture_normal.resource_path,
+        _nav_button(scene, "SettingsButton").texture_normal.resource_path,
         "res://ui/crests/crest_settings.png",
         "Settings crest"
     )
     equal(
-        scene.get_node("%HomeButton").texture_normal.resource_path,
+        _nav_button(scene, "HomeButton").texture_normal.resource_path,
         "res://ui/crests/crest_home.png",
         "Home crest"
     )
@@ -414,7 +728,9 @@ func test_cosmetics_screen_has_previewing_shop_purchase_and_navigation_contracts
         3,
         "Necklaces use three identifiable cards per row"
     )
-    for grid_name in ["ColorGrid", "BellyGrid", "HatsGrid", "GlassesGrid", "NecklacesGrid"]:
+    for grid_name in [
+        "ColorGrid", "BellyGrid", "HatsGrid", "GlassesGrid", "NecklacesGrid", "FootwearGrid"
+    ]:
         var grid: GridContainer = scene.get_node("%%%s" % grid_name)
         check(
             grid.size_flags_horizontal == Control.SIZE_SHRINK_CENTER,
@@ -422,9 +738,53 @@ func test_cosmetics_screen_has_previewing_shop_purchase_and_navigation_contracts
         )
     check(scene.get_node("%PurchaseButton").custom_minimum_size.y >= 48.0, "Buy touch target")
     for button_name in ["OutfitButton", "MapButton", "HomeButton", "TrophyButton", "SettingsButton"]:
-        var button: BaseButton = scene.get_node("%%%s" % button_name)
+        var button := _nav_button(scene, button_name)
         check(button.custom_minimum_size.y >= 48.0, "%s touch target" % button_name)
     scene.free()
+
+
+func test_cosmetics_buy_button_prices_items_with_a_number_and_a_coin() -> void:
+    # A price is a number and a coin, not a sentence: "Koupit za 250" overflows a
+    # 52 px button far sooner than "250" does.
+    var packed: PackedScene = load("res://scenes/screens/CosmeticsScreen.tscn")
+    check(packed != null, "Cosmetics scene must load")
+    if packed == null:
+        return
+    var scene := packed.instantiate()
+    var purchase_button: Button = scene.get_node("%PurchaseButton")
+    var buy_content: HBoxContainer = scene.get_node("%BuyContent")
+    var buy_price_label: Label = scene.get_node("%BuyPriceLabel")
+    var buy_coin_icon: TextureRect = scene.get_node("%BuyCoinIcon")
+    check(
+        purchase_button.is_ancestor_of(buy_content),
+        "Price overlay lives inside the action button"
+    )
+    check(
+        buy_content.mouse_filter == Control.MOUSE_FILTER_IGNORE,
+        "Price overlay never eats the button press"
+    )
+    equal(buy_content.alignment, BoxContainer.ALIGNMENT_CENTER, "Price sits centered")
+    var order: Array[String] = []
+    for child in buy_content.get_children():
+        order.append(str(child.name))
+    equal(order, ["BuyPriceLabel", "BuyCoinIcon"], "Number reads before the coin")
+    equal(
+        buy_coin_icon.texture.resource_path,
+        "res://ui/crests/crest_coin.png",
+        "Buy button uses the shared coin crest"
+    )
+    check(buy_price_label is Label, "Price is a plain number label")
+    scene.free()
+
+
+func test_cosmetics_catalog_no_longer_ships_sentence_priced_buy_strings() -> void:
+    var file := FileAccess.open("res://localization/strings.csv", FileAccess.READ)
+    check(file != null, "Localization catalog must open")
+    if file == null:
+        return
+    var catalog := file.get_as_text()
+    check(not catalog.contains("COSMETICS_BUY,"), "Sentence buy string is retired")
+    check(not catalog.contains("COSMETICS_NEED_COINS,"), "Sentence afford string is retired")
 
 
 func test_trophy_screen_lists_achievements_under_the_best_streak() -> void:
@@ -439,7 +799,7 @@ func test_trophy_screen_lists_achievements_under_the_best_streak() -> void:
     check(scene.get_node("%BestLabel") is Label, "Best streak summary")
     check(not scene.has_node("%MilestoneList"), "Milestone history is replaced by achievements")
     for button_name in ["OutfitButton", "MapButton", "HomeButton", "TrophyButton", "SettingsButton"]:
-        var button: BaseButton = scene.get_node("%%%s" % button_name)
+        var button := _nav_button(scene, button_name)
         check(button.custom_minimum_size.y >= 48.0, "%s touch target" % button_name)
     scene.free()
 

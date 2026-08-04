@@ -17,25 +17,16 @@ const LOCKED_ICON_MODULATE := Color(1.0, 1.0, 1.0, 0.45)
 @onready var title_label: Label = %TitleLabel
 @onready var best_label: Label = %BestLabel
 @onready var achievement_list: VBoxContainer = %AchievementList
-@onready var outfit_button: TextureButton = %OutfitButton
-@onready var map_button: TextureButton = %MapButton
-@onready var home_button: TextureButton = %HomeButton
-@onready var trophy_button: TextureButton = %TrophyButton
-@onready var settings_button: TextureButton = %SettingsButton
-@onready var outfit_label: Label = %OutfitLabel
-@onready var map_label: Label = %MapLabel
-@onready var home_label: Label = %HomeLabel
-@onready var trophy_label: Label = %TrophyLabel
-@onready var settings_label: Label = %SettingsLabel
+@onready var navigation: NavBar = $SafeArea/Content/Navigation
 
 var _state: Dictionary = {}
 
 
 func _ready() -> void:
-    outfit_button.pressed.connect(outfit_requested.emit)
-    map_button.pressed.connect(map_requested.emit)
-    home_button.pressed.connect(home_requested.emit)
-    settings_button.pressed.connect(settings_requested.emit)
+    navigation.outfit_requested.connect(outfit_requested.emit)
+    navigation.map_requested.connect(map_requested.emit)
+    navigation.home_requested.connect(home_requested.emit)
+    navigation.settings_requested.connect(settings_requested.emit)
     EventBus.streak_changed.connect(_on_streak_changed)
     EventBus.achievements_unlocked.connect(_on_achievements_unlocked)
     refresh_from_state()
@@ -64,16 +55,6 @@ func _refresh_text() -> void:
     best_label.text = tr("TROPHY_BEST").format({
         "count": int(_state.get("best_streak", 0)),
     })
-    outfit_label.text = tr("NAV_OUTFIT")
-    map_label.text = tr("NAV_MAP")
-    home_label.text = tr("NAV_HOME")
-    trophy_label.text = tr("NAV_TROPHY")
-    settings_label.text = tr("NAV_SETTINGS")
-    outfit_button.tooltip_text = tr("NAV_OUTFIT")
-    map_button.tooltip_text = tr("NAV_MAP")
-    home_button.tooltip_text = tr("NAV_HOME")
-    trophy_button.tooltip_text = tr("NAV_TROPHY")
-    settings_button.tooltip_text = tr("NAV_SETTINGS")
 
 
 func _rebuild_achievements() -> void:
