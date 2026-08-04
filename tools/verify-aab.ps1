@@ -1,8 +1,10 @@
 [CmdletBinding()]
 param(
     [string]$AabPath = "",
-    [string]$ExpectedVersionName = "0.2.2",
-    [int]$ExpectedVersionCode = 4
+    # Both default to what the project itself declares, so a release bump never has to be
+    # repeated here. tests/smoke/test_project_contract.gd pins the same two values.
+    [string]$ExpectedVersionName = "",
+    [int]$ExpectedVersionCode = 0
 )
 
 Set-StrictMode -Version Latest
@@ -10,6 +12,24 @@ $ErrorActionPreference = "Stop"
 
 Import-Module (Join-Path $PSScriptRoot "GodotTools.psm1") -Force
 $repoRoot = Split-Path $PSScriptRoot -Parent
+
+if ($ExpectedVersionName -eq "") {
+    $projectText = Get-Content -LiteralPath (Join-Path $repoRoot "project.godot") -Raw
+    if ($projectText -notmatch '(?m)^config/version="([^"]+)"') {
+        throw "Could not read application/config/version from project.godot."
+    }
+    $ExpectedVersionName = $Matches[1]
+}
+if ($ExpectedVersionCode -eq 0) {
+    $presetsText = Get-Content -LiteralPath (Join-Path $repoRoot "export_presets.cfg") -Raw
+    $codes = @([regex]::Matches($presetsText, '(?m)^version/code=(\d+)') |
+        ForEach-Object { [int]$_.Groups[1].Value } | Sort-Object -Unique)
+    if ($codes.Count -ne 1) {
+        throw "export_presets.cfg must declare one shared Android version code; found: $($codes -join ', ')."
+    }
+    $ExpectedVersionCode = $codes[0]
+}
+Write-Host "Expecting version $ExpectedVersionName (code $ExpectedVersionCode)."
 if ($AabPath -eq "") {
     $AabPath = Join-Path $repoRoot "build\Numblop.aab"
 }

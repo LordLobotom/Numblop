@@ -7,15 +7,30 @@
 - Windows: x86-64 centered portrait window.
 - Web: adaptive static canvas; phone view fits the available viewport and 900×900 is the wide
   desktop QA reference.
-- The public version comes from `application/config/version` (currently `0.2.2`) and stays
+- The public version comes from `application/config/version` (currently `0.2.3`) and stays
   aligned with the Android version name and the Windows product version. All three are pinned by
   `tests/smoke/test_project_contract.gd`; bump them together.
-- The Play version code (currently `4`) is pinned by the same test but moves on its own: every
+- The Play version code (currently `6`) is pinned by the same test but moves on its own: every
   upload needs a higher code, including a re-upload of an unchanged version name.
 - Android SDK levels: Min SDK `24`, Target SDK `36`, pinned in the Android Release preset and by
   the same contract test.
 - Privacy policy URL for Play Console (data safety + store listing):
   `https://lordlobotom.github.io/Numblop/privacy/` (served by GitHub Pages from `docs/`).
+
+## App icons
+
+Every launcher icon derives from one artwork, `ui/branding/numblop_head_icon.png`. Regenerate them
+after changing it:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File tools/generate-app-icons.ps1
+```
+
+The tool overwrites `ui/branding/numblop_ico.png` (Windows executable, editor, project icon) and
+the four `ui/branding/android/icon_*.png` layers in place, so paths, UIDs and `.import` files stay
+valid and neither `export_presets.cfg` nor the contract test changes. The adaptive foreground is
+fitted into Android's guaranteed 66% safe zone over a flat background sampled from the artwork, so
+no launcher mask can clip the crown or the feet. Review the regenerated PNGs before committing.
 
 ## Development artifacts
 
