@@ -193,5 +193,17 @@ Status values: `TODO`, `WIP(@agent)`, `BLOCKED(reason)`, `DONE`.
 - `D20 DONE` Responsive captures for the correction moment (typical 7×4 and the 9×9 worst case).
   Depends: B29. Owns: capture harness, capture command, smoke tests.
 
+## M2 tasks
+
+- `C17 DONE` Save v9 onboarding state (`completed` plus the resumed step), pre-v9 saves adopted
+  as onboarded, and profile reset replaying the tutorial. Owns: local onboarding, save manager,
+  app state, state tests.
+- `B30 DONE` One-time guided finger tutorial over the whole loop, plus the target accessors the
+  screens expose for it. Depends: C17. Owns: `scenes/Main.tscn`, `scripts/ui/OnboardingTutorial.gd`,
+  practice/cosmetics/map target accessors, UI tests.
+- `B31 DONE` Cosmetics color page fits the readable column (wrapped belly row, inset color-tab
+  icon) and the Play caption sits on the pill face. Owns: cosmetics scene/script, home scene,
+  UI tests.
+
 Claim the lowest-numbered unblocked task in your track. Only the stated owner changes the task's
 owned files; coordinate contract changes through the owning track.

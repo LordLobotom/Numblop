@@ -8,6 +8,9 @@ signal settings_requested
 
 const COIN_TEXTURE: Texture2D = preload("res://ui/crests/crest_coin.png")
 const ACCESSORY_CARD_SIZE := 96.0
+## One body color on the category tab, and the transparent border around the whole block.
+const SWATCH_CELL_PIXELS := 12
+const SWATCH_MARGIN_PIXELS := 6
 # Price shown on the action button; matches the button's own font_disabled_color so a
 # price the player cannot afford reads as dimmed rather than as a separate message.
 const CAN_AFFORD_COLOR := Color(1.0, 1.0, 1.0, 1.0)
@@ -161,6 +164,20 @@ func show_future_feature() -> void:
     _show_status(tr("HOME_FEATURE_LATER"))
 
 
+## The live card for one catalog item, or null while its category has not been built.
+func item_card(category: String, item_id: String) -> Control:
+    var card: Variant = _cards.get(_card_key(category, item_id))
+    return card if card is Control and is_instance_valid(card) else null
+
+
+## What the dock is previewing right now, which is what the buy button would act on.
+func previewed_item() -> Dictionary:
+    return {
+        "category": _selected_category,
+        "id": _selected_item_id,
+    }
+
+
 func preview_body_color(color_id: String) -> void:
     preview_item(CosmeticCatalog.CATEGORY_BODY_COLOR, color_id)
 
@@ -249,14 +266,30 @@ func _category_icon(category: String, item_id: String) -> Texture2D:
 func _body_color_swatch() -> Texture2D:
     # Laid out as a block rather than a strip: a six-by-one image stretches to a thin
     # bar once the button scales it to fit, which reads as a rule, not a palette.
+    #
+    # The transparent border matters as much as the colors. `expand_icon` scales an icon
+    # until it fills the tab, so an image that is nothing but color went edge to edge and
+    # made this tab look wider than the four beside it, whose artwork carries its own
+    # empty space. The margin gives the palette the same footprint as that artwork.
     var colors := CosmeticCatalog.body_colors()
     var columns := 3
     var rows := int(ceil(colors.size() / float(columns)))
-    var image := Image.create(columns, rows, false, Image.FORMAT_RGBA8)
+    var image := Image.create(
+        columns * SWATCH_CELL_PIXELS + 2 * SWATCH_MARGIN_PIXELS,
+        rows * SWATCH_CELL_PIXELS + 2 * SWATCH_MARGIN_PIXELS,
+        false,
+        Image.FORMAT_RGBA8
+    )
+    image.fill(Color(0.0, 0.0, 0.0, 0.0))
     for index in colors.size():
-        image.set_pixel(
-            index % columns,
-            index / columns,
+        image.fill_rect(
+            Rect2i(
+                Vector2i(
+                    SWATCH_MARGIN_PIXELS + (index % columns) * SWATCH_CELL_PIXELS,
+                    SWATCH_MARGIN_PIXELS + (index / columns) * SWATCH_CELL_PIXELS
+                ),
+                Vector2i(SWATCH_CELL_PIXELS, SWATCH_CELL_PIXELS)
+            ),
             Color(colors[index]["color"])
         )
     return ImageTexture.create_from_image(image)

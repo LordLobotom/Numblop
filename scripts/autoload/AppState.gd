@@ -8,6 +8,7 @@ var progress := LocalProgress.new()
 var cosmetics := LocalCosmetics.new()
 var streak := LocalStreak.new()
 var achievements := LocalAchievements.new()
+var onboarding := LocalOnboarding.new()
 
 var _pending_answer_milestone: Dictionary = {}
 var _session_bonus_coins := 0
@@ -22,6 +23,8 @@ func _ready() -> void:
     cosmetics = LocalCosmetics.new(SaveManager.load_cosmetics())
     streak = LocalStreak.new(SaveManager.load_streak())
     achievements = LocalAchievements.new(SaveManager.load_achievements())
+    onboarding = LocalOnboarding.new(SaveManager.load_onboarding())
+    _adopt_pre_tutorial_save()
     _nickname = SaveManager.load_nickname()
     _create_session_controller()
     _achievements_loaded = true
@@ -31,8 +34,44 @@ func _ready() -> void:
     _pending_achievement_unlocks.clear()
 
 
+## Treats a save from before the tutorial existed as already onboarded.
+##
+## Such a profile belongs to a child who has finished rounds and knows the game; walking
+## them from the Play button on the next launch would teach nothing. The flag is only kept
+## in memory here and lands on disk with the next ordinary save, so booting an old profile
+## never writes to it.
+func _adopt_pre_tutorial_save() -> void:
+    if onboarding.completed or onboarding.step > 0:
+        return
+    if progress.completed_sessions > 0:
+        onboarding.completed = true
+
+
 func nickname() -> String:
     return _nickname
+
+
+func onboarding_state() -> Dictionary:
+    return onboarding.to_dictionary()
+
+
+## Remembers which tutorial step is on screen so a restart resumes there.
+func record_onboarding_step(step: int) -> bool:
+    if onboarding.completed or onboarding.step == step:
+        return true
+    onboarding.step = maxi(0, step)
+    return _save_game_state(profile, progress.coins, progress.experience) == OK
+
+
+func complete_onboarding() -> bool:
+    if onboarding.completed:
+        return true
+    onboarding.completed = true
+    if _save_game_state(profile, progress.coins, progress.experience) == OK:
+        return true
+    # The tutorial is only really finished once that is on disk; otherwise it resumes.
+    onboarding.completed = false
+    return false
 
 
 func set_nickname(raw_nickname: String) -> bool:
@@ -362,6 +401,8 @@ func reset_local_profile() -> void:
     cosmetics = LocalCosmetics.new()
     streak = LocalStreak.new()
     achievements = LocalAchievements.new()
+    # A reset profile is a new child, so the guided tutorial runs again for them.
+    onboarding = LocalOnboarding.new()
     _pending_achievement_unlocks.clear()
     _nickname = ""
     _save_game_state(profile, progress.coins, progress.experience)
@@ -435,7 +476,8 @@ func _save_game_state(
         streak.to_dictionary(),
         _nickname,
         achievements.to_dictionary(),
-        progress.completed_sessions
+        progress.completed_sessions,
+        onboarding.to_dictionary()
     )
 
 
@@ -449,7 +491,8 @@ func _save_state_with_cosmetics(updated_cosmetics: LocalCosmetics, coins: int) -
         streak.to_dictionary(),
         _nickname,
         achievements.to_dictionary(),
-        progress.completed_sessions
+        progress.completed_sessions,
+        onboarding.to_dictionary()
     )
 
 

@@ -1,4 +1,4 @@
-[gd_scene load_steps=23 format=3]
+[gd_scene load_steps=25 format=3]
 
 [ext_resource type="Script" path="res://scripts/ui/Main.gd" id="1_main"]
 [ext_resource type="Theme" path="res://ui/theme.tres" id="2_theme"]
@@ -21,6 +21,8 @@
 [ext_resource type="AudioStream" path="res://audio/sfx/cheers_wee_2.mp3" id="19_cheer_wee_2"]
 [ext_resource type="AudioStream" path="res://audio/sfx/cheers_yoho.mp3" id="20_cheer_yoho"]
 [ext_resource type="AudioStream" path="res://audio/sfx/cheers_yeah.mp3" id="21_cheer_yeah"]
+[ext_resource type="Script" path="res://scripts/ui/OnboardingTutorial.gd" id="22_tutorial"]
+[ext_resource type="Texture2D" path="res://ui/misc/onboarding_tutorial_finger.png" id="23_finger"]
 
 [sub_resource type="AudioStreamRandomizer" id="CheerStreams"]
 playback_mode = 0
@@ -135,3 +137,24 @@ stream = ExtResource("17_coin")
 volume_db = -5.0
 max_polyphony = 2
 bus = &"SFX"
+
+[node name="OnboardingTutorial" type="Control" parent="."]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("22_tutorial")
+
+[node name="Finger" type="TextureRect" parent="OnboardingTutorial"]
+visible = false
+layout_mode = 0
+offset_right = 96.0
+offset_bottom = 96.0
+mouse_filter = 2
+texture = ExtResource("23_finger")
+expand_mode = 1
+stretch_mode = 5

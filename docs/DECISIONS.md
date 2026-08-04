@@ -306,3 +306,41 @@
   forever when a session is interrupted mid-reveal.
 - The correction is presentation only and cannot add a question, change mastery, count as an
   attempt, or affect the streak: all scoring completes before the presentation await.
+
+## 2026-08-04 — One-time guided finger tutorial
+
+- A new profile is walked through the whole loop once by a pointing finger: Play, the correct
+  answer on the first question, the reward chest, the Cosmetics crest, the Hats tab, the first
+  hat, Buy, Home, Play again, the Map crest after the next completed round, and the open island.
+  Then it marks itself completed and never runs again.
+- The overlay ignores input. Nothing is gated, dimmed, or blocked; a child who ignores the finger
+  plays the game normally. The finger is guidance, not a modal.
+- Steps advance on state the app already publishes -- a started session, a correct answer, a
+  visible screen, an owned hat, a completed round -- never on a timer and never on a tap the
+  tutorial itself intercepted. A step whose target is off screen simply hides the finger, which
+  is what covers the eight questions between the first answer and the chest, and the whole
+  second round.
+- Because a step ends on an outcome rather than on a tap, leaving a round early puts the finger
+  back on Play instead of skipping ahead, and answering wrongly keeps it on the correct answer of
+  the next question.
+- The buy step also ends if the hat has become unaffordable, so a child who spent their coins
+  elsewhere is never left with a finger on a permanently disabled button. On the intended path
+  the First Steps achievement pays 100 coins with the first round, which covers the hat.
+- Save v9 stores `{completed, step}`. The step is kept so closing the game mid-tutorial resumes
+  on the same control; only `completed` decides whether the tutorial ever runs again.
+- A save written before v9 that already has completed rounds counts as onboarded. That child
+  knows the game, and the flag is only adopted in memory, so booting an old profile never writes
+  to it. Resetting the local profile replays the tutorial.
+- The whole sequence lives in `scripts/ui/OnboardingTutorial.gd`. Screens expose only what it
+  points at (`correct_answer_control`, `item_card`, `previewed_item`, `stage_button`), so the
+  tutorial is one readable file rather than eleven flags threaded through five screens.
+
+## 2026-08-04 — Cosmetics color page no longer overflows the readable column
+
+- Seven 48 px belly swatches in one row are 348 px wide. A hidden page contributes no minimum
+  width, so this only bit when the color tab was open -- and then pushed the header, tab bar,
+  dock and footer out past both display edges at 390 px. Belly shades now wrap at four columns
+  and the body-color row uses a 2 px separation.
+- The color tab's icon is a generated palette. `expand_icon` scales an icon until it fills the
+  tab, so an image made only of color went edge to edge while the four artwork tabs kept their
+  own empty space. The generated image now carries a transparent border of its own.

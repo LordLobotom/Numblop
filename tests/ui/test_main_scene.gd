@@ -69,6 +69,8 @@ func test_home_crest_navigation_uses_requested_artwork_and_bold_play_font() -> v
     # ui/buttons/button_play.png (512x256):
     #   the lit pill face spans y=57..172 (the band below it is the dark 3D edge)
     #     -> centre y=115 of 256 -> 46.7 of 104, i.e. ~5.3 px above centre
+    # Nudged 4 px down from there by eye, so the word sits on the pill rather than riding
+    # its top edge: the label centre is 50.5 of 104.
     # Horizontally the measured centre was 149, sitting between the pill's left edge and
     # the triangle glyph at x=402 (267 in button space). Nudged 20 px right by eye to
     # 169, so the offsets stay 20 apart in width but shift as a pair.
@@ -79,7 +81,12 @@ func test_home_crest_navigation_uses_requested_artwork_and_bold_play_font() -> v
         169.0,
         "Play text centres 169 px across the button"
     )
-    equal(play_label.offset_bottom, -11.0, "Play label sits on the lit pill face")
+    equal(play_label.offset_bottom, -3.0, "Play label sits on the lit pill face")
+    equal(
+        (play_label.offset_top + 104.0 + play_label.offset_bottom) / 2.0,
+        50.5,
+        "Play text centres 50.5 px down the button"
+    )
     scene.free()
 
 
@@ -786,7 +793,10 @@ func test_cosmetics_screen_has_previewing_shop_purchase_and_navigation_contracts
     check(scene.get_node("%ColorGrid") is GridContainer, "Body-color swatch grid")
     equal(scene.get_node("%ColorGrid").columns, 6, "Six colors share one compact row")
     check(scene.get_node("%BellyGrid") is GridContainer, "Belly-color swatch grid")
-    equal(scene.get_node("%BellyGrid").columns, 7, "Seven belly shades share one compact row")
+    # Seven 48 px swatches in one row are 348 wide, which is wider than the readable
+    # column. A hidden page costs nothing, but while the color page was open that pushed
+    # the header, tab bar, dock and footer out past both display edges.
+    equal(scene.get_node("%BellyGrid").columns, 4, "Belly shades wrap inside the column")
     check(scene.get_node("%BellyLabel") is Label, "Belly row is labeled")
     check(scene.get_node("%HatsGrid") is GridContainer, "Hat shop grid")
     equal(scene.get_node("%HatsGrid").columns, 3, "Hats use three identifiable cards per row")
@@ -809,6 +819,36 @@ func test_cosmetics_screen_has_previewing_shop_purchase_and_navigation_contracts
     for button_name in ["OutfitButton", "MapButton", "HomeButton", "TrophyButton", "SettingsButton"]:
         var button := _nav_button(scene, button_name)
         check(button.custom_minimum_size.y >= 48.0, "%s touch target" % button_name)
+    scene.free()
+
+
+func test_no_cosmetics_page_pushes_the_screen_past_the_display_edge() -> void:
+    # A hidden page contributes no minimum width, so one over-wide row stays invisible
+    # until its tab is opened -- and then stretches the header, tab bar, dock and footer
+    # off both edges of a 390 px display at once.
+    var packed: PackedScene = load("res://scenes/screens/CosmeticsScreen.tscn")
+    check(packed != null, "Cosmetics scene must load")
+    if packed == null:
+        return
+    var scene: CosmeticsScreen = packed.instantiate()
+    var scene_tree := Engine.get_main_loop() as SceneTree
+    scene_tree.root.add_child(scene)
+    for category in [
+        CosmeticCatalog.CATEGORY_BODY_COLOR,
+        CosmeticCatalog.CATEGORY_HAT,
+        CosmeticCatalog.CATEGORY_GLASSES,
+        CosmeticCatalog.CATEGORY_NECKLACE,
+        CosmeticCatalog.CATEGORY_FOOTWEAR,
+    ]:
+        scene._show_category(category)
+        check(
+            scene.get_combined_minimum_size().x <= 390.0,
+            "%s page fits the narrowest display: %s" % [
+                category, scene.get_combined_minimum_size().x
+            ]
+        )
+    _release_audio_streams(scene)
+    scene_tree.root.remove_child(scene)
     scene.free()
 
 

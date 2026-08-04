@@ -94,6 +94,19 @@ func show_question(question: PracticeQuestion, question_index: int, total: int) 
     _accepting_input = true
 
 
+## The choice button that answers the question on screen, for the onboarding finger.
+##
+## Null while feedback is up or in number-entry mode: there is nothing to point at that a
+## single tap would complete.
+func correct_answer_control() -> Control:
+    if _question == null or not _accepting_input:
+        return null
+    for button in _choice_buttons:
+        if button.visible and int(button.get_meta("answer_value", -1)) == _question.answer():
+            return button
+    return null
+
+
 func set_input_enabled(enabled: bool) -> void:
     _accepting_input = enabled
     for button in _choice_buttons:

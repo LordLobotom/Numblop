@@ -1,7 +1,7 @@
 extends Node
 
 const PROFILE_PATH := "user://profile.json"
-const SAVE_VERSION := 8
+const SAVE_VERSION := 9
 const PROFILE_ID_BYTES := 16
 
 
@@ -32,7 +32,8 @@ func save_game_state(
     streak: Dictionary = {},
     nickname: Variant = null,
     achievements: Variant = null,
-    completed_sessions: Variant = null
+    completed_sessions: Variant = null,
+    onboarding: Variant = null
 ) -> Error:
     var cosmetics_to_save := cosmetics
     if cosmetics_to_save.is_empty():
@@ -52,6 +53,9 @@ func save_game_state(
         maxi(0, int(completed_sessions)) if completed_sessions is int
         else int(load_progress(path)["completed_sessions"])
     )
+    var onboarding_to_save: Dictionary = (
+        onboarding if onboarding is Dictionary else load_onboarding(path)
+    )
     var profile_id := load_profile_id(path)
     if profile_id.is_empty():
         profile_id = Crypto.new().generate_random_bytes(PROFILE_ID_BYTES).hex_encode()
@@ -67,6 +71,7 @@ func save_game_state(
     data["cosmetics"] = LocalCosmetics.new(cosmetics_to_save).to_dictionary()
     data["streak"] = LocalStreak.new(streak_to_save).to_dictionary()
     data["achievements"] = LocalAchievements.new(achievements_to_save).to_dictionary()
+    data["onboarding"] = LocalOnboarding.new(onboarding_to_save).to_dictionary()
     data["nickname"] = nickname_to_save
     data["profile_id"] = profile_id
     file.store_string(JSON.stringify(data, "  "))
@@ -95,6 +100,14 @@ func load_achievements(path: String = PROFILE_PATH) -> Dictionary:
     var achievements: Variant = data.get("achievements", {})
     return LocalAchievements.new(
         achievements if achievements is Dictionary else {}
+    ).to_dictionary()
+
+
+func load_onboarding(path: String = PROFILE_PATH) -> Dictionary:
+    var data := _load_state_dictionary(path)
+    var onboarding: Variant = data.get("onboarding", {})
+    return LocalOnboarding.new(
+        onboarding if onboarding is Dictionary else {}
     ).to_dictionary()
 
 

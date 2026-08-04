@@ -222,6 +222,13 @@ func _add_stage(stage_state: Dictionary, stage_position: Vector2, stage_on_left:
         reveal.tween_property(crest, "modulate", Color.WHITE, 0.3)
 
 
+## The island crest for one table, or null when the map has not been built with it.
+func stage_button(table_value: int) -> TextureButton:
+    if not is_node_ready():
+        return null
+    return map_canvas.get_node_or_null("Stage%d" % table_value) as TextureButton
+
+
 func show_table_details(table_value: int) -> void:
     for stage_state in _stage_states:
         if (
