@@ -11,11 +11,26 @@ var profile: LearningProfile
 var active_result: SessionResult
 
 var _save_profile: Callable
+var _clock: Callable
 
 
-func _init(p_profile: LearningProfile, p_save_profile: Callable = Callable()) -> void:
+func _init(
+    p_profile: LearningProfile,
+    p_save_profile: Callable = Callable(),
+    p_clock: Callable = Callable()
+) -> void:
     profile = p_profile
     _save_profile = p_save_profile
+    _clock = p_clock
+
+
+## Supplies the "last practised" stamps that the automated review slot orders by.
+## `scripts/core/` may not read a clock, so the time is read here and passed down; tests
+## inject their own so the ordering stays checkable without waiting on real seconds.
+func _now() -> int:
+    if _clock.is_valid():
+        return int(_clock.call())
+    return int(Time.get_unix_time_from_system())
 
 
 func begin_session(seed: int) -> SessionResult:
@@ -48,6 +63,7 @@ func submit_answer(
         mastery_before
     )
     profile.set_mastery(question.table_value, question.multiplier, record.mastery_after)
+    profile.mark_practiced(question.table_value, question.multiplier, _now())
     answer_recorded.emit(record)
     _save_after_answer()
     for unlocked_index in range(

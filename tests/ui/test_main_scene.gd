@@ -18,7 +18,7 @@ func test_main_scene_has_touch_ready_portrait_controls() -> void:
     check(packed != null, "Main scene must load")
     var scene := packed.instantiate()
     var home: HomeScreen = scene.get_node("HomeScreen")
-    var play_button: TextureButton = home.get_node("%PlayButton")
+    var play_button: PlayButton = home.get_node("%PlayButton")
     check(play_button.custom_minimum_size.y >= 48.0, "Play touch target")
     for button_name in ["OutfitButton", "MapButton", "HomeButton", "TrophyButton", "SettingsButton"]:
         var crest_button := _nav_button(home, button_name)
@@ -64,16 +64,15 @@ func test_home_crest_navigation_uses_requested_artwork_and_bold_play_font() -> v
         "res://ui/fonts/Baloo2Bold.tres",
         "Play uses the bold font"
     )
-    # The label is a full-rect child of the 340x104 %PlayButton, so these offsets exist
-    # only to place it on the artwork rather than on the button box. Measured from
-    # ui/buttons/button_play.png (512x256):
-    #   the lit pill face spans y=57..172 (the band below it is the dark 3D edge)
-    #     -> centre y=115 of 256 -> 46.7 of 104, i.e. ~5.3 px above centre
-    # Nudged 4 px down from there by eye, so the word sits on the pill rather than riding
-    # its top edge: the label centre is 50.5 of 104.
-    # Horizontally the measured centre was 149, sitting between the pill's left edge and
-    # the triangle glyph at x=402 (267 in button space). Nudged 20 px right by eye to
-    # 169, so the offsets stay 20 apart in width but shift as a pair.
+    # The label is a full-rect child of the 340x104 %PlayButton, so these offsets exist only
+    # to place it on the lit face rather than on the button box. The face is now drawn by
+    # PlayButton rather than measured off a PNG, so the numbers come from its constants:
+    #   body   = 340x104 inset by OUTLINE_WIDTH 5  -> y 5..99
+    #   face   = body minus LIP_HEIGHT 8 at the foot -> y 5..91, centre 48
+    #   glyph  = 30% of the face height, its tip GLYPH_RIGHT_MARGIN 24 from the body's
+    #            right edge -> it occupies roughly x 289..311
+    # "Hrát" at font size 36 is about 110 px wide, so a centred label spans 114..224 and
+    # clears the glyph comfortably.
     equal(play_label.offset_left, 20.0, "Play label sits right of the pill's left edge")
     equal(play_label.offset_right, -22.0, "Play label still clears the triangle glyph")
     equal(
@@ -81,11 +80,11 @@ func test_home_crest_navigation_uses_requested_artwork_and_bold_play_font() -> v
         169.0,
         "Play text centres 169 px across the button"
     )
-    equal(play_label.offset_bottom, -3.0, "Play label sits on the lit pill face")
+    equal(play_label.offset_bottom, -8.0, "Play label sits on the lit pill face")
     equal(
         (play_label.offset_top + 104.0 + play_label.offset_bottom) / 2.0,
-        50.5,
-        "Play text centres 50.5 px down the button"
+        48.0,
+        "Play text centres on the drawn face, 48 px down the button"
     )
     scene.free()
 
@@ -444,6 +443,9 @@ func test_nav_screens_leave_room_for_the_device_safe_area() -> void:
         var scene := (load(scene_path) as PackedScene).instantiate()
         var tree := Engine.get_main_loop() as SceneTree
         tree.root.add_child(scene)
+        # Full-rect anchors fight an assigned size, and the width matters here: PetHint
+        # autowraps, so its minimum height depends on how wide the column actually is.
+        (scene as Control).set_anchors_preset(Control.PRESET_TOP_LEFT)
         (scene as Control).size = Vector2(390.0, design_height)
         var content: Control = scene.get_node("SafeArea/Content")
         var required := content.get_combined_minimum_size().y + authored_insets
@@ -455,6 +457,40 @@ func test_nav_screens_leave_room_for_the_device_safe_area() -> void:
         )
         tree.root.remove_child(scene)
         scene.free()
+
+
+func test_the_sound_tile_is_lit_when_sound_is_audible() -> void:
+    # The tile says "Sound" but the stored setting is a mute, so the two are inverses. Get
+    # that backwards and the screen confidently reports the opposite of the truth.
+    var scene: SettingsScreen = (
+        load("res://scenes/screens/SettingsScreen.tscn") as PackedScene
+    ).instantiate()
+    var tree := Engine.get_main_loop() as SceneTree
+    tree.root.add_child(scene)
+    var restore_muted := SettingsManager.audio_muted
+    var restore_haptics := SettingsManager.haptics_enabled
+
+    # Set the autoload fields directly: saving here would write a real settings file.
+    SettingsManager.audio_muted = false
+    SettingsManager.haptics_enabled = true
+    scene.refresh_from_settings()
+    var sound: IconToggle = scene.get_node("%MuteButton")
+    var haptics: IconToggle = scene.get_node("%HapticsButton")
+    check(sound.button_pressed, "Audible sound lights the tile")
+    equal(sound.icon, sound.icon_on, "Audible sound shows the on icon")
+    check(haptics.button_pressed, "Enabled vibration lights the tile")
+
+    SettingsManager.audio_muted = true
+    SettingsManager.haptics_enabled = false
+    scene.refresh_from_settings()
+    check(not sound.button_pressed, "Muted sound darkens the tile")
+    equal(sound.icon, sound.icon_off, "Muted sound shows the off icon")
+    equal(haptics.icon, haptics.icon_off, "Disabled vibration shows the off icon")
+
+    SettingsManager.audio_muted = restore_muted
+    SettingsManager.haptics_enabled = restore_haptics
+    tree.root.remove_child(scene)
+    scene.free()
 
 
 func test_body_panels_sit_outside_their_scroll_container() -> void:
@@ -785,9 +821,16 @@ func test_settings_screen_has_language_audio_mute_and_safe_exit_controls() -> vo
         var slider: HSlider = scene.get_node("%%%s" % slider_name)
         check(slider.custom_minimum_size.y >= 48.0, "Audio slider touch target")
         equal(slider.max_value, 100.0, "Audio percent range")
-    check(scene.get_node("%MuteButton") is CheckButton, "Global mute control")
-    var haptics_button: CheckButton = scene.get_node("%HapticsButton")
-    check(haptics_button.custom_minimum_size.y >= 48.0, "Vibration toggle touch target")
+    # Both settings are icon tiles rather than switches: at 390 wide a CheckButton stretched
+    # into a full-width green bar that read as another action, with its state in a small knob.
+    for toggle_name in ["MuteButton", "HapticsButton"]:
+        var toggle: IconToggle = scene.get_node("%%%s" % toggle_name)
+        check(toggle.toggle_mode, "%s holds a state" % toggle_name)
+        check(toggle.custom_minimum_size.y >= 48.0, "%s touch target" % toggle_name)
+        check(toggle.icon_on != null and toggle.icon_off != null, "%s has both faces" % toggle_name)
+        check(toggle.icon_on != toggle.icon_off, "%s looks different when off" % toggle_name)
+    check(scene.get_node("%SoundCaption") is Label, "Sound tile is captioned")
+    check(scene.get_node("%HapticsCaption") is Label, "Vibration tile is captioned")
     check(scene.get_node("%ExitButton").custom_minimum_size.y >= 48.0, "Exit touch target")
     check(scene.get_node("%ExitDialog") is Control, "Custom exit confirmation overlay")
     check(scene.has_method("show_exit_confirmation"), "Settings can open the exit confirmation")

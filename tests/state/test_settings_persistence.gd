@@ -88,7 +88,9 @@ func test_every_haptic_pattern_is_long_enough_to_be_felt() -> void:
         var pattern: Dictionary = SettingsManager.HAPTIC_PATTERNS[pattern_name]
         # Below roughly 20 ms several Android vendors drop the pulse entirely.
         check(int(pattern["duration_ms"]) >= 20, "%s lasts long enough" % pattern_name)
-        check(int(pattern["duration_ms"]) <= 120, "%s is a buzz, not a rumble" % pattern_name)
+        # Raised from 120 after the first pass felt like a faint click on real hardware.
+        # 200 is still short of the ~250 ms where a pulse starts reading as a rumble.
+        check(int(pattern["duration_ms"]) <= 200, "%s is a buzz, not a rumble" % pattern_name)
         var amplitude := float(pattern["amplitude"])
         check(amplitude > 0.0 and amplitude <= 1.0, "%s has a real amplitude" % pattern_name)
     var celebration: Dictionary = SettingsManager.HAPTIC_PATTERNS[SettingsManager.HAPTIC_CELEBRATION]

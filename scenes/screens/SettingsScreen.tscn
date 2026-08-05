@@ -1,4 +1,4 @@
-[gd_scene load_steps=22 format=3]
+[gd_scene load_steps=27 format=3]
 
 [ext_resource type="Script" path="res://scripts/ui/SettingsScreen.gd" id="1_script"]
 [ext_resource type="Texture2D" path="res://assets/backgrounds/mianscreen_background.png" id="2_background"]
@@ -12,6 +12,11 @@
 [ext_resource type="StyleBox" path="res://ui/styles/header_panel.tres" id="15_header_style"]
 [ext_resource type="Script" path="res://scripts/ui/TouchScrollContainer.gd" id="16_touchscroll"]
 [ext_resource type="StyleBox" path="res://ui/styles/container_panel.tres" id="17_container_style"]
+[ext_resource type="Script" path="res://scripts/ui/IconToggle.gd" id="18_icon_toggle"]
+[ext_resource type="Texture2D" path="res://ui/icon/icon_sound_on.png" id="19_sound_on"]
+[ext_resource type="Texture2D" path="res://ui/icon/icon_sound_off.png" id="20_sound_off"]
+[ext_resource type="Texture2D" path="res://ui/icon/icon_vibration_on.png" id="21_vibration_on"]
+[ext_resource type="Texture2D" path="res://ui/icon/icon_vibration_off.png" id="22_vibration_off"]
 
 [sub_resource type="StyleBoxFlat" id="SliderBackground"]
 bg_color = Color(0.8, 0.82, 0.75, 1)
@@ -386,29 +391,56 @@ max_value = 100.0
 step = 1.0
 value = 90.0
 
-[node name="MuteButton" type="CheckButton" parent="SafeArea/Content/SettingsPanel/Scroll/ScrollMargin/SettingsContent"]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 56)
+[node name="ToggleRow" type="HBoxContainer" parent="SafeArea/Content/SettingsPanel/Scroll/ScrollMargin/SettingsContent"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.19, 0.34, 0.24, 1)
-theme_override_colors/font_pressed_color = Color(0.19, 0.34, 0.24, 1)
-theme_override_colors/font_hover_color = Color(0.19, 0.34, 0.24, 1)
-theme_override_colors/font_hover_pressed_color = Color(0.19, 0.34, 0.24, 1)
-theme_override_colors/font_focus_color = Color(0.19, 0.34, 0.24, 1)
-theme_override_font_sizes/font_size = 18
-text = "SETTINGS_MUTE_ALL"
+theme_override_constants/separation = 20
+alignment = 1
 
-[node name="HapticsButton" type="CheckButton" parent="SafeArea/Content/SettingsPanel/Scroll/ScrollMargin/SettingsContent"]
+[node name="SoundItem" type="VBoxContainer" parent="SafeArea/Content/SettingsPanel/Scroll/ScrollMargin/SettingsContent/ToggleRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 4
+alignment = 1
+
+[node name="MuteButton" type="Button" parent="SafeArea/Content/SettingsPanel/Scroll/ScrollMargin/SettingsContent/ToggleRow/SoundItem"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 56)
+custom_minimum_size = Vector2(0, 88)
+layout_mode = 2
+size_flags_horizontal = 3
+script = ExtResource("18_icon_toggle")
+icon_on = ExtResource("19_sound_on")
+icon_off = ExtResource("20_sound_off")
+
+[node name="SoundCaption" type="Label" parent="SafeArea/Content/SettingsPanel/Scroll/ScrollMargin/SettingsContent/ToggleRow/SoundItem"]
+unique_name_in_owner = true
 layout_mode = 2
 theme_override_colors/font_color = Color(0.19, 0.34, 0.24, 1)
-theme_override_colors/font_pressed_color = Color(0.19, 0.34, 0.24, 1)
-theme_override_colors/font_hover_color = Color(0.19, 0.34, 0.24, 1)
-theme_override_colors/font_hover_pressed_color = Color(0.19, 0.34, 0.24, 1)
-theme_override_colors/font_focus_color = Color(0.19, 0.34, 0.24, 1)
-theme_override_font_sizes/font_size = 18
+theme_override_font_sizes/font_size = 15
+text = "SETTINGS_SOUND"
+horizontal_alignment = 1
+
+[node name="HapticsItem" type="VBoxContainer" parent="SafeArea/Content/SettingsPanel/Scroll/ScrollMargin/SettingsContent/ToggleRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 4
+alignment = 1
+
+[node name="HapticsButton" type="Button" parent="SafeArea/Content/SettingsPanel/Scroll/ScrollMargin/SettingsContent/ToggleRow/HapticsItem"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 88)
+layout_mode = 2
+size_flags_horizontal = 3
+script = ExtResource("18_icon_toggle")
+icon_on = ExtResource("21_vibration_on")
+icon_off = ExtResource("22_vibration_off")
+
+[node name="HapticsCaption" type="Label" parent="SafeArea/Content/SettingsPanel/Scroll/ScrollMargin/SettingsContent/ToggleRow/HapticsItem"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.19, 0.34, 0.24, 1)
+theme_override_font_sizes/font_size = 15
 text = "SETTINGS_HAPTICS"
+horizontal_alignment = 1
 
 [node name="ExitButton" type="Button" parent="SafeArea/Content/SettingsPanel/Scroll/ScrollMargin/SettingsContent"]
 unique_name_in_owner = true

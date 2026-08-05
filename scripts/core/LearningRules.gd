@@ -12,7 +12,26 @@ const MULTIPLIERS: Array[int] = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
 const UNLOCK_MASTERY := 80
 const REQUIRED_FACTS_TO_UNLOCK := 9
 const AUTOMATED_MASTERY := 90
+
+## A fact leaves the review pool only once it saturates, and it is the saturated ones that
+## the single automated slot cycles through. Deliberately distinct from AUTOMATED_MASTERY,
+## which decides how a question is *asked* rather than how often it comes back: a fact at 95
+## is already answered by typing, but it still counts as something to keep practising.
+const REVIEW_MASTERY := 100
+
+## The later tables carry more history behind them, so from the 6x table on a round is two
+## questions longer and spends both extra slots on review rather than on new material.
+const EXTENDED_MIX_TABLE := 6
 const SESSION_LENGTH := 10
+const EXTENDED_SESSION_LENGTH := 12
+
+
+static func uses_extended_mix(table_value: int) -> bool:
+    return table_value >= EXTENDED_MIX_TABLE
+
+
+static func session_length(table_value: int) -> int:
+    return EXTENDED_SESSION_LENGTH if uses_extended_mix(table_value) else SESSION_LENGTH
 
 
 static func fact_key(table_value: int, multiplier: int) -> String:

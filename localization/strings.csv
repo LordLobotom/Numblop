@@ -169,8 +169,12 @@ SETTINGS_VERSION,Version {version},Verze {version}
 SETTINGS_LANGUAGE,Language,Jazyk
 SETTINGS_MUSIC,Background music,Hudba na pozadí
 SETTINGS_SFX,Sound effects,Zvukové efekty
-SETTINGS_MUTE_ALL,Mute all sound,Vypnout všechny zvuky
+SETTINGS_SOUND,Sound,Zvuk
+SETTINGS_SOUND_ON_ACCESSIBLE,Sound is on,Zvuk je zapnutý
+SETTINGS_SOUND_OFF_ACCESSIBLE,Sound is off,Zvuk je vypnutý
 SETTINGS_HAPTICS,Vibration,Vibrace
+SETTINGS_HAPTICS_ON_ACCESSIBLE,Vibration is on,Vibrace jsou zapnuté
+SETTINGS_HAPTICS_OFF_ACCESSIBLE,Vibration is off,Vibrace jsou vypnuté
 SETTINGS_VOLUME_VALUE,{value}%,{value}%
 SETTINGS_HINT,Changes are saved on this device.,Změny se ukládají v tomto zařízení.
 SETTINGS_BACK_ACCESSIBLE,Return to the previous screen,Zpět na předchozí obrazovku

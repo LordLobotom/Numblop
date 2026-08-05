@@ -42,3 +42,36 @@ func test_mastery_is_clamped() -> void:
     equal(profile.get_mastery(2, 2), 100)
     profile.set_mastery(2, 2, -8)
     equal(profile.get_mastery(2, 2), 0)
+
+
+func test_last_practiced_survives_a_save_and_defaults_to_never() -> void:
+    var profile := LearningProfile.new()
+    equal(profile.get_last_practiced(2, 3), 0, "A fresh profile has practised nothing")
+    profile.mark_practiced(2, 3, 1_754_400_000)
+    profile.set_mastery(2, 3, 100)
+
+    var restored := LearningProfile.from_dictionary(profile.to_dictionary())
+    equal(restored.get_last_practiced(2, 3), 1_754_400_000, "Timestamp round-trips")
+    equal(restored.get_last_practiced(2, 4), 0, "Untouched facts stay at never")
+
+
+func test_a_version_one_save_loads_with_no_practice_history() -> void:
+    # Saves written before review scheduling existed carry no timestamps. Zero is the honest
+    # answer -- nothing is known about those facts, so the review slot should visit them first.
+    var legacy := {
+        "version": 1,
+        "highest_unlocked_index": 1,
+        "mastery": {LearningRules.fact_key(2, 3): 100},
+    }
+    var profile := LearningProfile.from_dictionary(legacy)
+    equal(profile.get_mastery(2, 3), 100, "Mastery still loads")
+    equal(profile.get_last_practiced(2, 3), 0, "Missing timestamps read as never")
+
+
+func test_the_session_length_grows_from_the_sixth_table() -> void:
+    for table_value in [2, 3, 4, 5]:
+        equal(LearningRules.session_length(table_value), 10, "Table %d" % table_value)
+        check(not LearningRules.uses_extended_mix(table_value), "Table %d is short" % table_value)
+    for table_value in [6, 7, 8, 9]:
+        equal(LearningRules.session_length(table_value), 12, "Table %d" % table_value)
+        check(LearningRules.uses_extended_mix(table_value), "Table %d is long" % table_value)

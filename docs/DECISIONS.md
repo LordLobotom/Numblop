@@ -1,5 +1,29 @@
 # Numblop Decision Log
 
+## 2026-08-05 — Longer rounds and scheduled automated review
+
+Supersedes the "exactly 10 questions" and "7 current / 2 older weak / 1 older automated" points
+recorded on 2026-08-01.
+
+- Series length now depends on the table being learned: 10 questions up to the 5x table, 12 from
+  the 6x table onwards. Both extra slots go to review, giving 8 current / 3 older weak /
+  1 older automated. The later tables have more history to keep warm, and the current-table quota
+  grows only by one.
+- For review purposes a fact counts as automated only at mastery 100. The 90-to-99 band stays in
+  the older-weak pool. This is deliberately distinct from `AUTOMATED_MASTERY` (90), which decides
+  whether a question is answered by typing rather than how often the fact returns.
+- The automated slot no longer selects by mastery. Every candidate sits at 100, so mastery cannot
+  rank them and the choice collapsed to the seed, which let individual facts go unvisited for long
+  stretches. It now always takes the fact with the oldest `last_practiced` stamp, so the automated
+  pool is cycled through continuously.
+- `LearningProfile` gained a `last_practiced` stamp per fact and the save format moved to
+  version 2. Version 1 saves load with every stamp at zero, which reads as "longest waiting" and
+  puts those facts at the front of the review rotation.
+- `scripts/core/` still reads no clock. `SessionController` supplies the timestamp, and accepts an
+  injected clock so the ordering stays testable.
+- Session length is no longer a single global constant: `SessionResult` validates against its own
+  question count, and the practice UI already took its total from the generated series.
+
 ## 2026-08-01 — Product and platform baseline
 
 - Public product name is `Numblop`; “Násobilkový kamarád” was mockup placeholder text.
@@ -15,7 +39,8 @@
 ## 2026-08-01 — Learning ambiguities resolved
 
 - Unlocked tables never relock.
-- Missing review slots are filled from the current table so every session remains 10 questions.
+- Missing review slots are filled from the current table so every session keeps its full length.
+  (Superseded 2026-08-05: length is 10 up to the 5x table and 12 from the 6x table onwards.)
 - The same fact never appears twice in immediate succession.
 - Response time is measured for mastery but no visible countdown is shown.
 - Ordered table facts are stored separately in MVP (`2 × 3` and `3 × 2` have separate mastery).
@@ -24,6 +49,7 @@
 
 - A series has exactly 10 questions: 7 current-table, 2 older weak, and 1 older automated
   review question. Selection within those groups remains adaptive.
+  (Superseded 2026-08-05 from the 6x table onwards: 12 questions as 8 / 3 / 1.)
 - The MVP loop includes the interactive blob home screen, local coins/experience/level totals,
   a guaranteed reward chest, one chest tap, reward count-up, and automatic return home without a
   separate continue button.
@@ -47,15 +73,18 @@
   completed series grants 1 coin and 1 experience point.
 - A completed series always grants at least 1 coin and 1 experience point, including at zero
   correct answers, so the guaranteed reward chest is never empty. The resulting range is 1–10.
+  (From 2026-08-05 a twelve-question series ranges 1–12; the reward is one per correct answer and
+  was never capped at 10, so no rule changed here.)
 - Rewards remain separate from mastery. Incorrect answers affect the documented mastery delta,
   while coins and experience never unlock a multiplication table.
 
 ## 2026-08-02 — Unique facts within a series
 
-- A 10-question series prefers unused eligible facts before repeating any fact. This prevents two
+- A series prefers unused eligible facts before repeating any fact. This prevents two
   equally weak facts from alternating through the entire series.
-- Repetition remains valid only when a required 7-current/2-older-weak/1-older-automated pool is
+- Repetition remains valid only when a required current/older-weak/older-automated pool is
   too small. The quota and lowest-mastery priority remain unchanged.
+  (From 2026-08-05 the automated slot orders by longest wait rather than by mastery.)
 
 ## 2026-08-02 — Cosmetics shop preview dock and category tabs
 

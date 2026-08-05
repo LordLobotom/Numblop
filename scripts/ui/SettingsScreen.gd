@@ -21,8 +21,10 @@ signal exit_requested
 @onready var sfx_label: Label = %SfxLabel
 @onready var sfx_value: Label = %SfxValue
 @onready var sfx_slider: HSlider = %SfxSlider
-@onready var mute_button: CheckButton = %MuteButton
-@onready var haptics_button: CheckButton = %HapticsButton
+@onready var mute_button: IconToggle = %MuteButton
+@onready var haptics_button: IconToggle = %HapticsButton
+@onready var sound_caption: Label = %SoundCaption
+@onready var haptics_caption: Label = %HapticsCaption
 @onready var hint_label: Label = %HintLabel
 @onready var exit_button: Button = %ExitButton
 @onready var exit_dialog: Control = %ExitDialog
@@ -52,7 +54,7 @@ func _ready() -> void:
     music_slider.value_changed.connect(_on_audio_value_changed)
     sfx_slider.value_changed.connect(_on_audio_value_changed)
     sfx_slider.drag_ended.connect(_on_sfx_drag_ended)
-    mute_button.toggled.connect(_on_mute_toggled)
+    mute_button.toggled.connect(_on_sound_toggled)
     haptics_button.toggled.connect(_on_haptics_toggled)
     exit_button.pressed.connect(show_exit_confirmation)
     cancel_exit_button.pressed.connect(hide_exit_confirmation)
@@ -88,11 +90,16 @@ func _sync_controls_from_settings() -> void:
     _syncing_controls = true
     music_slider.value = SettingsManager.music_volume * 100.0
     sfx_slider.value = SettingsManager.sfx_volume * 100.0
-    mute_button.button_pressed = SettingsManager.audio_muted
+    # The tile says "Sound", not "Mute": lit means audible. The stored flag is the mute, so
+    # the two are inverses of each other and this is the one place that conversion happens.
+    mute_button.button_pressed = not SettingsManager.audio_muted
     haptics_button.button_pressed = SettingsManager.haptics_enabled
     _syncing_controls = false
+    mute_button.refresh()
+    haptics_button.refresh()
     _refresh_volume_values()
     _refresh_language_selection()
+    _refresh_toggle_accessibility()
 
 
 func _refresh_text() -> void:
@@ -103,8 +110,9 @@ func _refresh_text() -> void:
     language_label.text = tr("SETTINGS_LANGUAGE")
     music_label.text = tr("SETTINGS_MUSIC")
     sfx_label.text = tr("SETTINGS_SFX")
-    mute_button.text = tr("SETTINGS_MUTE_ALL")
-    haptics_button.text = tr("SETTINGS_HAPTICS")
+    sound_caption.text = tr("SETTINGS_SOUND")
+    haptics_caption.text = tr("SETTINGS_HAPTICS")
+    _refresh_toggle_accessibility()
     exit_button.text = tr("SETTINGS_EXIT")
     dialog_title.text = tr("SETTINGS_EXIT_TITLE")
     dialog_message.text = tr("SETTINGS_EXIT_CONFIRM")
@@ -155,16 +163,20 @@ func _on_sfx_drag_ended(value_changed: bool) -> void:
         preview_player.play()
 
 
-func _on_mute_toggled(muted: bool) -> void:
+## `audible` is the tile's own state; the setting it drives is the mute, so it inverts.
+func _on_sound_toggled(audible: bool) -> void:
+    _refresh_toggle_accessibility()
     if _syncing_controls:
         return
     _preview_audio_preferences()
     _save_audio_preferences()
-    if not muted:
+    # Turning it back on demonstrates what was turned on.
+    if audible:
         preview_player.play()
 
 
 func _on_haptics_toggled(enabled: bool) -> void:
+    _refresh_toggle_accessibility()
     if _syncing_controls:
         return
     if SettingsManager.set_haptics_enabled(enabled) != OK:
@@ -175,11 +187,26 @@ func _on_haptics_toggled(enabled: bool) -> void:
         SettingsManager.play_haptic(SettingsManager.HAPTIC_TAP)
 
 
+## The tiles carry no text of their own, so the state a sighted child reads from the colour
+## has to be spoken somewhere too.
+func _refresh_toggle_accessibility() -> void:
+    if not is_node_ready():
+        return
+    mute_button.tooltip_text = tr(
+        "SETTINGS_SOUND_ON_ACCESSIBLE" if mute_button.button_pressed
+        else "SETTINGS_SOUND_OFF_ACCESSIBLE"
+    )
+    haptics_button.tooltip_text = tr(
+        "SETTINGS_HAPTICS_ON_ACCESSIBLE" if haptics_button.button_pressed
+        else "SETTINGS_HAPTICS_OFF_ACCESSIBLE"
+    )
+
+
 func _preview_audio_preferences() -> void:
     SettingsManager.preview_audio_preferences(
         music_slider.value / 100.0,
         sfx_slider.value / 100.0,
-        mute_button.button_pressed
+        not mute_button.button_pressed
     )
 
 

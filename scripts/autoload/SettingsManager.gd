@@ -11,13 +11,16 @@ const DEFAULT_SFX_VOLUME := 0.9
 ## Amplitude matters more than length: a short pulse at the device default is a tick nobody
 ## notices. Nothing runs below 20 ms because several Android vendors swallow shorter pulses.
 ## Amplitude needs API 26, so Android 24 and 25 fall back to the default strength on their own.
+##
+## These lengths are doubled from the first pass, which read as a faint click on real hardware
+## rather than as feedback. Amplitude is unchanged: it was already at or near full.
 const HAPTIC_TAP := "tap"
 const HAPTIC_CELEBRATION := "celebration"
 const HAPTIC_MILESTONE := "milestone"
 const HAPTIC_PATTERNS := {
-    HAPTIC_TAP: {"duration_ms": 25, "amplitude": 0.5},
-    HAPTIC_CELEBRATION: {"duration_ms": 90, "amplitude": 1.0},
-    HAPTIC_MILESTONE: {"duration_ms": 80, "amplitude": 0.8},
+    HAPTIC_TAP: {"duration_ms": 50, "amplitude": 0.5},
+    HAPTIC_CELEBRATION: {"duration_ms": 180, "amplitude": 1.0},
+    HAPTIC_MILESTONE: {"duration_ms": 160, "amplitude": 0.8},
 }
 
 var locale_preference := SYSTEM_LOCALE

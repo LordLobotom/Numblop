@@ -83,15 +83,45 @@ scoring for the answer has already completed before the correction is shown.
 
 ## 5. One Game
 
-One game contains **10 questions**:
+Game length and mix depend on how far the child has come.
+
+Up to and including the **5× table**, one game contains **10 questions**:
 
 - **7 questions** from the multiplication table currently being learned,
-- **2 questions** from older facts with a value below 90,
-- **1 question** from already automated facts with a value of 90 or more.
+- **2 questions** from older facts that are not yet saturated,
+- **1 question** from an already automated fact.
+
+From the **6× table** onwards, one game contains **12 questions**:
+
+- **8 questions** from the multiplication table currently being learned,
+- **3 questions** from older facts that are not yet saturated,
+- **1 question** from an already automated fact.
+
+The later tables carry more history behind them, so both extra questions go to review rather
+than to new material.
+
+### Automated and Not Yet Automated
+
+For the purpose of choosing review questions, a fact counts as **automated only at a mastery
+value of 100**. Anything below that — including the 90 to 99 band — still belongs to the
+older-weak pool.
+
+This is deliberately not the same threshold as the one at section 3 that switches a question to
+typed input at 90. That threshold decides *how a question is asked*; this one decides *how often
+a fact comes back*. A fact at 95 is already answered by typing, but it is not yet finished.
 
 ### Selecting a Specific Fact
 
-Within each group, facts with the lowest mastery value have priority.
+Within the current-table and older-weak groups, facts with the lowest mastery value have
+priority.
+
+The automated group works differently. Every fact in it is at 100, so mastery cannot tell them
+apart and the choice would fall entirely to chance — which lets an individual fact go unvisited
+for a long stretch. Instead the automated question is always the fact that has gone **longest
+since it was last practised**, tracked per fact as `last_practiced`. Facts that have never been
+practised count as the longest-waiting, so a freshly saturated fact enters the rotation at once.
+
+This guarantees the automated pool is cycled through continuously and no fact is neglected.
 
 If multiple facts have the same value, they are selected randomly.
 
@@ -232,11 +262,15 @@ These rules are part of the MVP and remove ambiguity during implementation:
 - Exactly nine facts at 80 or more are sufficient to unlock the next multiplication table. Eight
   are not sufficient. The remaining fact stays in the older-weak review pool until it improves.
 - If there are not enough suitable facts for a review group, the missing slots are filled with
-  facts from the multiplication table currently being learned. One game always has 10 questions.
+  facts from the multiplication table currently being learned. One game always has its full
+  length: 10 questions up to the 5× table, 12 from the 6× table onwards.
+- When the automated slot has to borrow from the current table because no fact has reached 100
+  yet, it selects by lowest mastery like any other current-table slot; the longest-waiting rule
+  applies only when a real automated pool exists.
 - The same fact must not appear in two immediately consecutive questions.
-- Within one 10-question series, select unused eligible facts before repeating a fact. Repetition
-  is allowed only after the required current, older-weak, or older-automated pool is exhausted.
-  Therefore the initial current-table-only series contains all 10 facts exactly once.
+- Within one series, select unused eligible facts before repeating a fact. Repetition is allowed
+  only after the required current, older-weak, or older-automated pool is exhausted. Therefore
+  the initial current-table-only series contains all 10 facts exactly once.
 - Answer time is measured to calculate the mastery change, but the child does not see a stressful
   countdown while answering.
 - In the MVP, the facts `a × b` and `b × a` are tracked separately according to their respective

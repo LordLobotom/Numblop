@@ -74,6 +74,32 @@ func test_completed_session_reward_has_a_one_point_minimum_and_ten_point_maximum
     equal(perfect_reward["experience"], 10, "Perfect experience reward")
 
 
+func test_a_twelve_question_series_can_pay_twelve() -> void:
+    # One coin per correct answer was never capped at the ten-question length, so the longer
+    # rounds from the 6x table pay out in full without a rule change.
+    var questions: Array[PracticeQuestion] = []
+    for index in LearningRules.EXTENDED_SESSION_LENGTH:
+        questions.append(
+            PracticeQuestion.new(
+                6,
+                index % LearningRules.MULTIPLIERS.size(),
+                LearningRules.QuestionMode.NUMBER_INPUT,
+                []
+            )
+        )
+    var result := SessionResult.new(questions)
+    for index in LearningRules.EXTENDED_SESSION_LENGTH:
+        result.record_answer(result.current_question().answer(), 5.0, 0)
+    check(result.can_receive_reward(), "A full twelve-question series is rewardable")
+
+    var reward := LocalProgress.new().apply_completed_session(
+        result,
+        LearningProfile.new(),
+        Callable()
+    )
+    equal(reward["coins"], 12, "Twelve correct answers pay twelve coins")
+
+
 func test_abandoned_session_never_changes_progression() -> void:
     var profile := LearningProfile.new()
     var progress := LocalProgress.new({"coins": 5, "experience": 90})

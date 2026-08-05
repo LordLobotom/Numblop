@@ -69,9 +69,17 @@ var status := Status.ACTIVE
 
 func _init(p_questions: Array[PracticeQuestion] = []) -> void:
     questions = p_questions.duplicate()
+    # A round is 10 questions up to the 5x table and 12 from the 6x table on, so the length
+    # is checked against the set of valid lengths rather than against one constant.
     assert(
-        questions.size() == LearningRules.SESSION_LENGTH,
-        "A practice session must contain exactly %d questions" % LearningRules.SESSION_LENGTH
+        [
+            LearningRules.SESSION_LENGTH,
+            LearningRules.EXTENDED_SESSION_LENGTH,
+        ].has(questions.size()),
+        "A practice session must contain %d or %d questions" % [
+            LearningRules.SESSION_LENGTH,
+            LearningRules.EXTENDED_SESSION_LENGTH,
+        ]
     )
 
 
@@ -99,7 +107,7 @@ func record_answer(
         mastery_before
     )
     answer_records.append(record)
-    if answer_records.size() == LearningRules.SESSION_LENGTH:
+    if answer_records.size() == questions.size():
         status = Status.COMPLETED
     return record
 
@@ -174,4 +182,4 @@ func is_complete() -> bool:
 
 
 func can_receive_reward() -> bool:
-    return is_complete() and answer_records.size() == LearningRules.SESSION_LENGTH
+    return is_complete() and answer_records.size() == questions.size()

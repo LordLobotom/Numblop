@@ -5,8 +5,10 @@
 - Numblop is a portrait-first, offline multiplication-practice game for Android, also
   exported as a centered portrait Windows application and an adaptive browser build.
 - The permanent Android package ID is `cz.gutcloud.numblop`.
-- Every MVP practice series contains exactly 10 adaptively selected questions using the
-  canonical 7 current / 2 older weak / 1 older automated mix.
+- Every MVP practice series is adaptively selected and fixed in length: 10 questions up to the
+  5x table (7 current / 2 older weak / 1 older automated) and 12 from the 6x table onwards
+  (8 current / 3 older weak / 1 older automated). A fact counts as automated only at mastery
+  100, and the automated slot always takes the fact that has waited longest.
 - MVP data stays on one device in one local child profile (optional local nickname only).
   Do not add accounts, analytics, advertisements, cloud services, networking, or remote
   configuration.

@@ -18,8 +18,8 @@ reward chest make completing practice feel positive without distracting from the
 
 ## Main repeating flow
 
-Open the game → loading screen → main screen with the blob → press Play → answer 10 adaptive
-questions → complete the series → tap the chest once → receive coins and experience →
+Open the game → loading screen → main screen with the blob → press Play → answer the series of
+adaptive questions → complete the series → tap the chest once → receive coins and experience →
 tap to continue → return to the main screen.
 
 No additional game modes are part of the MVP.
@@ -83,10 +83,11 @@ price followed by the coin crest.
 
 ## Question series
 
-- Every completed series contains exactly **10 questions**.
+- Every completed series contains exactly **10 questions** up to the 5× table and exactly
+  **12 questions** from the 6× table onwards.
 - Question selection, difficulty, and answer mode are adaptive and follow
   `docs/didactic_algorithm.md`.
-- Prefer 10 unique facts in each series. Repeat a fact only when a required adaptive review group
+- Prefer unique facts in each series. Repeat a fact only when a required adaptive review group
   does not contain enough eligible facts to fill its quota.
 - Present one question at a time using four choices, six choices, or the numeric keypad.
 - A correct answer receives short positive visual/audio feedback and advances.
@@ -102,9 +103,10 @@ price followed by the coin crest.
 
 ## Completing the series and reward chest
 
-- Completing all 10 questions always grants a reward chest, even when answers were incorrect.
+- Completing every question in the series always grants a reward chest, even when answers were incorrect.
 - Each correct answer grants 1 coin and 1 experience point. A completed series grants at least
-  1 of each, producing a reward range of 1–10 without making the guaranteed chest empty.
+  1 of each, so the reward range is 1–10 for a ten-question series and 1–12 for a twelve-question
+  one, without making the guaranteed chest empty.
 - Present a closed chest with a short celebratory sound or fanfare.
 - The player taps the chest once. The tap shakes the chest and briefly vibrates a supported mobile
   device.
@@ -116,7 +118,7 @@ price followed by the coin crest.
 
 ## Interrupted series
 
-- Leaving or closing the game before all 10 questions are complete abandons that series.
+- Leaving or closing the game before the series is complete abandons that series.
 - An abandoned series grants no chest or completed-series coins or experience and is not restored
   on relaunch. Any per-answer fact-milestone bonus already earned and saved remains on the device.
 - Mastery changes from answers already processed remain saved locally; only unfinished-series

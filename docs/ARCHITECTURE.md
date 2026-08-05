@@ -25,11 +25,14 @@ tools/                   Repeatable QA and export commands
 ## Core model
 
 - `LearningRules` owns tables, thresholds, modes, response-time limits, and score deltas.
-- `LearningProfile` owns all 80 mastery values and the highest unlocked table. Unlocking is
-  monotonic; mastery remains allowed to decrease.
-- `SessionGenerator` creates exactly 10 deterministic `PracticeQuestion` objects from a
-  supplied seed. Its fixed slot plan is 7 current, 2 older weak, and 1 older automated;
-  unavailable review slots use the current table.
+- `LearningProfile` owns all 80 mastery values, all 80 `last_practiced` stamps, and the highest
+  unlocked table. Unlocking is monotonic; mastery remains allowed to decrease. The stamps are
+  supplied by the caller, never read from a clock here.
+- `SessionGenerator` creates deterministic `PracticeQuestion` objects from a supplied seed:
+  10 up to the 5× table (7 current, 2 older weak, 1 older automated) and 12 from the 6× table
+  onwards (8 current, 3 older weak, 1 older automated). Unavailable review slots use the current
+  table. The automated slot picks the longest-waiting fact by `last_practiced`; every other slot
+  picks the lowest mastery.
 - `PracticeQuestion` is immutable-by-convention session data: fact, mode, choices, answer.
 
 Core scripts never access nodes, singletons, files, time, locale, or platform APIs.

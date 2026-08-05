@@ -4,7 +4,7 @@
 [ext_resource type="Texture2D" path="res://assets/backgrounds/mianscreen_background.png" id="2_background"]
 [ext_resource type="Texture2D" path="res://ui/crests/crest_coin.png" id="3_coin"]
 [ext_resource type="Texture2D" path="res://ui/crests/crest_xp.png" id="4_xp"]
-[ext_resource type="Texture2D" path="res://ui/buttons/button_play.png" id="5_play"]
+[ext_resource type="Script" path="res://scripts/ui/PlayButton.gd" id="5_play_button"]
 [ext_resource type="PackedScene" path="res://scenes/components/BlobCharacter.tscn" id="6_blob"]
 [ext_resource type="Font" path="res://ui/fonts/Baloo2Bold.tres" id="10_bold"]
 [ext_resource type="Texture2D" path="res://ui/crests/crest_flame.png" id="13_flame"]
@@ -242,15 +242,13 @@ max_lines_visible = 2
 [node name="PlayCenter" type="CenterContainer" parent="SafeArea/Content"]
 layout_mode = 2
 
-[node name="PlayButton" type="TextureButton" parent="SafeArea/Content/PlayCenter"]
+[node name="PlayButton" type="Button" parent="SafeArea/Content/PlayCenter"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(340, 104)
 layout_mode = 2
 focus_mode = 2
 mouse_default_cursor_shape = 2
-texture_normal = ExtResource("5_play")
-ignore_texture_size = true
-stretch_mode = 0
+script = ExtResource("5_play_button")
 
 [node name="PlayLabel" type="Label" parent="SafeArea/Content/PlayCenter/PlayButton"]
 unique_name_in_owner = true
@@ -260,7 +258,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 offset_left = 20.0
 offset_right = -22.0
-offset_bottom = -3.0
+offset_bottom = -8.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
