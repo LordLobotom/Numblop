@@ -788,6 +788,62 @@ func test_main_scene_defers_streamed_music_until_web_audio_is_unlocked() -> void
     scene.free()
 
 
+func test_main_scene_drops_pointer_highlights_on_touchscreens() -> void:
+    # Android emulates a mouse from touch and leaves that pointer parked where the finger
+    # lifted, so whatever was tapped keeps drawing its hover face -- and the theme draws focus
+    # with the hover box too. On a touchscreen those states have to look like the resting one.
+    var packed: PackedScene = load("res://scenes/Main.tscn")
+    check(packed != null, "Main scene must load")
+    if packed == null:
+        return
+    var scene := packed.instantiate()
+    var shared_theme: Theme = load("res://ui/theme.tres")
+    var desktop_hover: StyleBox = scene.theme.get_stylebox("hover", "Button")
+    var desktop_focus: StyleBox = scene.theme.get_stylebox("focus", "Button")
+    scene._neutralize_pointer_states(false)
+    check(
+        scene.theme.get_stylebox("hover", "Button") == desktop_hover
+        and scene.theme.get_stylebox("focus", "Button") == desktop_focus,
+        "A real pointer keeps its hover and focus highlights"
+    )
+
+    scene._neutralize_pointer_states(true)
+    var normal: StyleBox = scene.theme.get_stylebox("normal", "Button")
+    equal(scene.theme.get_stylebox("hover", "Button"), normal, "Touch hover rests like normal")
+    equal(scene.theme.get_stylebox("focus", "Button"), normal, "Touch focus rests like normal")
+    equal(
+        scene.theme.get_stylebox("hover_pressed", "Button"),
+        scene.theme.get_stylebox("pressed", "Button"),
+        "A held-looking touch button is not also hover-lit"
+    )
+    check(
+        shared_theme.get_stylebox("hover", "Button") == desktop_hover,
+        "The touch look is a copy, so the shared theme resource is left alone"
+    )
+    scene.free()
+
+
+func test_settings_toggles_keep_their_colour_under_a_parked_touch_pointer() -> void:
+    # The lit tile sits in `hover_pressed` for as long as Android's emulated pointer stays on
+    # it, which is forever. Letting the theme own that slot painted the tile dark green and it
+    # stayed that way after the tap -- the setting looked stuck rather than switched.
+    var toggle := IconToggle.new()
+    var tree := Engine.get_main_loop() as SceneTree
+    tree.root.add_child(toggle)
+    toggle.button_pressed = true
+    toggle.refresh()
+    var normal := toggle.get_theme_stylebox("normal") as StyleBoxFlat
+    check(normal != null, "A lit tile draws its own resting box")
+    for state in ["hover", "pressed", "hover_pressed", "focus", "disabled"]:
+        var style := toggle.get_theme_stylebox(state) as StyleBoxFlat
+        check(
+            normal != null and style != null and style.bg_color == normal.bg_color,
+            "Lit tile keeps its colour while %s" % state
+        )
+    tree.root.remove_child(toggle)
+    toggle.free()
+
+
 func test_settings_screen_has_language_audio_mute_and_safe_exit_controls() -> void:
     var packed: PackedScene = load("res://scenes/screens/SettingsScreen.tscn")
     check(packed != null, "Settings scene must load")

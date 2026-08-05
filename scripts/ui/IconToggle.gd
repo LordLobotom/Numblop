@@ -85,7 +85,10 @@ func _apply_state() -> void:
         "icon_focus_color",
     ]:
         add_theme_color_override(slot, glyph)
-    for state in ["normal", "hover", "pressed", "focus", "disabled"]:
+    # `hover_pressed` belongs in this list as much as the rest: a lit tile under the pointer
+    # draws that slot, and on Android the emulated pointer stays parked where the finger last
+    # was, so leaving it to the theme left the tile stuck in the dark pressed green.
+    for state in ["normal", "hover", "pressed", "hover_pressed", "focus", "disabled"]:
         add_theme_stylebox_override(state, _tile_style(fill, border))
 
 

@@ -46,6 +46,7 @@ var _web_audio_unlock_pending := false
 
 
 func _ready() -> void:
+    _neutralize_pointer_states(DisplayServer.is_touchscreen_available())
     home_screen.play_requested.connect(_on_play_requested)
     home_screen.map_requested.connect(_on_map_requested)
     home_screen.outfit_requested.connect(_on_cosmetics_requested)
@@ -80,6 +81,32 @@ func _ready() -> void:
         music_player.play()
     if not OS.has_feature("mobile") and DisplayServer.get_name() != "headless":
         call_deferred("_center_desktop_window")
+
+
+## Android emulates a mouse from touch, and that emulated pointer never leaves: when the
+## finger lifts it stays parked on the widget it last tapped, which keeps drawing its hover
+## face. The button also keeps focus, and this theme draws focus with the hover box, so the
+## highlight outlives the tap twice over -- a child taps a keypad key or a settings tile and
+## it stays lit as if still held. A touchscreen has no pointer worth tracking, so hover and
+## focus resolve to the resting look there. The theme lives on this node, so patching it
+## here reaches every Button that inherits these slots instead of overriding them.
+func _neutralize_pointer_states(touchscreen_available: bool) -> void:
+    if not touchscreen_available or theme == null:
+        return
+    # `ui/theme.tres` is a shared cached resource: patching it in place would follow the app
+    # into anything else that loads it, so the touch look is a copy this node owns.
+    var touch_theme: Theme = theme.duplicate()
+    if touch_theme.has_stylebox("normal", "Button"):
+        var normal := touch_theme.get_stylebox("normal", "Button")
+        touch_theme.set_stylebox("hover", "Button", normal)
+        touch_theme.set_stylebox("focus", "Button", normal)
+    if touch_theme.has_stylebox("pressed", "Button"):
+        touch_theme.set_stylebox(
+            "hover_pressed",
+            "Button",
+            touch_theme.get_stylebox("pressed", "Button")
+        )
+    theme = touch_theme
 
 
 func _input(event: InputEvent) -> void:
