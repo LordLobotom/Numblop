@@ -78,14 +78,22 @@ func test_numblop_icon_is_used_by_windows_and_android_exports() -> void:
         2,
         "Android debug and release launcher icons"
     )
-    for adaptive_layer in ["foreground", "background", "monochrome"]:
+    # The two drawn layers keep their artwork names; only the derived glyph is generated.
+    for layer in [
+        ["foreground", "res://ui/branding/android/icon_numblop_front.png"],
+        ["background", "res://ui/branding/android/icon_numblop_back.png"],
+        ["monochrome", "res://ui/branding/android/icon_monochrome_432.png"],
+    ]:
         equal(
             config.count(
-                'launcher_icons/adaptive_%s_432x432="res://ui/branding/android/icon_%s_432.png"'
-                % [adaptive_layer, adaptive_layer]
+                'launcher_icons/adaptive_%s_432x432="%s"' % [layer[0], layer[1]]
             ),
             2,
-            "Adaptive %s icon wired in both Android presets" % adaptive_layer
+            "Adaptive %s icon wired in both Android presets" % layer[0]
+        )
+        check(
+            FileAccess.file_exists(layer[1]),
+            "Adaptive %s icon exists on disk" % layer[0]
         )
 
 

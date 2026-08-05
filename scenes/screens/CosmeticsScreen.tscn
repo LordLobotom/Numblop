@@ -11,24 +11,7 @@
 [ext_resource type="PackedScene" path="res://scenes/components/NavBar.tscn" id="15_navbar"]
 [ext_resource type="StyleBox" path="res://ui/styles/header_panel.tres" id="16_header_style"]
 [ext_resource type="Script" path="res://scripts/ui/TouchScrollContainer.gd" id="17_touchscroll"]
-
-[sub_resource type="StyleBoxFlat" id="CosmeticsPanel"]
-bg_color = Color(1, 1, 1, 0.94)
-border_width_left = 2
-border_width_top = 2
-border_width_right = 2
-border_width_bottom = 2
-border_color = Color(1, 1, 1, 0.8)
-corner_radius_top_left = 28
-corner_radius_top_right = 28
-corner_radius_bottom_right = 28
-corner_radius_bottom_left = 28
-content_margin_left = 20.0
-content_margin_top = 10.0
-content_margin_right = 20.0
-content_margin_bottom = 10.0
-shadow_color = Color(0.1, 0.3, 0.26, 0.18)
-shadow_size = 8
+[ext_resource type="StyleBox" path="res://ui/styles/container_panel.tres" id="18_container_style"]
 
 [sub_resource type="StyleBoxFlat" id="BuyNormal"]
 bg_color = Color(0.31, 0.77, 0.12, 1)
@@ -132,16 +115,6 @@ texture = ExtResource("2_background")
 expand_mode = 1
 stretch_mode = 6
 
-[node name="Tint" type="ColorRect" parent="."]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-mouse_filter = 2
-color = Color(0.95, 0.9, 1, 0.13)
-
 [node name="SafeArea" type="MarginContainer" parent="."]
 layout_mode = 1
 anchors_preset = 15
@@ -164,22 +137,28 @@ layout_mode = 2
 theme_override_constants/separation = 8
 alignment = 1
 
+[node name="TitleBalance" type="Control" parent="SafeArea/Content/Header/HeaderRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+mouse_filter = 2
+
 [node name="TitleLabel" type="Label" parent="SafeArea/Content/Header/HeaderRow"]
 unique_name_in_owner = true
 layout_mode = 2
-size_flags_horizontal = 3
+size_flags_horizontal = 4
 size_flags_vertical = 1
 theme_override_colors/font_color = Color(0.19, 0.34, 0.24, 1)
 theme_override_fonts/font = ExtResource("10_bold")
 theme_override_font_sizes/font_size = 22
 text = "COSMETICS_TITLE"
+horizontal_alignment = 1
 vertical_alignment = 1
 
 [node name="CoinsPill" type="HBoxContainer" parent="SafeArea/Content/Header/HeaderRow"]
 layout_mode = 2
-size_flags_horizontal = 8
+size_flags_horizontal = 3
 theme_override_constants/separation = 6
-alignment = 1
+alignment = 2
 
 [node name="CoinIcon" type="TextureRect" parent="SafeArea/Content/Header/HeaderRow/CoinsPill"]
 custom_minimum_size = Vector2(25, 25)
@@ -297,20 +276,27 @@ expand_icon = true
 icon_alignment = 1
 vertical_icon_alignment = 1
 
-[node name="Scroll" type="ScrollContainer" parent="SafeArea/Content"]
-script = ExtResource("17_touchscroll")
-unique_name_in_owner = true
-layout_mode = 2
-size_flags_vertical = 3
-horizontal_scroll_mode = 0
-vertical_scroll_mode = 3
-
-[node name="CosmeticsPanel" type="PanelContainer" parent="SafeArea/Content/Scroll"]
+[node name="CosmeticsPanel" type="PanelContainer" parent="SafeArea/Content"]
 custom_minimum_size = Vector2(336, 0)
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
-theme_override_styles/panel = SubResource("CosmeticsPanel")
+theme_override_styles/panel = ExtResource("18_container_style")
+
+[node name="Scroll" type="ScrollContainer" parent="SafeArea/Content/CosmeticsPanel"]
+script = ExtResource("17_touchscroll")
+unique_name_in_owner = true
+layout_mode = 2
+horizontal_scroll_mode = 0
+vertical_scroll_mode = 3
+
+[node name="ScrollMargin" type="MarginContainer" parent="SafeArea/Content/CosmeticsPanel/Scroll"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/margin_left = 6
+theme_override_constants/margin_top = 6
+theme_override_constants/margin_right = 6
+theme_override_constants/margin_bottom = 6
 
 [node name="FootwearTab" type="Button" parent="SafeArea/Content/TabBar/TabRow"]
 unique_name_in_owner = true
@@ -334,18 +320,18 @@ expand_icon = true
 icon_alignment = 1
 vertical_icon_alignment = 1
 
-[node name="Pages" type="VBoxContainer" parent="SafeArea/Content/Scroll/CosmeticsPanel"]
+[node name="Pages" type="VBoxContainer" parent="SafeArea/Content/CosmeticsPanel/Scroll/ScrollMargin"]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_vertical = 0
 theme_override_constants/separation = 0
 
-[node name="ColorPage" type="VBoxContainer" parent="SafeArea/Content/Scroll/CosmeticsPanel/Pages"]
+[node name="ColorPage" type="VBoxContainer" parent="SafeArea/Content/CosmeticsPanel/Scroll/ScrollMargin/Pages"]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_constants/separation = 6
 
-[node name="BodyColorLabel" type="Label" parent="SafeArea/Content/Scroll/CosmeticsPanel/Pages/ColorPage"]
+[node name="BodyColorLabel" type="Label" parent="SafeArea/Content/CosmeticsPanel/Scroll/ScrollMargin/Pages/ColorPage"]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_colors/font_color = Color(0.2, 0.33, 0.27, 1)
@@ -353,7 +339,7 @@ theme_override_font_sizes/font_size = 15
 text = "COSMETICS_BODY_COLOR"
 horizontal_alignment = 1
 
-[node name="ColorGrid" type="GridContainer" parent="SafeArea/Content/Scroll/CosmeticsPanel/Pages/ColorPage"]
+[node name="ColorGrid" type="GridContainer" parent="SafeArea/Content/CosmeticsPanel/Scroll/ScrollMargin/Pages/ColorPage"]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 4
@@ -361,7 +347,7 @@ theme_override_constants/h_separation = 2
 theme_override_constants/v_separation = 6
 columns = 4
 
-[node name="BellyLabel" type="Label" parent="SafeArea/Content/Scroll/CosmeticsPanel/Pages/ColorPage"]
+[node name="BellyLabel" type="Label" parent="SafeArea/Content/CosmeticsPanel/Scroll/ScrollMargin/Pages/ColorPage"]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_colors/font_color = Color(0.2, 0.33, 0.27, 1)
@@ -369,7 +355,7 @@ theme_override_font_sizes/font_size = 15
 text = "COSMETICS_BELLY"
 horizontal_alignment = 1
 
-[node name="BellyGrid" type="GridContainer" parent="SafeArea/Content/Scroll/CosmeticsPanel/Pages/ColorPage"]
+[node name="BellyGrid" type="GridContainer" parent="SafeArea/Content/CosmeticsPanel/Scroll/ScrollMargin/Pages/ColorPage"]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 4
@@ -377,12 +363,12 @@ theme_override_constants/h_separation = 2
 theme_override_constants/v_separation = 6
 columns = 4
 
-[node name="HatsPage" type="VBoxContainer" parent="SafeArea/Content/Scroll/CosmeticsPanel/Pages"]
+[node name="HatsPage" type="VBoxContainer" parent="SafeArea/Content/CosmeticsPanel/Scroll/ScrollMargin/Pages"]
 unique_name_in_owner = true
 visible = false
 layout_mode = 2
 
-[node name="HatsGrid" type="GridContainer" parent="SafeArea/Content/Scroll/CosmeticsPanel/Pages/HatsPage"]
+[node name="HatsGrid" type="GridContainer" parent="SafeArea/Content/CosmeticsPanel/Scroll/ScrollMargin/Pages/HatsPage"]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 4
@@ -390,12 +376,12 @@ theme_override_constants/h_separation = 8
 theme_override_constants/v_separation = 8
 columns = 3
 
-[node name="GlassesPage" type="VBoxContainer" parent="SafeArea/Content/Scroll/CosmeticsPanel/Pages"]
+[node name="GlassesPage" type="VBoxContainer" parent="SafeArea/Content/CosmeticsPanel/Scroll/ScrollMargin/Pages"]
 unique_name_in_owner = true
 visible = false
 layout_mode = 2
 
-[node name="GlassesGrid" type="GridContainer" parent="SafeArea/Content/Scroll/CosmeticsPanel/Pages/GlassesPage"]
+[node name="GlassesGrid" type="GridContainer" parent="SafeArea/Content/CosmeticsPanel/Scroll/ScrollMargin/Pages/GlassesPage"]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 4
@@ -403,12 +389,12 @@ theme_override_constants/h_separation = 8
 theme_override_constants/v_separation = 8
 columns = 3
 
-[node name="NecklacesPage" type="VBoxContainer" parent="SafeArea/Content/Scroll/CosmeticsPanel/Pages"]
+[node name="NecklacesPage" type="VBoxContainer" parent="SafeArea/Content/CosmeticsPanel/Scroll/ScrollMargin/Pages"]
 unique_name_in_owner = true
 visible = false
 layout_mode = 2
 
-[node name="NecklacesGrid" type="GridContainer" parent="SafeArea/Content/Scroll/CosmeticsPanel/Pages/NecklacesPage"]
+[node name="NecklacesGrid" type="GridContainer" parent="SafeArea/Content/CosmeticsPanel/Scroll/ScrollMargin/Pages/NecklacesPage"]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 4
@@ -416,12 +402,12 @@ theme_override_constants/h_separation = 8
 theme_override_constants/v_separation = 8
 columns = 3
 
-[node name="FootwearPage" type="VBoxContainer" parent="SafeArea/Content/Scroll/CosmeticsPanel/Pages"]
+[node name="FootwearPage" type="VBoxContainer" parent="SafeArea/Content/CosmeticsPanel/Scroll/ScrollMargin/Pages"]
 unique_name_in_owner = true
 visible = false
 layout_mode = 2
 
-[node name="FootwearGrid" type="GridContainer" parent="SafeArea/Content/Scroll/CosmeticsPanel/Pages/FootwearPage"]
+[node name="FootwearGrid" type="GridContainer" parent="SafeArea/Content/CosmeticsPanel/Scroll/ScrollMargin/Pages/FootwearPage"]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 4
@@ -465,6 +451,7 @@ alignment = 1
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_colors/font_color = Color(0.19, 0.34, 0.24, 1)
+theme_override_constants/line_spacing = -9
 theme_override_fonts/font = ExtResource("10_bold")
 theme_override_font_sizes/font_size = 22
 autowrap_mode = 2
@@ -546,6 +533,7 @@ visible = false
 custom_minimum_size = Vector2(0, 16)
 layout_mode = 2
 theme_override_colors/font_color = Color(0.28, 0.42, 0.32, 1)
+theme_override_constants/line_spacing = -2
 theme_override_font_sizes/font_size = 12
 vertical_alignment = 1
 autowrap_mode = 2

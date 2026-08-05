@@ -22,6 +22,19 @@ func _ready() -> void:
     _update_margins()
 
 
+## Android reports its cutout and gesture-bar insets after the first frames, and reports them
+## again after a rotation or a resume from the recents switcher. Neither of those resizes this
+## container, so `resized` alone leaves the first-frame value in place and the content sits a
+## pixel or two off the safe area for the rest of the session.
+func _notification(what: int) -> void:
+    match what:
+        NOTIFICATION_APPLICATION_RESUMED, \
+        NOTIFICATION_WM_SIZE_CHANGED, \
+        NOTIFICATION_VISIBILITY_CHANGED:
+            if is_node_ready():
+                _update_margins()
+
+
 func _update_margins() -> void:
     # Overriding the margin constants re-runs this container's layout, which fires
     # `resized` again. Without the re-entry guard and the unchanged-value check the

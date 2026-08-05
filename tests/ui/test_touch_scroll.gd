@@ -60,7 +60,7 @@ func test_every_scrolling_screen_can_be_dragged_from_anywhere() -> void:
     for entry in [
         ["res://scenes/screens/MapScreen.tscn", "%Scroll"],
         ["res://scenes/screens/TrophyScreen.tscn", "SafeArea/Content/AchievementsPanel/Scroll"],
-        ["res://scenes/screens/SettingsScreen.tscn", "SafeArea/Content/Scroll"],
+        ["res://scenes/screens/SettingsScreen.tscn", "SafeArea/Content/SettingsPanel/Scroll"],
         ["res://scenes/screens/CosmeticsScreen.tscn", "%Scroll"],
         ["res://scenes/screens/RewardScreen.tscn", "SafeArea/Content/MasteryPanel/MasteryRows/MasteryScroll"],
     ]:

@@ -211,15 +211,18 @@ text = "HOME_PROFILE"
 [node name="BlobOffset" type="MarginContainer" parent="SafeArea/Content"]
 layout_mode = 2
 size_flags_vertical = 3
-theme_override_constants/margin_top = 40
+theme_override_constants/margin_left = 9
+theme_override_constants/margin_top = 24
+theme_override_constants/margin_right = 9
 
-[node name="BlobCenter" type="CenterContainer" parent="SafeArea/Content/BlobOffset"]
-custom_minimum_size = Vector2(0, 340)
+[node name="BlobCenter" type="AspectRatioContainer" parent="SafeArea/Content/BlobOffset"]
+custom_minimum_size = Vector2(0, 240)
 layout_mode = 2
 size_flags_vertical = 3
+stretch_mode = 2
 
 [node name="BlobCharacter" parent="SafeArea/Content/BlobOffset/BlobCenter" instance=ExtResource("6_blob")]
-custom_minimum_size = Vector2(340, 340)
+custom_minimum_size = Vector2(0, 0)
 layout_mode = 2
 
 [node name="PetHint" type="Label" parent="SafeArea/Content"]
@@ -234,6 +237,7 @@ text = "HOME_PET_HINT"
 horizontal_alignment = 1
 vertical_alignment = 1
 autowrap_mode = 2
+max_lines_visible = 2
 
 [node name="PlayCenter" type="CenterContainer" parent="SafeArea/Content"]
 layout_mode = 2

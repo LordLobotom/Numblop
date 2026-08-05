@@ -1,0 +1,22 @@
+[gd_resource type="StyleBoxFlat" format=3]
+
+; The large white card that holds a screen's scrolling body. Trophy, Cosmetics and
+; Settings each carried their own copy, which had drifted to two background alphas, two
+; shadow sizes and a border that only two of them had. The Trophy version read best, so
+; that is the recipe kept here.
+;
+; The shadow only survives if this panel sits OUTSIDE the ScrollContainer -- a
+; ScrollContainer clips to its own rect, so a panel nested inside one loses its shadow at
+; the viewport edges. Every user of this style nests Panel -> Scroll, never the reverse.
+[resource]
+bg_color = Color(1, 1, 1, 0.92)
+corner_radius_top_left = 28
+corner_radius_top_right = 28
+corner_radius_bottom_right = 28
+corner_radius_bottom_left = 28
+content_margin_left = 8.0
+content_margin_top = 8.0
+content_margin_right = 8.0
+content_margin_bottom = 8.0
+shadow_color = Color(0.1, 0.3, 0.26, 0.18)
+shadow_size = 8

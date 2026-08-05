@@ -103,6 +103,56 @@ func test_mastery_rows_leave_a_gutter_for_the_scrollbar() -> void:
     scene.free()
 
 
+func test_mastery_rows_show_a_dot_scale_rather_than_a_numeric_jump() -> void:
+    # "45 -> 53" is unreadable to the child the screen is for. The numbers survive as the
+    # tooltip so nothing is lost for anyone who wants them.
+    var packed: PackedScene = load("res://scenes/screens/RewardScreen.tscn")
+    var scene: RewardScreen = packed.instantiate()
+    var tree := Engine.get_main_loop() as SceneTree
+    tree.root.add_child(scene)
+
+    scene.preview_opened_state(_reward_with_gains())
+    var list: VBoxContainer = scene.get_node("%MasteryList")
+    var row: HBoxContainer = list.get_child(0)
+    var meters := row.find_children("", "MasteryMeter", true, false)
+    equal(meters.size(), 1, "Each improved fact carries one mastery meter")
+    equal(
+        meters[0].tooltip_text,
+        tr("REWARD_MASTERY_CHANGE").format({"before": 45, "after": 53}),
+        "The exact scores stay reachable as a tooltip"
+    )
+    for child in row.get_children():
+        if child is Label:
+            check(
+                not (child as Label).text.contains("->")
+                and not (child as Label).text.contains("→"),
+                "No row still prints the numeric jump"
+            )
+
+    var gain_label: Label = row.get_child(row.get_child_count() - 1)
+    equal(gain_label.text, tr("REWARD_MASTERY_GAIN").format({"gained": 8}), "The +N stays")
+    tree.root.remove_child(scene)
+    scene.free()
+
+
+func test_the_mastery_meter_fills_its_boundary_dot_proportionally() -> void:
+    # Ten dots over a 0-100 score means most gains land inside a single dot. If a dot only
+    # ever snapped full or empty, those rounds would look like no progress at all.
+    var meter := MasteryMeter.new()
+    check(is_equal_approx(meter._fill_of_dot(4, 45.0), 0.5), "45 half-fills the fifth dot")
+    check(is_equal_approx(meter._fill_of_dot(4, 53.0), 1.0), "53 fills the fifth dot")
+    check(is_equal_approx(meter._fill_of_dot(5, 53.0), 0.3), "53 part-fills the sixth")
+    check(is_equal_approx(meter._fill_of_dot(3, 45.0), 1.0), "Everything below is solid")
+    check(is_equal_approx(meter._fill_of_dot(9, 53.0), 0.0), "Everything above is empty")
+
+    # A gain wholly inside one dot still moves the waterline.
+    check(
+        meter._fill_of_dot(8, 84.0) > meter._fill_of_dot(8, 82.0),
+        "82 -> 84 still advances the ninth dot"
+    )
+    meter.free()
+
+
 func test_a_round_without_mastery_gains_shows_no_summary_panel() -> void:
     var packed: PackedScene = load("res://scenes/screens/RewardScreen.tscn")
     var scene: RewardScreen = packed.instantiate()

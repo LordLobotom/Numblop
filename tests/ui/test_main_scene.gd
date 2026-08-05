@@ -409,8 +409,8 @@ func test_scroll_panels_stay_clear_of_the_scrollbar_at_the_narrowest_width() -> 
     var narrowest_content := 390.0 - 2.0 * 16.0
     for entry in [
         ["res://scenes/screens/MapScreen.tscn", "%MapCanvas"],
-        ["res://scenes/screens/CosmeticsScreen.tscn", "SafeArea/Content/Scroll/CosmeticsPanel"],
-        ["res://scenes/screens/SettingsScreen.tscn", "SafeArea/Content/Scroll/SettingsPanel"],
+        ["res://scenes/screens/CosmeticsScreen.tscn", "SafeArea/Content/CosmeticsPanel"],
+        ["res://scenes/screens/SettingsScreen.tscn", "SafeArea/Content/SettingsPanel"],
     ]:
         var packed: PackedScene = load(entry[0])
         check(packed != null, "Screen loads: %s" % entry[0])
@@ -421,6 +421,84 @@ func test_scroll_panels_stay_clear_of_the_scrollbar_at_the_narrowest_width() -> 
         check(
             panel.custom_minimum_size.x <= narrowest_content - 16.0,
             "%s leaves room for the scrollbar" % entry[1]
+        )
+        scene.free()
+
+
+func test_nav_screens_leave_room_for_the_device_safe_area() -> void:
+    # The nav bar is the last child of a VBoxContainer, so it only sits at the bottom while
+    # something above it can still shrink. Home was built entirely from fixed minimums and
+    # its column already overflowed 844 with no insets at all, which is why its bar landed a
+    # pixel off on devices with a cutout while every other screen looked right.
+    var design_height := 844.0
+    var authored_insets := 20.0 + 16.0
+    # Comfortably past a tall cutout plus a gesture bar, in viewport units.
+    var inset_budget := 80.0
+    for scene_path in [
+        "res://scenes/screens/HomeScreen.tscn",
+        "res://scenes/screens/MapScreen.tscn",
+        "res://scenes/screens/TrophyScreen.tscn",
+        "res://scenes/screens/CosmeticsScreen.tscn",
+        "res://scenes/screens/SettingsScreen.tscn",
+    ]:
+        var scene := (load(scene_path) as PackedScene).instantiate()
+        var tree := Engine.get_main_loop() as SceneTree
+        tree.root.add_child(scene)
+        (scene as Control).size = Vector2(390.0, design_height)
+        var content: Control = scene.get_node("SafeArea/Content")
+        var required := content.get_combined_minimum_size().y + authored_insets
+        check(
+            required + inset_budget <= design_height,
+            "%s absorbs a device safe area (needs %d of %d)" % [
+                scene_path.get_file(), int(required), int(design_height)
+            ]
+        )
+        tree.root.remove_child(scene)
+        scene.free()
+
+
+func test_body_panels_sit_outside_their_scroll_container() -> void:
+    # A ScrollContainer clips to its own rect, so a panel nested inside one loses the
+    # drop shadow that rounds its corners. Trophy always nested Panel -> Scroll and looked
+    # right; Cosmetics and Settings nested the other way and looked clipped.
+    for entry in [
+        ["res://scenes/screens/TrophyScreen.tscn", "SafeArea/Content/AchievementsPanel"],
+        ["res://scenes/screens/CosmeticsScreen.tscn", "SafeArea/Content/CosmeticsPanel"],
+        ["res://scenes/screens/SettingsScreen.tscn", "SafeArea/Content/SettingsPanel"],
+    ]:
+        var packed: PackedScene = load(entry[0])
+        check(packed != null, "Screen loads: %s" % entry[0])
+        if packed == null:
+            continue
+        var scene := packed.instantiate()
+        var panel: PanelContainer = scene.get_node(entry[1])
+        var scrolls := _find_scroll_containers(scene)
+        for scroll in scrolls:
+            check(
+                not scroll.is_ancestor_of(panel),
+                "%s draws its shadow outside the scroll clip" % entry[1]
+            )
+        check(
+            not scrolls.is_empty() and panel.is_ancestor_of(scrolls[0]),
+            "%s wraps its own scroll" % entry[1]
+        )
+        scene.free()
+
+
+func test_body_panels_share_one_container_style() -> void:
+    # Three drifted copies of this style is how the shadows stopped matching.
+    var shared: StyleBox = load("res://ui/styles/container_panel.tres")
+    check(shared != null, "Shared container style exists")
+    for entry in [
+        ["res://scenes/screens/TrophyScreen.tscn", "SafeArea/Content/AchievementsPanel"],
+        ["res://scenes/screens/CosmeticsScreen.tscn", "SafeArea/Content/CosmeticsPanel"],
+        ["res://scenes/screens/SettingsScreen.tscn", "SafeArea/Content/SettingsPanel"],
+    ]:
+        var scene := (load(entry[0]) as PackedScene).instantiate()
+        var panel: PanelContainer = scene.get_node(entry[1])
+        check(
+            panel.get_theme_stylebox("panel") == shared,
+            "%s uses the shared container style" % entry[1]
         )
         scene.free()
 

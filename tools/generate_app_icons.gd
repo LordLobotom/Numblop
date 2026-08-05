@@ -1,32 +1,29 @@
 extends SceneTree
-## Regenerates every launcher icon from the single avatar artwork.
+## Regenerates the derived launcher icons from the hand-authored Android artwork.
 ##
 ## Run through tools/generate-app-icons.ps1. Deterministic and idempotent: it overwrites the
-## committed PNGs in place, so their paths, UIDs and .import files stay valid and neither
-## export_presets.cfg nor the project contract test has to change.
+## committed PNGs in place, so their paths, UIDs and .import files stay valid.
+##
+## The two adaptive layers are drawn by hand and are inputs here, never outputs -- this script
+## must not overwrite them. What it derives from them is the themed-icon silhouette and the
+## legacy square icon, both of which have to track the artwork exactly or the launcher shows a
+## glyph that does not match its own icon.
 
-const SOURCE_PATH := "res://ui/branding/numblop_head_icon.png"
+## Hand-authored, 432x432, and the source of truth for the launcher's look.
+const FOREGROUND_PATH := "res://ui/branding/android/icon_numblop_front.png"
+const BACKGROUND_PATH := "res://ui/branding/android/icon_numblop_back.png"
+
+## The Windows executable icon still comes from the avatar artwork.
+const DESKTOP_SOURCE_PATH := "res://ui/branding/numblop_head_icon.png"
 
 const ADAPTIVE_SIZE := 432
-## Android only guarantees the central 66% of an adaptive layer survives the launcher mask.
-const ADAPTIVE_SAFE_SIZE := 288
 const LEGACY_SIZE := 192
 const DESKTOP_SIZE := 512
 
-## Sampled on the card's inner edge midpoints, in source-relative coordinates: background
-## gradient only, clear of the crown, the feet and the bright outer rim.
-const BACKGROUND_SAMPLES: Array[Vector2] = [
-    Vector2(0.10, 0.50),
-    Vector2(0.90, 0.50),
-    Vector2(0.50, 0.06),
-    Vector2(0.50, 0.96),
-]
-
-## Luminance window turning the artwork into the themed-icon glyph. The blob's body is lighter
-## than the background gradient it sits on, so a bright cut yields a solid silhouette — far more
-## legible at launcher size than the dark linework, which thins out to nothing.
-const MONOCHROME_LOW := 0.76
-const MONOCHROME_HIGH := 0.84
+## Android tints the themed icon itself and reads only its alpha, so the glyph is a flat cut of
+## the foreground's own alpha rather than anything derived from its colours. Half coverage is
+## the cut: it keeps the antialiased rim from smearing the silhouette outwards.
+const SILHOUETTE_ALPHA_CUT := 0.5
 
 var _has_run := false
 
@@ -40,23 +37,38 @@ func _process(_delta: float) -> bool:
 
 
 func _generate() -> void:
-    var source := Image.load_from_file(ProjectSettings.globalize_path(SOURCE_PATH))
-    if source == null:
-        push_error("Could not load %s" % SOURCE_PATH)
+    var foreground := _load(FOREGROUND_PATH)
+    var background := _load(BACKGROUND_PATH)
+    var desktop_source := _load(DESKTOP_SOURCE_PATH)
+    if foreground == null or background == null or desktop_source == null:
         quit(1)
         return
-    source.convert(Image.FORMAT_RGBA8)
+    if foreground.get_width() != ADAPTIVE_SIZE or foreground.get_height() != ADAPTIVE_SIZE:
+        push_error("%s must be %dx%d" % [FOREGROUND_PATH, ADAPTIVE_SIZE, ADAPTIVE_SIZE])
+        quit(1)
+        return
 
-    _save(_scaled(source, LEGACY_SIZE), "res://ui/branding/android/icon_main_192.png")
-    _save(_scaled(source, DESKTOP_SIZE), "res://ui/branding/numblop_ico.png")
-
-    var safe := _scaled(source, ADAPTIVE_SAFE_SIZE)
-    _save(_centered(safe), "res://ui/branding/android/icon_foreground_432.png")
-    _save(_background(source), "res://ui/branding/android/icon_background_432.png")
-    _save(_centered(_monochrome(safe)), "res://ui/branding/android/icon_monochrome_432.png")
+    _save(
+        _silhouette(foreground),
+        "res://ui/branding/android/icon_monochrome_432.png"
+    )
+    _save(
+        _scaled(_flattened(background, foreground), LEGACY_SIZE),
+        "res://ui/branding/android/icon_main_192.png"
+    )
+    _save(_scaled(desktop_source, DESKTOP_SIZE), "res://ui/branding/numblop_ico.png")
 
     print("NUMBLOP_ICONS_OK")
     quit()
+
+
+func _load(path: String) -> Image:
+    var image := Image.load_from_file(ProjectSettings.globalize_path(path))
+    if image == null:
+        push_error("Could not load %s" % path)
+        return null
+    image.convert(Image.FORMAT_RGBA8)
+    return image
 
 
 func _scaled(source: Image, size: int) -> Image:
@@ -65,41 +77,26 @@ func _scaled(source: Image, size: int) -> Image:
     return image
 
 
-## Places a square layer at the centre of a transparent adaptive canvas.
-func _centered(layer: Image) -> Image:
-    var canvas := Image.create_empty(ADAPTIVE_SIZE, ADAPTIVE_SIZE, false, Image.FORMAT_RGBA8)
-    canvas.fill(Color(0.0, 0.0, 0.0, 0.0))
-    var offset := (ADAPTIVE_SIZE - layer.get_width()) / 2
-    canvas.blit_rect(layer, Rect2i(Vector2i.ZERO, layer.get_size()), Vector2i(offset, offset))
-    return canvas
-
-
-## Flat fill in the artwork's own background green, so the card edge blends outward.
-func _background(source: Image) -> Image:
-    var total := Color(0.0, 0.0, 0.0, 0.0)
-    for sample in BACKGROUND_SAMPLES:
-        var x := int(sample.x * float(source.get_width() - 1))
-        var y := int(sample.y * float(source.get_height() - 1))
-        total += source.get_pixel(x, y)
-    var average := total / float(BACKGROUND_SAMPLES.size())
-    average.a = 1.0
-
-    var image := Image.create_empty(ADAPTIVE_SIZE, ADAPTIVE_SIZE, false, Image.FORMAT_RGBA8)
-    image.fill(average)
+## The legacy square icon is what the adaptive pair looks like with no mask applied.
+func _flattened(background: Image, foreground: Image) -> Image:
+    var image := background.duplicate() as Image
+    image.blend_rect(
+        foreground,
+        Rect2i(Vector2i.ZERO, foreground.get_size()),
+        Vector2i.ZERO
+    )
     return image
 
 
-## White silhouette of the blob; Android tints it for themed icons.
-func _monochrome(layer: Image) -> Image:
+## Flat white cut of the foreground's alpha; Android tints it for themed icons.
+func _silhouette(foreground: Image) -> Image:
     var image := Image.create_empty(
-        layer.get_width(), layer.get_height(), false, Image.FORMAT_RGBA8
+        ADAPTIVE_SIZE, ADAPTIVE_SIZE, false, Image.FORMAT_RGBA8
     )
-    for y in layer.get_height():
-        for x in layer.get_width():
-            var pixel := layer.get_pixel(x, y)
-            var luminance := pixel.get_luminance()
-            var alpha := smoothstep(MONOCHROME_LOW, MONOCHROME_HIGH, luminance) * pixel.a
-            image.set_pixel(x, y, Color(1.0, 1.0, 1.0, alpha))
+    for y in ADAPTIVE_SIZE:
+        for x in ADAPTIVE_SIZE:
+            var opaque := foreground.get_pixel(x, y).a >= SILHOUETTE_ALPHA_CUT
+            image.set_pixel(x, y, Color(1.0, 1.0, 1.0, 1.0 if opaque else 0.0))
     return image
 
 

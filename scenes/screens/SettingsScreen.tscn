@@ -11,24 +11,7 @@
 [ext_resource type="PackedScene" path="res://scenes/components/NavBar.tscn" id="14_navbar"]
 [ext_resource type="StyleBox" path="res://ui/styles/header_panel.tres" id="15_header_style"]
 [ext_resource type="Script" path="res://scripts/ui/TouchScrollContainer.gd" id="16_touchscroll"]
-
-[sub_resource type="StyleBoxFlat" id="SettingsPanel"]
-bg_color = Color(1, 1, 1, 0.94)
-border_width_left = 2
-border_width_top = 2
-border_width_right = 2
-border_width_bottom = 2
-border_color = Color(1, 1, 1, 0.8)
-corner_radius_top_left = 28
-corner_radius_top_right = 28
-corner_radius_bottom_right = 28
-corner_radius_bottom_left = 28
-content_margin_left = 22.0
-content_margin_top = 18.0
-content_margin_right = 22.0
-content_margin_bottom = 18.0
-shadow_color = Color(0.1, 0.3, 0.26, 0.18)
-shadow_size = 8
+[ext_resource type="StyleBox" path="res://ui/styles/container_panel.tres" id="17_container_style"]
 
 [sub_resource type="StyleBoxFlat" id="SliderBackground"]
 bg_color = Color(0.8, 0.82, 0.75, 1)
@@ -148,16 +131,6 @@ texture = ExtResource("2_background")
 expand_mode = 1
 stretch_mode = 6
 
-[node name="Tint" type="ColorRect" parent="."]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-mouse_filter = 2
-color = Color(0.91, 1, 0.95, 0.12)
-
 [node name="SafeArea" type="MarginContainer" parent="."]
 layout_mode = 1
 anchors_preset = 15
@@ -211,24 +184,32 @@ theme_override_font_sizes/font_size = 12
 text = "SETTINGS_VERSION"
 horizontal_alignment = 1
 
-[node name="Scroll" type="ScrollContainer" parent="SafeArea/Content"]
+[node name="SettingsPanel" type="PanelContainer" parent="SafeArea/Content"]
+custom_minimum_size = Vector2(336, 0)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_styles/panel = ExtResource("17_container_style")
+
+[node name="Scroll" type="ScrollContainer" parent="SafeArea/Content/SettingsPanel"]
 script = ExtResource("16_touchscroll")
 layout_mode = 2
-size_flags_vertical = 3
 horizontal_scroll_mode = 0
 vertical_scroll_mode = 3
 
-[node name="SettingsPanel" type="PanelContainer" parent="SafeArea/Content/Scroll"]
-custom_minimum_size = Vector2(336, 500)
+[node name="ScrollMargin" type="MarginContainer" parent="SafeArea/Content/SettingsPanel/Scroll"]
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_styles/panel = SubResource("SettingsPanel")
+theme_override_constants/margin_left = 6
+theme_override_constants/margin_top = 6
+theme_override_constants/margin_right = 6
+theme_override_constants/margin_bottom = 6
 
-[node name="SettingsContent" type="VBoxContainer" parent="SafeArea/Content/Scroll/SettingsPanel"]
+[node name="SettingsContent" type="VBoxContainer" parent="SafeArea/Content/SettingsPanel/Scroll/ScrollMargin"]
 layout_mode = 2
 theme_override_constants/separation = 10
 
-[node name="LanguageLabel" type="Label" parent="SafeArea/Content/Scroll/SettingsPanel/SettingsContent"]
+[node name="LanguageLabel" type="Label" parent="SafeArea/Content/SettingsPanel/Scroll/ScrollMargin/SettingsContent"]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_colors/font_color = Color(0.19, 0.34, 0.24, 1)
@@ -237,16 +218,16 @@ theme_override_font_sizes/font_size = 22
 text = "SETTINGS_LANGUAGE"
 horizontal_alignment = 1
 
-[node name="LanguageButtons" type="HBoxContainer" parent="SafeArea/Content/Scroll/SettingsPanel/SettingsContent"]
+[node name="LanguageButtons" type="HBoxContainer" parent="SafeArea/Content/SettingsPanel/Scroll/ScrollMargin/SettingsContent"]
 layout_mode = 2
 theme_override_constants/separation = 42
 alignment = 1
 
-[node name="EnglishItem" type="VBoxContainer" parent="SafeArea/Content/Scroll/SettingsPanel/SettingsContent/LanguageButtons"]
+[node name="EnglishItem" type="VBoxContainer" parent="SafeArea/Content/SettingsPanel/Scroll/ScrollMargin/SettingsContent/LanguageButtons"]
 layout_mode = 2
 alignment = 1
 
-[node name="EnglishButton" type="TextureButton" parent="SafeArea/Content/Scroll/SettingsPanel/SettingsContent/LanguageButtons/EnglishItem"]
+[node name="EnglishButton" type="TextureButton" parent="SafeArea/Content/SettingsPanel/Scroll/ScrollMargin/SettingsContent/LanguageButtons/EnglishItem"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(48, 48)
 layout_mode = 2
@@ -256,7 +237,7 @@ mouse_default_cursor_shape = 2
 ignore_texture_size = true
 stretch_mode = 0
 
-[node name="EnglishFlag" type="TextureRect" parent="SafeArea/Content/Scroll/SettingsPanel/SettingsContent/LanguageButtons/EnglishItem/EnglishButton"]
+[node name="EnglishFlag" type="TextureRect" parent="SafeArea/Content/SettingsPanel/Scroll/ScrollMargin/SettingsContent/LanguageButtons/EnglishItem/EnglishButton"]
 custom_minimum_size = Vector2(38, 38)
 layout_mode = 1
 anchors_preset = 8
@@ -275,7 +256,7 @@ texture = ExtResource("3_english")
 expand_mode = 1
 stretch_mode = 5
 
-[node name="EnglishCheck" type="Control" parent="SafeArea/Content/Scroll/SettingsPanel/SettingsContent/LanguageButtons/EnglishItem/EnglishButton"]
+[node name="EnglishCheck" type="Control" parent="SafeArea/Content/SettingsPanel/Scroll/ScrollMargin/SettingsContent/LanguageButtons/EnglishItem/EnglishButton"]
 unique_name_in_owner = true
 layout_mode = 1
 anchors_preset = 1
@@ -291,11 +272,11 @@ scale_factor = 0.9
 outline_color = Color(1, 1, 1, 1)
 outline_width = 6.0
 
-[node name="CzechItem" type="VBoxContainer" parent="SafeArea/Content/Scroll/SettingsPanel/SettingsContent/LanguageButtons"]
+[node name="CzechItem" type="VBoxContainer" parent="SafeArea/Content/SettingsPanel/Scroll/ScrollMargin/SettingsContent/LanguageButtons"]
 layout_mode = 2
 alignment = 1
 
-[node name="CzechButton" type="TextureButton" parent="SafeArea/Content/Scroll/SettingsPanel/SettingsContent/LanguageButtons/CzechItem"]
+[node name="CzechButton" type="TextureButton" parent="SafeArea/Content/SettingsPanel/Scroll/ScrollMargin/SettingsContent/LanguageButtons/CzechItem"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(48, 48)
 layout_mode = 2
@@ -305,7 +286,7 @@ mouse_default_cursor_shape = 2
 ignore_texture_size = true
 stretch_mode = 0
 
-[node name="CzechFlag" type="TextureRect" parent="SafeArea/Content/Scroll/SettingsPanel/SettingsContent/LanguageButtons/CzechItem/CzechButton"]
+[node name="CzechFlag" type="TextureRect" parent="SafeArea/Content/SettingsPanel/Scroll/ScrollMargin/SettingsContent/LanguageButtons/CzechItem/CzechButton"]
 custom_minimum_size = Vector2(38, 38)
 layout_mode = 1
 anchors_preset = 8
@@ -324,7 +305,7 @@ texture = ExtResource("4_czech")
 expand_mode = 1
 stretch_mode = 5
 
-[node name="CzechCheck" type="Control" parent="SafeArea/Content/Scroll/SettingsPanel/SettingsContent/LanguageButtons/CzechItem/CzechButton"]
+[node name="CzechCheck" type="Control" parent="SafeArea/Content/SettingsPanel/Scroll/ScrollMargin/SettingsContent/LanguageButtons/CzechItem/CzechButton"]
 unique_name_in_owner = true
 layout_mode = 1
 anchors_preset = 1
@@ -340,13 +321,13 @@ scale_factor = 0.9
 outline_color = Color(1, 1, 1, 1)
 outline_width = 6.0
 
-[node name="Divider" type="HSeparator" parent="SafeArea/Content/Scroll/SettingsPanel/SettingsContent"]
+[node name="Divider" type="HSeparator" parent="SafeArea/Content/SettingsPanel/Scroll/ScrollMargin/SettingsContent"]
 layout_mode = 2
 
-[node name="MusicHeader" type="HBoxContainer" parent="SafeArea/Content/Scroll/SettingsPanel/SettingsContent"]
+[node name="MusicHeader" type="HBoxContainer" parent="SafeArea/Content/SettingsPanel/Scroll/ScrollMargin/SettingsContent"]
 layout_mode = 2
 
-[node name="MusicLabel" type="Label" parent="SafeArea/Content/Scroll/SettingsPanel/SettingsContent/MusicHeader"]
+[node name="MusicLabel" type="Label" parent="SafeArea/Content/SettingsPanel/Scroll/ScrollMargin/SettingsContent/MusicHeader"]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
@@ -355,14 +336,14 @@ theme_override_fonts/font = ExtResource("9_bold")
 theme_override_font_sizes/font_size = 22
 text = "SETTINGS_MUSIC"
 
-[node name="MusicValue" type="Label" parent="SafeArea/Content/Scroll/SettingsPanel/SettingsContent/MusicHeader"]
+[node name="MusicValue" type="Label" parent="SafeArea/Content/SettingsPanel/Scroll/ScrollMargin/SettingsContent/MusicHeader"]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_colors/font_color = Color(0.32, 0.54, 0.16, 1)
 theme_override_font_sizes/font_size = 18
 text = "75%"
 
-[node name="MusicSlider" type="HSlider" parent="SafeArea/Content/Scroll/SettingsPanel/SettingsContent"]
+[node name="MusicSlider" type="HSlider" parent="SafeArea/Content/SettingsPanel/Scroll/ScrollMargin/SettingsContent"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 48)
 layout_mode = 2
@@ -374,10 +355,10 @@ max_value = 100.0
 step = 1.0
 value = 75.0
 
-[node name="SfxHeader" type="HBoxContainer" parent="SafeArea/Content/Scroll/SettingsPanel/SettingsContent"]
+[node name="SfxHeader" type="HBoxContainer" parent="SafeArea/Content/SettingsPanel/Scroll/ScrollMargin/SettingsContent"]
 layout_mode = 2
 
-[node name="SfxLabel" type="Label" parent="SafeArea/Content/Scroll/SettingsPanel/SettingsContent/SfxHeader"]
+[node name="SfxLabel" type="Label" parent="SafeArea/Content/SettingsPanel/Scroll/ScrollMargin/SettingsContent/SfxHeader"]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
@@ -386,14 +367,14 @@ theme_override_fonts/font = ExtResource("9_bold")
 theme_override_font_sizes/font_size = 22
 text = "SETTINGS_SFX"
 
-[node name="SfxValue" type="Label" parent="SafeArea/Content/Scroll/SettingsPanel/SettingsContent/SfxHeader"]
+[node name="SfxValue" type="Label" parent="SafeArea/Content/SettingsPanel/Scroll/ScrollMargin/SettingsContent/SfxHeader"]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_colors/font_color = Color(0.32, 0.54, 0.16, 1)
 theme_override_font_sizes/font_size = 18
 text = "90%"
 
-[node name="SfxSlider" type="HSlider" parent="SafeArea/Content/Scroll/SettingsPanel/SettingsContent"]
+[node name="SfxSlider" type="HSlider" parent="SafeArea/Content/SettingsPanel/Scroll/ScrollMargin/SettingsContent"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 48)
 layout_mode = 2
@@ -405,7 +386,7 @@ max_value = 100.0
 step = 1.0
 value = 90.0
 
-[node name="MuteButton" type="CheckButton" parent="SafeArea/Content/Scroll/SettingsPanel/SettingsContent"]
+[node name="MuteButton" type="CheckButton" parent="SafeArea/Content/SettingsPanel/Scroll/ScrollMargin/SettingsContent"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 56)
 layout_mode = 2
@@ -417,7 +398,7 @@ theme_override_colors/font_focus_color = Color(0.19, 0.34, 0.24, 1)
 theme_override_font_sizes/font_size = 18
 text = "SETTINGS_MUTE_ALL"
 
-[node name="HapticsButton" type="CheckButton" parent="SafeArea/Content/Scroll/SettingsPanel/SettingsContent"]
+[node name="HapticsButton" type="CheckButton" parent="SafeArea/Content/SettingsPanel/Scroll/ScrollMargin/SettingsContent"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 56)
 layout_mode = 2
@@ -429,14 +410,14 @@ theme_override_colors/font_focus_color = Color(0.19, 0.34, 0.24, 1)
 theme_override_font_sizes/font_size = 18
 text = "SETTINGS_HAPTICS"
 
-[node name="ExitButton" type="Button" parent="SafeArea/Content/Scroll/SettingsPanel/SettingsContent"]
+[node name="ExitButton" type="Button" parent="SafeArea/Content/SettingsPanel/Scroll/ScrollMargin/SettingsContent"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 58)
 layout_mode = 2
 theme_override_font_sizes/font_size = 22
 text = "SETTINGS_EXIT"
 
-[node name="HintLabel" type="Label" parent="SafeArea/Content/Scroll/SettingsPanel/SettingsContent"]
+[node name="HintLabel" type="Label" parent="SafeArea/Content/SettingsPanel/Scroll/ScrollMargin/SettingsContent"]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_colors/font_color = Color(0.29, 0.44, 0.32, 1)

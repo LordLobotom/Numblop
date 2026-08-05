@@ -30,12 +30,13 @@ func test_stroking_the_avatar_pets_it() -> void:
     await _settle()
 
     _pets = 0
-    _touch(Vector2(60.0, 110.0), true)
+    _touch(Vector2(30.0, 110.0), true)
     await _settle()
-    for step in 5:
-        _touch_drag(Vector2(60.0 + float(step + 1) * 15.0, 110.0))
+    # 8 x 15 = 120 units of path: one full stroke across him, just past the threshold.
+    for step in 8:
+        _touch_drag(Vector2(30.0 + float(step + 1) * 15.0, 110.0))
         await _settle()
-    _touch(Vector2(135.0, 110.0), false)
+    _touch(Vector2(150.0, 110.0), false)
     await _settle()
 
     equal(_pets, 1, "One stroke pets him once")
@@ -52,7 +53,8 @@ func test_rubbing_back_and_forth_counts_as_stroking() -> void:
     _pets = 0
     _touch(Vector2(110.0, 110.0), true)
     await _settle()
-    for step in 4:
+    # Eight reversals of 15 units each: 15 out then 30 per swing back, 225 units in place.
+    for step in 8:
         _touch_drag(Vector2(110.0 + (15.0 if step % 2 == 0 else -15.0), 110.0))
         await _settle()
     _touch(Vector2(110.0, 110.0), false)
@@ -93,15 +95,35 @@ func test_a_preview_avatar_ignores_stroking() -> void:
     await _settle()
 
     _pets = 0
-    _touch(Vector2(60.0, 110.0), true)
+    # The same gesture that pets a live avatar, so preview mode is what makes the difference.
+    _touch(Vector2(30.0, 110.0), true)
     await _settle()
-    for step in 5:
-        _touch_drag(Vector2(60.0 + float(step + 1) * 15.0, 110.0))
+    for step in 8:
+        _touch_drag(Vector2(30.0 + float(step + 1) * 15.0, 110.0))
         await _settle()
-    _touch(Vector2(135.0, 110.0), false)
+    _touch(Vector2(150.0, 110.0), false)
     await _settle()
 
     equal(_pets, 0, "A preview avatar is not pettable")
+    _free_blob(blob)
+
+
+func test_a_short_drag_is_not_yet_a_stroke() -> void:
+    # Reaching for the Play button drags across Numblop on the way past. That must not
+    # count, which is the whole reason the threshold is a stroke's worth of travel.
+    var blob := _build_blob()
+    await _settle()
+
+    _pets = 0
+    _touch(Vector2(60.0, 110.0), true)
+    await _settle()
+    for step in 4:
+        _touch_drag(Vector2(60.0 + float(step + 1) * 15.0, 110.0))
+        await _settle()
+    _touch(Vector2(120.0, 110.0), false)
+    await _settle()
+
+    equal(_pets, 0, "60 units of travel is a brush past, not a stroke")
     _free_blob(blob)
 
 

@@ -4,9 +4,11 @@ extends Control
 signal petted
 
 ## Petting is a stroke, not a tap: this is how far a finger has to travel across Numblop
-## before he reacts. Comfortably past the jitter in a tap, and short enough that one small
-## rub is plenty for a child's hand.
-const PET_STROKE_DISTANCE := 44.0
+## before he reacts. Roughly a third of his width, so a deliberate sweep across him answers
+## about three times and an incidental drag on the way to the Play button answers not at all.
+## At the old 44 it was barely an eighth of him, and almost any touch that was not perfectly
+## still set him off.
+const PET_STROKE_DISTANCE := 110.0
 
 const HEART_TEXTURE: Texture2D = preload("res://assets/vfx/hearh.png")
 const BODY_COLOR_SHADER: Shader = preload("res://ui/shaders/numblop_body_color.gdshader")

@@ -216,16 +216,19 @@ func _mastery_row(gain: Dictionary) -> HBoxContainer:
     fact.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
     row.add_child(fact)
 
-    var change := Label.new()
-    change.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-    change.add_theme_font_size_override("font_size", 16)
-    change.add_theme_color_override("font_color", Color(0.3, 0.38, 0.33))
-    change.text = tr("REWARD_MASTERY_CHANGE").format({
-        "before": int(gain.get("mastery_before", 0)),
-        "after": int(gain.get("mastery_after", 0)),
+    # A dot scale rather than "45 -> 53": the numbers mean nothing to a child, but a dot
+    # filling up does. They stay reachable as the tooltip for anyone who wants them.
+    var before := int(gain.get("mastery_before", 0))
+    var after := int(gain.get("mastery_after", 0))
+    var meter := MasteryMeter.new()
+    meter.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+    meter.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+    meter.tooltip_text = tr("REWARD_MASTERY_CHANGE").format({
+        "before": before,
+        "after": after,
     })
-    change.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-    row.add_child(change)
+    meter.set_progress(before, after)
+    row.add_child(meter)
 
     var gained := Label.new()
     gained.add_theme_font_override("font", BOLD_FONT)

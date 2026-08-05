@@ -9,6 +9,7 @@
 [ext_resource type="PackedScene" path="res://scenes/components/NavBar.tscn" id="11_navbar"]
 [ext_resource type="StyleBox" path="res://ui/styles/header_panel.tres" id="12_header_style"]
 [ext_resource type="Script" path="res://scripts/ui/TouchScrollContainer.gd" id="13_touchscroll"]
+[ext_resource type="StyleBox" path="res://ui/styles/container_panel.tres" id="14_container_style"]
 
 [sub_resource type="StyleBoxFlat" id="SummaryPanel"]
 bg_color = Color(1, 0.98, 0.86, 0.94)
@@ -22,19 +23,6 @@ content_margin_right = 14.0
 content_margin_bottom = 10.0
 shadow_color = Color(0.35, 0.23, 0.05, 0.16)
 shadow_size = 5
-
-[sub_resource type="StyleBoxFlat" id="ListPanel"]
-bg_color = Color(1, 1, 1, 0.9)
-corner_radius_top_left = 28
-corner_radius_top_right = 28
-corner_radius_bottom_right = 28
-corner_radius_bottom_left = 28
-content_margin_left = 14.0
-content_margin_top = 14.0
-content_margin_right = 14.0
-content_margin_bottom = 14.0
-shadow_color = Color(0.1, 0.3, 0.26, 0.16)
-shadow_size = 6
 
 [node name="TrophyScreen" type="Control"]
 layout_mode = 3
@@ -57,16 +45,6 @@ texture = ExtResource("2_background")
 expand_mode = 1
 stretch_mode = 6
 
-[node name="Tint" type="ColorRect" parent="."]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-mouse_filter = 2
-color = Color(1, 0.88, 0.3, 0.08)
-
 [node name="SafeArea" type="MarginContainer" parent="."]
 layout_mode = 1
 anchors_preset = 15
@@ -87,7 +65,6 @@ theme_override_styles/panel = ExtResource("12_header_style")
 [node name="HeaderRow" type="HBoxContainer" parent="SafeArea/Content/Header"]
 layout_mode = 2
 theme_override_constants/separation = 7
-alignment = 1
 
 [node name="TrophyIcon" type="TextureRect" parent="SafeArea/Content/Header/HeaderRow"]
 custom_minimum_size = Vector2(44, 44)
@@ -100,11 +77,18 @@ stretch_mode = 5
 [node name="TitleLabel" type="Label" parent="SafeArea/Content/Header/HeaderRow"]
 unique_name_in_owner = true
 layout_mode = 2
+size_flags_horizontal = 3
 theme_override_colors/font_color = Color(0.32, 0.25, 0.08, 1)
 theme_override_fonts/font = ExtResource("9_bold")
 theme_override_font_sizes/font_size = 28
 text = "TROPHY_TITLE"
+horizontal_alignment = 1
 vertical_alignment = 1
+
+[node name="TitleBalance" type="Control" parent="SafeArea/Content/Header/HeaderRow"]
+custom_minimum_size = Vector2(44, 0)
+layout_mode = 2
+mouse_filter = 2
 
 [node name="Summary" type="PanelContainer" parent="SafeArea/Content"]
 layout_mode = 2
@@ -113,7 +97,6 @@ theme_override_styles/panel = SubResource("SummaryPanel")
 [node name="SummaryRow" type="HBoxContainer" parent="SafeArea/Content/Summary"]
 layout_mode = 2
 theme_override_constants/separation = 10
-alignment = 1
 
 [node name="FlameIcon" type="TextureRect" parent="SafeArea/Content/Summary/SummaryRow"]
 custom_minimum_size = Vector2(48, 48)
@@ -123,9 +106,10 @@ texture = ExtResource("4_flame")
 expand_mode = 1
 stretch_mode = 5
 
-[node name="SummaryLabels" type="VBoxContainer" parent="SafeArea/Content/Summary/SummaryRow"]
+[node name="SummaryLabels" type="MarginContainer" parent="SafeArea/Content/Summary/SummaryRow"]
 layout_mode = 2
-theme_override_constants/separation = 0
+size_flags_horizontal = 3
+theme_override_constants/margin_top = 4
 
 [node name="BestLabel" type="Label" parent="SafeArea/Content/Summary/SummaryRow/SummaryLabels"]
 unique_name_in_owner = true
@@ -134,12 +118,18 @@ theme_override_colors/font_color = Color(0.78, 0.23, 0.05, 1)
 theme_override_fonts/font = ExtResource("9_bold")
 theme_override_font_sizes/font_size = 22
 text = "TROPHY_BEST"
+horizontal_alignment = 1
 vertical_alignment = 1
+
+[node name="BestBalance" type="Control" parent="SafeArea/Content/Summary/SummaryRow"]
+custom_minimum_size = Vector2(48, 0)
+layout_mode = 2
+mouse_filter = 2
 
 [node name="AchievementsPanel" type="PanelContainer" parent="SafeArea/Content"]
 layout_mode = 2
 size_flags_vertical = 3
-theme_override_styles/panel = SubResource("ListPanel")
+theme_override_styles/panel = ExtResource("14_container_style")
 
 [node name="Scroll" type="ScrollContainer" parent="SafeArea/Content/AchievementsPanel"]
 script = ExtResource("13_touchscroll")
@@ -147,11 +137,19 @@ layout_mode = 2
 horizontal_scroll_mode = 0
 vertical_scroll_mode = 3
 
-[node name="AchievementList" type="VBoxContainer" parent="SafeArea/Content/AchievementsPanel/Scroll"]
+[node name="AchievementListMargin" type="MarginContainer" parent="SafeArea/Content/AchievementsPanel/Scroll"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/margin_left = 6
+theme_override_constants/margin_top = 6
+theme_override_constants/margin_right = 6
+theme_override_constants/margin_bottom = 6
+
+[node name="AchievementList" type="VBoxContainer" parent="SafeArea/Content/AchievementsPanel/Scroll/AchievementListMargin"]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_constants/separation = 8
+theme_override_constants/separation = 12
 
 [node name="Navigation" parent="SafeArea/Content" instance=ExtResource("11_navbar")]
 layout_mode = 2
