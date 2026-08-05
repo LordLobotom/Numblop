@@ -13,6 +13,10 @@ extends SceneTree
 const FOREGROUND_PATH := "res://ui/branding/android/icon_numblop_front.png"
 const BACKGROUND_PATH := "res://ui/branding/android/icon_numblop_back.png"
 
+## The hand-drawn greyscale the themed icon is cut from. Kept separate from the icon it
+## produces so re-running this script never overwrites the drawing.
+const MONOCHROME_SOURCE_PATH := "res://ui/branding/android/icon_monochrome_source.png"
+
 ## The Windows executable icon still comes from the avatar artwork.
 const DESKTOP_SOURCE_PATH := "res://ui/branding/numblop_head_icon.png"
 
@@ -20,10 +24,15 @@ const ADAPTIVE_SIZE := 432
 const LEGACY_SIZE := 192
 const DESKTOP_SIZE := 512
 
-## Android tints the themed icon itself and reads only its alpha, so the glyph is a flat cut of
-## the foreground's own alpha rather than anything derived from its colours. Half coverage is
-## the cut: it keeps the antialiased rim from smearing the silhouette outwards.
-const SILHOUETTE_ALPHA_CUT := 0.5
+## Android tints the themed icon and keeps only its alpha, so anything drawn in the greyscale
+## itself is thrown away -- a fully opaque drawing renders as one featureless blob. The detail
+## therefore has to live in the alpha: light areas of the drawing (the belly, the eyes, the
+## highlights on the crown) are knocked out so the tint shows them as negative space.
+##
+## The band between these two luminances fades rather than snapping, which keeps the drawing's
+## antialiasing instead of speckling every edge.
+const MONOCHROME_CUT_LOW := 205.0 / 255.0
+const MONOCHROME_CUT_HIGH := 240.0 / 255.0
 
 var _has_run := false
 
@@ -39,8 +48,14 @@ func _process(_delta: float) -> bool:
 func _generate() -> void:
     var foreground := _load(FOREGROUND_PATH)
     var background := _load(BACKGROUND_PATH)
+    var monochrome_source := _load(MONOCHROME_SOURCE_PATH)
     var desktop_source := _load(DESKTOP_SOURCE_PATH)
-    if foreground == null or background == null or desktop_source == null:
+    if (
+        foreground == null
+        or background == null
+        or monochrome_source == null
+        or desktop_source == null
+    ):
         quit(1)
         return
     if foreground.get_width() != ADAPTIVE_SIZE or foreground.get_height() != ADAPTIVE_SIZE:
@@ -49,7 +64,7 @@ func _generate() -> void:
         return
 
     _save(
-        _silhouette(foreground),
+        _themed_glyph(monochrome_source),
         "res://ui/branding/android/icon_monochrome_432.png"
     )
     _save(
@@ -88,15 +103,22 @@ func _flattened(background: Image, foreground: Image) -> Image:
     return image
 
 
-## Flat white cut of the foreground's alpha; Android tints it for themed icons.
-func _silhouette(foreground: Image) -> Image:
+## Turns the hand-drawn greyscale into the alpha-only glyph Android actually renders: dark and
+## mid tones become the solid body, light tones become holes the system tint shows through.
+## The colour is fixed white because only the alpha channel survives tinting.
+func _themed_glyph(source: Image) -> Image:
     var image := Image.create_empty(
         ADAPTIVE_SIZE, ADAPTIVE_SIZE, false, Image.FORMAT_RGBA8
     )
-    for y in ADAPTIVE_SIZE:
-        for x in ADAPTIVE_SIZE:
-            var opaque := foreground.get_pixel(x, y).a >= SILHOUETTE_ALPHA_CUT
-            image.set_pixel(x, y, Color(1.0, 1.0, 1.0, 1.0 if opaque else 0.0))
+    for y in mini(ADAPTIVE_SIZE, source.get_height()):
+        for x in mini(ADAPTIVE_SIZE, source.get_width()):
+            var pixel := source.get_pixel(x, y)
+            var lightness := smoothstep(
+                MONOCHROME_CUT_LOW,
+                MONOCHROME_CUT_HIGH,
+                pixel.get_luminance()
+            )
+            image.set_pixel(x, y, Color(1.0, 1.0, 1.0, (1.0 - lightness) * pixel.a))
     return image
 
 

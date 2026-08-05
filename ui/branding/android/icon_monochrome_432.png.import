@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://dqrrj6b8ft4sk"
-path="res://.godot/imported/icon_monochrome_source.png-53b4205f09bfcedfd739505194e09774.ctex"
+uid="uid://djsbe7mfpsi4h"
+path="res://.godot/imported/icon_monochrome_432.png-658a91681974f0bb9c5f06f61141d1f6.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://ui/branding/android/icon_monochrome_source.png"
-dest_files=["res://.godot/imported/icon_monochrome_source.png-53b4205f09bfcedfd739505194e09774.ctex"]
+source_file="res://ui/branding/android/icon_monochrome_432.png"
+dest_files=["res://.godot/imported/icon_monochrome_432.png-658a91681974f0bb9c5f06f61141d1f6.ctex"]
 
 [params]
 
