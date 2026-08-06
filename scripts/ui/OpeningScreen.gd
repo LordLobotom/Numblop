@@ -12,22 +12,32 @@ const OPENING_LOCALE := "en"
 ## of pitch drops the row to four flags and the layout breaks into 4 + 4 + 2.
 const FLAG_SIZE := Vector2(60.0, 60.0)
 
+## The picture is drawn smaller than the button it sits in, so the checkmark can claim the corner
+## without covering the flag -- the same split the settings screen uses at 48/38.
+const FLAG_IMAGE_SIZE := Vector2(48.0, 48.0)
+
 @onready var logo: TextureRect = %Logo
 @onready var loading_label: Label = %LoadingLabel
 @onready var language_panel: VBoxContainer = %LanguagePanel
 @onready var language_prompt: Label = %LanguagePrompt
 @onready var language_buttons: HFlowContainer = %LanguageButtons
+@onready var selected_language_label: Label = %SelectedLanguageLabel
+@onready var continue_button: Button = %ContinueButton
 @onready var select_player: AudioStreamPlayer = %SelectPlayer
 
 var _loading_pulse: Tween
 var _is_finishing := false
 var _opening_locale_forced := false
 var _flag_buttons: Dictionary = {}
+var _flag_checks: Dictionary = {}
+var _selected_locale := ""
 
 
 func _ready() -> void:
     _force_opening_locale()
     _build_language_buttons()
+    continue_button.pressed.connect(_on_continue_pressed)
+    _refresh_selection()
     _refresh_text()
     _play_opening()
 
@@ -48,12 +58,45 @@ func _build_language_buttons() -> void:
         button.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
         button.ignore_texture_size = true
         button.stretch_mode = TextureButton.STRETCH_SCALE
-        button.texture_normal = load(LanguageCatalog.flag_path(locale))
         # Nothing is choosable until the panel is actually revealed.
         button.disabled = true
         button.pressed.connect(_on_language_selected.bind(locale))
+
+        # The flag is a child rather than the button texture so the checkmark can overlap the
+        # button's corner without sitting on top of the flag itself.
+        var flag := TextureRect.new()
+        flag.name = "Flag"
+        flag.custom_minimum_size = FLAG_IMAGE_SIZE
+        flag.set_anchors_preset(Control.PRESET_CENTER)
+        flag.offset_left = -FLAG_IMAGE_SIZE.x / 2.0
+        flag.offset_top = -FLAG_IMAGE_SIZE.y / 2.0
+        flag.offset_right = FLAG_IMAGE_SIZE.x / 2.0
+        flag.offset_bottom = FLAG_IMAGE_SIZE.y / 2.0
+        flag.grow_horizontal = Control.GROW_DIRECTION_BOTH
+        flag.grow_vertical = Control.GROW_DIRECTION_BOTH
+        flag.mouse_filter = Control.MOUSE_FILTER_IGNORE
+        flag.texture = load(LanguageCatalog.flag_path(locale))
+        flag.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+        flag.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+        button.add_child(flag)
+
+        var check := CheckmarkIcon.new()
+        check.name = "Check"
+        check.set_anchors_preset(Control.PRESET_TOP_RIGHT)
+        check.offset_left = -24.0
+        check.offset_bottom = 26.0
+        check.grow_horizontal = Control.GROW_DIRECTION_BEGIN
+        check.mouse_filter = Control.MOUSE_FILTER_IGNORE
+        check.line_width = 3.5
+        check.scale_factor = 1.0
+        check.outline_color = Color.WHITE
+        check.outline_width = 7.0
+        check.visible = false
+        button.add_child(check)
+
         language_buttons.add_child(button)
         _flag_buttons[locale] = button
+        _flag_checks[locale] = check
 
 
 func _notification(what: int) -> void:
@@ -66,6 +109,12 @@ func _notification(what: int) -> void:
 func _refresh_text() -> void:
     loading_label.text = tr("OPENING_LOADING")
     language_prompt.text = tr("OPENING_LANGUAGE_PROMPT")
+    continue_button.text = tr("PRACTICE_CONTINUE")
+    # Once a flag is tapped the whole screen is already in that language, so `tr()` on the name
+    # key hands back the endonym the child recognises -- "Cestina", not "Czech".
+    selected_language_label.text = (
+        "" if _selected_locale.is_empty() else tr(LanguageCatalog.name_key(_selected_locale))
+    )
     for locale in _flag_buttons:
         var button: TextureButton = _flag_buttons[locale]
         button.tooltip_text = tr(LanguageCatalog.name_key(String(locale)))
@@ -123,17 +172,39 @@ func _set_buttons_disabled(disabled: bool) -> void:
         (_flag_buttons[locale] as TextureButton).disabled = disabled
 
 
+## Tapping a flag only marks the choice -- nothing is saved and nothing closes until Continue.
+## With ten languages on the very first screen a child sees, the first tap must be undoable.
 func _on_language_selected(locale: String) -> void:
     if _is_finishing:
         return
-    _set_buttons_disabled(true)
+    _selected_locale = locale
     select_player.play()
-    var result := SettingsManager.set_locale_preference(locale)
+    # The confirmation reads in the language being confirmed, so the whole screen switches.
+    TranslationServer.set_locale(locale)
+    _refresh_selection()
+    _refresh_text()
+
+
+func _refresh_selection() -> void:
+    # Before the first tap every flag is an equal offer, so nothing is dimmed yet.
+    var has_choice := not _selected_locale.is_empty()
+    for locale in _flag_buttons:
+        var selected := String(locale) == _selected_locale
+        (_flag_checks[locale] as CheckmarkIcon).visible = selected
+        # The unselected flags stay legible but clearly step back from the chosen one.
+        (_flag_buttons[locale] as TextureButton).modulate = (
+            Color.WHITE if selected or not has_choice else Color(1, 1, 1, 0.58)
+        )
+    continue_button.disabled = not has_choice
+
+
+func _on_continue_pressed() -> void:
+    if _is_finishing or _selected_locale.is_empty():
+        return
+    var result := SettingsManager.set_locale_preference(_selected_locale)
     if result != OK:
         push_error("Could not save the selected opening language")
-        _set_buttons_disabled(false)
         return
-    TranslationServer.set_locale(OPENING_LOCALE)
     _finish_opening()
 
 

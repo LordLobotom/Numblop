@@ -1415,11 +1415,17 @@ func test_opening_screen_uses_wordmark_and_touch_ready_language_choices() -> voi
         if flag_button == null:
             continue
         check(flag_button.custom_minimum_size.y >= 48.0, "%s touch target" % locale)
+        var flag: TextureRect = flag_button.get_node("Flag")
         equal(
-            flag_button.texture_normal.resource_path,
+            flag.texture.resource_path,
             LanguageCatalog.flag_path(locale),
             "%s flag path" % locale
         )
+        check(
+            flag.custom_minimum_size.y < flag_button.custom_minimum_size.y,
+            "The flag is smaller than the touch target it sits in"
+        )
+        check(flag_button.get_node("Check") is CheckmarkIcon, "%s drawn checkmark" % locale)
         check(flag_button.disabled, "%s waits for the panel to be revealed" % locale)
     # Ten flags read as 5 + 5. They first shipped at a 76 px pitch, which overflowed the column
     # by ten pixels and silently rearranged itself into a lopsided 4 + 4 + 2.
@@ -1434,6 +1440,31 @@ func test_opening_screen_uses_wordmark_and_touch_ready_language_choices() -> voi
             int(row_width), int(narrowest_column)
         ]
     )
+    # Choosing a language is two steps: mark a flag, then confirm. Nothing may commit on the first
+    # tap, so Continue stays inert and the name line stays empty until something is picked.
+    var continue_button: Button = scene.get_node("%ContinueButton")
+    var selected_label: Label = scene.get_node("%SelectedLanguageLabel")
+    check(continue_button.disabled, "Continue waits for a language")
+    check(continue_button.custom_minimum_size.y >= 48.0, "Continue touch target")
+    check(selected_label.text.is_empty(), "No language name before a choice is made")
+    var panel: VBoxContainer = scene.get_node("%LanguagePanel")
+    equal(
+        [
+            panel.get_child(1).name,
+            panel.get_child(2).name,
+            panel.get_child(3).name,
+        ],
+        [&"LanguageButtons", &"SelectedLanguageLabel", &"ContinueButton"],
+        "Panel reads flags, then the chosen name, then Continue"
+    )
+    # Selecting no longer writes a save file, so the round trip is safe to exercise here.
+    scene._on_language_selected("cs")
+    check(scene.language_button("cs").get_node("Check").visible, "Chosen flag is marked")
+    check(not scene.language_button("de").get_node("Check").visible, "Other flags are unmarked")
+    check(not continue_button.disabled, "Continue wakes up once a language is chosen")
+    equal(selected_label.text, "Čeština", "The chosen language names itself")
+    equal(continue_button.text, "Pokračovat", "Continue speaks the chosen language")
+    TranslationServer.set_locale("en")
     tree.root.remove_child(scene)
     scene.free()
 
