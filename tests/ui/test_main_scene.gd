@@ -889,25 +889,11 @@ func test_settings_screen_has_language_audio_mute_and_safe_exit_controls() -> vo
     check(scene.has_signal("home_requested"), "Settings footer can return home")
     check(scene.has_signal("exit_requested"), "Settings exposes confirmed exit")
     check(scene.get_node_or_null("%BackButton") == null, "Settings has no top back arrow")
-    # The flags are the only label the language row has, so they are drawn smaller than the
-    # button they sit in: the picture is 38 px, the finger still gets its 48.
-    for language_flag in [["EnglishButton", "EnglishFlag"], ["CzechButton", "CzechFlag"]]:
-        var language_button: TextureButton = scene.get_node("%%%s" % language_flag[0])
-        check(language_button.custom_minimum_size.y >= 48.0, "Language crest touch target")
-        var flag: TextureRect = language_button.get_node(String(language_flag[1]))
-        check(flag.texture != null, "%s shows its flag" % language_flag[0])
-        equal(flag.custom_minimum_size, Vector2(38.0, 38.0), "Flag picture size")
-        check(
-            flag.custom_minimum_size.y < language_button.custom_minimum_size.y,
-            "The flag is smaller than the touch target it sits in"
-        )
     check(
         scene.get_node_or_null("%EnglishLabel") == null
         and scene.get_node_or_null("%CzechLabel") == null,
         "Language names are tooltips, not printed captions"
     )
-    check(scene.get_node("%EnglishCheck") is CheckmarkIcon, "English uses a drawn checkmark")
-    check(scene.get_node("%CzechCheck") is CheckmarkIcon, "Czech uses a drawn checkmark")
     for slider_name in ["MusicSlider", "SfxSlider"]:
         var slider: HSlider = scene.get_node("%%%s" % slider_name)
         check(slider.custom_minimum_size.y >= 48.0, "Audio slider touch target")
@@ -941,6 +927,28 @@ func test_settings_screen_has_language_audio_mute_and_safe_exit_controls() -> vo
     )
     var scene_tree := Engine.get_main_loop() as SceneTree
     scene_tree.root.add_child(scene)
+    # The flags are generated from LanguageCatalog once the screen enters the tree, so there is
+    # nothing to inspect before this point. They are the only label the language row has, so the
+    # picture is drawn at 38 px inside a 48 px button: the finger still gets its touch target.
+    for language in LanguageCatalog.LANGUAGES:
+        var locale := String(language["locale"])
+        var language_button: TextureButton = scene.language_button(locale)
+        check(language_button != null, "%s has a flag button" % locale)
+        if language_button == null:
+            continue
+        check(language_button.custom_minimum_size.y >= 48.0, "%s touch target" % locale)
+        var flag: TextureRect = language_button.get_node("Flag")
+        equal(
+            flag.texture.resource_path,
+            LanguageCatalog.flag_path(locale),
+            "%s shows its own flag" % locale
+        )
+        equal(flag.custom_minimum_size, Vector2(38.0, 38.0), "Flag picture size")
+        check(
+            flag.custom_minimum_size.y < language_button.custom_minimum_size.y,
+            "The flag is smaller than the touch target it sits in"
+        )
+        check(language_button.get_node("Check") is CheckmarkIcon, "%s drawn checkmark" % locale)
     var version_label: Label = scene.get_node("%VersionLabel")
     var app_version := str(ProjectSettings.get_setting("application/config/version"))
     check(version_label.text.contains(app_version), "Settings shows the configured app version")
@@ -1352,10 +1360,27 @@ func test_theme_bundles_baloo2_with_czech_glyphs() -> void:
     check(theme.default_font != null, "Baloo 2 must be the default font")
     if theme.default_font == null:
         return
-    var czech_glyphs := "áčďéěíňóřšťúůýž"
-    for index in czech_glyphs.length():
-        var codepoint := czech_glyphs.unicode_at(index)
-        check(theme.default_font.has_char(codepoint), "Baloo 2 missing Czech glyph: %s" % codepoint)
+    # Every letter the ten shipped languages need beyond plain ASCII. Baloo 2 does not carry
+    # them all on its own -- Baloo2WithCzechFallback puts Noto Sans behind it for the rest.
+    var required_glyphs := {
+        "Czech": "áčďéěíňóřšťúůýž",
+        "Slovak": "áäčďéíĺľňóôŕšťúýž",
+        "German": "äöüß",
+        "Spanish": "áéíñóúü¡¿",
+        "Finnish": "äöå",
+        "French": "àâçèéêëîïôùûüœ",
+        "Norwegian": "æøå",
+        "Polish": "ąćęłńóśźż",
+        "Swedish": "åäö",
+    }
+    for language in required_glyphs:
+        var glyphs := String(required_glyphs[language])
+        for index in glyphs.length():
+            var codepoint := glyphs.unicode_at(index)
+            check(
+                theme.default_font.has_char(codepoint),
+                "Font is missing a %s glyph: %s" % [language, char(codepoint)]
+            )
 
 
 func test_opening_screen_uses_wordmark_and_touch_ready_language_choices() -> void:
@@ -1364,9 +1389,9 @@ func test_opening_screen_uses_wordmark_and_touch_ready_language_choices() -> voi
     if packed == null:
         return
     var scene := packed.instantiate()
+    var tree := Engine.get_main_loop() as SceneTree
+    tree.root.add_child(scene)
     var logo: TextureRect = scene.get_node("%Logo")
-    var english_button: TextureButton = scene.get_node("%EnglishButton")
-    var czech_button: TextureButton = scene.get_node("%CzechButton")
     equal(scene.OPENING_LOCALE, "en", "Opening screen language")
     check(logo.texture != null, "Opening screen must show the Numblop wordmark")
     if logo.texture != null:
@@ -1375,16 +1400,63 @@ func test_opening_screen_uses_wordmark_and_touch_ready_language_choices() -> voi
             "res://ui/branding/numblop_wordmark.png",
             "Opening wordmark path"
         )
-    check(english_button.custom_minimum_size.y >= 48.0, "English touch target")
-    check(czech_button.custom_minimum_size.y >= 48.0, "Czech touch target")
+    # Ten flags cannot sit in one row at 390 px, so they wrap. Whatever the arrangement, the
+    # very first screen a child touches must not offer anything under the touch minimum.
+    var buttons: HFlowContainer = scene.get_node("%LanguageButtons")
     equal(
-        english_button.texture_normal.resource_path,
-        "res://ui/buttons/button_language_english.png",
-        "English flag path"
+        buttons.get_child_count(),
+        LanguageCatalog.LANGUAGES.size(),
+        "Every shipped language is offered on first launch"
     )
-    equal(
-        czech_button.texture_normal.resource_path,
-        "res://ui/buttons/button_language_czech.png",
-        "Czech flag path"
+    for language in LanguageCatalog.LANGUAGES:
+        var locale := String(language["locale"])
+        var flag_button: TextureButton = scene.language_button(locale)
+        check(flag_button != null, "%s has a flag button" % locale)
+        if flag_button == null:
+            continue
+        check(flag_button.custom_minimum_size.y >= 48.0, "%s touch target" % locale)
+        equal(
+            flag_button.texture_normal.resource_path,
+            LanguageCatalog.flag_path(locale),
+            "%s flag path" % locale
+        )
+        check(flag_button.disabled, "%s waits for the panel to be revealed" % locale)
+    # Ten flags read as 5 + 5. They first shipped at a 76 px pitch, which overflowed the column
+    # by ten pixels and silently rearranged itself into a lopsided 4 + 4 + 2.
+    var flags_per_row := 5
+    var separation := float(buttons.get_theme_constant("h_separation"))
+    var flag_width: float = (scene.FLAG_SIZE as Vector2).x
+    var row_width := float(flags_per_row) * (flag_width + separation) - separation
+    var narrowest_column := 390.0 - 2.0 * 16.0
+    check(
+        row_width <= narrowest_column,
+        "Five flags fit one row at the narrowest width (needs %d of %d)" % [
+            int(row_width), int(narrowest_column)
+        ]
     )
+    tree.root.remove_child(scene)
     scene.free()
+
+
+func test_every_shipped_language_has_a_flag_and_a_registered_catalog() -> void:
+    # A language is only real when all three line up: a row in the catalog, a flag on disk, and
+    # a compiled .translation the project actually loads. Missing any one fails silently at
+    # runtime -- an untranslated screen shows raw keys like MAP_TITLE.
+    var registered := PackedStringArray(
+        ProjectSettings.get_setting("internationalization/locale/translations")
+    )
+    for language in LanguageCatalog.LANGUAGES:
+        var locale := String(language["locale"])
+        check(
+            ResourceLoader.exists(LanguageCatalog.flag_path(locale)),
+            "%s flag exists: %s" % [locale, LanguageCatalog.flag_path(locale)]
+        )
+        check(
+            not LanguageCatalog.name_key(locale).is_empty(),
+            "%s names itself through the catalog" % locale
+        )
+        var translation_path := "res://localization/strings.%s.translation" % locale
+        check(
+            registered.has(translation_path),
+            "%s is registered in project.godot" % locale
+        )

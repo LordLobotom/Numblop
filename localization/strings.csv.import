@@ -6,10 +6,10 @@ uid="uid://dptp2t2041okg"
 
 [deps]
 
-files=["res://localization/strings.en.translation", "res://localization/strings.cs.translation"]
+files=["res://localization/strings.en.translation", "res://localization/strings.cs.translation", "res://localization/strings.sk.translation", "res://localization/strings.de.translation", "res://localization/strings.es.translation", "res://localization/strings.fi.translation", "res://localization/strings.fr.translation", "res://localization/strings.nb.translation", "res://localization/strings.pl.translation", "res://localization/strings.sv.translation"]
 
 source_file="res://localization/strings.csv"
-dest_files=["res://localization/strings.en.translation", "res://localization/strings.cs.translation"]
+dest_files=["res://localization/strings.en.translation", "res://localization/strings.cs.translation", "res://localization/strings.sk.translation", "res://localization/strings.de.translation", "res://localization/strings.es.translation", "res://localization/strings.fi.translation", "res://localization/strings.fr.translation", "res://localization/strings.nb.translation", "res://localization/strings.pl.translation", "res://localization/strings.sv.translation"]
 
 [params]
 

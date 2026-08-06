@@ -1,184 +1,192 @@
-keys,en,cs
-HOME_STREAK,{count} correct answers in a row,{count} příkladů správně v řadě
-TROPHY_TITLE,Records,Rekordy
-TROPHY_BEST,Best streak: {count},Nejlepší série: {count}
-TROPHY_ACHIEVEMENT_PROGRESS,{current}/{target},{current}/{target}
-ACHIEVEMENT_FIRST_STEPS_TITLE,First Steps,První kroky
-ACHIEVEMENT_FIRST_STEPS_DESC,Finish your first round,Dokonči své první kolo
-ACHIEVEMENT_STREAK_TITLE,Streak {count},Série {count}
-ACHIEVEMENT_STREAK_DESC,Answer {count} in a row,Odpověz {count} příkladů v řadě
-ACHIEVEMENT_EXPERIENCE_TITLE,{count} XP,{count} XP
-ACHIEVEMENT_EXPERIENCE_DESC,Answer {count} examples correctly,Odpověz správně {count} příkladů
-ACHIEVEMENT_COLLECTION_BODY_COLOR_TITLE,Body color collection,Sbírka barev těla
-ACHIEVEMENT_COLLECTION_BODY_COLOR_DESC,Unlock all {count} body colors,Odemkni všech {count} barev těla
-ACHIEVEMENT_COLLECTION_BELLY_COLOR_TITLE,Belly color collection,Sbírka barev bříška
-ACHIEVEMENT_COLLECTION_BELLY_COLOR_DESC,Unlock all {count} belly colors,Odemkni všech {count} barev bříška
-ACHIEVEMENT_COLLECTION_HAT_TITLE,Hat collection,Sbírka čepic
-ACHIEVEMENT_COLLECTION_HAT_DESC,Unlock all {count} hats,Odemkni všech {count} čepic
-ACHIEVEMENT_COLLECTION_GLASSES_TITLE,Glasses collection,Sbírka brýlí
-ACHIEVEMENT_COLLECTION_GLASSES_DESC,Unlock all {count} glasses,Odemkni všech {count} brýlí
-ACHIEVEMENT_COLLECTION_NECKLACE_TITLE,Necklace collection,Sbírka řetízků
-ACHIEVEMENT_COLLECTION_NECKLACE_DESC,Unlock all {count} necklaces,Odemkni všech {count} řetízků
-ACHIEVEMENT_COLLECTION_FOOTWEAR_TITLE,Shoe collection,Sbírka bot
-ACHIEVEMENT_COLLECTION_FOOTWEAR_DESC,Unlock all {count} shoes,Odemkni všech {count} bot
-ACHIEVEMENT_ISLAND_TITLE,Island {table}× mastery,Mistrovství ostrova {table}×
-ACHIEVEMENT_ISLAND_DESC,Master every {table}× fact to 100 %,Zvládni všechny spoje {table}× na 100 %
-REWARD_MASTERY_TITLE,What you improved,Co se ti zlepšilo
-REWARD_MASTERY_FACT,{table} × {multiplier},{table} × {multiplier}
-REWARD_MASTERY_CHANGE,{before} → {after},{before} → {after}
-REWARD_MASTERY_GAIN,+{gained},+{gained}
-REWARD_ROUND,Round reward,Odměna za kolo
-REWARD_MASTERY_BONUS,Mastery bonus,Bonus za mistrovství
-REWARD_ACHIEVEMENT_BONUS,Achievement bonus,Bonus za úspěch
-REWARD_TOTAL,Total reward,Celková odměna
-REWARD_XP_EARNED,Experience,Zkušenosti
-REWARD_COINS_GAIN,+{count},+{count}
-APP_TAGLINE,Learn multiplication through play,Uč se násobilku hrou
-HOME_PROFILE,Local learner,Místní hráč
-HOME_PROGRESS,Current table: ×{table} · Mastered facts: {mastered}/80,Aktuální násobilka: ×{table} · Zvládnuté spoje: {mastered}/80
-HOME_PLAY,Play,Hrát
-HOME_STATUS_READY,Ready for a short practice session.,Připraveno na krátké procvičování.
-HOME_STATUS_SESSION,A {count}-question session is ready.,Je připravena hra s {count} příklady.
-HOME_PRIVACY,Progress stays on this device.,Pokrok zůstává v tomto zařízení.
-LANGUAGE_LABEL,Language,Jazyk
-LANGUAGE_SYSTEM,System language,Jazyk systému
-LANGUAGE_ENGLISH,English,Angličtina
-LANGUAGE_CZECH,Czech,Čeština
-OPENING_LOADING,Getting things ready…,Připravujeme hru…
-OPENING_LANGUAGE_PROMPT,Choose your language,Vyber si jazyk
-HOME_COINS,Coins: {count},Mince: {count}
-HOME_XP,Experience: {count},Zkušenosti: {count}
-HOME_LEVEL,Level {level},Úroveň {level}
-HOME_PET_HINT,Stroke the blob to say hello!,Pohlaď Numblopa a pozdrav ho!
-HOME_PET_REACTION,Numblop is happy to see you!,Numblop tě rád vidí!
-HOME_PET_ACCESSIBLE,Pet Numblop,Pohladit Numblopa
-HOME_REWARD_REACTION,Great practice! Numblop is proud of you.,Skvělé procvičování! Numblop je na tebe pyšný.
-PRACTICE_PROGRESS,Question {current} of {total},Příklad {current} z {total}
-PRACTICE_CHOOSE_ANSWER,Choose the answer,Vyber výsledek
-PRACTICE_EXIT,×,×
-PRACTICE_EXIT_ACCESSIBLE,Leave this practice,Ukončit procvičování
-PRACTICE_ENTER_ANSWER,Enter the answer,Zadej výsledek
-PRACTICE_CORRECT,Nice work!,Výborně!
-PRACTICE_INCORRECT,Let's look at it together.,Podíváme se na to spolu.
-PRACTICE_MILESTONE_TITLE,Success,Úspěch
-PRACTICE_MILESTONE_REWARD,+{coins} coins,+{coins} mincí
-PRACTICE_MILESTONE_SKIP_ACCESSIBLE,Continue now,Pokračovat hned
-PRACTICE_CONTINUE,Continue,Pokračovat
-PRACTICE_DOTS_HINT,Count the dots.,Spočítej tečky.
-PRACTICE_DOTS_ZERO_HINT,Zero groups. Nothing to count.,Nula skupin. Není co počítat.
-KEYPAD_DELETE,Delete the last digit,Smazat poslední číslici
-KEYPAD_SUBMIT,Submit the answer,Potvrdit výsledek
-REWARD_TITLE,You found a reward chest!,Našel jsi truhlu s odměnou!
-REWARD_TAP_PROGRESS,Tap the chest to open it!,Klepni na truhlu a otevři ji!
-REWARD_OPENED,Your reward!,Tvoje odměna!
-REWARD_COINS_TOTAL,{count} coins total,Celkem {count} mincí
-REWARD_XP_TOTAL,{count} experience total,Celkem {count} zkušeností
-REWARD_CHEST_ACCESSIBLE,Tap the reward chest,Klepnout na truhlu s odměnou
-REWARD_TAP_CONTINUE,Tap anywhere to continue,Klepni kamkoli a pokračuj
-NAV_OUTFIT,Outfit,Oblečení
-COSMETICS_TITLE,Cosmetics,Kosmetika
-COSMETICS_SUBTITLE,Make Numblop your own!,Uprav si Numblopa podle sebe!
-COSMETICS_COINS,{count} coins,{count} mincí
-COSMETICS_BODY_COLOR,Body color,Barva těla
-COSMETICS_BELLY,Belly,Bříško
-COSMETICS_CREAM,Cream,Krémová
-COSMETICS_COLOR_HINT,Tap a color to preview it.,Klepnutím si barvu vyzkoušej.
-COSMETICS_GREEN,Green,Zelená
-COSMETICS_BLUE,Blue,Modrá
-COSMETICS_PINK,Pink,Růžová
-COSMETICS_PURPLE,Purple,Fialová
-COSMETICS_ORANGE,Orange,Oranžová
-COSMETICS_YELLOW,Yellow,Žlutá
-COSMETICS_SELECTED,Selected,Vybraná
-COSMETICS_OWNED,Owned,Vlastníš
-COSMETICS_FREE,Free,Zdarma
-COSMETICS_PRICE,{price} coins,{price} mincí
-COSMETICS_EQUIPPED,Equipped!,Nasazeno!
-COSMETICS_PREVIEWING,Previewing: {color},Zkoušíš: {color}
-COSMETICS_NOT_ENOUGH,Not enough coins yet.,Zatím nemáš dost mincí.
-COSMETICS_PURCHASED,Unlocked and equipped!,Odemčeno a nasazeno!
-COSMETICS_MORE_LATER,Belly patterns hats glasses and shoes are coming next.,Vzory bříška klobouky brýle a boty přidáme příště.
-COSMETICS_TAP_BUY,Tap Buy to unlock.,Odemkni tlačítkem Koupit.
-COSMETICS_HATS,Hats,Čepice
-COSMETICS_GLASSES,Glasses,Brýle
-COSMETICS_NECKLACES,Necklaces,Náhrdelníky
-COSMETICS_NONE,None,Bez doplňku
-COSMETICS_HAT_CROWN,Crown,Koruna
-COSMETICS_HAT_SANTA,Santa hat,Vánoční čepice
-COSMETICS_HAT_WINTER,Winter hat,Zimní čepice
-COSMETICS_HAT_DUCK,Duck cap,Kachní čepice
-COSMETICS_HAT_DINO,Dino hat,Dino čepice
-COSMETICS_HAT_PIRATE,Pirate hat,Pirátský klobouk
-COSMETICS_GLASSES_FASHION,Flower glasses,Květinové brýle
-COSMETICS_GLASSES_GREEN,Green glasses,Zelené brýle
-COSMETICS_GLASSES_MOON,Moon glasses,Měsíční brýle
-HOME_NAME_EDIT_HINT,Tap to change your name,Klepnutím změníš jméno
-NAME_DIALOG_TITLE,What's your name?,Jak se jmenuješ?
-NAME_DIALOG_PLACEHOLDER,Type your name,Napiš své jméno
-NAME_SAVE,Save,Uložit
-NAME_CANCEL,Cancel,Zrušit
-COSMETICS_GLASSES_PIRATE,Pirate eye patch,Pirátská páska
-COSMETICS_NECKLACE_CROWN,Crown necklace,Náhrdelník s korunou
-COSMETICS_NECKLACE_DUCK,Duck necklace,Kachní náhrdelník
-COSMETICS_NECKLACE_MOON,Moon necklace,Měsíční náhrdelník
-COSMETICS_GLASSES_STAR,Star glasses,Hvězdné brýle
-COSMETICS_NECKLACE_BOW_TIE,Bow tie,Motýlek
-COSMETICS_NECKLACE_SCARF,Scarf,Šála
-COSMETICS_TAB_COLOR,Color,Barva
-COSMETICS_TAB_HATS,Hats,Čepice
-COSMETICS_TAB_GLASSES,Glasses,Brýle
-COSMETICS_TAB_NECKLACES,Necklaces,Řetízky
-COSMETICS_TAB_FOOTWEAR,Shoes,Boty
-COSMETICS_FOOTWEAR_SNEAKERS,Sneakers,Tenisky
-COSMETICS_FOOTWEAR_ROLLER,Roller skates,Kolečkové brusle
-COSMETICS_FOOTWEAR_RABBIT,Bunny slippers,Zaječí bačkory
-COSMETICS_FOOTWEAR_DUCK,Duck boots,Kachní holínky
-COSMETICS_FOOTWEAR_STAR,Star boots,Hvězdné boty
-COSMETICS_WEAR,Wear,Nasadit
-COSMETICS_WORN,Worn,Nasazeno
-COSMETICS_WEAR_COLOR,Use color,Použít barvu
-COSMETICS_WORN_COLOR,In use,Používáš
-COSMETICS_TRY_HINT,Tap an item to try it on.,Klepni na věc a Numblop si ji zkusí.
-NAV_MAP,Map,Mapa
-NAV_TROPHY,Trophies,Poháry
-HOME_FEATURE_LATER,Coming in a later update!,Připravujeme do další aktualizace!
-MAP_TITLE,Map,Mapa
-MAP_SUBTITLE,Follow the multiplication trail!,Postupuj násobilkami!
-MAP_HINT,Swipe to explore every stage.,Tažením prozkoumej všechny etapy.
-MAP_BACK_ACCESSIBLE,Return home,Zpět domů
-MAP_TABLE,{table}×,{table}×
-MAP_STAGE_CURRENT,Learning now,Právě se učíš
-MAP_STAGE_COMPLETE,Trail cleared,Cesta splněna
-MAP_STAGE_LOCKED,Locked,Zamčeno
-MAP_STAGE_PROGRESS,Progress {percent}%,Pokrok {percent} %
-MAP_STAGE_UNLOCKED,The {table}× island is unlocked!,Ostrov {table}× je odemčený!
-MAP_STAGE_OPEN_DETAIL,View {table}× mastery,Zobrazit upevnění {table}×
-MAP_FACT_DETAIL_TITLE,{table}× facts,Spoje {table}×
-MAP_FACT_DETAIL_OVERALL,Island progress {percent}%,Pokrok ostrova {percent} %
-MAP_FACT_DETAIL_CLOSE,Close fact detail,Zavřít detail spojů
-MAP_FACT_PERCENT,{percent}%,{percent} %
-MAP_FACT_BUILDING,Building up,Objevuji
-MAP_FACT_PRACTICING,Practicing,Procvičuji
-MAP_FACT_MASTERED,Mastered,Upevňuji
-MAP_FACT_AUTOMATED,Automatic,Mám jistotu
-NAV_SETTINGS,Settings,Nastavení
-NAV_HOME,Home,Domů
-SETTINGS_TITLE,Settings,Nastavení
-SETTINGS_VERSION,Version {version},Verze {version}
-SETTINGS_LANGUAGE,Language,Jazyk
-SETTINGS_MUSIC,Background music,Hudba na pozadí
-SETTINGS_SFX,Sound effects,Zvukové efekty
-SETTINGS_SOUND,Sound,Zvuk
-SETTINGS_SOUND_ON_ACCESSIBLE,Sound is on,Zvuk je zapnutý
-SETTINGS_SOUND_OFF_ACCESSIBLE,Sound is off,Zvuk je vypnutý
-SETTINGS_HAPTICS,Vibration,Vibrace
-SETTINGS_HAPTICS_ON_ACCESSIBLE,Vibration is on,Vibrace jsou zapnuté
-SETTINGS_HAPTICS_OFF_ACCESSIBLE,Vibration is off,Vibrace jsou vypnuté
-SETTINGS_VOLUME_VALUE,{value}%,{value}%
-SETTINGS_HINT,Changes are saved on this device.,Změny se ukládají v tomto zařízení.
-SETTINGS_BACK_ACCESSIBLE,Return to the previous screen,Zpět na předchozí obrazovku
-SETTINGS_EXIT,Close game,Ukončit hru
-SETTINGS_EXIT_TITLE,Close Numblop?,Ukončit Numblopa?
-SETTINGS_EXIT_CONFIRM,Do you want to close the game?,Chceš ukončit hru?
-SETTINGS_EXIT_YES,Close,Ukončit
-SETTINGS_EXIT_CANCEL,Keep playing,Pokračovat ve hře
+keys,en,cs,sk,de,es,fi,fr,nb,pl,sv
+HOME_STREAK,{count} correct answers in a row,{count} příkladů správně v řadě,{count} príkladov správne v rade,{count} richtige Antworten in Folge,{count} respuestas correctas seguidas,{count} oikeaa vastausta putkeen,{count} bonnes réponses d'affilée,{count} riktige svar på rad,{count} poprawnych odpowiedzi z rzędu,{count} rätta svar i rad
+TROPHY_TITLE,Records,Rekordy,Rekordy,Rekorde,Récords,Ennätykset,Records,Rekorder,Rekordy,Rekord
+TROPHY_BEST,Best streak: {count},Nejlepší série: {count},Najlepšia séria: {count},Beste Serie: {count},Mejor racha: {count},Paras putki: {count},Meilleure série : {count},Beste rekke: {count},Najlepsza seria: {count},Bästa svit: {count}
+TROPHY_ACHIEVEMENT_PROGRESS,{current}/{target},{current}/{target},{current}/{target},{current}/{target},{current}/{target},{current}/{target},{current}/{target},{current}/{target},{current}/{target},{current}/{target}
+ACHIEVEMENT_FIRST_STEPS_TITLE,First Steps,První kroky,Prvé kroky,Erste Schritte,Primeros pasos,Ensiaskeleet,Premiers pas,Første skritt,Pierwsze kroki,Första stegen
+ACHIEVEMENT_FIRST_STEPS_DESC,Finish your first round,Dokonči své první kolo,Dokonči svoje prvé kolo,Beende deine erste Runde,Termina tu primera ronda,Suorita ensimmäinen kierros,Termine ta première partie,Fullfør din første runde,Ukończ swoją pierwszą rundę,Klara din första omgång
+ACHIEVEMENT_STREAK_TITLE,Streak {count},Série {count},Séria {count},Serie {count},Racha {count},Putki {count},Série {count},Rekke {count},Seria {count},Svit {count}
+ACHIEVEMENT_STREAK_DESC,Answer {count} in a row,Odpověz {count} příkladů v řadě,Odpovedz {count} príkladov v rade,Beantworte {count} hintereinander richtig,Acierta {count} seguidas,Vastaa {count} peräkkäin oikein,Réponds juste {count} fois de suite,Svar riktig {count} ganger på rad,Odpowiedz poprawnie {count} razy z rzędu,Svara rätt {count} gånger i rad
+ACHIEVEMENT_EXPERIENCE_TITLE,{count} XP,{count} XP,{count} XP,{count} XP,{count} XP,{count} XP,{count} XP,{count} XP,{count} XP,{count} XP
+ACHIEVEMENT_EXPERIENCE_DESC,Answer {count} examples correctly,Odpověz správně {count} příkladů,Odpovedz správne {count} príkladov,Beantworte {count} Aufgaben richtig,Acierta {count} ejercicios,Vastaa {count} tehtävään oikein,Réussis {count} calculs,Svar riktig på {count} oppgaver,Odpowiedz poprawnie na {count} zadań,Svara rätt på {count} uppgifter
+ACHIEVEMENT_COLLECTION_BODY_COLOR_TITLE,Body color collection,Sbírka barev těla,Zbierka farieb tela,Körperfarben-Sammlung,Colección de colores de cuerpo,Vartalonvärikokoelma,Collection de couleurs de corps,Kroppsfargesamling,Kolekcja kolorów ciała,Kroppsfärgssamling
+ACHIEVEMENT_COLLECTION_BODY_COLOR_DESC,Unlock all {count} body colors,Odemkni všech {count} barev těla,Odomkni všetkých {count} farieb tela,Schalte alle {count} Körperfarben frei,Desbloquea los {count} colores de cuerpo,Avaa kaikki {count} vartalonväriä,Débloque les {count} couleurs de corps,Lås opp alle {count} kroppsfargene,Odblokuj wszystkie {count} kolorów ciała,Lås upp alla {count} kroppsfärger
+ACHIEVEMENT_COLLECTION_BELLY_COLOR_TITLE,Belly color collection,Sbírka barev bříška,Zbierka farieb bruška,Bauchfarben-Sammlung,Colección de colores de barriga,Mahanvärikokoelma,Collection de couleurs de ventre,Magefargesamling,Kolekcja kolorów brzuszka,Magfärgssamling
+ACHIEVEMENT_COLLECTION_BELLY_COLOR_DESC,Unlock all {count} belly colors,Odemkni všech {count} barev bříška,Odomkni všetkých {count} farieb bruška,Schalte alle {count} Bauchfarben frei,Desbloquea los {count} colores de barriga,Avaa kaikki {count} mahanväriä,Débloque les {count} couleurs de ventre,Lås opp alle {count} magefargene,Odblokuj wszystkie {count} kolorów brzuszka,Lås upp alla {count} magfärger
+ACHIEVEMENT_COLLECTION_HAT_TITLE,Hat collection,Sbírka čepic,Zbierka čiapok,Mützen-Sammlung,Colección de gorros,Hattukokoelma,Collection de chapeaux,Luesamling,Kolekcja czapek,Mösssamling
+ACHIEVEMENT_COLLECTION_HAT_DESC,Unlock all {count} hats,Odemkni všech {count} čepic,Odomkni všetkých {count} čiapok,Schalte alle {count} Mützen frei,Desbloquea los {count} gorros,Avaa kaikki {count} hattua,Débloque les {count} chapeaux,Lås opp alle {count} luene,Odblokuj wszystkie {count} czapek,Lås upp alla {count} mössor
+ACHIEVEMENT_COLLECTION_GLASSES_TITLE,Glasses collection,Sbírka brýlí,Zbierka okuliarov,Brillen-Sammlung,Colección de gafas,Silmälasikokoelma,Collection de lunettes,Brillesamling,Kolekcja okularów,Glasögonsamling
+ACHIEVEMENT_COLLECTION_GLASSES_DESC,Unlock all {count} glasses,Odemkni všech {count} brýlí,Odomkni všetkých {count} okuliarov,Schalte alle {count} Brillen frei,Desbloquea las {count} gafas,Avaa kaikki {count} silmälasit,Débloque les {count} lunettes,Lås opp alle {count} brillene,Odblokuj wszystkie {count} okularów,Lås upp alla {count} glasögon
+ACHIEVEMENT_COLLECTION_NECKLACE_TITLE,Necklace collection,Sbírka řetízků,Zbierka retiazok,Ketten-Sammlung,Colección de collares,Kaulakorukokoelma,Collection de colliers,Halskjedesamling,Kolekcja naszyjników,Halsbandssamling
+ACHIEVEMENT_COLLECTION_NECKLACE_DESC,Unlock all {count} necklaces,Odemkni všech {count} řetízků,Odomkni všetkých {count} retiazok,Schalte alle {count} Ketten frei,Desbloquea los {count} collares,Avaa kaikki {count} kaulakorua,Débloque les {count} colliers,Lås opp alle {count} halskjedene,Odblokuj wszystkie {count} naszyjników,Lås upp alla {count} halsband
+ACHIEVEMENT_COLLECTION_FOOTWEAR_TITLE,Shoe collection,Sbírka bot,Zbierka topánok,Schuh-Sammlung,Colección de zapatos,Kenkäkokoelma,Collection de chaussures,Skosamling,Kolekcja butów,Skosamling
+ACHIEVEMENT_COLLECTION_FOOTWEAR_DESC,Unlock all {count} shoes,Odemkni všech {count} bot,Odomkni všetkých {count} topánok,Schalte alle {count} Schuhe frei,Desbloquea los {count} zapatos,Avaa kaikki {count} kengät,Débloque les {count} chaussures,Lås opp alle {count} skoene,Odblokuj wszystkie {count} butów,Lås upp alla {count} skor
+ACHIEVEMENT_ISLAND_TITLE,Island {table}× mastery,Mistrovství ostrova {table}×,Majstrovstvo ostrova {table}×,Insel {table}× gemeistert,Maestría de la isla {table}×,Saaren {table}× hallinta,Maîtrise de l'île {table}×,Mestring av øya {table}×,Mistrzostwo wyspy {table}×,Behärska ön {table}×
+ACHIEVEMENT_ISLAND_DESC,Master every {table}× fact to 100 %,Zvládni všechny spoje {table}× na 100 %,Zvládni všetky spoje {table}× na 100 %,Meistere jede {table}×-Aufgabe zu 100 %,Domina todos los cálculos {table}× al 100 %,Hallitse kaikki {table}× laskut 100 %,Maîtrise chaque calcul {table}× à 100 %,Mestre alle {table}×-oppgavene til 100 %,Opanuj wszystkie działania {table}× na 100 %,Bemästra alla {table}×-tal till 100 %
+REWARD_MASTERY_TITLE,What you improved,Co se ti zlepšilo,Čo sa ti zlepšilo,Das hast du verbessert,Lo que has mejorado,Mitä kehitit,Ce que tu as amélioré,Dette ble bedre,Co ci się poprawiło,Det här blev bättre
+REWARD_MASTERY_FACT,{table} × {multiplier},{table} × {multiplier},{table} × {multiplier},{table} × {multiplier},{table} × {multiplier},{table} × {multiplier},{table} × {multiplier},{table} × {multiplier},{table} × {multiplier},{table} × {multiplier}
+REWARD_MASTERY_CHANGE,{before} → {after},{before} → {after},{before} → {after},{before} → {after},{before} → {after},{before} → {after},{before} → {after},{before} → {after},{before} → {after},{before} → {after}
+REWARD_MASTERY_GAIN,+{gained},+{gained},+{gained},+{gained},+{gained},+{gained},+{gained},+{gained},+{gained},+{gained}
+REWARD_ROUND,Round reward,Odměna za kolo,Odmena za kolo,Rundenbelohnung,Recompensa de la ronda,Kierroksen palkinto,Récompense de la partie,Rundebelønning,Nagroda za rundę,Omgångsbelöning
+REWARD_MASTERY_BONUS,Mastery bonus,Bonus za mistrovství,Bonus za majstrovstvo,Meisterschafts-Bonus,Bono de maestría,Hallintabonus,Bonus de maîtrise,Mestringsbonus,Bonus za mistrzostwo,Bemästringsbonus
+REWARD_ACHIEVEMENT_BONUS,Achievement bonus,Bonus za úspěch,Bonus za úspech,Erfolgs-Bonus,Bono de logro,Saavutusbonus,Bonus de succès,Bragdbonus,Bonus za osiągnięcie,Prestationsbonus
+REWARD_TOTAL,Total reward,Celková odměna,Celková odmena,Gesamtbelohnung,Recompensa total,Palkinto yhteensä,Récompense totale,Total belønning,Nagroda łącznie,Total belöning
+REWARD_XP_EARNED,Experience,Zkušenosti,Skúsenosti,Erfahrung,Experiencia,Kokemus,Expérience,Erfaring,Doświadczenie,Erfarenhet
+REWARD_COINS_GAIN,+{count},+{count},+{count},+{count},+{count},+{count},+{count},+{count},+{count},+{count}
+APP_TAGLINE,Learn multiplication through play,Uč se násobilku hrou,Uč sa násobilku hrou,Lerne das Einmaleins spielend,Aprende las tablas jugando,Opi kertotaulut leikkien,Apprends les tables en jouant,Lær gangetabellen gjennom lek,Ucz się tabliczki mnożenia przez zabawę,Lär dig multiplikation genom lek
+HOME_PROFILE,Local learner,Místní hráč,Miestny hráč,Spieler auf diesem Gerät,Jugador local,Paikallinen pelaaja,Joueur local,Lokal spiller,Gracz lokalny,Lokal spelare
+HOME_PROGRESS,Current table: ×{table} · Mastered facts: {mastered}/80,Aktuální násobilka: ×{table} · Zvládnuté spoje: {mastered}/80,Aktuálna násobilka: ×{table} · Zvládnuté spoje: {mastered}/80,Aktuelle Reihe: ×{table} · Gemeisterte Aufgaben: {mastered}/80,Tabla actual: ×{table} · Cálculos dominados: {mastered}/80,Nykyinen taulu: ×{table} · Hallitut laskut: {mastered}/80,Table actuelle : ×{table} · Calculs maîtrisés : {mastered}/80,Gjeldende tabell: ×{table} · Mestrede oppgaver: {mastered}/80,Aktualna tabliczka: ×{table} · Opanowane działania: {mastered}/80,Aktuell tabell: ×{table} · Bemästrade tal: {mastered}/80
+HOME_PLAY,Play,Hrát,Hrať,Spielen,Jugar,Pelaa,Jouer,Spill,Graj,Spela
+HOME_STATUS_READY,Ready for a short practice session.,Připraveno na krátké procvičování.,Pripravené na krátke precvičovanie.,Bereit für eine kurze Übung.,Listo para practicar un rato.,Valmiina lyhyeen harjoitukseen.,Prêt pour un petit entraînement.,Klar for en kort økt.,Gotowe na krótkie ćwiczenie.,Redo för en kort övning.
+HOME_STATUS_SESSION,A {count}-question session is ready.,Je připravena hra s {count} příklady.,Je pripravená hra s {count} príkladmi.,Eine Runde mit {count} Aufgaben ist bereit.,Hay una ronda de {count} ejercicios lista.,{count} tehtävän kierros on valmiina.,Une partie de {count} calculs est prête.,En runde med {count} oppgaver er klar.,Runda z {count} zadaniami jest gotowa.,En omgång med {count} uppgifter är redo.
+HOME_PRIVACY,Progress stays on this device.,Pokrok zůstává v tomto zařízení.,Pokrok zostáva v tomto zariadení.,Der Fortschritt bleibt auf diesem Gerät.,El progreso se queda en este dispositivo.,Edistyminen pysyy tällä laitteella.,La progression reste sur cet appareil.,Fremgangen blir på denne enheten.,Postęp zostaje na tym urządzeniu.,Framstegen stannar på den här enheten.
+LANGUAGE_LABEL,Language,Jazyk,Jazyk,Sprache,Idioma,Kieli,Langue,Språk,Język,Språk
+LANGUAGE_SYSTEM,System language,Jazyk systému,Jazyk systému,Systemsprache,Idioma del sistema,Järjestelmän kieli,Langue du système,Systemspråk,Język systemu,Systemspråk
+LANGUAGE_ENGLISH,English,Angličtina,Angličtina,Englisch,Inglés,Englanti,Anglais,Engelsk,Angielski,Engelska
+LANGUAGE_CZECH,Czech,Čeština,Čeština,Tschechisch,Checo,Tšekki,Tchèque,Tsjekkisk,Czeski,Tjeckiska
+LANGUAGE_SLOVAK,Slovak,Slovenština,Slovenčina,Slowakisch,Eslovaco,Slovakki,Slovaque,Slovakisk,Słowacki,Slovakiska
+LANGUAGE_GERMAN,German,Němčina,Nemčina,Deutsch,Alemán,Saksa,Allemand,Tysk,Niemiecki,Tyska
+LANGUAGE_SPANISH,Spanish,Španělština,Španielčina,Spanisch,Español,Espanja,Espagnol,Spansk,Hiszpański,Spanska
+LANGUAGE_FINNISH,Finnish,Finština,Fínčina,Finnisch,Finés,Suomi,Finnois,Finsk,Fiński,Finska
+LANGUAGE_FRENCH,French,Francouzština,Francúzština,Französisch,Francés,Ranska,Français,Fransk,Francuski,Franska
+LANGUAGE_NORWEGIAN,Norwegian,Norština,Nórčina,Norwegisch,Noruego,Norja,Norvégien,Norsk,Norweski,Norska
+LANGUAGE_POLISH,Polish,Polština,Poľština,Polnisch,Polaco,Puola,Polonais,Polsk,Polski,Polska
+LANGUAGE_SWEDISH,Swedish,Švédština,Švédčina,Schwedisch,Sueco,Ruotsi,Suédois,Svensk,Szwedzki,Svenska
+OPENING_LOADING,Getting things ready…,Připravujeme hru…,Pripravujeme hru…,Alles wird vorbereitet…,Preparando todo…,Valmistellaan…,Préparation en cours…,Gjør klar…,Przygotowujemy grę…,Förbereder…
+OPENING_LANGUAGE_PROMPT,Choose your language,Vyber si jazyk,Vyber si jazyk,Wähle deine Sprache,Elige tu idioma,Valitse kielesi,Choisis ta langue,Velg språk,Wybierz swój język,Välj ditt språk
+HOME_COINS,Coins: {count},Mince: {count},Mince: {count},Münzen: {count},Monedas: {count},Kolikot: {count},Pièces : {count},Mynter: {count},Monety: {count},Mynt: {count}
+HOME_XP,Experience: {count},Zkušenosti: {count},Skúsenosti: {count},Erfahrung: {count},Experiencia: {count},Kokemus: {count},Expérience : {count},Erfaring: {count},Doświadczenie: {count},Erfarenhet: {count}
+HOME_LEVEL,Level {level},Úroveň {level},Úroveň {level},Level {level},Nivel {level},Taso {level},Niveau {level},Nivå {level},Poziom {level},Nivå {level}
+HOME_PET_HINT,Stroke the blob to say hello!,Pohlaď Numblopa a pozdrav ho!,Pohlaď Numblopa a pozdrav ho!,Streichle Numblop und sag hallo!,¡Acaricia a Numblop para saludarlo!,Silitä Numblopia ja tervehdi!,Caresse Numblop pour lui dire bonjour !,Klapp Numblop og si hei!,Pogłaszcz Numblopa i przywitaj się!,Klappa Numblop och säg hej!
+HOME_PET_REACTION,Numblop is happy to see you!,Numblop tě rád vidí!,Numblop ťa rád vidí!,Numblop freut sich über dich!,¡Numblop se alegra de verte!,Numblop ilahtuu sinusta!,Numblop est content de te voir !,Numblop er glad for å se deg!,Numblop bardzo się cieszy!,Numblop blir glad att se dig!
+HOME_PET_ACCESSIBLE,Pet Numblop,Pohladit Numblopa,Pohladiť Numblopa,Numblop streicheln,Acariciar a Numblop,Silitä Numblopia,Caresser Numblop,Klapp Numblop,Pogłaskaj Numblopa,Klappa Numblop
+HOME_REWARD_REACTION,Great practice! Numblop is proud of you.,Skvělé procvičování! Numblop je na tebe pyšný.,Skvelé precvičovanie! Numblop je na teba hrdý.,Tolle Übung! Numblop ist stolz auf dich.,¡Buen trabajo! Numblop está orgulloso de ti.,Hienoa harjoittelua! Numblop on ylpeä sinusta.,Bel entraînement ! Numblop est fier de toi.,Flott øving! Numblop er stolt av deg.,Świetne ćwiczenie! Numblop jest z ciebie dumny.,Bra övat! Numblop är stolt över dig.
+PRACTICE_PROGRESS,Question {current} of {total},Příklad {current} z {total},Príklad {current} z {total},Aufgabe {current} von {total},Ejercicio {current} de {total},Tehtävä {current}/{total},Calcul {current} sur {total},Oppgave {current} av {total},Zadanie {current} z {total},Uppgift {current} av {total}
+PRACTICE_CHOOSE_ANSWER,Choose the answer,Vyber výsledek,Vyber výsledok,Wähle das Ergebnis,Elige el resultado,Valitse vastaus,Choisis le résultat,Velg svaret,Wybierz wynik,Välj svaret
+PRACTICE_EXIT,×,×,×,×,×,×,×,×,×,×
+PRACTICE_EXIT_ACCESSIBLE,Leave this practice,Ukončit procvičování,Ukončiť precvičovanie,Übung beenden,Salir de la práctica,Lopeta harjoitus,Quitter l'entraînement,Avslutt økten,Zakończ ćwiczenie,Avsluta övningen
+PRACTICE_ENTER_ANSWER,Enter the answer,Zadej výsledek,Zadaj výsledok,Gib das Ergebnis ein,Escribe el resultado,Kirjoita vastaus,Saisis le résultat,Skriv inn svaret,Wpisz wynik,Skriv in svaret
+PRACTICE_CORRECT,Nice work!,Výborně!,Výborne!,Super gemacht!,¡Muy bien!,Hienoa työtä!,Bien joué !,Bra jobba!,Świetnie!,Bra jobbat!
+PRACTICE_INCORRECT,Let's look at it together.,Podíváme se na to spolu.,Pozrieme sa na to spolu.,Schauen wir es uns zusammen an.,Vamos a verlo juntos.,Katsotaan tätä yhdessä.,Regardons cela ensemble.,La oss se på det sammen.,Spójrzmy na to razem.,Vi tittar på det tillsammans.
+PRACTICE_MILESTONE_TITLE,Success,Úspěch,Úspech,Erfolg,Logro,Saavutus,Réussite,Bragd,Sukces,Framgång
+PRACTICE_MILESTONE_REWARD,+{coins} coins,+{coins} mincí,+{coins} mincí,+{coins} Münzen,+{coins} monedas,+{coins} kolikkoa,+{coins} pièces,+{coins} mynter,+{coins} monet,+{coins} mynt
+PRACTICE_MILESTONE_SKIP_ACCESSIBLE,Continue now,Pokračovat hned,Pokračovať hneď,Jetzt weiter,Continuar ahora,Jatka heti,Continuer tout de suite,Fortsett nå,Kontynuuj teraz,Fortsätt nu
+PRACTICE_CONTINUE,Continue,Pokračovat,Pokračovať,Weiter,Continuar,Jatka,Continuer,Fortsett,Dalej,Fortsätt
+PRACTICE_DOTS_HINT,Count the dots.,Spočítej tečky.,Spočítaj bodky.,Zähl die Punkte.,Cuenta los puntos.,Laske pisteet.,Compte les points.,Tell prikkene.,Policz kropki.,Räkna prickarna.
+PRACTICE_DOTS_ZERO_HINT,Zero groups. Nothing to count.,Nula skupin. Není co počítat.,Nula skupín. Nie je čo počítať.,Null Gruppen. Nichts zu zählen.,Cero grupos. Nada que contar.,Nolla ryhmää. Ei laskettavaa.,Zéro groupe. Rien à compter.,Null grupper. Ingenting å telle.,Zero grup. Nie ma czego liczyć.,Noll grupper. Inget att räkna.
+KEYPAD_DELETE,Delete the last digit,Smazat poslední číslici,Zmazať poslednú číslicu,Letzte Ziffer löschen,Borrar el último dígito,Poista viimeinen numero,Effacer le dernier chiffre,Slett siste siffer,Usuń ostatnią cyfrę,Radera sista siffran
+KEYPAD_SUBMIT,Submit the answer,Potvrdit výsledek,Potvrdiť výsledok,Ergebnis bestätigen,Confirmar el resultado,Vahvista vastaus,Valider le résultat,Bekreft svaret,Zatwierdź wynik,Bekräfta svaret
+REWARD_TITLE,You found a reward chest!,Našel jsi truhlu s odměnou!,Našiel si truhlicu s odmenou!,Du hast eine Schatztruhe gefunden!,¡Has encontrado un cofre!,Löysit palkintoarkun!,Tu as trouvé un coffre !,Du fant en skattekiste!,Znalazłeś skrzynię z nagrodą!,Du hittade en skattkista!
+REWARD_TAP_PROGRESS,Tap the chest to open it!,Klepni na truhlu a otevři ji!,Klepni na truhlicu a otvor ju!,Tippe auf die Truhe um sie zu öffnen!,¡Toca el cofre para abrirlo!,Napauta arkkua ja avaa se!,Touche le coffre pour l'ouvrir !,Trykk på kisten for å åpne den!,Dotknij skrzyni i otwórz ją!,Tryck på kistan för att öppna den!
+REWARD_OPENED,Your reward!,Tvoje odměna!,Tvoja odmena!,Deine Belohnung!,¡Tu recompensa!,Palkintosi!,Ta récompense !,Belønningen din!,Twoja nagroda!,Din belöning!
+REWARD_COINS_TOTAL,{count} coins total,Celkem {count} mincí,Celkovo {count} mincí,Insgesamt {count} Münzen,{count} monedas en total,Yhteensä {count} kolikkoa,{count} pièces au total,Totalt {count} mynter,Łącznie {count} monet,Totalt {count} mynt
+REWARD_XP_TOTAL,{count} experience total,Celkem {count} zkušeností,Celkovo {count} skúseností,Insgesamt {count} Erfahrung,{count} de experiencia en total,Yhteensä {count} kokemusta,{count} d'expérience au total,Totalt {count} erfaring,Łącznie {count} doświadczenia,Totalt {count} erfarenhet
+REWARD_CHEST_ACCESSIBLE,Tap the reward chest,Klepnout na truhlu s odměnou,Klepnúť na truhlicu s odmenou,Auf die Schatztruhe tippen,Tocar el cofre de recompensa,Napauta palkintoarkkua,Toucher le coffre de récompense,Trykk på skattekisten,Dotknij skrzyni z nagrodą,Tryck på skattkistan
+REWARD_TAP_CONTINUE,Tap anywhere to continue,Klepni kamkoli a pokračuj,Klepni kamkoľvek a pokračuj,Tippe irgendwohin um weiterzumachen,Toca en cualquier sitio para continuar,Napauta mistä tahansa jatkaaksesi,Touche l'écran pour continuer,Trykk hvor som helst for å fortsette,Dotknij dowolnego miejsca aby kontynuować,Tryck var som helst för att fortsätta
+NAV_OUTFIT,Outfit,Oblečení,Oblečenie,Outfit,Ropa,Asu,Tenue,Antrekk,Ubranie,Kläder
+COSMETICS_TITLE,Cosmetics,Kosmetika,Kozmetika,Styling,Estilo,Tyyli,Style,Stil,Wygląd,Stil
+COSMETICS_SUBTITLE,Make Numblop your own!,Uprav si Numblopa podle sebe!,Uprav si Numblopa podľa seba!,Mach Numblop zu deinem!,¡Personaliza a Numblop!,Muokkaa Numblopista omasi!,Personnalise Numblop !,Gjør Numblop til din egen!,Dostosuj Numblopa do siebie!,Gör Numblop till din egen!
+COSMETICS_COINS,{count} coins,{count} mincí,{count} mincí,{count} Münzen,{count} monedas,{count} kolikkoa,{count} pièces,{count} mynter,{count} monet,{count} mynt
+COSMETICS_BODY_COLOR,Body color,Barva těla,Farba tela,Körperfarbe,Color del cuerpo,Vartalon väri,Couleur du corps,Kroppsfarge,Kolor ciała,Kroppsfärg
+COSMETICS_BELLY,Belly,Bříško,Bruško,Bauch,Barriga,Maha,Ventre,Mage,Brzuszek,Mage
+COSMETICS_CREAM,Cream,Krémová,Krémová,Creme,Crema,Kerma,Crème,Krem,Kremowy,Gräddvit
+COSMETICS_COLOR_HINT,Tap a color to preview it.,Klepnutím si barvu vyzkoušej.,Klepnutím si farbu vyskúšaj.,Tippe eine Farbe an um sie zu testen.,Toca un color para probarlo.,Napauta väriä ja kokeile sitä.,Touche une couleur pour l'essayer.,Trykk på en farge for å prøve den.,Dotknij koloru aby go przymierzyć.,Tryck på en färg för att testa den.
+COSMETICS_GREEN,Green,Zelená,Zelená,Grün,Verde,Vihreä,Vert,Grønn,Zielony,Grön
+COSMETICS_BLUE,Blue,Modrá,Modrá,Blau,Azul,Sininen,Bleu,Blå,Niebieski,Blå
+COSMETICS_PINK,Pink,Růžová,Ružová,Rosa,Rosa,Pinkki,Rose,Rosa,Różowy,Rosa
+COSMETICS_PURPLE,Purple,Fialová,Fialová,Lila,Morado,Violetti,Violet,Lilla,Fioletowy,Lila
+COSMETICS_ORANGE,Orange,Oranžová,Oranžová,Orange,Naranja,Oranssi,Orange,Oransje,Pomarańczowy,Orange
+COSMETICS_YELLOW,Yellow,Žlutá,Žltá,Gelb,Amarillo,Keltainen,Jaune,Gul,Żółty,Gul
+COSMETICS_SELECTED,Selected,Vybraná,Vybraná,Ausgewählt,Elegido,Valittu,Choisi,Valgt,Wybrany,Vald
+COSMETICS_OWNED,Owned,Vlastníš,Vlastníš,Freigeschaltet,Desbloqueado,Omistat,Débloqué,Låst opp,Masz,Upplåst
+COSMETICS_FREE,Free,Zdarma,Zadarmo,Gratis,Gratis,Ilmainen,Gratuit,Gratis,Za darmo,Gratis
+COSMETICS_PRICE,{price} coins,{price} mincí,{price} mincí,{price} Münzen,{price} monedas,{price} kolikkoa,{price} pièces,{price} mynter,{price} monet,{price} mynt
+COSMETICS_EQUIPPED,Equipped!,Nasazeno!,Nasadené!,Angezogen!,¡Puesto!,Puettu!,Équipé !,På!,Założone!,Påsatt!
+COSMETICS_PREVIEWING,Previewing: {color},Zkoušíš: {color},Skúšaš: {color},Vorschau: {color},Probando: {color},Kokeilussa: {color},Aperçu : {color},Prøver: {color},Przymierzasz: {color},Testar: {color}
+COSMETICS_NOT_ENOUGH,Not enough coins yet.,Zatím nemáš dost mincí.,Zatiaľ nemáš dosť mincí.,Noch nicht genug Münzen.,Aún no tienes monedas suficientes.,Kolikoita ei ole vielä tarpeeksi.,Pas encore assez de pièces.,Ikke nok mynter ennå.,Nie masz jeszcze dość monet.,Inte tillräckligt med mynt än.
+COSMETICS_PURCHASED,Unlocked and equipped!,Odemčeno a nasazeno!,Odomknuté a nasadené!,Freigeschaltet und angezogen!,¡Desbloqueado y puesto!,Avattu ja puettu!,Débloqué et équipé !,Låst opp og på!,Odblokowane i założone!,Upplåst och påsatt!
+COSMETICS_MORE_LATER,Belly patterns hats glasses and shoes are coming next.,Vzory bříška klobouky brýle a boty přidáme příště.,Vzory bruška klobúky okuliare a topánky pridáme nabudúce.,Bauchmuster Mützen Brillen und Schuhe kommen als Nächstes.,Los patrones de barriga gorros gafas y zapatos llegarán pronto.,Mahakuviot hatut lasit ja kengät tulevat seuraavaksi.,Les motifs de ventre chapeaux lunettes et chaussures arrivent bientôt.,Magemønstre luer briller og sko kommer snart.,Wzory brzuszka czapki okulary i buty pojawią się wkrótce.,Magmönster mössor glasögon och skor kommer snart.
+COSMETICS_TAP_BUY,Tap Buy to unlock.,Odemkni tlačítkem Koupit.,Odomkni tlačidlom Kúpiť.,Zum Freischalten auf Kaufen tippen.,Toca Comprar para desbloquear.,Napauta Osta ja avaa se.,Touche Acheter pour débloquer.,Trykk Kjøp for å låse opp.,Dotknij Kup aby odblokować.,Tryck på Köp för att låsa upp.
+COSMETICS_HATS,Hats,Čepice,Čiapky,Mützen,Gorros,Hatut,Chapeaux,Luer,Czapki,Mössor
+COSMETICS_GLASSES,Glasses,Brýle,Okuliare,Brillen,Gafas,Lasit,Lunettes,Briller,Okulary,Glasögon
+COSMETICS_NECKLACES,Necklaces,Náhrdelníky,Náhrdelníky,Ketten,Collares,Kaulakorut,Colliers,Halskjeder,Naszyjniki,Halsband
+COSMETICS_NONE,None,Bez doplňku,Bez doplnku,Ohne,Ninguno,Ei mitään,Aucun,Ingen,Brak,Ingen
+COSMETICS_HAT_CROWN,Crown,Koruna,Koruna,Krone,Corona,Kruunu,Couronne,Krone,Korona,Krona
+COSMETICS_HAT_SANTA,Santa hat,Vánoční čepice,Vianočná čiapka,Weihnachtsmütze,Gorro de Papá Noel,Joulupukin lakki,Bonnet de Noël,Nisselue,Czapka Mikołaja,Tomteluva
+COSMETICS_HAT_WINTER,Winter hat,Zimní čepice,Zimná čiapka,Wintermütze,Gorro de invierno,Talvipipo,Bonnet d'hiver,Vinterlue,Zimowa czapka,Vintermössa
+COSMETICS_HAT_DUCK,Duck cap,Kachní čepice,Kačacia čiapka,Entenmütze,Gorro de pato,Ankkalakki,Casquette canard,Andelue,Kacza czapka,Ankmössa
+COSMETICS_HAT_DINO,Dino hat,Dino čepice,Dino čiapka,Dino-Mütze,Gorro de dino,Dinolakki,Bonnet dino,Dinolue,Czapka dino,Dinomössa
+COSMETICS_HAT_PIRATE,Pirate hat,Pirátský klobouk,Pirátsky klobúk,Piratenhut,Sombrero pirata,Merirosvohattu,Chapeau de pirate,Piratlue,Kapelusz pirata,Pirathatt
+COSMETICS_GLASSES_FASHION,Flower glasses,Květinové brýle,Kvetinové okuliare,Blumenbrille,Gafas de flores,Kukkalasit,Lunettes fleuries,Blomsterbriller,Kwiatowe okulary,Blomglasögon
+COSMETICS_GLASSES_GREEN,Green glasses,Zelené brýle,Zelené okuliare,Grüne Brille,Gafas verdes,Vihreät lasit,Lunettes vertes,Grønne briller,Zielone okulary,Gröna glasögon
+COSMETICS_GLASSES_MOON,Moon glasses,Měsíční brýle,Mesačné okuliare,Mondbrille,Gafas de luna,Kuulasit,Lunettes lune,Månebriller,Księżycowe okulary,Månglasögon
+HOME_NAME_EDIT_HINT,Tap to change your name,Klepnutím změníš jméno,Klepnutím zmeníš meno,Tippe um deinen Namen zu ändern,Toca para cambiar tu nombre,Napauta ja vaihda nimesi,Touche pour changer ton prénom,Trykk for å endre navn,Dotknij aby zmienić imię,Tryck för att byta namn
+NAME_DIALOG_TITLE,What's your name?,Jak se jmenuješ?,Ako sa voláš?,Wie heißt du?,¿Cómo te llamas?,Mikä sinun nimesi on?,Comment tu t'appelles ?,Hva heter du?,Jak masz na imię?,Vad heter du?
+NAME_DIALOG_PLACEHOLDER,Type your name,Napiš své jméno,Napíš svoje meno,Schreib deinen Namen,Escribe tu nombre,Kirjoita nimesi,Écris ton prénom,Skriv navnet ditt,Wpisz swoje imię,Skriv ditt namn
+NAME_SAVE,Save,Uložit,Uložiť,Speichern,Guardar,Tallenna,Enregistrer,Lagre,Zapisz,Spara
+NAME_CANCEL,Cancel,Zrušit,Zrušiť,Abbrechen,Cancelar,Peruuta,Annuler,Avbryt,Anuluj,Avbryt
+COSMETICS_GLASSES_PIRATE,Pirate eye patch,Pirátská páska,Pirátska páska,Piraten-Augenklappe,Parche pirata,Merirosvolappu,Cache-œil de pirate,Piratlapp,Piracka opaska,Piratlapp
+COSMETICS_NECKLACE_CROWN,Crown necklace,Náhrdelník s korunou,Náhrdelník s korunou,Kronen-Kette,Collar de corona,Kruunukaulakoru,Collier couronne,Kronehalskjede,Naszyjnik z koroną,Kronhalsband
+COSMETICS_NECKLACE_DUCK,Duck necklace,Kachní náhrdelník,Kačací náhrdelník,Enten-Kette,Collar de pato,Ankkakaulakoru,Collier canard,Andehalskjede,Kaczy naszyjnik,Ankhalsband
+COSMETICS_NECKLACE_MOON,Moon necklace,Měsíční náhrdelník,Mesačný náhrdelník,Mond-Kette,Collar de luna,Kuukaulakoru,Collier lune,Månehalskjede,Księżycowy naszyjnik,Månhalsband
+COSMETICS_GLASSES_STAR,Star glasses,Hvězdné brýle,Hviezdne okuliare,Sternenbrille,Gafas de estrella,Tähtilasit,Lunettes étoile,Stjernebriller,Gwiezdne okulary,Stjärnglasögon
+COSMETICS_NECKLACE_BOW_TIE,Bow tie,Motýlek,Motýlik,Fliege,Pajarita,Rusetti,Nœud papillon,Sløyfe,Muszka,Fluga
+COSMETICS_NECKLACE_SCARF,Scarf,Šála,Šál,Schal,Bufanda,Kaulahuivi,Écharpe,Skjerf,Szalik,Halsduk
+COSMETICS_TAB_COLOR,Color,Barva,Farba,Farbe,Color,Väri,Couleur,Farge,Kolor,Färg
+COSMETICS_TAB_HATS,Hats,Čepice,Čiapky,Mützen,Gorros,Hatut,Chapeaux,Luer,Czapki,Mössor
+COSMETICS_TAB_GLASSES,Glasses,Brýle,Okuliare,Brillen,Gafas,Lasit,Lunettes,Briller,Okulary,Glasögon
+COSMETICS_TAB_NECKLACES,Necklaces,Řetízky,Retiazky,Ketten,Collares,Kaulakorut,Colliers,Halskjeder,Naszyjniki,Halsband
+COSMETICS_TAB_FOOTWEAR,Shoes,Boty,Topánky,Schuhe,Zapatos,Kengät,Chaussures,Sko,Buty,Skor
+COSMETICS_FOOTWEAR_SNEAKERS,Sneakers,Tenisky,Tenisky,Turnschuhe,Zapatillas,Lenkkarit,Baskets,Joggesko,Trampki,Sneakers
+COSMETICS_FOOTWEAR_ROLLER,Roller skates,Kolečkové brusle,Kolieskové korčule,Rollschuhe,Patines,Rullaluistimet,Patins à roulettes,Rulleskøyter,Wrotki,Rullskridskor
+COSMETICS_FOOTWEAR_RABBIT,Bunny slippers,Zaječí bačkory,Zajačie papuče,Hasenpantoffeln,Zapatillas de conejo,Jänistossut,Chaussons lapin,Kanintøfler,Kapcie królika,Kanintofflor
+COSMETICS_FOOTWEAR_DUCK,Duck boots,Kachní holínky,Kačacie čižmy,Entenstiefel,Botas de pato,Ankkasaappaat,Bottes canard,Andestøvler,Kacze kalosze,Ankstövlar
+COSMETICS_FOOTWEAR_STAR,Star boots,Hvězdné boty,Hviezdne topánky,Sternenstiefel,Botas de estrella,Tähtisaappaat,Bottes étoile,Stjernestøvler,Gwiezdne buty,Stjärnstövlar
+COSMETICS_WEAR,Wear,Nasadit,Nasadiť,Anziehen,Poner,Pue,Porter,Ta på,Załóż,Ta på
+COSMETICS_WORN,Worn,Nasazeno,Nasadené,Angezogen,Puesto,Puettu,Porté,På,Założone,Påsatt
+COSMETICS_WEAR_COLOR,Use color,Použít barvu,Použiť farbu,Farbe nutzen,Usar color,Käytä väriä,Utiliser la couleur,Bruk fargen,Użyj koloru,Använd färgen
+COSMETICS_WORN_COLOR,In use,Používáš,Používaš,In Gebrauch,En uso,Käytössä,Utilisée,I bruk,Używasz,Används
+COSMETICS_TRY_HINT,Tap an item to try it on.,Klepni na věc a Numblop si ji zkusí.,Klepni na vec a Numblop si ju vyskúša.,Tippe etwas an und Numblop probiert es an.,Toca una cosa y Numblop se la prueba.,Napauta tavaraa niin Numblop sovittaa sen.,Touche un objet et Numblop l'essaie.,Trykk på en ting så prøver Numblop den.,Dotknij rzeczy a Numblop ją przymierzy.,Tryck på en sak så provar Numblop den.
+NAV_MAP,Map,Mapa,Mapa,Karte,Mapa,Kartta,Carte,Kart,Mapa,Karta
+NAV_TROPHY,Trophies,Poháry,Poháre,Pokale,Trofeos,Palkinnot,Trophées,Pokaler,Puchary,Pokaler
+HOME_FEATURE_LATER,Coming in a later update!,Připravujeme do další aktualizace!,Pripravujeme do ďalšej aktualizácie!,Kommt in einem späteren Update!,¡Llegará en una próxima actualización!,Tulossa myöhemmässä päivityksessä!,Arrive dans une prochaine mise à jour !,Kommer i en senere oppdatering!,Pojawi się w kolejnej aktualizacji!,Kommer i en senare uppdatering!
+MAP_TITLE,Map,Mapa,Mapa,Karte,Mapa,Kartta,Carte,Kart,Mapa,Karta
+MAP_SUBTITLE,Follow the multiplication trail!,Postupuj násobilkami!,Postupuj násobilkami!,Folge dem Einmaleins-Pfad!,¡Sigue el camino de las tablas!,Seuraa kertotaulupolkua!,Suis le chemin des tables !,Følg gangetabellstien!,Podążaj szlakiem tabliczki mnożenia!,Följ multiplikationsstigen!
+MAP_HINT,Swipe to explore every stage.,Tažením prozkoumej všechny etapy.,Potiahnutím preskúmaj všetky etapy.,Wische um alle Etappen zu sehen.,Desliza para ver todas las etapas.,Pyyhkäise ja tutki kaikki etapit.,Fais glisser pour voir toutes les étapes.,Dra for å utforske alle etappene.,Przesuń aby zobaczyć wszystkie etapy.,Dra för att utforska alla etapper.
+MAP_BACK_ACCESSIBLE,Return home,Zpět domů,Späť domov,Zurück zum Start,Volver al inicio,Takaisin kotiin,Retour à l'accueil,Tilbake til start,Powrót do domu,Tillbaka hem
+MAP_TABLE,{table}×,{table}×,{table}×,{table}×,{table}×,{table}×,{table}×,{table}×,{table}×,{table}×
+MAP_STAGE_CURRENT,Learning now,Právě se učíš,Práve sa učíš,Gerade dran,Aprendiendo ahora,Opit juuri nyt,En cours,Lærer nå,Właśnie się uczysz,Lär dig nu
+MAP_STAGE_COMPLETE,Trail cleared,Cesta splněna,Cesta splnená,Pfad geschafft,Camino completado,Polku suoritettu,Chemin terminé,Sti fullført,Szlak ukończony,Stigen klarad
+MAP_STAGE_LOCKED,Locked,Zamčeno,Zamknuté,Gesperrt,Bloqueado,Lukittu,Verrouillé,Låst,Zablokowane,Låst
+MAP_STAGE_PROGRESS,Progress {percent}%,Pokrok {percent} %,Pokrok {percent} %,Fortschritt {percent} %,Progreso {percent} %,Edistyminen {percent} %,Progression {percent} %,Fremgang {percent} %,Postęp {percent} %,Framsteg {percent} %
+MAP_STAGE_UNLOCKED,The {table}× island is unlocked!,Ostrov {table}× je odemčený!,Ostrov {table}× je odomknutý!,Die Insel {table}× ist frei!,¡La isla {table}× está desbloqueada!,Saari {table}× on avattu!,L'île {table}× est débloquée !,Øya {table}× er låst opp!,Wyspa {table}× jest odblokowana!,Ön {table}× är upplåst!
+MAP_STAGE_OPEN_DETAIL,View {table}× mastery,Zobrazit upevnění {table}×,Zobraziť upevnenie {table}×,Fortschritt {table}× ansehen,Ver el dominio de {table}×,Näytä {table}× hallinta,Voir la maîtrise {table}×,Se mestring {table}×,Pokaż opanowanie {table}×,Visa behärskning {table}×
+MAP_FACT_DETAIL_TITLE,{table}× facts,Spoje {table}×,Spoje {table}×,Aufgaben {table}×,Cálculos {table}×,Laskut {table}×,Calculs {table}×,Oppgaver {table}×,Działania {table}×,Tal {table}×
+MAP_FACT_DETAIL_OVERALL,Island progress {percent}%,Pokrok ostrova {percent} %,Pokrok ostrova {percent} %,Inselfortschritt {percent} %,Progreso de la isla {percent} %,Saaren edistyminen {percent} %,Progression de l'île {percent} %,Øyfremgang {percent} %,Postęp wyspy {percent} %,Öns framsteg {percent} %
+MAP_FACT_DETAIL_CLOSE,Close fact detail,Zavřít detail spojů,Zavrieť detail spojov,Aufgabendetails schließen,Cerrar el detalle,Sulje laskujen tiedot,Fermer le détail,Lukk detaljene,Zamknij szczegóły,Stäng detaljerna
+MAP_FACT_PERCENT,{percent}%,{percent} %,{percent} %,{percent} %,{percent} %,{percent} %,{percent} %,{percent} %,{percent} %,{percent} %
+MAP_FACT_BUILDING,Building up,Objevuji,Objavujem,Ich entdecke,Descubriendo,Tutustun,Je découvre,Jeg oppdager,Odkrywam,Jag upptäcker
+MAP_FACT_PRACTICING,Practicing,Procvičuji,Precvičujem,Ich übe,Practicando,Harjoittelen,Je m'entraîne,Jeg øver,Ćwiczę,Jag övar
+MAP_FACT_MASTERED,Mastered,Upevňuji,Upevňujem,Ich festige,Afianzando,Vahvistan,Je consolide,Jeg fester det,Utrwalam,Jag befäster
+MAP_FACT_AUTOMATED,Automatic,Mám jistotu,Mám istotu,Ich kann es sicher,Lo tengo seguro,Osaan varmasti,Je maîtrise,Jeg kan det,Mam pewność,Jag kan det säkert
+NAV_SETTINGS,Settings,Nastavení,Nastavenia,Einstellungen,Ajustes,Asetukset,Réglages,Innstillinger,Ustawienia,Inställningar
+NAV_HOME,Home,Domů,Domov,Start,Inicio,Koti,Accueil,Hjem,Dom,Hem
+SETTINGS_TITLE,Settings,Nastavení,Nastavenia,Einstellungen,Ajustes,Asetukset,Réglages,Innstillinger,Ustawienia,Inställningar
+SETTINGS_VERSION,Version {version},Verze {version},Verzia {version},Version {version},Versión {version},Versio {version},Version {version},Versjon {version},Wersja {version},Version {version}
+SETTINGS_LANGUAGE,Language,Jazyk,Jazyk,Sprache,Idioma,Kieli,Langue,Språk,Język,Språk
+SETTINGS_MUSIC,Background music,Hudba na pozadí,Hudba na pozadí,Hintergrundmusik,Música de fondo,Taustamusiikki,Musique de fond,Bakgrunnsmusikk,Muzyka w tle,Bakgrundsmusik
+SETTINGS_SFX,Sound effects,Zvukové efekty,Zvukové efekty,Soundeffekte,Efectos de sonido,Äänitehosteet,Effets sonores,Lydeffekter,Efekty dźwiękowe,Ljudeffekter
+SETTINGS_SOUND,Sound,Zvuk,Zvuk,Ton,Sonido,Ääni,Son,Lyd,Dźwięk,Ljud
+SETTINGS_SOUND_ON_ACCESSIBLE,Sound is on,Zvuk je zapnutý,Zvuk je zapnutý,Ton ist an,El sonido está activado,Ääni on päällä,Le son est activé,Lyden er på,Dźwięk jest włączony,Ljudet är på
+SETTINGS_SOUND_OFF_ACCESSIBLE,Sound is off,Zvuk je vypnutý,Zvuk je vypnutý,Ton ist aus,El sonido está desactivado,Ääni on pois päältä,Le son est désactivé,Lyden er av,Dźwięk jest wyłączony,Ljudet är av
+SETTINGS_HAPTICS,Vibration,Vibrace,Vibrácie,Vibration,Vibración,Värinä,Vibration,Vibrasjon,Wibracje,Vibration
+SETTINGS_HAPTICS_ON_ACCESSIBLE,Vibration is on,Vibrace jsou zapnuté,Vibrácie sú zapnuté,Vibration ist an,La vibración está activada,Värinä on päällä,La vibration est activée,Vibrasjonen er på,Wibracje są włączone,Vibrationen är på
+SETTINGS_HAPTICS_OFF_ACCESSIBLE,Vibration is off,Vibrace jsou vypnuté,Vibrácie sú vypnuté,Vibration ist aus,La vibración está desactivada,Värinä on pois päältä,La vibration est désactivée,Vibrasjonen er av,Wibracje są wyłączone,Vibrationen är av
+SETTINGS_VOLUME_VALUE,{value}%,{value}%,{value}%,{value}%,{value}%,{value}%,{value}%,{value}%,{value}%,{value}%
+SETTINGS_HINT,Changes are saved on this device.,Změny se ukládají v tomto zařízení.,Zmeny sa ukladajú v tomto zariadení.,Änderungen werden auf diesem Gerät gespeichert.,Los cambios se guardan en este dispositivo.,Muutokset tallennetaan tälle laitteelle.,Les changements sont enregistrés sur cet appareil.,Endringene lagres på denne enheten.,Zmiany są zapisywane na tym urządzeniu.,Ändringarna sparas på den här enheten.
+SETTINGS_BACK_ACCESSIBLE,Return to the previous screen,Zpět na předchozí obrazovku,Späť na predchádzajúcu obrazovku,Zurück zum vorherigen Bildschirm,Volver a la pantalla anterior,Takaisin edelliseen näkymään,Retour à l'écran précédent,Tilbake til forrige skjerm,Powrót do poprzedniego ekranu,Tillbaka till föregående skärm
+SETTINGS_EXIT,Close game,Ukončit hru,Ukončiť hru,Spiel beenden,Cerrar el juego,Sulje peli,Quitter le jeu,Avslutt spillet,Zamknij grę,Avsluta spelet
+SETTINGS_EXIT_TITLE,Close Numblop?,Ukončit Numblopa?,Ukončiť Numblopa?,Numblop beenden?,¿Cerrar Numblop?,Suljetaanko Numblop?,Quitter Numblop ?,Avslutte Numblop?,Zamknąć Numblopa?,Avsluta Numblop?
+SETTINGS_EXIT_CONFIRM,Do you want to close the game?,Chceš ukončit hru?,Chceš ukončiť hru?,Möchtest du das Spiel beenden?,¿Quieres cerrar el juego?,Haluatko sulkea pelin?,Veux-tu quitter le jeu ?,Vil du avslutte spillet?,Czy chcesz zamknąć grę?,Vill du avsluta spelet?
+SETTINGS_EXIT_YES,Close,Ukončit,Ukončiť,Beenden,Cerrar,Sulje,Quitter,Avslutt,Zamknij,Avsluta
+SETTINGS_EXIT_CANCEL,Keep playing,Pokračovat ve hře,Pokračovať v hre,Weiterspielen,Seguir jugando,Jatka pelaamista,Continuer à jouer,Fortsett å spille,Graj dalej,Fortsätt spela

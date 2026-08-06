@@ -1,13 +1,10 @@
-[gd_scene load_steps=27 format=3]
+[gd_scene load_steps=24 format=3]
 
 [ext_resource type="Script" path="res://scripts/ui/SettingsScreen.gd" id="1_script"]
 [ext_resource type="Texture2D" path="res://assets/backgrounds/mianscreen_background.png" id="2_background"]
-[ext_resource type="Texture2D" path="res://ui/buttons/button_language_english.png" id="3_english"]
-[ext_resource type="Texture2D" path="res://ui/buttons/button_language_czech.png" id="4_czech"]
 [ext_resource type="Font" path="res://ui/fonts/Baloo2Bold.tres" id="9_bold"]
 [ext_resource type="AudioStream" path="res://audio/sfx/Menu_Select_00.wav" id="10_preview"]
 [ext_resource type="Script" path="res://scripts/ui/CenteredContentMargin.gd" id="12_centered_margin"]
-[ext_resource type="Script" path="res://scripts/ui/CheckmarkIcon.gd" id="13_checkmark"]
 [ext_resource type="PackedScene" path="res://scenes/components/NavBar.tscn" id="14_navbar"]
 [ext_resource type="StyleBox" path="res://ui/styles/header_panel.tres" id="15_header_style"]
 [ext_resource type="Script" path="res://scripts/ui/TouchScrollContainer.gd" id="16_touchscroll"]
@@ -214,108 +211,12 @@ theme_override_font_sizes/font_size = 22
 text = "SETTINGS_LANGUAGE"
 horizontal_alignment = 1
 
-[node name="LanguageButtons" type="HBoxContainer" parent="SafeArea/Content/SettingsPanel/Scroll/ScrollMargin/SettingsContent"]
+[node name="LanguageButtons" type="HFlowContainer" parent="SafeArea/Content/SettingsPanel/Scroll/ScrollMargin/SettingsContent"]
+unique_name_in_owner = true
 layout_mode = 2
-theme_override_constants/separation = 42
+theme_override_constants/h_separation = 10
+theme_override_constants/v_separation = 10
 alignment = 1
-
-[node name="EnglishItem" type="VBoxContainer" parent="SafeArea/Content/SettingsPanel/Scroll/ScrollMargin/SettingsContent/LanguageButtons"]
-layout_mode = 2
-alignment = 1
-
-[node name="EnglishButton" type="TextureButton" parent="SafeArea/Content/SettingsPanel/Scroll/ScrollMargin/SettingsContent/LanguageButtons/EnglishItem"]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(48, 48)
-layout_mode = 2
-size_flags_horizontal = 4
-focus_mode = 2
-mouse_default_cursor_shape = 2
-ignore_texture_size = true
-stretch_mode = 0
-
-[node name="EnglishFlag" type="TextureRect" parent="SafeArea/Content/SettingsPanel/Scroll/ScrollMargin/SettingsContent/LanguageButtons/EnglishItem/EnglishButton"]
-custom_minimum_size = Vector2(38, 38)
-layout_mode = 1
-anchors_preset = 8
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = -19.0
-offset_top = -19.0
-offset_right = 19.0
-offset_bottom = 19.0
-grow_horizontal = 2
-grow_vertical = 2
-mouse_filter = 2
-texture = ExtResource("3_english")
-expand_mode = 1
-stretch_mode = 5
-
-[node name="EnglishCheck" type="Control" parent="SafeArea/Content/SettingsPanel/Scroll/ScrollMargin/SettingsContent/LanguageButtons/EnglishItem/EnglishButton"]
-unique_name_in_owner = true
-layout_mode = 1
-anchors_preset = 1
-anchor_left = 1.0
-anchor_right = 1.0
-offset_left = -20.0
-offset_bottom = 22.0
-grow_horizontal = 0
-mouse_filter = 2
-script = ExtResource("13_checkmark")
-line_width = 3.0
-scale_factor = 0.9
-outline_color = Color(1, 1, 1, 1)
-outline_width = 6.0
-
-[node name="CzechItem" type="VBoxContainer" parent="SafeArea/Content/SettingsPanel/Scroll/ScrollMargin/SettingsContent/LanguageButtons"]
-layout_mode = 2
-alignment = 1
-
-[node name="CzechButton" type="TextureButton" parent="SafeArea/Content/SettingsPanel/Scroll/ScrollMargin/SettingsContent/LanguageButtons/CzechItem"]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(48, 48)
-layout_mode = 2
-size_flags_horizontal = 4
-focus_mode = 2
-mouse_default_cursor_shape = 2
-ignore_texture_size = true
-stretch_mode = 0
-
-[node name="CzechFlag" type="TextureRect" parent="SafeArea/Content/SettingsPanel/Scroll/ScrollMargin/SettingsContent/LanguageButtons/CzechItem/CzechButton"]
-custom_minimum_size = Vector2(38, 38)
-layout_mode = 1
-anchors_preset = 8
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = -19.0
-offset_top = -19.0
-offset_right = 19.0
-offset_bottom = 19.0
-grow_horizontal = 2
-grow_vertical = 2
-mouse_filter = 2
-texture = ExtResource("4_czech")
-expand_mode = 1
-stretch_mode = 5
-
-[node name="CzechCheck" type="Control" parent="SafeArea/Content/SettingsPanel/Scroll/ScrollMargin/SettingsContent/LanguageButtons/CzechItem/CzechButton"]
-unique_name_in_owner = true
-layout_mode = 1
-anchors_preset = 1
-anchor_left = 1.0
-anchor_right = 1.0
-offset_left = -20.0
-offset_bottom = 22.0
-grow_horizontal = 0
-mouse_filter = 2
-script = ExtResource("13_checkmark")
-line_width = 3.0
-scale_factor = 0.9
-outline_color = Color(1, 1, 1, 1)
-outline_width = 6.0
 
 [node name="Divider" type="HSeparator" parent="SafeArea/Content/SettingsPanel/Scroll/ScrollMargin/SettingsContent"]
 layout_mode = 2

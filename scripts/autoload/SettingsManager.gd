@@ -2,7 +2,6 @@ extends Node
 
 const SETTINGS_PATH := "user://settings.cfg"
 const SYSTEM_LOCALE := "system"
-const SUPPORTED_LOCALES: Array[String] = ["en", "cs"]
 const DEFAULT_MUSIC_VOLUME := 0.75
 const DEFAULT_SFX_VOLUME := 0.9
 
@@ -45,7 +44,7 @@ func load_settings(path: String = SETTINGS_PATH) -> void:
     var config := ConfigFile.new()
     if config.load(path) == OK:
         var saved := str(config.get_value("language", "locale", SYSTEM_LOCALE))
-        if saved == SYSTEM_LOCALE or SUPPORTED_LOCALES.has(saved):
+        if saved == SYSTEM_LOCALE or LanguageCatalog.has_locale(saved):
             locale_preference = saved
         music_volume = clampf(
             float(config.get_value("audio", "music_volume", DEFAULT_MUSIC_VOLUME)),
@@ -62,7 +61,7 @@ func load_settings(path: String = SETTINGS_PATH) -> void:
 
 
 func set_locale_preference(locale: String, path: String = SETTINGS_PATH) -> Error:
-    if locale != SYSTEM_LOCALE and not SUPPORTED_LOCALES.has(locale):
+    if locale != SYSTEM_LOCALE and not LanguageCatalog.has_locale(locale):
         return ERR_INVALID_PARAMETER
     locale_preference = locale
     apply_locale()
@@ -125,11 +124,18 @@ func play_haptic(pattern_name: String) -> void:
     Input.vibrate_handheld(int(pattern["duration_ms"]), float(pattern["amplitude"]))
 
 
+## The locale actually in use: an explicit choice, or the device language when it is one we ship.
+##
+## `OS.get_locale_language()` returns a bare two-letter code, so Norwegian arrives as `nb` on
+## Bokmal devices but as `no` on the handful that still report the macrolanguage. Both mean the
+## same catalog column here.
 func effective_locale() -> String:
     if locale_preference != SYSTEM_LOCALE:
         return locale_preference
     var system_locale := OS.get_locale_language()
-    return "cs" if system_locale == "cs" else "en"
+    if system_locale == "no" or system_locale == "nn":
+        return "nb"
+    return system_locale if LanguageCatalog.has_locale(system_locale) else "en"
 
 
 func apply_locale() -> void:

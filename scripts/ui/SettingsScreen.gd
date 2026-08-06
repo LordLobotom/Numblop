@@ -10,10 +10,7 @@ signal exit_requested
 @onready var title_label: Label = %TitleLabel
 @onready var version_label: Label = %VersionLabel
 @onready var language_label: Label = %LanguageLabel
-@onready var english_button: TextureButton = %EnglishButton
-@onready var czech_button: TextureButton = %CzechButton
-@onready var english_check: CheckmarkIcon = %EnglishCheck
-@onready var czech_check: CheckmarkIcon = %CzechCheck
+@onready var language_buttons: HFlowContainer = %LanguageButtons
 @onready var music_label: Label = %MusicLabel
 @onready var music_value: Label = %MusicValue
 @onready var music_slider: HSlider = %MusicSlider
@@ -39,17 +36,22 @@ signal exit_requested
 @onready var navigation: NavBar = $SafeArea/Content/Navigation
 
 var _syncing_controls := false
+var _flag_buttons: Dictionary = {}
+var _flag_checks: Dictionary = {}
 
 const COMPACT_DIALOG_WIDTH := 420.0
 const DIALOG_SIDE_MARGIN := 20.0
 const DIALOG_MAX_WIDTH := 360.0
 const VERSION_SETTING := "application/config/version"
 const VERSION_FALLBACK := "0.1.0"
+## Ten flags wrap to 5 + 5 inside the settings card. 48 px is the touch minimum, and the flag
+## itself is inset so the checkmark in the corner never covers it.
+const FLAG_BUTTON_SIZE := Vector2(48.0, 48.0)
+const FLAG_IMAGE_SIZE := Vector2(38.0, 38.0)
 
 
 func _ready() -> void:
-    english_button.pressed.connect(_select_language.bind("en"))
-    czech_button.pressed.connect(_select_language.bind("cs"))
+    _build_language_buttons()
     music_slider.value_changed.connect(_on_audio_value_changed)
     sfx_slider.value_changed.connect(_on_audio_value_changed)
     sfx_slider.drag_ended.connect(_on_sfx_drag_ended)
@@ -117,8 +119,9 @@ func _refresh_text() -> void:
     confirm_exit_button.text = tr("SETTINGS_EXIT_YES")
     cancel_exit_button.text = tr("SETTINGS_EXIT_CANCEL")
     hint_label.text = tr("SETTINGS_HINT")
-    english_button.tooltip_text = tr("LANGUAGE_ENGLISH")
-    czech_button.tooltip_text = tr("LANGUAGE_CZECH")
+    for locale in _flag_buttons:
+        var button: TextureButton = _flag_buttons[locale]
+        button.tooltip_text = tr(LanguageCatalog.name_key(String(locale)))
     _refresh_volume_values()
 
 
@@ -131,12 +134,69 @@ func _refresh_volume_values() -> void:
     })
 
 
+## The flag a given locale is chosen with, or null. Generated nodes carry no unique name, so
+## this is how the tests reach one -- the same shape as `MapScreen.stage_button`.
+func language_button(locale: String) -> TextureButton:
+    return _flag_buttons.get(locale, null) as TextureButton
+
+
+func _build_language_buttons() -> void:
+    for language in LanguageCatalog.LANGUAGES:
+        var locale := String(language["locale"])
+        var button := TextureButton.new()
+        button.name = "%sButton" % locale.to_upper()
+        button.custom_minimum_size = FLAG_BUTTON_SIZE
+        button.focus_mode = Control.FOCUS_ALL
+        button.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
+        button.ignore_texture_size = true
+        button.stretch_mode = TextureButton.STRETCH_SCALE
+        button.pressed.connect(_select_language.bind(locale))
+
+        # The flag is a child rather than the button texture so the checkmark can overlap the
+        # button's corner without sitting on top of the flag itself.
+        var flag := TextureRect.new()
+        flag.name = "Flag"
+        flag.custom_minimum_size = FLAG_IMAGE_SIZE
+        flag.set_anchors_preset(Control.PRESET_CENTER)
+        flag.offset_left = -FLAG_IMAGE_SIZE.x / 2.0
+        flag.offset_top = -FLAG_IMAGE_SIZE.y / 2.0
+        flag.offset_right = FLAG_IMAGE_SIZE.x / 2.0
+        flag.offset_bottom = FLAG_IMAGE_SIZE.y / 2.0
+        flag.grow_horizontal = Control.GROW_DIRECTION_BOTH
+        flag.grow_vertical = Control.GROW_DIRECTION_BOTH
+        flag.mouse_filter = Control.MOUSE_FILTER_IGNORE
+        flag.texture = load(LanguageCatalog.flag_path(locale))
+        flag.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+        flag.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+        button.add_child(flag)
+
+        var check := CheckmarkIcon.new()
+        check.name = "Check"
+        check.set_anchors_preset(Control.PRESET_TOP_RIGHT)
+        check.offset_left = -20.0
+        check.offset_bottom = 22.0
+        check.grow_horizontal = Control.GROW_DIRECTION_BEGIN
+        check.mouse_filter = Control.MOUSE_FILTER_IGNORE
+        check.line_width = 3.0
+        check.scale_factor = 0.9
+        check.outline_color = Color.WHITE
+        check.outline_width = 6.0
+        button.add_child(check)
+
+        language_buttons.add_child(button)
+        _flag_buttons[locale] = button
+        _flag_checks[locale] = check
+
+
 func _refresh_language_selection() -> void:
     var locale := SettingsManager.effective_locale()
-    english_check.visible = locale == "en"
-    czech_check.visible = locale == "cs"
-    english_button.modulate = Color.WHITE if locale == "en" else Color(1, 1, 1, 0.58)
-    czech_button.modulate = Color.WHITE if locale == "cs" else Color(1, 1, 1, 0.58)
+    for entry in _flag_buttons:
+        var selected := String(entry) == locale
+        (_flag_checks[entry] as CheckmarkIcon).visible = selected
+        # The unselected flags stay legible but clearly step back from the chosen one.
+        (_flag_buttons[entry] as TextureButton).modulate = (
+            Color.WHITE if selected else Color(1, 1, 1, 0.58)
+        )
 
 
 func _select_language(locale: String) -> void:

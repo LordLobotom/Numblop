@@ -6,25 +6,54 @@ signal opening_finished
 const FIRST_LAUNCH_LOCALE := "system"
 const OPENING_LOCALE := "en"
 
+## Ten flags will not fit across 390 px in one row, so they wrap to 5 + 5. The narrowest column
+## the safe area leaves is 358 px, and five of these plus four gaps come to 340 -- comfortably
+## inside it, while still well past the 48 px touch minimum. Growing either number past 65 px
+## of pitch drops the row to four flags and the layout breaks into 4 + 4 + 2.
+const FLAG_SIZE := Vector2(60.0, 60.0)
+
 @onready var logo: TextureRect = %Logo
 @onready var loading_label: Label = %LoadingLabel
 @onready var language_panel: VBoxContainer = %LanguagePanel
 @onready var language_prompt: Label = %LanguagePrompt
-@onready var english_button: TextureButton = %EnglishButton
-@onready var czech_button: TextureButton = %CzechButton
+@onready var language_buttons: HFlowContainer = %LanguageButtons
 @onready var select_player: AudioStreamPlayer = %SelectPlayer
 
 var _loading_pulse: Tween
 var _is_finishing := false
 var _opening_locale_forced := false
+var _flag_buttons: Dictionary = {}
 
 
 func _ready() -> void:
     _force_opening_locale()
-    english_button.pressed.connect(_on_language_selected.bind("en"))
-    czech_button.pressed.connect(_on_language_selected.bind("cs"))
+    _build_language_buttons()
     _refresh_text()
     _play_opening()
+
+
+## The flag a given locale is chosen with, or null. Generated nodes carry no unique name, so
+## this is how the tutorial and the tests reach one -- the same shape as `MapScreen.stage_button`.
+func language_button(locale: String) -> TextureButton:
+    return _flag_buttons.get(locale, null) as TextureButton
+
+
+func _build_language_buttons() -> void:
+    for language in LanguageCatalog.LANGUAGES:
+        var locale := String(language["locale"])
+        var button := TextureButton.new()
+        button.name = "%sButton" % locale.to_upper()
+        button.custom_minimum_size = FLAG_SIZE
+        button.focus_mode = Control.FOCUS_ALL
+        button.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
+        button.ignore_texture_size = true
+        button.stretch_mode = TextureButton.STRETCH_SCALE
+        button.texture_normal = load(LanguageCatalog.flag_path(locale))
+        # Nothing is choosable until the panel is actually revealed.
+        button.disabled = true
+        button.pressed.connect(_on_language_selected.bind(locale))
+        language_buttons.add_child(button)
+        _flag_buttons[locale] = button
 
 
 func _notification(what: int) -> void:
@@ -37,8 +66,9 @@ func _notification(what: int) -> void:
 func _refresh_text() -> void:
     loading_label.text = tr("OPENING_LOADING")
     language_prompt.text = tr("OPENING_LANGUAGE_PROMPT")
-    english_button.tooltip_text = tr("LANGUAGE_ENGLISH")
-    czech_button.tooltip_text = tr("LANGUAGE_CZECH")
+    for locale in _flag_buttons:
+        var button: TextureButton = _flag_buttons[locale]
+        button.tooltip_text = tr(LanguageCatalog.name_key(String(locale)))
 
 
 func _force_opening_locale() -> void:
@@ -83,23 +113,25 @@ func _show_language_choices() -> void:
         _loading_pulse.kill()
     loading_label.visible = false
     language_panel.visible = true
-    english_button.disabled = false
-    czech_button.disabled = false
+    _set_buttons_disabled(false)
     var reveal_choices := create_tween()
     reveal_choices.tween_property(language_panel, "modulate", Color.WHITE, 0.3)
+
+
+func _set_buttons_disabled(disabled: bool) -> void:
+    for locale in _flag_buttons:
+        (_flag_buttons[locale] as TextureButton).disabled = disabled
 
 
 func _on_language_selected(locale: String) -> void:
     if _is_finishing:
         return
-    english_button.disabled = true
-    czech_button.disabled = true
+    _set_buttons_disabled(true)
     select_player.play()
     var result := SettingsManager.set_locale_preference(locale)
     if result != OK:
         push_error("Could not save the selected opening language")
-        english_button.disabled = false
-        czech_button.disabled = false
+        _set_buttons_disabled(false)
         return
     TranslationServer.set_locale(OPENING_LOCALE)
     _finish_opening()
