@@ -54,9 +54,52 @@ func test_a_short_tap_still_activates_the_control_under_it() -> void:
     _free_scroll(scroll)
 
 
+func test_a_sideways_drag_on_a_slider_sets_it_instead_of_scrolling() -> void:
+    # The takeover treated a volume slider like any other control and canceled its press after
+    # 12 px, so the settings sliders could only be tapped at a position, never dragged.
+    # Driven with mouse events, because that is what a finger becomes: Godot emulates a mouse
+    # from every touch, and `Range` only reads the emulated events, never the raw ones.
+    var scroll := _build_scroll_with_slider()
+    var slider: HSlider = scroll.get_node("Column").get_child(0)
+    await _settle()
+
+    _click(Vector2(40.0, 40.0), true)
+    await _settle()
+    for step in 5:
+        _move(Vector2(40.0 + float(step + 1) * 30.0, 42.0))
+        await _settle()
+
+    check(not scroll.is_gesture_scrolling(), "The page never claims a slider's own gesture")
+    equal(scroll.scroll_vertical, 0, "Setting the volume does not move the page")
+    check(slider.value > 0.0, "The slider followed the finger")
+    _click(Vector2(190.0, 42.0), false)
+    await _settle()
+    _free_scroll(scroll)
+
+
+func test_an_upward_drag_that_starts_on_a_slider_still_scrolls_the_page() -> void:
+    # The sliders are full-width 48 px bands, so refusing every gesture that begins on one
+    # would leave a dead stripe the page cannot be scrolled from.
+    var scroll := _build_scroll_with_slider()
+    await _settle()
+
+    _touch(Vector2(150.0, 40.0), true)
+    await _settle()
+    for step in 5:
+        _drag(Vector2(152.0, 40.0 - float(step + 1) * 20.0))
+        await _settle()
+
+    check(scroll.is_gesture_scrolling(), "A vertical drag off a slider is still a scroll")
+    check(scroll.scroll_vertical > 0, "The page followed the finger")
+    _touch(Vector2(152.0, -60.0), false)
+    await _settle()
+    _free_scroll(scroll)
+
+
 func test_every_scrolling_screen_can_be_dragged_from_anywhere() -> void:
-    # Each of these is a page of islands, cards, sliders or swatches; without the shared
-    # container a drag that began on one of them was delivered to that control alone.
+    # Each of these is a page of islands, cards or swatches; without the shared container a
+    # drag that began on one of them was delivered to that control alone. Sliders are the
+    # documented exception -- see the two tests above.
     for entry in [
         ["res://scenes/screens/MapScreen.tscn", "%Scroll"],
         ["res://scenes/screens/TrophyScreen.tscn", "SafeArea/Content/AchievementsPanel/Scroll"],
@@ -115,6 +158,20 @@ func _build_scroll() -> TouchScrollContainer:
         row.custom_minimum_size = ROW_SIZE
         row.pressed.connect(func() -> void: _presses += 1)
         column.add_child(row)
+    return scroll
+
+
+## The same list, but with a full-width slider as its first row.
+func _build_scroll_with_slider() -> TouchScrollContainer:
+    var scroll := _build_scroll()
+    var column: VBoxContainer = scroll.get_node("Column")
+    var slider := HSlider.new()
+    slider.custom_minimum_size = Vector2(ROW_SIZE.x, 48.0)
+    slider.max_value = 100.0
+    slider.step = 1.0
+    slider.value = 0.0
+    column.add_child(slider)
+    column.move_child(slider, 0)
     return scroll
 
 

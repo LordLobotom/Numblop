@@ -8,7 +8,6 @@ signal trophy_requested
 signal exit_requested
 
 @onready var title_label: Label = %TitleLabel
-@onready var subtitle_label: Label = %SubtitleLabel
 @onready var version_label: Label = %VersionLabel
 @onready var language_label: Label = %LanguageLabel
 @onready var english_button: TextureButton = %EnglishButton
@@ -104,7 +103,6 @@ func _sync_controls_from_settings() -> void:
 
 func _refresh_text() -> void:
     title_label.text = tr("SETTINGS_TITLE")
-    subtitle_label.text = tr("SETTINGS_SUBTITLE")
     var app_version := str(ProjectSettings.get_setting(VERSION_SETTING, VERSION_FALLBACK))
     version_label.text = tr("SETTINGS_VERSION").format({"version": app_version})
     language_label.text = tr("SETTINGS_LANGUAGE")

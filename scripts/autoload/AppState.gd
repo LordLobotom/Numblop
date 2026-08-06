@@ -205,7 +205,9 @@ func achievements_state() -> Dictionary:
         entry["granted"] = achievements.has_granted(String(entry["id"]))
         entries.append(entry)
     return {
-        "best_streak": streak.all_time_high,
+        # The record the trophy screen shows rises during the run that sets it, rather than
+        # waiting for the mistake that ends it.
+        "best_streak": streak.best_count(),
         "achievements": entries,
     }
 
@@ -255,7 +257,7 @@ func _achievement_statistics() -> Dictionary:
     return {
         "completed_sessions": progress.completed_sessions,
         # A streak counts the moment it is reached; it does not have to be ended by a mistake.
-        "best_streak": maxi(streak.all_time_high, streak.current_count),
+        "best_streak": streak.best_count(),
         # One experience point per correct answer, so this is the lifetime correct-answer count.
         "experience": progress.experience,
         "owned_cosmetics": _owned_paid_cosmetics(),

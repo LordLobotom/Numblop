@@ -54,7 +54,7 @@ script = ExtResource("10_centered_margin")
 
 [node name="Content" type="VBoxContainer" parent="SafeArea"]
 layout_mode = 2
-theme_override_constants/separation = 6
+theme_override_constants/separation = 8
 
 [node name="Header" type="PanelContainer" parent="SafeArea/Content"]
 layout_mode = 2
@@ -63,29 +63,42 @@ theme_override_styles/panel = ExtResource("12_header_style")
 [node name="HeaderRow" type="HBoxContainer" parent="SafeArea/Content/Header"]
 layout_mode = 2
 theme_override_constants/separation = 8
-
-[node name="Heading" type="VBoxContainer" parent="SafeArea/Content/Header/HeaderRow"]
-layout_mode = 2
-size_flags_horizontal = 3
-theme_override_constants/separation = 0
 alignment = 1
 
-[node name="TitleLabel" type="Label" parent="SafeArea/Content/Header/HeaderRow/Heading"]
+[node name="TitleBalance" type="Control" parent="SafeArea/Content/Header/HeaderRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+mouse_filter = 2
+
+[node name="TitleLabel" type="Label" parent="SafeArea/Content/Header/HeaderRow"]
 unique_name_in_owner = true
 layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 1
 theme_override_colors/font_color = Color(0.19, 0.34, 0.24, 1)
 theme_override_fonts/font = ExtResource("7_bold")
-theme_override_font_sizes/font_size = 28
+theme_override_font_sizes/font_size = 22
 text = "MAP_TITLE"
 horizontal_alignment = 1
+vertical_alignment = 1
 
-[node name="SubtitleLabel" type="Label" parent="SafeArea/Content/Header/HeaderRow/Heading"]
+[node name="TrailingBalance" type="Control" parent="SafeArea/Content/Header/HeaderRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+mouse_filter = 2
+
+[node name="Subheader" type="PanelContainer" parent="SafeArea/Content"]
+layout_mode = 2
+theme_override_styles/panel = ExtResource("12_header_style")
+
+[node name="SubtitleLabel" type="Label" parent="SafeArea/Content/Subheader"]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_colors/font_color = Color(0.27, 0.45, 0.31, 1)
 theme_override_font_sizes/font_size = 15
 text = "MAP_SUBTITLE"
 horizontal_alignment = 1
+vertical_alignment = 1
 autowrap_mode = 2
 
 [node name="Scroll" type="ScrollContainer" parent="SafeArea/Content"]

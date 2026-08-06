@@ -61,6 +61,14 @@ func record_answer(
     return milestone.duplicate(true)
 
 
+## The record as a player sees it: an unbroken run counts the moment it passes the old high.
+##
+## `all_time_high` deliberately lags behind it, because it is what gates milestone rows above and
+## the once-per-run record flash on the practice screen -- raising it mid-run would silence both.
+func best_count() -> int:
+    return maxi(all_time_high, current_count)
+
+
 func to_dictionary() -> Dictionary:
     return {
         "current_count": current_count,

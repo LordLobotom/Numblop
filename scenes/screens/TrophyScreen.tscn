@@ -17,12 +17,12 @@ corner_radius_top_left = 22
 corner_radius_top_right = 22
 corner_radius_bottom_right = 22
 corner_radius_bottom_left = 22
-content_margin_left = 14.0
-content_margin_top = 10.0
-content_margin_right = 14.0
-content_margin_bottom = 10.0
+content_margin_left = 12.0
+content_margin_top = 8.0
+content_margin_right = 12.0
+content_margin_bottom = 8.0
 shadow_color = Color(0.35, 0.23, 0.05, 0.16)
-shadow_size = 5
+shadow_size = 6
 
 [node name="TrophyScreen" type="Control"]
 layout_mode = 3
@@ -64,11 +64,13 @@ theme_override_styles/panel = ExtResource("12_header_style")
 
 [node name="HeaderRow" type="HBoxContainer" parent="SafeArea/Content/Header"]
 layout_mode = 2
-theme_override_constants/separation = 7
+theme_override_constants/separation = 8
+alignment = 1
 
 [node name="TrophyIcon" type="TextureRect" parent="SafeArea/Content/Header/HeaderRow"]
-custom_minimum_size = Vector2(44, 44)
+custom_minimum_size = Vector2(25, 25)
 layout_mode = 2
+size_flags_vertical = 4
 mouse_filter = 2
 texture = ExtResource("3_trophy")
 expand_mode = 1
@@ -80,13 +82,13 @@ layout_mode = 2
 size_flags_horizontal = 3
 theme_override_colors/font_color = Color(0.32, 0.25, 0.08, 1)
 theme_override_fonts/font = ExtResource("9_bold")
-theme_override_font_sizes/font_size = 28
+theme_override_font_sizes/font_size = 22
 text = "TROPHY_TITLE"
 horizontal_alignment = 1
 vertical_alignment = 1
 
 [node name="TitleBalance" type="Control" parent="SafeArea/Content/Header/HeaderRow"]
-custom_minimum_size = Vector2(44, 0)
+custom_minimum_size = Vector2(25, 0)
 layout_mode = 2
 mouse_filter = 2
 
@@ -96,24 +98,22 @@ theme_override_styles/panel = SubResource("SummaryPanel")
 
 [node name="SummaryRow" type="HBoxContainer" parent="SafeArea/Content/Summary"]
 layout_mode = 2
-theme_override_constants/separation = 10
+theme_override_constants/separation = 8
+alignment = 1
 
 [node name="FlameIcon" type="TextureRect" parent="SafeArea/Content/Summary/SummaryRow"]
-custom_minimum_size = Vector2(48, 48)
+custom_minimum_size = Vector2(25, 25)
 layout_mode = 2
+size_flags_vertical = 4
 mouse_filter = 2
 texture = ExtResource("4_flame")
 expand_mode = 1
 stretch_mode = 5
 
-[node name="SummaryLabels" type="MarginContainer" parent="SafeArea/Content/Summary/SummaryRow"]
-layout_mode = 2
-size_flags_horizontal = 3
-theme_override_constants/margin_top = 4
-
-[node name="BestLabel" type="Label" parent="SafeArea/Content/Summary/SummaryRow/SummaryLabels"]
+[node name="BestLabel" type="Label" parent="SafeArea/Content/Summary/SummaryRow"]
 unique_name_in_owner = true
 layout_mode = 2
+size_flags_horizontal = 3
 theme_override_colors/font_color = Color(0.78, 0.23, 0.05, 1)
 theme_override_fonts/font = ExtResource("9_bold")
 theme_override_font_sizes/font_size = 22
@@ -122,7 +122,7 @@ horizontal_alignment = 1
 vertical_alignment = 1
 
 [node name="BestBalance" type="Control" parent="SafeArea/Content/Summary/SummaryRow"]
-custom_minimum_size = Vector2(48, 0)
+custom_minimum_size = Vector2(25, 0)
 layout_mode = 2
 mouse_filter = 2
 

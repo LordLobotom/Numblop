@@ -13,6 +13,38 @@ func test_streak_continues_across_arbitrary_round_boundaries() -> void:
     equal(streak.current_count, 17, "Correct answers continue across rounds")
     equal(streak.all_time_high, 0, "Active streak is recorded only when interrupted")
     equal(streak.milestones, [], "No interruption means no trophy milestone")
+    equal(streak.best_count(), 17, "The record a player is shown counts the run in progress")
+
+
+func test_the_shown_record_rises_during_the_run_that_sets_it() -> void:
+    # Testers saw the trophy screen sit on the old number until they finally got one wrong.
+    var streak := LocalStreak.new()
+    _record_correct(streak, 3)
+    streak.record_answer(false, 1000, 120)
+    equal(streak.best_count(), 3, "An ended run is the record")
+
+    _record_correct(streak, 2)
+    equal(streak.best_count(), 3, "A shorter run in progress does not lower the record")
+    _record_correct(streak, 2)
+    equal(streak.best_count(), 4, "Passing the old high counts immediately")
+    equal(streak.all_time_high, 3, "The milestone gate still waits for the mistake")
+
+
+func test_the_shown_record_survives_a_restart_mid_run() -> void:
+    _remove_test_file()
+    var streak := LocalStreak.new()
+    _record_correct(streak, 9)
+    equal(
+        SaveManager.save_game_state(
+            LearningProfile.new(), 0, 0, TEST_PATH, {}, streak.to_dictionary()
+        ),
+        OK,
+        "Streak save"
+    )
+    var loaded := LocalStreak.new(SaveManager.load_streak(TEST_PATH))
+    equal(loaded.best_count(), 9, "Closing the app mid-run does not lose the record")
+    equal(loaded.all_time_high, 0, "The ended-run high is still untouched")
+    _remove_test_file()
 
 
 func test_only_interrupted_new_highs_create_timestamped_milestones() -> void:

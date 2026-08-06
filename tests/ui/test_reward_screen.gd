@@ -36,8 +36,9 @@ func test_reward_screen_has_count_up_totals_and_returns_automatically() -> void:
     check(scene.get_node("%BreakdownList") is VBoxContainer, "Reward breakdown lines")
     check(scene.get_node("%TotalRewardLabel") is Label, "Total reward line")
     check(scene.get_node_or_null("%ContinueButton") == null, "No continue button")
-    check(scene.AUTO_RETURN_DELAY_SECONDS >= 5.0, "The finished page is held long enough to read")
-    check(scene.AUTO_RETURN_DELAY_SECONDS <= 12.0, "Nobody has to wait forever")
+    # No hint tells a child to tap, so the hold is the only thing giving them time to read.
+    check(scene.AUTO_RETURN_DELAY_SECONDS >= 12.0, "The finished page is held long enough to read")
+    check(scene.AUTO_RETURN_DELAY_SECONDS <= 20.0, "Nobody has to wait forever")
     scene.free()
 
 
@@ -54,6 +55,9 @@ func test_the_finished_page_is_held_and_a_tap_anywhere_skips_the_wait() -> void:
 
     scene.preview_opened_state(_reward_with_gains())
     check(skip.visible, "A tap anywhere works once everything is revealed")
+    # The prompt used to sit under the summary and pulled children off the page before they
+    # had read it. Tapping still works; it is simply no longer advertised.
+    check(not scene.get_node("%TapHint").visible, "The finished page carries no continue prompt")
     var returned := [false]
     scene.return_home_requested.connect(func() -> void: returned[0] = true)
     skip.pressed.emit()

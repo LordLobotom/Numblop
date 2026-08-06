@@ -13,6 +13,10 @@ extends ScrollContainer
 ## is then canceled rather than released, so the control the child started on lights up for
 ## the touch but never fires. Below the deadzone nothing is intercepted at all and a short
 ## tap behaves exactly as before.
+##
+## Sliders are the one exception. Dragging one sideways is how it is set, so a gesture that
+## started on a slider is only claimed when the finger is clearly heading up or down; a
+## sideways drag is left to the slider and the volume follows the finger the whole way.
 
 ## Identifies the mouse as a pointer alongside the numbered touch indices.
 const MOUSE_POINTER_INDEX := -1
@@ -35,6 +39,11 @@ var _fling_velocity := Vector2.ZERO
 ## Set while the synthetic cancel below is being dispatched, so this node does not read
 ## its own cancel as the finger having been lifted.
 var _canceling_child_press := false
+## The gesture began on a slider, so it has to prove it is a scroll before being claimed.
+var _started_on_slider := false
+## Latched once a slider's gesture is judged sideways: the rest of it belongs to the slider,
+## so a wobble later in the drag can never yank it away mid-adjustment.
+var _declined := false
 
 
 func _ready() -> void:
@@ -77,6 +86,8 @@ func _handle_pointer_press(position: Vector2, pressed: bool, pointer_index: int)
         _pointer_index = pointer_index
         _tracking = true
         _dragging = false
+        _declined = false
+        _started_on_slider = _find_range_at(self, position) != null
         _origin = position
         _last_position = position
         _last_motion_msec = Time.get_ticks_msec()
@@ -89,6 +100,8 @@ func _handle_pointer_press(position: Vector2, pressed: bool, pointer_index: int)
     var was_dragging := _dragging
     _tracking = false
     _dragging = false
+    _declined = false
+    _started_on_slider = false
     if was_dragging:
         # The child's press was already canceled; swallowing the release too keeps the
         # lift-off from counting as a tap on whatever ended up under the finger.
@@ -99,6 +112,8 @@ func _handle_pointer_press(position: Vector2, pressed: bool, pointer_index: int)
 func _handle_pointer_motion(position: Vector2, pointer_index: int) -> void:
     if not _tracking or pointer_index != _pointer_index:
         return
+    if _declined:
+        return
     var motion := position - _last_position
     var elapsed_msec := Time.get_ticks_msec() - _last_motion_msec
     _last_position = position
@@ -106,6 +121,13 @@ func _handle_pointer_motion(position: Vector2, pointer_index: int) -> void:
     if not _dragging:
         if _origin.distance_to(position) < float(scroll_deadzone):
             return
+        # A slider keeps its own gesture unless the finger is clearly leaving it vertically,
+        # so the page can still be scrolled from the band a slider sits in.
+        if _started_on_slider:
+            var travel := position - _origin
+            if absf(travel.y) <= absf(travel.x):
+                _declined = true
+                return
         _dragging = true
         _cancel_child_press()
 
@@ -140,6 +162,24 @@ func _cancel_child_press() -> void:
     touch_cancel.canceled = true
     viewport.push_input(touch_cancel, true)
     _canceling_child_press = false
+
+
+## The deepest editable slider under the point, or null. Sliders are the only `Range` on these
+## pages and there are two of them, so the walk is cheap and stops at the first hit.
+func _find_range_at(node: Node, position: Vector2) -> Range:
+    for child in node.get_children():
+        var control := child as Control
+        if control == null or not control.is_visible_in_tree():
+            continue
+        if not control.get_global_rect().has_point(position):
+            continue
+        var range_control := control as Range
+        if range_control != null and range_control.editable:
+            return range_control
+        var nested := _find_range_at(control, position)
+        if nested != null:
+            return nested
+    return null
 
 
 func _scroll_by(amount: Vector2) -> void:

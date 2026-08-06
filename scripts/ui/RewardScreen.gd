@@ -4,8 +4,9 @@ extends Control
 signal return_home_requested
 
 const REQUIRED_TAPS := 1
-## The finished summary stays up long enough to read; a tap anywhere skips the rest of the wait.
-const AUTO_RETURN_DELAY_SECONDS := 8.0
+## The finished summary stays up long enough to read every line -- testers ran out of time at
+## half this. A tap anywhere still skips the rest of the wait, it just is not advertised on screen.
+const AUTO_RETURN_DELAY_SECONDS := 16.0
 ## Rows beyond this stay in the list but need a scroll, so the panel never crowds the chest.
 const VISIBLE_MASTERY_ROWS := 3
 const MASTERY_ROW_HEIGHT := 30.0
@@ -181,8 +182,7 @@ func preview_opened_state(reward: Dictionary) -> void:
     chest_button.visible = false
     chest_button.disabled = true
     opened_chest.visible = true
-    tap_hint.visible = true
-    tap_hint.text = tr("REWARD_TAP_CONTINUE")
+    tap_hint.visible = false
     title_label.text = tr("REWARD_OPENED")
     _build_mastery_list()
     reward_panel.visible = true
@@ -398,9 +398,9 @@ func _count_rewards() -> void:
     })
     phase = Phase.READY_TO_RETURN
     # Everything is revealed: hold the finished page, and let a tap anywhere cut the wait short.
+    # The hint line stays hidden -- the summary is what the page is for, and the prompt was
+    # rushing children past it.
     skip_button.visible = true
-    tap_hint.visible = true
-    tap_hint.text = tr("REWARD_TAP_CONTINUE")
     await get_tree().create_timer(AUTO_RETURN_DELAY_SECONDS).timeout
     _return_home()
 
@@ -447,5 +447,3 @@ func _refresh_text() -> void:
     skip_button.tooltip_text = tr("REWARD_TAP_CONTINUE")
     if phase == Phase.TAPPING:
         _update_tap_hint()
-    elif phase == Phase.READY_TO_RETURN:
-        tap_hint.text = tr("REWARD_TAP_CONTINUE")

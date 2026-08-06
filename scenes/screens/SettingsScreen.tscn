@@ -156,38 +156,29 @@ theme_override_styles/panel = ExtResource("15_header_style")
 [node name="HeaderRow" type="HBoxContainer" parent="SafeArea/Content/Header"]
 layout_mode = 2
 theme_override_constants/separation = 8
-
-[node name="Heading" type="VBoxContainer" parent="SafeArea/Content/Header/HeaderRow"]
-layout_mode = 2
-size_flags_horizontal = 3
-theme_override_constants/separation = 0
 alignment = 1
 
-[node name="TitleLabel" type="Label" parent="SafeArea/Content/Header/HeaderRow/Heading"]
+[node name="TitleBalance" type="Control" parent="SafeArea/Content/Header/HeaderRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+mouse_filter = 2
+
+[node name="TitleLabel" type="Label" parent="SafeArea/Content/Header/HeaderRow"]
 unique_name_in_owner = true
 layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 1
 theme_override_colors/font_color = Color(0.19, 0.34, 0.24, 1)
 theme_override_fonts/font = ExtResource("9_bold")
-theme_override_font_sizes/font_size = 28
+theme_override_font_sizes/font_size = 22
 text = "SETTINGS_TITLE"
 horizontal_alignment = 1
+vertical_alignment = 1
 
-[node name="SubtitleLabel" type="Label" parent="SafeArea/Content/Header/HeaderRow/Heading"]
-unique_name_in_owner = true
+[node name="TrailingBalance" type="Control" parent="SafeArea/Content/Header/HeaderRow"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.27, 0.45, 0.31, 1)
-theme_override_font_sizes/font_size = 15
-text = "SETTINGS_SUBTITLE"
-horizontal_alignment = 1
-autowrap_mode = 2
-
-[node name="VersionLabel" type="Label" parent="SafeArea/Content/Header/HeaderRow/Heading"]
-unique_name_in_owner = true
-layout_mode = 2
-theme_override_colors/font_color = Color(0.38, 0.52, 0.41, 1)
-theme_override_font_sizes/font_size = 12
-text = "SETTINGS_VERSION"
-horizontal_alignment = 1
+size_flags_horizontal = 3
+mouse_filter = 2
 
 [node name="SettingsPanel" type="PanelContainer" parent="SafeArea/Content"]
 custom_minimum_size = Vector2(336, 0)
@@ -359,6 +350,7 @@ theme_override_styles/grabber_area_highlight = SubResource("SliderFill")
 max_value = 100.0
 step = 1.0
 value = 75.0
+scrollable = false
 
 [node name="SfxHeader" type="HBoxContainer" parent="SafeArea/Content/SettingsPanel/Scroll/ScrollMargin/SettingsContent"]
 layout_mode = 2
@@ -390,6 +382,7 @@ theme_override_styles/grabber_area_highlight = SubResource("SliderFill")
 max_value = 100.0
 step = 1.0
 value = 90.0
+scrollable = false
 
 [node name="ToggleRow" type="HBoxContainer" parent="SafeArea/Content/SettingsPanel/Scroll/ScrollMargin/SettingsContent"]
 layout_mode = 2
@@ -457,6 +450,19 @@ theme_override_font_sizes/font_size = 15
 text = "SETTINGS_HINT"
 horizontal_alignment = 1
 autowrap_mode = 2
+
+[node name="VersionBar" type="PanelContainer" parent="SafeArea/Content"]
+layout_mode = 2
+theme_override_styles/panel = ExtResource("15_header_style")
+
+[node name="VersionLabel" type="Label" parent="SafeArea/Content/VersionBar"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.38, 0.52, 0.41, 1)
+theme_override_font_sizes/font_size = 12
+text = "SETTINGS_VERSION"
+horizontal_alignment = 1
+vertical_alignment = 1
 
 [node name="Navigation" parent="SafeArea/Content" instance=ExtResource("14_navbar")]
 layout_mode = 2

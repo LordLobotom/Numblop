@@ -174,7 +174,8 @@ func test_every_screen_highlights_its_own_navigation_item() -> void:
 
 func test_title_headers_share_one_stylebox() -> void:
     # The four headers had drifted to two background alphas and two vertical paddings.
-    # Their contents differ for good reasons, so the shared piece is the card style.
+    # Their contents still differ -- a coin pill here, a crest there -- so the shared pieces
+    # are the card style here and the title scale in the test below, not a header component.
     for scene_path in [
         "res://scenes/screens/MapScreen.tscn",
         "res://scenes/screens/CosmeticsScreen.tscn",
@@ -192,6 +193,40 @@ func test_title_headers_share_one_stylebox() -> void:
             style.resource_path,
             "res://ui/styles/header_panel.tres",
             "%s uses the shared header card" % scene_path.get_file()
+        )
+        scene.free()
+
+
+func test_screen_titles_share_one_size_and_face() -> void:
+    # Extracting a HeaderBar component would have moved %TitleLabel into a sub-scene, where
+    # its unique name no longer resolves from the screen root. The headers stayed four scenes,
+    # and this is what pays for that choice: the titles must not drift apart again.
+    var bold: Font = load("res://ui/fonts/Baloo2Bold.tres")
+    for scene_path in [
+        "res://scenes/screens/MapScreen.tscn",
+        "res://scenes/screens/CosmeticsScreen.tscn",
+        "res://scenes/screens/TrophyScreen.tscn",
+        "res://scenes/screens/SettingsScreen.tscn",
+    ]:
+        var packed: PackedScene = load(scene_path)
+        check(packed != null, "Screen loads: %s" % scene_path)
+        if packed == null:
+            continue
+        var scene := packed.instantiate()
+        var title: Label = scene.get_node("%TitleLabel")
+        equal(
+            title.get_theme_font_size("font_size"),
+            22,
+            "%s title uses the heading step" % scene_path.get_file()
+        )
+        equal(
+            title.get_theme_font("font"),
+            bold,
+            "%s title uses the bold face" % scene_path.get_file()
+        )
+        check(
+            scene.get_node("SafeArea/Content/Header").is_ancestor_of(title),
+            "%s title lives in the shared header card" % scene_path.get_file()
         )
         scene.free()
 
@@ -909,6 +944,11 @@ func test_settings_screen_has_language_audio_mute_and_safe_exit_controls() -> vo
     var version_label: Label = scene.get_node("%VersionLabel")
     var app_version := str(ProjectSettings.get_setting("application/config/version"))
     check(version_label.text.contains(app_version), "Settings shows the configured app version")
+    check(
+        not scene.get_node("SafeArea/Content/Header").is_ancestor_of(version_label),
+        "Version sits in its own card below the settings list"
+    )
+    check(scene.get_node_or_null("%SubtitleLabel") == null, "Settings header carries only its title")
     scene.set_anchors_preset(Control.PRESET_TOP_LEFT)
     scene.size = Vector2(390.0, 844.0)
     scene._update_exit_dialog_layout()

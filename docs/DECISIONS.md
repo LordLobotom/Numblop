@@ -1,5 +1,28 @@
 # Numblop Decision Log
 
+## 2026-08-06 — One header shape, still four scenes
+
+Cosmetics is the reference top bar: a `SafeArea/Content/Header` PanelContainer on
+`ui/styles/header_panel.tres`, no fixed height, title at font 22, and a leading/trailing pair of
+expanding spacers that optically centre it. Map, Trophy, Settings and Home now match it, and every
+title card measures 52 px.
+
+- **The headers were not extracted into a `HeaderBar.tscn` component.** `unique_name_in_owner`
+  resolves against the node's owner, so moving `%TitleLabel` into an instanced sub-scene silently
+  breaks the binding on all four screens and forces a property API plus four `_refresh_text()`
+  rewrites. The interiors also still differ legitimately — a coin pill on Cosmetics, a crest on
+  Trophy, nothing on Map and Settings. `tests/ui/test_main_scene.gd` pays for that choice with
+  `test_screen_titles_share_one_size_and_face`, which pins the shared size and face directly.
+- **Secondary prose gets its own bubble** rather than a second line inside the title card: Map's
+  description moved to `Content/Subheader`, and Settings' version line to `Content/VersionBar`
+  below the settings card. Settings lost its subtitle entirely, and `SETTINGS_SUBTITLE` was
+  removed from `localization/strings.csv`.
+- **Home keeps its own `StatPanel` stylebox.** It is chrome (white, bordered, cool shadow), not a
+  title card, and Trophy's cream `SummaryPanel` is likewise a deliberate warm register. Both took
+  `header_panel.tres`'s geometry — radius 22, 12/8 padding, shadow 6 — so only colour differs.
+  Home's fixed 66 px minimum is gone; its padding is 10.5 rather than 8 purely so the intrinsic
+  height lands on the same 52 px as the title cards.
+
 ## 2026-08-05 — Longer rounds and scheduled automated review
 
 Supersedes the "exactly 10 questions" and "7 current / 2 older weak / 1 older automated" points
