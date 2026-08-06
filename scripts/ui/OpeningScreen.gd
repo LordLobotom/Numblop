@@ -26,6 +26,8 @@ const FLAG_IMAGE_SIZE := Vector2(48.0, 48.0)
 @onready var select_player: AudioStreamPlayer = %SelectPlayer
 
 var _loading_pulse: Tween
+var _intro_tween: Tween
+var _intro_skipped := false
 var _is_finishing := false
 var _opening_locale_forced := false
 var _flag_buttons: Dictionary = {}
@@ -127,18 +129,24 @@ func _force_opening_locale() -> void:
 
 func _play_opening() -> void:
     await get_tree().process_frame
+    if _intro_skipped:
+        return
     logo.pivot_offset = logo.size / 2.0
 
-    var reveal := create_tween().set_parallel(true)
-    reveal.tween_property(logo, "modulate", Color.WHITE, 0.4)
-    reveal.tween_property(logo, "scale", Vector2(1.06, 1.06), 0.65) \
+    _intro_tween = create_tween().set_parallel(true)
+    _intro_tween.tween_property(logo, "modulate", Color.WHITE, 0.4)
+    _intro_tween.tween_property(logo, "scale", Vector2(1.06, 1.06), 0.65) \
         .set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
-    await reveal.finished
+    await _intro_tween.finished
+    if _intro_skipped:
+        return
 
-    var settle := create_tween()
-    settle.tween_property(logo, "scale", Vector2.ONE, 0.2) \
+    _intro_tween = create_tween()
+    _intro_tween.tween_property(logo, "scale", Vector2.ONE, 0.2) \
         .set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
-    await settle.finished
+    await _intro_tween.finished
+    if _intro_skipped:
+        return
 
     _start_loading_pulse()
     if SettingsManager.locale_preference == FIRST_LAUNCH_LOCALE:
@@ -146,7 +154,23 @@ func _play_opening() -> void:
         return
 
     await get_tree().create_timer(0.55).timeout
+    if _intro_skipped:
+        return
     _finish_opening()
+
+
+## Lands straight on the finished chooser, with the logo settled and the panel up. The responsive
+## captures need the same pixels every run, and the intro is a chain of tweens and a timer -- one
+## slow frame and the shot catches a half-faded logo. Killing the tween also strands `_play_opening`
+## on an `await` that will never resolve, which is what keeps the auto-finish from firing.
+func reveal_language_choices_now() -> void:
+    _intro_skipped = true
+    if _intro_tween != null and _intro_tween.is_valid():
+        _intro_tween.kill()
+    logo.modulate = Color.WHITE
+    logo.scale = Vector2.ONE
+    _reveal_language_panel()
+    language_panel.modulate = Color.WHITE
 
 
 func _start_loading_pulse() -> void:
@@ -158,13 +182,17 @@ func _start_loading_pulse() -> void:
 
 
 func _show_language_choices() -> void:
+    _reveal_language_panel()
+    var reveal_choices := create_tween()
+    reveal_choices.tween_property(language_panel, "modulate", Color.WHITE, 0.3)
+
+
+func _reveal_language_panel() -> void:
     if _loading_pulse != null:
         _loading_pulse.kill()
     loading_label.visible = false
     language_panel.visible = true
     _set_buttons_disabled(false)
-    var reveal_choices := create_tween()
-    reveal_choices.tween_property(language_panel, "modulate", Color.WHITE, 0.3)
 
 
 func _set_buttons_disabled(disabled: bool) -> void:

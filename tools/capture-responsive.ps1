@@ -19,6 +19,8 @@ Invoke-NumblopGodot -Godot $godot -Arguments @(
 
 Add-Type -AssemblyName System.Drawing
 $expectedScreens = @(
+    "opening",
+    "opening_selected",
     "home",
     "home_accessories",
     "home_duck",

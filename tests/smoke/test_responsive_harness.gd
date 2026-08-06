@@ -15,6 +15,8 @@ func test_responsive_harness_pins_both_portrait_sizes_and_locales() -> void:
 func test_responsive_harness_covers_every_m1_screen_state() -> void:
     var capture_script := _read("res://tests/smoke/capture_responsive.gd")
     for screen_name in [
+        "opening",
+        "opening_selected",
         "home",
         "home_accessories",
         "home_duck",

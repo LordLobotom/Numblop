@@ -7,6 +7,8 @@ const CAPTURE_SIZES: Array[Vector2i] = [
 ]
 const LOCALES: Array[String] = ["en", "cs"]
 const SCREENS: Array[String] = [
+    "opening",
+    "opening_selected",
     "home",
     "home_accessories",
     "home_duck",
@@ -118,12 +120,25 @@ func _create_screen(screen_name: String) -> Control:
         scene_path = "res://scenes/screens/SettingsScreen.tscn"
     elif screen_name in ["reward", "reward_opened", "reward_scrolling"]:
         scene_path = "res://scenes/screens/RewardScreen.tscn"
+    elif screen_name in ["opening", "opening_selected"]:
+        scene_path = "res://scenes/screens/OpeningScreen.tscn"
     var packed: PackedScene = load(scene_path)
     return packed.instantiate()
 
 
 func _configure_screen(screen: Control, screen_name: String, locale: String) -> void:
     match screen_name:
+        "opening", "opening_selected":
+            var opening := screen as OpeningScreen
+            opening.reveal_language_choices_now()
+            if screen_name == "opening_selected":
+                # Going through the flag button keeps the capture on the real signal path, and
+                # the selection puts the server locale back where this pass wants it.
+                opening.language_button(locale).pressed.emit()
+            else:
+                # The unselected screen is always English by design, but it forced that locale on
+                # the server in `_ready` -- hand it back so the next capture is not stranded there.
+                TranslationServer.set_locale(locale)
         "home", "home_accessories", "home_duck", "home_name":
             var home := screen as HomeScreen
             home.set_progress_totals(120, 240, 3)
