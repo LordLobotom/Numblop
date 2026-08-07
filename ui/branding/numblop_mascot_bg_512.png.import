@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://dqrrj6b8ft4sk"
-path="res://.godot/imported/icon_monochrome_source.png-53b4205f09bfcedfd739505194e09774.ctex"
+uid="uid://crbg5vb681xce"
+path="res://.godot/imported/numblop_mascot_bg_512.png-7979567ce34394207c248c11698222e6.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://ui/branding/android/icon_monochrome_source.png"
-dest_files=["res://.godot/imported/icon_monochrome_source.png-53b4205f09bfcedfd739505194e09774.ctex"]
+source_file="res://ui/branding/numblop_mascot_bg_512.png"
+dest_files=["res://.godot/imported/numblop_mascot_bg_512.png-7979567ce34394207c248c11698222e6.ctex"]
 
 [params]
 

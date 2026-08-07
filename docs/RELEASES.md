@@ -19,8 +19,12 @@
 
 ## App icons
 
-Every launcher icon derives from one artwork, `ui/branding/numblop_head_icon.png`. Regenerate them
-after changing it:
+Every launcher and application icon derives from one source pair:
+
+- `ui/branding/numblop_mascot_512.png` — the mascot, 512×512 RGBA.
+- `ui/branding/numblop_mascot_bg_512.png` — the flat plate colour behind it.
+
+Both are inputs only. Regenerate everything after changing either:
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File tools/generate-app-icons.ps1
@@ -28,9 +32,18 @@ powershell -ExecutionPolicy Bypass -File tools/generate-app-icons.ps1
 
 The tool overwrites `ui/branding/numblop_ico.png` (Windows executable, editor, project icon) and
 the four `ui/branding/android/icon_*.png` layers in place, so paths, UIDs and `.import` files stay
-valid and neither `export_presets.cfg` nor the contract test changes. The adaptive foreground is
-fitted into Android's guaranteed 66% safe zone over a flat background sampled from the artwork, so
-no launcher mask can clip the crown or the feet. Review the regenerated PNGs before committing.
+valid and neither `export_presets.cfg` nor the contract test changes.
+
+The adaptive foreground is fitted **radially**, not by bounding box: the mascot is scaled so no
+drawn pixel sits further than 132 px from the centre of the 432 px canvas, which is Android's 66/108
+safe zone. A launcher mask cuts by distance from the centre, so the pixel at risk is a head or foot
+tip rather than a bbox corner — bounding the box alone would let a circular mask clip the mascot.
+The themed monochrome glyph is cut from that same fitted foreground, so it always tracks the icon;
+its light areas (belly, eye whites) are knocked out of the alpha because Android keeps only alpha
+and would otherwise render one featureless blob. The Windows icon bakes in its own rounded-square
+plate, since desktop applies no mask of its own.
+
+Review the regenerated PNGs before committing.
 
 ## Development artifacts
 

@@ -1,33 +1,47 @@
 extends SceneTree
-## Regenerates the derived launcher icons from the hand-authored Android artwork.
+## Regenerates every launcher and application icon from one mascot artwork.
 ##
 ## Run through tools/generate-app-icons.ps1. Deterministic and idempotent: it overwrites the
 ## committed PNGs in place, so their paths, UIDs and .import files stay valid.
 ##
-## The two adaptive layers are drawn by hand and are inputs here, never outputs -- this script
-## must not overwrite them. What it derives from them is the themed-icon silhouette and the
-## legacy square icon, both of which have to track the artwork exactly or the launcher shows a
-## glyph that does not match its own icon.
+## Only the two files below are inputs. Everything under ui/branding/android/ plus the desktop
+## icon is derived, which is what keeps the adaptive layers, the legacy square icon, the themed
+## glyph and the Windows icon showing the same drawing.
 
-## Hand-authored, 432x432, and the source of truth for the launcher's look.
-const FOREGROUND_PATH := "res://ui/branding/android/icon_numblop_front.png"
-const BACKGROUND_PATH := "res://ui/branding/android/icon_numblop_back.png"
+## Hand-authored, 512x512 RGBA, and the source of truth for the launcher's look.
+const MASCOT_PATH := "res://ui/branding/numblop_mascot_512.png"
 
-## The hand-drawn greyscale the themed icon is cut from. Kept separate from the icon it
-## produces so re-running this script never overwrites the drawing.
-const MONOCHROME_SOURCE_PATH := "res://ui/branding/android/icon_monochrome_source.png"
-
-## The Windows executable icon still comes from the avatar artwork.
-const DESKTOP_SOURCE_PATH := "res://ui/branding/numblop_head_icon.png"
+## Flat plate colour behind the mascot, supplied as artwork so the palette lives with the drawing.
+const BACKGROUND_PATH := "res://ui/branding/numblop_mascot_bg_512.png"
 
 const ADAPTIVE_SIZE := 432
 const LEGACY_SIZE := 192
 const DESKTOP_SIZE := 512
 
-## Android tints the themed icon and keeps only its alpha, so anything drawn in the greyscale
-## itself is thrown away -- a fully opaque drawing renders as one featureless blob. The detail
-## therefore has to live in the alpha: light areas of the drawing (the belly, the eyes, the
-## highlights on the crown) are knocked out so the tint shows them as negative space.
+## Android draws a 108dp canvas, cuts everything outside the centre 72dp, and only guarantees the
+## centre 66dp survives every launcher mask. The drawing therefore has to be re-fitted rather than
+## dropped in at its authored scale -- the mascot fills ~78% of its own canvas, so a circular mask
+## would cut off the top of the head and the feet.
+##
+## The limit is radial, not a bounding box: what gets clipped is the pixel furthest from the
+## centre, which for this mascot is a head or foot tip, not a bbox corner. 66dp of a 108dp canvas
+## is 132px of 432.
+const SAFE_ZONE_RADIUS := 132.0
+
+## The desktop icon is never masked, so it can use far more of the plate.
+const DESKTOP_MASCOT_SPAN := 420
+
+## Matches the rounded-square look Windows taskbars and the Godot editor showed before.
+const DESKTOP_CORNER_RADIUS := 112
+
+## A pixel counts as drawing rather than padding above this alpha. Just high enough to ignore the
+## stray antialiasing the export leaves outside the outline.
+const BBOX_ALPHA_THRESHOLD := 8.0 / 255.0
+
+## Android tints the themed icon and keeps only its alpha, so anything drawn in the artwork itself
+## is thrown away -- a fully opaque drawing renders as one featureless blob. The detail therefore
+## has to live in the alpha: light areas (the belly, the eye whites) are knocked out so the tint
+## shows them as negative space.
 ##
 ## The band between these two luminances fades rather than snapping, which keeps the drawing's
 ## antialiasing instead of speckling every edge.
@@ -46,32 +60,26 @@ func _process(_delta: float) -> bool:
 
 
 func _generate() -> void:
-    var foreground := _load(FOREGROUND_PATH)
+    var mascot := _load(MASCOT_PATH)
     var background := _load(BACKGROUND_PATH)
-    var monochrome_source := _load(MONOCHROME_SOURCE_PATH)
-    var desktop_source := _load(DESKTOP_SOURCE_PATH)
-    if (
-        foreground == null
-        or background == null
-        or monochrome_source == null
-        or desktop_source == null
-    ):
-        quit(1)
-        return
-    if foreground.get_width() != ADAPTIVE_SIZE or foreground.get_height() != ADAPTIVE_SIZE:
-        push_error("%s must be %dx%d" % [FOREGROUND_PATH, ADAPTIVE_SIZE, ADAPTIVE_SIZE])
+    if mascot == null or background == null:
         quit(1)
         return
 
+    var foreground := _fitted_to_radius(mascot, ADAPTIVE_SIZE, SAFE_ZONE_RADIUS)
+    if foreground == null:
+        quit(1)
+        return
+    var adaptive_background := _scaled(background, ADAPTIVE_SIZE)
+
+    _save(foreground, "res://ui/branding/android/icon_numblop_front.png")
+    _save(adaptive_background, "res://ui/branding/android/icon_numblop_back.png")
+    _save(_themed_glyph(foreground), "res://ui/branding/android/icon_monochrome_432.png")
     _save(
-        _themed_glyph(monochrome_source),
-        "res://ui/branding/android/icon_monochrome_432.png"
-    )
-    _save(
-        _scaled(_flattened(background, foreground), LEGACY_SIZE),
+        _scaled(_flattened(adaptive_background, foreground), LEGACY_SIZE),
         "res://ui/branding/android/icon_main_192.png"
     )
-    _save(_scaled(desktop_source, DESKTOP_SIZE), "res://ui/branding/numblop_ico.png")
+    _save(_desktop_icon(mascot, background), "res://ui/branding/numblop_ico.png")
 
     print("NUMBLOP_ICONS_OK")
     quit()
@@ -92,6 +100,83 @@ func _scaled(source: Image, size: int) -> Image:
     return image
 
 
+## Scales the artwork so its longer drawn side is exactly `span`, then centres it. Used where
+## nothing masks the result and filling the plate is what matters.
+func _fitted_to_span(source: Image, canvas: int, span: int) -> Image:
+    var bounds := _drawn_bounds(source)
+    if bounds.size.x <= 0 or bounds.size.y <= 0:
+        push_error("%s is fully transparent" % MASCOT_PATH)
+        return null
+    return _fitted(source, bounds, canvas, float(span) / float(maxi(bounds.size.x, bounds.size.y)))
+
+
+## Scales the artwork so no drawn pixel sits further than `radius` from the centre, then centres
+## it. This is the fit that has to hold for the adaptive foreground: a circular launcher mask cuts
+## by distance, so bounding the box is not the same as bounding what gets clipped.
+func _fitted_to_radius(source: Image, canvas: int, radius: float) -> Image:
+    var bounds := _drawn_bounds(source)
+    if bounds.size.x <= 0 or bounds.size.y <= 0:
+        push_error("%s is fully transparent" % MASCOT_PATH)
+        return null
+    var drawn := _drawn_radius(source, bounds)
+    if drawn <= 0.0:
+        push_error("%s has no measurable extent" % MASCOT_PATH)
+        return null
+    return _fitted(source, bounds, canvas, radius / drawn)
+
+
+## Crops the artwork to what it actually draws, scales that by `scale`, and centres it on a
+## transparent `canvas` square. Fitting the ink rather than the authored canvas is what makes the
+## safe zone a guarantee instead of an estimate.
+func _fitted(source: Image, bounds: Rect2i, canvas: int, scale: float) -> Image:
+    var cropped := source.get_region(bounds)
+    cropped.resize(
+        maxi(1, roundi(bounds.size.x * scale)),
+        maxi(1, roundi(bounds.size.y * scale)),
+        Image.INTERPOLATE_LANCZOS
+    )
+
+    var image := Image.create_empty(canvas, canvas, false, Image.FORMAT_RGBA8)
+    image.blit_rect(
+        cropped,
+        Rect2i(Vector2i.ZERO, cropped.get_size()),
+        (Vector2i(canvas, canvas) - cropped.get_size()) / 2
+    )
+    return image
+
+
+## The tightest rectangle containing every pixel the artwork actually paints.
+func _drawn_bounds(source: Image) -> Rect2i:
+    var min_x := source.get_width()
+    var min_y := source.get_height()
+    var max_x := -1
+    var max_y := -1
+    for y in source.get_height():
+        for x in source.get_width():
+            if source.get_pixel(x, y).a <= BBOX_ALPHA_THRESHOLD:
+                continue
+            min_x = mini(min_x, x)
+            min_y = mini(min_y, y)
+            max_x = maxi(max_x, x)
+            max_y = maxi(max_y, y)
+    if max_x < 0:
+        return Rect2i()
+    return Rect2i(min_x, min_y, max_x - min_x + 1, max_y - min_y + 1)
+
+
+## Distance from the centre of `bounds` to the furthest pixel the artwork paints -- the extent a
+## circular mask actually measures against once the drawing is centred on its canvas.
+func _drawn_radius(source: Image, bounds: Rect2i) -> float:
+    var centre := Vector2(bounds.position) + Vector2(bounds.size) * 0.5
+    var radius := 0.0
+    for y in range(bounds.position.y, bounds.end.y):
+        for x in range(bounds.position.x, bounds.end.x):
+            if source.get_pixel(x, y).a <= BBOX_ALPHA_THRESHOLD:
+                continue
+            radius = maxf(radius, (Vector2(x, y) + Vector2(0.5, 0.5) - centre).length())
+    return radius
+
+
 ## The legacy square icon is what the adaptive pair looks like with no mask applied.
 func _flattened(background: Image, foreground: Image) -> Image:
     var image := background.duplicate() as Image
@@ -103,9 +188,45 @@ func _flattened(background: Image, foreground: Image) -> Image:
     return image
 
 
-## Turns the hand-drawn greyscale into the alpha-only glyph Android actually renders: dark and
-## mid tones become the solid body, light tones become holes the system tint shows through.
-## The colour is fixed white because only the alpha channel survives tinting.
+## Windows applies no mask of its own, so the rounded plate has to be baked in or the icon reads
+## as a bare coloured square next to every other app in the taskbar.
+func _desktop_icon(mascot: Image, background: Image) -> Image:
+    var plate := _rounded(_scaled(background, DESKTOP_SIZE), DESKTOP_CORNER_RADIUS)
+    var foreground := _fitted_to_span(mascot, DESKTOP_SIZE, DESKTOP_MASCOT_SPAN)
+    if foreground == null:
+        return plate
+    return _flattened(plate, foreground)
+
+
+## Knocks the corners off a square image, antialiasing the arc so the edge does not look chewed
+## at the small sizes Windows actually renders the icon at.
+func _rounded(source: Image, radius: int) -> Image:
+    var size := source.get_width()
+    var image := source.duplicate() as Image
+    for y in size:
+        for x in size:
+            var coverage := _corner_coverage(x, y, size, radius)
+            if coverage >= 1.0:
+                continue
+            var pixel := image.get_pixel(x, y)
+            pixel.a *= coverage
+            image.set_pixel(x, y, pixel)
+    return image
+
+
+## How much of the pixel at (x, y) survives the rounded rectangle, 0 outside and 1 well inside.
+func _corner_coverage(x: int, y: int, size: int, radius: int) -> float:
+    # Distance past the straight edges, i.e. how far into a corner arc this pixel sits.
+    var dx := maxf(radius - (x + 0.5), (x + 0.5) - (size - radius))
+    var dy := maxf(radius - (y + 0.5), (y + 0.5) - (size - radius))
+    if dx <= 0.0 or dy <= 0.0:
+        return 1.0
+    return 1.0 - smoothstep(radius - 1.0, radius + 1.0, Vector2(dx, dy).length())
+
+
+## Turns the fitted artwork into the alpha-only glyph Android actually renders: dark and mid tones
+## become the solid body, light tones become holes the system tint shows through. The colour is
+## fixed white because only the alpha channel survives tinting.
 func _themed_glyph(source: Image) -> Image:
     var image := Image.create_empty(
         ADAPTIVE_SIZE, ADAPTIVE_SIZE, false, Image.FORMAT_RGBA8
