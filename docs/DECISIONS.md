@@ -1,5 +1,44 @@
 # Numblop Decision Log
 
+## 2026-08-12 — Documentation reconciled against the code, and a Play Games plan
+
+A full audit of every document against the shipped `0.4.1` build. The code was not changed; the
+documents were, because the code is what players actually run.
+
+- **The code is now source of truth #1** in `AGENTS.md`, above `GAME_DESIGN.md`. A document that
+  disagrees with shipped behavior is a documentation bug, and fixing it belongs in the same change
+  that caused the drift. The exception stays explicit: code that contradicts
+  `didactic_algorithm.md` or a decision entry is a real bug, not a licence to rewrite the rule.
+- **`SAVE_SYSTEM.md` is new** and is the only place the persisted schema is written out.
+  `ARCHITECTURE.md` had been carrying a save-contract JSON block frozen at version 6 while the code
+  had moved to 9; duplicating a schema in a document that is not about persistence is what let it
+  rot for three versions. `ARCHITECTURE.md` now links instead of restating.
+- **Field-tolerant loading is documented as the actual migration mechanism.** `version` is written
+  on every save and never read; compatibility comes from each `Local*` model defaulting whatever it
+  does not find. That is fine for adding fields and unsafe for renaming them, and the distinction is
+  now written down rather than inferred.
+- **The known persistence gap is recorded rather than quietly fixed:** there is no atomic write and
+  no backup copy, so a process killed mid-write can truncate `profile.json` into a fresh profile.
+  Closing it is scoped to the cloud-save work, where a second copy exists anyway.
+- **Ten languages, not two.** `AGENTS.md`, `CLAUDE.md`, `LOCALIZATION.md`, and `README.md` all still
+  said English and Czech. Responsive captures deliberately stay bilingual; the other eight are
+  covered by catalog tests, and that is now stated instead of implied.
+- **`ROADMAP.md` was re-scored.** M1 was marked todo while its loop had shipped; M2 and M3 were
+  marked partial while their build-side work was complete. The genuinely open items — a usability
+  pass with a real child, a threshold review from play evidence, and the manual release execution in
+  `D18` — are the only things still open, and they are open because they need people, not code.
+- **`TASKS.md` is reframed as a historical ledger** with the two open items lifted to the top. It
+  records what each track built, not what the game does; several of its entries name save versions
+  and catalogs that have since been superseded.
+- **`docs/mockup_*.png` were deleted.** Byte-identical duplicates of `assets/mockup_*.png`,
+  referenced by no document, and `docs/` is the GitHub Pages root, so they were 4.7 MB of stale
+  concept art published next to the privacy policy.
+- **`GOOGLE_PLAY_GAMES.md` is new and is a plan, not an implementation.** It is deliberately
+  written against the offline contract rather than around it: the `INTERNET` permission, the
+  data-safety declaration, and the privacy policy all have to change together, and the Families
+  policy makes a child-directed app the hardest case rather than the easiest. Nothing is built until
+  an offline release has shipped and a decision entry approves the milestone.
+
 ## 2026-08-06 — One header shape, still four scenes
 
 Cosmetics is the reference top bar: a `SafeArea/Content/Header` PanelContainer on
@@ -481,6 +520,9 @@ recorded on 2026-08-01.
 - Vibration is reserved for three moments and nothing else: the chest tap (25 ms at amplitude
   0.5), the chest opening (90 ms at 1.0) and the mastery-milestone cheer (80 ms at 0.8). The
   opening is the strongest buzz in the game, because it is the payoff of the whole round.
+  *(Durations superseded — all three were doubled to 50 / 180 / 160 ms after they read as a faint
+  click on real hardware. Amplitudes are unchanged. `SettingsManager.HAPTIC_PATTERNS` is the
+  current value.)*
 - Amplitude, not duration, is what makes a buzz noticeable. The previous single call was
   `vibrate_handheld(35)` at the device default strength, which on a modern LRA phone is a tick
   a child does not register. Nothing runs below 20 ms, because several Android vendors drop

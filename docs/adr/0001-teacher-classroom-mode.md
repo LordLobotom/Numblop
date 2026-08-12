@@ -3,6 +3,12 @@
 - **Status:** Proposed — design only, no implementation
 - **Date:** 2026-08-02
 - **Owner:** product (GutCloud)
+- **Superseded in part:** the offline-first sync sketch below predates
+  [`../GOOGLE_PLAY_GAMES.md`](../GOOGLE_PLAY_GAMES.md), which is now the planned first networking
+  milestone (M5). If classroom mode is ever picked up, read that document first: it already answers
+  sign-in, the `INTERNET` permission change, the Families-policy consequences, the data-safety
+  rewrite, and cloud-save conflict resolution, and a classroom backend should reuse those answers
+  rather than invent a parallel set.
 
 ## Context
 

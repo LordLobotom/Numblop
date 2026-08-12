@@ -2,6 +2,26 @@
 
 Status values: `TODO`, `WIP(@agent)`, `BLOCKED(reason)`, `DONE`.
 
+## Open work
+
+Everything below this section is `DONE` and kept as a historical ledger of what each track built and
+which files it owned. Only these remain open:
+
+- `D2 BLOCKED(no authorized physical Android device connected)` Physical Android install/run/log
+  smoke command and checklist. Depends: C3. Owns: `tools/`, `docs/RELEASES.md`, smoke tests.
+- `D18 TODO` Release execution: generate the release keystore, export and verify the signed AAB,
+  enable GitHub Pages, complete the physical-device checklist (unblocks D2), and upload to the Play
+  internal test track. Depends: D2, D14–D17. Owns: release workflow (manual steps).
+
+The next milestone after those is M5, Google Play Games Services. It has no task lines yet on
+purpose: it starts from [`GOOGLE_PLAY_GAMES.md`](GOOGLE_PLAY_GAMES.md) and a decision entry, and its
+tasks are written when that phase is actually approved.
+
+**Reading this file:** it records what was built and by which track, not what the game does today.
+For current behavior use [`GAME_DESIGN.md`](GAME_DESIGN.md), [`ARCHITECTURE.md`](ARCHITECTURE.md),
+and [`SAVE_SYSTEM.md`](SAVE_SYSTEM.md); several entries below describe a save version or a catalog
+that has since been superseded.
+
 ## Foundation
 
 - `A0 DONE` Learning rules, 80-fact profile, deterministic session generator, core tests.

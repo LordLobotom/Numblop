@@ -76,7 +76,7 @@ predictable for a child.
 - The picture is generated programmatically for all 80 facts; there is no per-fact artwork.
 
 This correction is **presentation only**. It never adds a scored question, changes a mastery
-value, counts as an attempt, affects the streak, or alters the exactly-10-questions contract. All
+value, counts as an attempt, affects the streak, or alters the fixed round length of section 5. All
 scoring for the answer has already completed before the correction is shown.
 
 ---

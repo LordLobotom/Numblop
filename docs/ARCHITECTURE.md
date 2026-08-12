@@ -2,136 +2,168 @@
 
 ## Principles
 
-The learning model is pure and deterministic; Godot scenes are views; autoloads coordinate
-local application state. This keeps educational behavior testable without rendering and
-makes Android lifecycle events unable to corrupt mastery logic.
+The learning model is pure and deterministic; Godot scenes are views; autoloads coordinate local
+application state. This keeps educational behavior testable without rendering and makes Android
+lifecycle events unable to corrupt mastery logic.
+
+Three rules follow from that and are enforced by review and tests:
+
+1. `scripts/core/` has no scene, autoload, filesystem, clock, locale, or platform dependency.
+   Randomness always takes an explicit seed, and timestamps are passed in by the caller.
+2. UI displays state. It never calculates mastery, session quotas, rewards, or unlocking.
+3. Only `AppState` writes saves during play.
 
 ## Folders
 
 ```text
 scenes/                 Composed screens and reusable UI scenes
-scripts/core/           Pure learning model and deterministic session generation
+scripts/core/           Pure learning model, deterministic session generation, achievement catalog
+scripts/app/            Application services and persisted models; no scenes, no autoload access
 scripts/autoload/       EventBus, settings, saves, and current local app state
 scripts/ui/             Scene presentation and input handling
-localization/           Source translation catalogs
-ui/                     Theme, icon, and UI-native assets
-tests/core/              Learning rules and session tests
-tests/state/             Persistence and state tests
-tests/ui/                Scene contract tests
-tests/smoke/             Catalog, project, and export-facing smoke tests
-tools/                   Repeatable QA and export commands
+localization/           Source translation catalog
+ui/                     Theme, fonts, icons, branding, shaders, and UI-native assets
+tests/core/             Learning rules, generator, and catalog tests
+tests/state/            Persistence, lifecycle, and app-state tests
+tests/ui/               Scene contract and interaction tests
+tests/smoke/            Catalog, project, capture, and export-facing smoke tests
+tools/                  Repeatable QA, capture, device, and export commands
 ```
 
-## Core model
+## Core model — `scripts/core/`
 
-- `LearningRules` owns tables, thresholds, modes, response-time limits, and score deltas.
+- `LearningRules` owns tables, thresholds, question modes, response-time limits, score deltas, and
+  round length. `SESSION_LENGTH` is 10 and `EXTENDED_SESSION_LENGTH` is 12 from `EXTENDED_MIX_TABLE`
+  (`6`) onwards. `REVIEW_MASTERY` (100) is deliberately distinct from `AUTOMATED_MASTERY` (90): the
+  first decides how often a fact comes back, the second decides how it is asked.
 - `LearningProfile` owns all 80 mastery values, all 80 `last_practiced` stamps, and the highest
-  unlocked table. Unlocking is monotonic; mastery remains allowed to decrease. The stamps are
-  supplied by the caller, never read from a clock here.
-- `SessionGenerator` creates deterministic `PracticeQuestion` objects from a supplied seed:
-  10 up to the 5× table (7 current, 2 older weak, 1 older automated) and 12 from the 6× table
-  onwards (8 current, 3 older weak, 1 older automated). Unavailable review slots use the current
-  table. The automated slot picks the longest-waiting fact by `last_practiced`; every other slot
-  picks the lowest mastery.
+  unlocked table. Unlocking is monotonic and re-derived on load; mastery remains allowed to decrease.
+  The stamps are supplied by the caller, never read from a clock here.
+- `SessionGenerator` creates deterministic `PracticeQuestion` objects from a supplied seed: 10 up to
+  the 5× table (7 current, 2 older weak, 1 older automated) and 12 from the 6× table onwards
+  (8 current, 3 older weak, 1 older automated). Unavailable review slots fall back to the current
+  table. The automated slot picks the longest-waiting fact by `last_practiced`; every other slot picks
+  the lowest mastery.
 - `PracticeQuestion` is immutable-by-convention session data: fact, mode, choices, answer.
+- `SessionResult` records the round: per-answer audit records, correctness counts, and the per-fact
+  mastery gains the end-of-round page presents.
+- `AchievementCatalog` defines and evaluates every achievement from supplied statistics plus a
+  profile. It is pure, so the same statistics always produce the same progress. It restates the paid
+  cosmetic count per category rather than importing `CosmeticCatalog`, and a test pins the two
+  together.
+- `DotVisualization` solves the domino-dot decomposition and layout for the wrong-answer correction
+  for all 80 facts.
 
-Core scripts never access nodes, singletons, files, time, locale, or platform APIs.
+## Application services — `scripts/app/`
 
-## Application state
+These are plain `RefCounted` models and services. They own rules that are not learning rules and
+must not live in a scene, but they do not read files or drive the frame loop either.
+
+- `SessionController` runs one round on top of `SessionGenerator` and `SessionResult`, applies each
+  answer to the profile, supplies the clock value for `last_practiced`, triggers the per-answer save
+  through an injected callable, and emits table-unlock signals.
+- `LocalProgress` owns coins, XP, level, the completed-round counter, the completed-round reward, the
+  5-coin mastery-milestone bonus, and achievement coin payouts.
+- `LocalCosmetics` validates owned and equipped items across six categories against `CosmeticCatalog`.
+- `LocalStreak` validates the active streak and the strictly increasing record milestones. It takes
+  the timestamp and timezone offset from the caller.
+- `LocalAchievements` records which achievement rewards have already been paid out. That granted set
+  is the single guard that makes a reward one-time.
+- `LocalOnboarding` holds the tutorial's `completed` flag and resumed `step`.
+- `LocalNickname` sanitises the optional nickname (control characters stripped, max 16 characters).
+- `CosmeticCatalog` defines stable local item ids, prices, display keys, palette colors, and the
+  authoring rectangle each accessory is framed by.
+- `LanguageCatalog` is the single list of shipped languages, used by `SettingsManager` to validate a
+  preference and by both the opening and settings screens to build their flag buttons.
+
+## Autoloads — `scripts/autoload/`
 
 - `EventBus` contains cross-screen domain signals only.
-- `SettingsManager` owns `user://settings.cfg`, applies `system`, `en`, or `cs` locale, and applies
-  persisted music/SFX volume and global mute through separate `Music` and `SFX` audio buses.
-- `SaveManager` owns versioned `user://profile.json` serialization.
-- `CosmeticCatalog` defines stable local item IDs, prices, display keys, and palette colors;
-  `LocalCosmetics` validates owned and equipped items without accessing scenes or files.
-- `LocalStreak` validates the active streak and strictly increasing record milestones without
-  accessing clocks, scenes, or files. `AppState` supplies the system timestamp and timezone offset
-  when an incorrect answer interrupts a streak.
-- `AppState` owns the loaded `LearningProfile` and active question session. Runtime random
-  seeds are chosen here, outside the deterministic generator. It projects capped aggregate
-  mastery plus each fact's mastery band into read-only map-stage progress and forwards table-unlock
-  domain events; scenes never calculate mastery or decide unlocking. When an answer moves a fact
-  upward across the existing 60, 80, or 90 thresholds, AppState asks `LocalProgress` for the
-  5-coin milestone bonus before the normal per-answer save, then exposes a one-answer presentation
-  dictionary to the practice UI. Milestone rewards never enter the deterministic learning core.
+- `SettingsManager` owns `user://settings.cfg`: the language preference, music/SFX volume, global
+  mute, and the haptics toggle. It resolves `system` to the device language when Numblop ships it,
+  applies the locale to `TranslationServer`, applies volume through separate `Music` and `SFX` audio
+  buses, and is the only caller of `Input.vibrate_handheld`.
+- `SaveManager` owns `user://profile.json` serialization. Every write rewrites the whole file, and any
+  argument a caller omits is re-read from disk first, so no save path can drop another system's data.
+- `AppState` owns the loaded `LearningProfile`, the `SessionController`, and every `Local*` model. It
+  chooses runtime random seeds, so the deterministic generator never has to. It projects capped
+  aggregate mastery and per-fact bands into read-only map-stage progress, projects the cosmetics
+  catalog and inventory for the shop, projects achievements for the Trophies screen, and forwards
+  domain events. When an answer moves a fact upward across the 60, 80, or 90 band it asks
+  `LocalProgress` for the 5-coin bonus before the normal per-answer save, then exposes a one-answer
+  presentation dictionary to the practice UI. Achievement grants are evaluated after every answer,
+  every purchase, and every finished round; the coins are banked immediately while the celebration is
+  queued for the next end-of-round page.
 
-## Save contract
+Milestone and achievement rewards never enter the deterministic learning core.
 
-Version 6 contains:
+## Persistence
 
-```json
-{
-  "version": 6,
-  "highest_unlocked_index": 0,
-  "mastery": { "2_x_0": 0 },
-  "coins": 0,
-  "experience": 0,
-  "cosmetics": {
-    "unlocked_body_colors": ["green"],
-    "selected_body_color": "green",
-    "unlocked_hats": ["hat_none"],
-    "selected_hat": "hat_none",
-    "unlocked_glasses": ["glasses_none"],
-    "selected_glasses": "glasses_none",
-    "unlocked_necklaces": ["necklace_none"],
-    "selected_necklace": "necklace_none"
-  },
-  "streak": {
-    "current_count": 0,
-    "all_time_high": 0,
-    "milestones": [
-      { "count": 12, "ended_at_unix": 1785765600, "utc_offset_minutes": 120 }
-    ]
-  }
-}
-```
+Two files: `user://profile.json` for everything the child earned, and `user://settings.cfg` for
+device preferences. Compatibility comes from field-tolerant loaders rather than version branching,
+so an unknown field is ignored and a missing one takes a documented default.
 
-All earlier save versions remain valid. Missing or malformed fields use safe defaults, including free
-green cosmetics and an empty streak. Unlock progress is never decreased when loading. Every
-mastery, streak update, reward, purchase, and equip save preserves the other local state fields.
+The current save version is `9`. **Every field, every write path, the versioning approach, and the
+known failure behaviour are documented in [`SAVE_SYSTEM.md`](SAVE_SYSTEM.md)** — that file is the
+contract; do not restate its field list here.
 
 ## UI and display
 
 - Logical portrait viewport: 390 × 844.
 - Android orientation: locked portrait.
 - Desktop override: 450 × 900, centered on the usable monitor area.
-- Web export: adaptive browser canvas with 390 × 844 phone and 900 × 900 wide-desktop QA
-  references. `canvas_items` plus `expand` preserves the logical scale while containers use the
-  additional width; centered content such as the map and Cosmetics grids does not stretch.
-- Web uses the threadless Godot template and WebGL 2 through the Compatibility renderer. The MVP
-  is a static build with no backend, PWA, remote configuration, or gameplay networking.
+- Web export: adaptive browser canvas with 390 × 844 phone and 900 × 900 wide-desktop QA references.
+  `canvas_items` plus `expand` preserves the logical scale while containers use the additional width;
+  centered content such as the map and cosmetics grids does not stretch. `CenteredContentMargin`
+  applies the shared 540 px readable column on wide displays.
+- Web uses the threadless Godot template and WebGL 2 through the Compatibility renderer. It is a
+  static build with no backend, PWA, remote configuration, or gameplay networking.
 - Renderer: GL Compatibility for broad 2D Android hardware support.
-- Layout uses Control containers and must tolerate narrow/tall safe areas.
+- Layout uses Control containers and must tolerate narrow/tall safe areas. Touch targets are at
+  least 48 px.
 - Number-entry questions use an in-game numeric keypad, not the platform soft keyboard.
+- `TouchScrollContainer` lets a drag that begins on a child control take over the gesture and scroll
+  the page, cancelling the child's press. Scrollbars are hidden. The takeover distance comes from the
+  project's `gui/common/default_scroll_deadzone`.
+- All four navigation screens share one header shape: a `SafeArea/Content/Header` PanelContainer on
+  `ui/styles/header_panel.tres` with a 52 px title card. The headers are intentionally *not* an
+  instanced component, because `unique_name_in_owner` resolves against the owner and would break.
+  `tests/ui/test_main_scene.gd` pins the shared size and face instead.
 - The stage map consumes `AppState` presentation dictionaries. Partial mastery moves its progress
-  bars, and an unlock event can reveal the next island without giving UI code authority over the
-  learning rule. Unlocked islands are touch targets that open a bilingual ten-fact detail. The
-  winding canvas remains 350px wide inside a centering container so wider portrait windows add
-  balanced side space instead of stretching the trail.
-- The Cosmetics screen consumes an `AppState` catalog/inventory projection. A palette shader
-  recolors only body, arm, and leg pixels while preserving facial layers, outlines, and the belly.
-  Supplied accessories keep their 768×768 authoring coordinates: their layer spans 150% of the
-  512×512 character bounds. It starts at −25% horizontally and −175/512 vertically after the
-  shared accessory layer was visually tuned. Hats may extend above the base canvas, glasses remain
-  aligned with the eyes, and necklaces sit across the upper body. A necklace-only shader clips
-  stray transparent-source pixels above the authored necklace region without modifying the PNGs.
-- The home screen presents coins, XP, level, and streak in one shared bar. The Trophies screen is a
-  read-only projection of `LocalStreak`; UI code formats stored timestamps but never decides which
-  answers extend a streak or qualify as a record.
-- Correct-answer feedback may present an AppState-supplied mastery milestone. It localizes the new
-  band and plays the bundled level-up and coin cues, but does not calculate thresholds or mutate
-  progression itself.
+  bars and an unlock event reveals the next island, without giving UI code authority over the rule.
+  Unlocked islands open a localized ten-fact detail whose bands render red, purple, orange, green.
+  The winding canvas stays 350 px wide inside a centering container.
+- The Cosmetics screen consumes an `AppState` catalog/inventory projection across six categories. A
+  palette shader recolors body, arm, and leg pixels and a second mask recolors the belly, both
+  preserving facial layers and outlines. Supplied accessories keep their 768 × 768 authoring
+  coordinates: their layer spans 150 % of the 512 × 512 character bounds, starting at −25 %
+  horizontally and −175/512 vertically. A necklace-only shader clips stray transparent-source pixels
+  above the authored region without modifying the PNGs.
+- The home screen presents coins, XP, level, and streak in one shared bar, plus the optional nickname
+  pill. The Trophies screen is a read-only projection: the best streak, timestamped record
+  milestones, and achievement cards with progress and coin reward. UI code formats stored timestamps
+  but never decides which answers extend a streak or qualify as a record.
+- Correct-answer feedback may present an `AppState`-supplied mastery milestone. It localizes the new
+  band and plays the level-up and coin cues, but does not calculate thresholds or mutate progression.
+- The end-of-round page reveals the mastery summary, the chest, and an itemised reward breakdown
+  (round, mastery bonus, achievements, total) step by step, then holds until the auto-return or a tap.
+- `OnboardingTutorial` is a sibling overlay in `Main.tscn` that drives a finger through the whole
+  loop. It resolves its targets through accessors the screens expose, so it never reaches into their
+  internals, and it records its step through `AppState` so a restart resumes there.
 
 ## Localization
 
-`localization/strings.csv` is the only source catalog. Godot imports one translation resource
-per language. UI scripts may format translated keys, but never assemble translated sentences
-from English fragments.
+`localization/strings.csv` is the only source catalog, with one column per shipped language. Godot
+imports one translation resource per language. UI scripts may format translated keys but never
+assemble translated sentences from fragments. See [`LOCALIZATION.md`](LOCALIZATION.md).
 
 ## Testing flow
 
-`tools/run-tests.ps1` first imports the project headlessly, then runs
-`tests/run_tests.gd`. The runner discovers track-specific tests and fails non-zero on any
-recorded assertion. UI and export work additionally require responsive screenshots and a real
-artifact/device check appropriate to the change.
+`tools/run-tests.ps1` first imports the project headlessly, then runs `tests/run_tests.gd`. The runner
+discovers track-specific tests, awaits each one so gestures can be exercised across real frames, and
+fails non-zero on any recorded assertion.
+
+Scene and layout changes additionally require a headless boot (`--headless --path . --quit-after`),
+because tests instantiate scenes but never run a real layout pass — a container recursion crash
+passes the suite undetected. UI and export work also require responsive screenshots and a real
+artifact or device check appropriate to the change.

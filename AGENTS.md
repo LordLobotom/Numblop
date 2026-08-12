@@ -5,27 +5,35 @@
 - Numblop is a portrait-first, offline multiplication-practice game for Android, also
   exported as a centered portrait Windows application and an adaptive browser build.
 - The permanent Android package ID is `cz.gutcloud.numblop`.
-- Every MVP practice series is adaptively selected and fixed in length: 10 questions up to the
+- Every practice series is adaptively selected and fixed in length: 10 questions up to the
   5x table (7 current / 2 older weak / 1 older automated) and 12 from the 6x table onwards
   (8 current / 3 older weak / 1 older automated). A fact counts as automated only at mastery
   100, and the automated slot always takes the fact that has waited longest.
-- MVP data stays on one device in one local child profile (optional local nickname only).
+- Data stays on one device in one local child profile (optional local nickname only).
   Do not add accounts, analytics, advertisements, cloud services, networking, or remote
-  configuration.
-- English and Czech are both required. Never place user-facing prose directly in GDScript.
+  configuration. A Play Games Services integration is *planned* in
+  `docs/GOOGLE_PLAY_GAMES.md`; until that milestone is separately approved and recorded in
+  `docs/DECISIONS.md`, this rule stands as written and the Android build keeps
+  `permissions/internet=false`.
+- All ten shipped languages are required for every user-facing string. Never place
+  user-facing prose directly in GDScript.
 - The canonical learning behavior is `docs/didactic_algorithm.md`, including its confirmed
   implementation decisions. Do not change learning thresholds or scoring incidentally.
 
 ## Source-of-truth order
 
-1. `docs/GAME_DESIGN.md` — product scope and experience.
-2. `docs/didactic_algorithm.md` — learning rules and mastery algorithm.
-3. `docs/ARCHITECTURE.md` — technical boundaries and data flow.
-4. `docs/LOCALIZATION.md` — Czech/English text contract.
-5. `docs/ROADMAP.md` — milestone order and acceptance gates.
-6. `docs/TASKS.md` — claimable work and agent ownership.
-7. `docs/DECISIONS.md` — accepted decisions that extend the documents above.
-8. `docs/RELEASES.md` — Windows, Android, and Web delivery process.
+1. **The code.** Where a document and the shipped behavior disagree, the code is right and the
+   document is the bug — fix the document in the same change, unless the code contradicts the
+   didactic algorithm or a decision entry, which makes it a real bug worth raising.
+2. `docs/GAME_DESIGN.md` — product scope and experience.
+3. `docs/didactic_algorithm.md` — learning rules and mastery algorithm.
+4. `docs/ARCHITECTURE.md` — technical boundaries and data flow.
+5. `docs/SAVE_SYSTEM.md` — save files, persisted fields, and versioning.
+6. `docs/LOCALIZATION.md` — ten-language text contract.
+7. `docs/ROADMAP.md` — milestone order and acceptance gates.
+8. `docs/DECISIONS.md` — accepted decisions that extend the documents above.
+9. `docs/RELEASES.md` — Windows, Android, and Web delivery process.
+10. `docs/TASKS.md` — historical task ledger and the two remaining open items.
 
 If documents conflict, use the highest applicable source and record the resolution in
 `docs/DECISIONS.md`.
@@ -34,10 +42,14 @@ If documents conflict, use the highest applicable source and record the resoluti
 
 - Engine: Godot `4.6.2`, GDScript, GL Compatibility renderer.
 - Run: `C:\Users\eMich\source\Godot\Godot_v4.6.2-stable_win64.exe --path .`.
-- Test: `powershell -ExecutionPolicy Bypass -File tools/run-tests.ps1`.
+- Test: `powershell -ExecutionPolicy Bypass -File tools/run-tests.ps1` (198 tests).
+- Boot smoke after any scene or layout change:
+  `Godot_v4.6.2-stable_win64_console.exe --headless --path . --quit-after 120`. Tests instantiate
+  scenes but never run a real layout pass, so a recursion crash passes the suite undetected.
 - Check Android tools: `powershell -ExecutionPolicy Bypass -File tools/check-environment.ps1`.
 - Export Windows/debug APK/Web through `tools/export.ps1`; release signing credentials must
-  come from environment variables, never repository files.
+  come from environment variables or an encrypted password file kept outside the repository,
+  never from repository files.
 
 ## Engineering rules
 
@@ -45,8 +57,9 @@ If documents conflict, use the highest applicable source and record the resoluti
 - `scripts/core/` is deterministic and has no scene, autoload, filesystem, clock, or device
   dependency. Randomness always accepts an explicit seed.
 - UI displays state; it does not calculate mastery, session quotas, or unlocking.
-- Saves are versioned, local, and backward-compatible. A corrupt save must fall back safely.
-- Use translation keys for every user-facing string. Both `en` and `cs` must be non-empty.
+- Saves are local and backward-compatible through field-tolerant loading, not version branching.
+  A corrupt save must fall back safely. See `docs/SAVE_SYSTEM.md` before changing a persisted field.
+- Use translation keys for every user-facing string. Every language column must be non-empty.
 - Baloo 2 is the primary UI font. Keep its OFL license with the asset and verify Czech glyphs.
 - Use Control containers, minimum 48 px touch targets, portrait-safe layout, and no visible
   answer countdown.
@@ -62,7 +75,7 @@ by the claimed task. Do not run two tasks with overlapping ownership.
   task/decision lines. No scenes, autoloads, saves, or export files.
 - **Track B — UI & Localization:** `scenes/`, `scripts/ui/`, `ui/`, `localization/`,
   `tests/ui/`, and Track-B task/decision lines. No learning calculations.
-- **Track C — App State & Persistence:** `scripts/autoload/`, future `scripts/app/`,
+- **Track C — App State & Persistence:** `scripts/autoload/`, `scripts/app/`,
   `tests/state/`, and Track-C task/decision lines. No scenes or core rule changes.
 - **Track D — QA & Releases:** `project.godot`, `export_presets.cfg`, `tools/`, test runner
   infrastructure, `tests/smoke/`, `docs/RELEASES.md`, and Track-D task/decision lines.
@@ -73,5 +86,6 @@ request the owning track to make that change.
 ## Definition of done
 
 A task is done only when its acceptance criteria pass, relevant tests were added or updated,
-the complete suite passes, the project imports without script errors, both languages remain
-complete, and the task status is updated. Export changes also require a real artifact check.
+the complete suite passes, the project imports and boots without script errors, every language
+column remains complete, the documentation it contradicts was corrected in the same change, and
+the task status is updated. Export changes also require a real artifact check.

@@ -77,9 +77,9 @@ dialogs, and item grids remain centered and readable.
 
 Deploy the complete `build/web/` directory through HTTPS with `.wasm` served as
 `application/wasm` and `.pck` as `application/octet-stream`. The threadless preset avoids requiring
-cross-origin isolation headers. PWA support is intentionally disabled for M1. The game has no
-backend or remote gameplay dependency; browser save data remains local to the site's origin, so
-changing the hostname or clearing site data creates a fresh local profile.
+cross-origin isolation headers. PWA support is intentionally disabled. The game has no backend or
+remote gameplay dependency; browser save data remains local to the site's origin, so changing the
+hostname or clearing site data creates a fresh local profile.
 
 ## Physical Android smoke test
 
@@ -98,17 +98,24 @@ Complete this checklist on the phone while it remains disconnected from Wi-Fi an
 
 1. Confirm the opening and home remain portrait, fill the safe area, and show no clipped text.
 2. Select English, relaunch, then select Czech and relaunch; each remembered choice must persist.
-3. Pet the blob and confirm the happy face, heart, and animation respond without requiring sound.
-4. Open Settings; switch languages, adjust both volume bars, verify mute, cancel one Close game
-   confirmation, then confirm Close game and relaunch.
-5. Complete one 10-question series, including four choices, six choices, and the numeric keypad.
-6. Make one intentional mistake; confirm the full correct equation remains until Continue is tapped.
-7. Tap the chest once; confirm one shake with a real haptic buzz, one opening, the accuracy-based
-   coin/XP count-up, and the final tap back to the updated home totals.
-8. Start another series, answer at least once, switch apps, and return; the unfinished series must
-   be gone while the processed mastery remains saved and no reward is added.
-9. Force-stop and relaunch; mastery, language, audio preferences, coins, experience, and level must
-   remain intact.
+   Spot-check German and Finnish for the longest strings overflowing a button.
+3. On a fresh install, follow the guided finger tutorial end to end; then kill the app mid-tutorial
+   and confirm it resumes on the step it stopped at, and never replays once completed.
+4. Stroke the blob and confirm the happy face, heart, and animation respond without requiring sound.
+   A plain tap must do nothing.
+5. Open Settings; switch languages, adjust both volume bars, verify mute, toggle haptics off and
+   confirm the chest no longer buzzes, cancel one Close game confirmation, then confirm it.
+6. Complete one full series, including four choices, six choices, and the numeric keypad.
+7. Make one intentional mistake; confirm the full correct equation and the domino dot picture appear,
+   that Continue is withheld until the picture completes, and that it then waits for a tap.
+8. Tap the chest once; confirm one shake with a real haptic buzz, one opening, the mastery summary,
+   the itemised reward breakdown, the coin/XP count-up, and the return to updated home totals.
+9. Drag-scroll the Cosmetics, Trophies, Settings, and Map screens starting the drag on top of a
+   button or slider; the page must scroll and the control must not activate.
+10. Start another series, answer at least once, switch apps, and return; the unfinished series must
+    be gone while the processed mastery remains saved and no reward is added.
+11. Force-stop and relaunch; mastery, language, audio and haptics preferences, coins, experience,
+    level, streak, achievements, and owned/equipped cosmetics must remain intact.
 
 ## Release AAB signing
 
@@ -228,7 +235,7 @@ asserts the manifest: package id, version code/name, VIBRATE present, INTERNET a
 
 ## Release checklist
 
-1. Full tests pass; both translations and version values are reviewed.
+1. Full tests pass; every language column and the version values are reviewed.
 2. Windows, Web, and debug APK export without script/export errors; Web HTTP smoke passes.
 3. `tools/android-smoke.ps1` passes and the physical checklist above passes with networking disabled.
 4. Save survives pause, force-stop, relaunch, and application update.
