@@ -53,6 +53,18 @@ not use the service-provider exception without the Console's current wording con
 | App info and performance — Diagnostics | Yes if shown by the current Play Games SDK disclosure | Yes | App functionality, analytics |
 | Device or other IDs | Yes if shown by the current Play Games SDK disclosure; the snapshot also carries a random pseudonymous profile id | Yes | App functionality, fraud prevention/security |
 
+**Open question — the "Optional" column for the Play Games rows.** Play defines a data type as
+optional when the user can use the app without that collection happening. `PlayGames._start()` calls
+`_resolve_plugin()`, and therefore the plugin's `initialize()`, unconditionally on Android; only
+`_authenticate()` is gated on the Settings cloud tile. Anything the Play Games SDK reports on its own
+— diagnostics, performance, device identifiers — is therefore **not** switched off by that tile, so
+those rows cannot honestly be declared optional as the code stands. Resolve it one of two ways before
+submission, and keep the published policy in step with whichever is chosen:
+
+1. Gate `_resolve_plugin()` on `enabled()` so the tile really does stop all Play Games activity, and
+   keep these rows optional; or
+2. Declare the SDK-reported rows as required, which is what the published policy currently says.
+
 Do **not** declare advertising, financial data, contacts, precise location, photos/videos, audio,
 health, messages, browsing history, search history, or files/documents unless the final SDK report or
 artifact inspection proves otherwise.
