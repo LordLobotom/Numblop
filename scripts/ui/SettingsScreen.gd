@@ -48,7 +48,11 @@ const DIALOG_SIDE_MARGIN := 20.0
 const DIALOG_MAX_WIDTH := 360.0
 const VERSION_SETTING := "application/config/version"
 const VERSION_FALLBACK := "0.1.0"
-const PRIVACY_POLICY_URL := "https://numblop.gutcloud.cz/en/privacy/"
+## The published policy lives on the landing site, which carries Czech and English only. Every
+## other game language opens the English page.
+const PRIVACY_POLICY_URL_TEMPLATE := "https://numblop.gutcloud.cz/%s/privacy/"
+const PRIVACY_POLICY_LANGUAGES: Array[String] = ["cs", "en"]
+const PRIVACY_POLICY_FALLBACK_LANGUAGE := "en"
 ## Ten flags wrap to 5 + 5 inside the settings card. 48 px is the touch minimum, and the flag
 ## itself is inset so the checkmark in the corner never covers it.
 const FLAG_BUTTON_SIZE := Vector2(48.0, 48.0)
@@ -361,8 +365,17 @@ func _request_future_feature(feature_signal: Signal) -> void:
     feature_signal.emit()
 
 
+## The policy page for a game locale. Locales arrive as "cs" or "en_US", so only the language
+## part decides, and anything the site does not publish falls back to English.
+static func privacy_policy_url(locale: String) -> String:
+    var language := locale.split("_")[0].to_lower()
+    if not PRIVACY_POLICY_LANGUAGES.has(language):
+        language = PRIVACY_POLICY_FALLBACK_LANGUAGE
+    return PRIVACY_POLICY_URL_TEMPLATE % language
+
+
 func _open_privacy_policy() -> void:
-    OS.shell_open(PRIVACY_POLICY_URL)
+    OS.shell_open(privacy_policy_url(TranslationServer.get_locale()))
 
 
 func show_exit_confirmation() -> void:

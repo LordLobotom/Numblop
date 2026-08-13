@@ -71,6 +71,8 @@ Saved Games payload, permissions, achievements, leaderboards, or Console wording
 - Canonical privacy URL: `https://numblop.gutcloud.cz/en/privacy/`.
 - Czech policy URL: `https://numblop.gutcloud.cz/cs/privacy/`.
 - Both URLs returned HTTP 200 on 2026-08-13.
+- The policy is published from the separate `numblop-landing` repository. GitHub Pages was never
+  enabled here, so the former `lordlobotom.github.io` address returned 404.
 - The policy is linked from the Play listing and must also be reachable inside the app.
 - Developer/privacy contact: `emichalgut@gmail.com`.
 - The app does not create a Numblop account, so the app-account-creation deletion rule does not

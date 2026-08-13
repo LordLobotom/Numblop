@@ -15,8 +15,10 @@
 - Android SDK levels: Min SDK `24`, Target SDK `36`, pinned in the Android Release preset and by
   the same contract test.
 - Privacy policy URL for Play Console, the store listing, and Settings:
-  `https://numblop.gutcloud.cz/en/privacy/`. The page links to its Czech version at
-  `https://numblop.gutcloud.cz/cs/privacy/`; both must return HTTP 200 before release.
+  `https://numblop.gutcloud.cz/en/privacy/` and `https://numblop.gutcloud.cz/cs/privacy/`, published
+  from the `numblop-landing` repository. `docs/privacy/index.md` is the bilingual source text that
+  the site content is kept in step with; it is not itself served anywhere. Both public pages must
+  return HTTP 200 before release.
 
 ## App icons
 

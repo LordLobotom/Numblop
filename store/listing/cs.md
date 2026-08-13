@@ -49,7 +49,7 @@ drilování. Dejte svému dítěti parťáka, za kterým se bude samo vracet.
   údaje a údaje o výkonu aplikace.
 - Data sdílená se třetími stranami: **žádná**. Data jsou při přenosu šifrována.
 - Numblop nevytváří ani nespravuje vlastní účet. Závazek zásad pro rodiny: **zapnutý**.
-- URL zásad ochrany soukromí: https://numblop.gutcloud.cz/en/privacy/
+- URL zásad ochrany soukromí: https://numblop.gutcloud.cz/cs/privacy/
 
 ## Ostatní pole
 
