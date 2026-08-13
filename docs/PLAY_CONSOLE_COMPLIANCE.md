@@ -51,6 +51,15 @@ Security answers:
 No other data type is currently declared. Revisit this table if the Play Games SDK disclosure,
 Saved Games payload, permissions, achievements, leaderboards, or Console wording changes.
 
+The required diagnostics and performance rows are deliberate: `PlayGames._start()` initialises the
+SDK unconditionally on Android, while the cloud tile gates authentication and Numblop's cloud-save
+calls. The optional profile/gameplay rows are only collected for a signed-in player. Keep the
+published policy aligned with this distinction.
+
+Do **not** declare advertising, financial data, contacts, precise location, photos/videos, audio,
+health, messages, browsing history, search history, or files/documents unless a later SDK report or
+artifact inspection proves otherwise.
+
 ## Target audience and Families
 
 - Keep the existing child target-age selections that accurately describe the store listing; do not
