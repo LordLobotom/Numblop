@@ -39,6 +39,30 @@ before release, leaderboards are still the higher-risk surface and still last, a
 still has to cost a child nothing — which now has its own test that generates a full practice round
 after authentication comes back false.
 
+**The switch is a third tile, not a row.** A labelled row with a switch pushed *Close game* below
+the fold of the settings card, and scrollbars are hidden, so a guardian would simply not have found
+it. A third icon tile beside Sound and Vibration costs zero vertical space and is the language the
+screen already speaks. The cloud glyph is a new SVG in `ui/icon/`, struck through when off, matching
+how the other two tiles say "off".
+
+The tile is lit by the **setting**, exactly like its siblings — a light that ignored the tap would
+not be a switch. Whether Google actually signed the device in is carried by the accessible name,
+which has three states rather than two: off, on and signed in, on but not signed in. That last one
+is the state a guardian most needs and the only place on the screen that can report it.
+
+**Two test-hygiene faults were found and fixed, both mine:**
+
+- `tests/run_tests.gd` hung for the full 120-second timeout whenever any test file had a parse
+  error, because a broken script still loads and only fails at `new()`. It now scores that as a
+  failure and continues — which is how the next two were caught at all.
+- **The suite was writing the player's real `settings.cfg`.** `SettingsManager.SETTINGS_PATH` is a
+  constant, so every save path writes the file belonging to whoever is at the machine, and both a
+  settings-screen debounce timer and `PlayGames.set_enabled` reach it. `NumblopTestCase` gained
+  `preserve_settings_file` / `restore_settings_file`, and every case that touches settings now
+  brackets itself. A run is verified byte-identical on the real file. The helper resolves the
+  autoload by node path rather than by name, because `test_case.gd` compiles as a dependency of the
+  runner before autoloads are registered.
+
 **Also fixed here:** `SaveManager` parsed saves with `JSON.parse_string`, which pushes an *engine*
 error on malformed input. A corrupt save is something that class handles, not an engine fault, so it
 now uses a `JSON` instance and its own warning. That stops a corrupt profile filling a child's device

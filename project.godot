@@ -44,9 +44,6 @@ enabled=PackedStringArray("res://addons/GodotPlayGameServices/plugin.cfg")
 
 [gui]
 
-; Lets a ScrollContainer claim a touch drag that started on a child which consumes
-; input (map islands, trophy cards, settings sliders, cosmetic swatches). At the
-; default 0 the child keeps the gesture and the screen refuses to scroll.
 common/default_scroll_deadzone=12
 
 [internationalization]

@@ -1,4 +1,4 @@
-[gd_scene load_steps=24 format=3]
+[gd_scene load_steps=26 format=3]
 
 [ext_resource type="Script" path="res://scripts/ui/SettingsScreen.gd" id="1_script"]
 [ext_resource type="Texture2D" path="res://assets/backgrounds/mianscreen_background.png" id="2_background"]
@@ -14,6 +14,8 @@
 [ext_resource type="Texture2D" path="res://ui/icon/icon_sound_off.png" id="20_sound_off"]
 [ext_resource type="Texture2D" path="res://ui/icon/icon_vibration_on.png" id="21_vibration_on"]
 [ext_resource type="Texture2D" path="res://ui/icon/icon_vibration_off.png" id="22_vibration_off"]
+[ext_resource type="Texture2D" path="res://ui/icon/icon_cloud_on.svg" id="23_cloud_on"]
+[ext_resource type="Texture2D" path="res://ui/icon/icon_cloud_off.svg" id="24_cloud_off"]
 
 [sub_resource type="StyleBoxFlat" id="SliderBackground"]
 bg_color = Color(0.8, 0.82, 0.75, 1)
@@ -336,32 +338,30 @@ theme_override_font_sizes/font_size = 15
 text = "SETTINGS_HAPTICS"
 horizontal_alignment = 1
 
-[node name="PlayGamesItem" type="VBoxContainer" parent="SafeArea/Content/SettingsPanel/Scroll/ScrollMargin/SettingsContent"]
+[node name="CloudItem" type="VBoxContainer" parent="SafeArea/Content/SettingsPanel/Scroll/ScrollMargin/SettingsContent/ToggleRow"]
 unique_name_in_owner = true
 visible = false
 layout_mode = 2
-theme_override_constants/separation = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 4
+alignment = 1
 
-[node name="PlayGamesButton" type="CheckButton" parent="SafeArea/Content/SettingsPanel/Scroll/ScrollMargin/SettingsContent/PlayGamesItem"]
+[node name="CloudButton" type="Button" parent="SafeArea/Content/SettingsPanel/Scroll/ScrollMargin/SettingsContent/ToggleRow/CloudItem"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 56)
+custom_minimum_size = Vector2(0, 88)
 layout_mode = 2
-theme_override_font_sizes/font_size = 18
-text = "SETTINGS_PLAY_GAMES"
+size_flags_horizontal = 3
+script = ExtResource("18_icon_toggle")
+icon_on = ExtResource("23_cloud_on")
+icon_off = ExtResource("24_cloud_off")
 
-[node name="PlayGamesStatus" type="Label" parent="SafeArea/Content/SettingsPanel/Scroll/ScrollMargin/SettingsContent/PlayGamesItem"]
+[node name="CloudCaption" type="Label" parent="SafeArea/Content/SettingsPanel/Scroll/ScrollMargin/SettingsContent/ToggleRow/CloudItem"]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_colors/font_color = Color(0.19, 0.34, 0.24, 1)
 theme_override_font_sizes/font_size = 15
-text = "SETTINGS_PLAY_GAMES_SIGNED_OUT"
-
-[node name="PlayGamesHint" type="Label" parent="SafeArea/Content/SettingsPanel/Scroll/ScrollMargin/SettingsContent/PlayGamesItem"]
-unique_name_in_owner = true
-layout_mode = 2
-theme_override_colors/font_color = Color(0.29, 0.44, 0.32, 1)
-theme_override_font_sizes/font_size = 15
-text = "SETTINGS_PLAY_GAMES_HINT"
+text = "SETTINGS_CLOUD"
+horizontal_alignment = 1
 autowrap_mode = 2
 
 [node name="ExitButton" type="Button" parent="SafeArea/Content/SettingsPanel/Scroll/ScrollMargin/SettingsContent"]

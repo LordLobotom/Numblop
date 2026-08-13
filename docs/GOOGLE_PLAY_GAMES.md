@@ -584,9 +584,16 @@ Done:
 - `play_games/enabled` in `settings.cfg`, defaulting to off.
 - `tools/install-play-games-plugin.ps1`, wired into `tools/export.ps1`; a no-op until the plugin
   binaries are vendored. `NUMBLOP_PLAY_GAMES_PROJECT_ID` is set to the project id `1018864218554`.
-- A Settings row — a switch, a sign-in status line, and a one-line explanation in all ten languages.
-  It **hides itself unless a usable plugin is present**, so no Windows or Web player is offered an
-  account switch that cannot work.
+- A Settings tile — a third icon tile beside Sound and Vibration, with a drawn cloud that is struck
+  through when off, a one-word caption in all ten languages, and three accessible states (off, on
+  and signed in, on but not signed in). It **hides itself unless a usable plugin is present**, so no
+  Windows or Web player is offered a backup switch that cannot work.
+
+  It became a tile rather than a labelled row because the settings card was already full: a row
+  pushed *Close game* below the fold, and scrollbars are hidden, so a guardian would not have found
+  it. A third tile costs zero vertical space. The tile is lit by the **setting**, like its two
+  siblings — a light that ignored the tap would not be a switch — and whether Google actually
+  signed the device in is carried by the accessible name instead.
 
 Remaining:
 - **The plugin spike itself** — pick between the community plugin and an in-house Kotlin wrapper,

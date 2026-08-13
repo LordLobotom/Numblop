@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <!-- Near-black like the other settings glyphs: IconToggle multiplies the icon by a colour, so a
+       hue here would multiply back to black. It varies opacity instead, which is why this is one
+       flat shape with no internal shading. -->
+  <g fill="#1a1a1a">
+    <path d="M46.5 47H19.5a11.5 11.5 0 0 1-1.7-22.87 15 15 0 0 1 27.2-4.9A12.5 12.5 0 0 1 46.5 47z"/>
+  </g>
+</svg>

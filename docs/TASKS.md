@@ -264,10 +264,11 @@ Phase P0 only. Everything from P1 onwards waits on `D18` and a decision entry; s
   unmodified at `addons/GodotPlayGameServices/`, the game id set as an export option on both Android
   presets, and `tools/install-play-games-plugin.ps1` deleted as redundant and conflicting. Owns:
   `addons/`, `export_presets.cfg`, `tools/export.ps1`. Depends: D22.
-- `B34 DONE` Cloud-save row in Settings — switch, sign-in status line, and explanation in all ten
-  languages — hidden unless a usable plugin is present, and on by default. Owns:
-  `scenes/screens/SettingsScreen.tscn`, `scripts/ui/SettingsScreen.gd`, `localization/strings.csv`,
-  `tests/ui/test_main_scene.gd`. Depends: C21.
+- `B34 DONE` Cloud-save tile in Settings — a third icon tile beside Sound and Vibration with a drawn
+  cloud, hidden unless a usable plugin is present, on by default, three accessible states. Owns:
+  `scenes/screens/SettingsScreen.tscn`, `scripts/ui/SettingsScreen.gd`, `ui/icon/icon_cloud_*.svg`,
+  `localization/strings.csv`, `tests/ui/test_main_scene.gd`, the `settings_cloud` capture state.
+  Depends: C21.
 - `B35 DROPPED` Parent gate in front of the cloud-save switch. Google and Family Link already own
   the account decision for supervised children; a second, weaker gate would be theatre and would
   cost honest players their backup. See the 2026-08-13 decision entry.

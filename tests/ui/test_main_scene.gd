@@ -504,18 +504,18 @@ func test_the_play_games_row_stays_hidden_until_a_plugin_can_serve_it() -> void:
     var tree := Engine.get_main_loop() as SceneTree
     tree.root.add_child(scene)
 
-    var row: Control = scene.get_node("%PlayGamesItem")
-    check(not row.visible, "No plugin means no cloud-save switch is offered at all")
+    var tile: Control = scene.get_node("%CloudItem")
+    check(not tile.visible, "No plugin means the row keeps its original two tiles")
 
     var fake_plugin := Node.new()
     var fake_client := Node.new()
     PlayGames._set_plugin_for_test(fake_plugin, fake_client)
     scene.refresh_play_games()
-    check(row.visible, "A usable plugin reveals the row")
+    check(tile.visible, "A usable plugin reveals the third tile")
 
     PlayGames._set_plugin_for_test(null)
     scene.refresh_play_games()
-    check(not row.visible, "Losing the plugin hides it again")
+    check(not tile.visible, "Losing the plugin hides it again")
 
     fake_plugin.free()
     fake_client.free()
@@ -523,31 +523,39 @@ func test_the_play_games_row_stays_hidden_until_a_plugin_can_serve_it() -> void:
     scene.free()
 
 
-func test_the_cloud_save_switch_follows_the_stored_setting() -> void:
+func test_the_cloud_tile_is_lit_by_the_setting_and_names_the_session_separately() -> void:
+    # The tile follows the switch, like the two beside it -- a light that ignored the tap would
+    # not be a switch. Whether Google actually let the device in is carried by the accessible
+    # name, which is the only place on this screen that can say it.
     var scene: SettingsScreen = (
         load("res://scenes/screens/SettingsScreen.tscn") as PackedScene
     ).instantiate()
     var tree := Engine.get_main_loop() as SceneTree
     tree.root.add_child(scene)
-    var restore_enabled := SettingsManager.play_games_enabled
+    # The screen has a debounce timer that saves preferences, and it saves to the real settings
+    # file. Bracketing the whole case is the only reliable guard.
+    var restore_settings: Variant = preserve_settings_file()
 
-    # Set the autoload field directly: saving here would write a real settings file.
     SettingsManager.play_games_enabled = true
     scene.refresh_from_settings()
-    var toggle: CheckButton = scene.get_node("%PlayGamesButton")
-    var status: Label = scene.get_node("%PlayGamesStatus")
-    check(toggle.button_pressed, "Cloud save is on by default")
-    check(status.visible, "A device with cloud save on sees where it stands")
-    equal(status.text, tr("SETTINGS_PLAY_GAMES_SIGNED_OUT"), "On is not the same as signed in")
+    var tile: IconToggle = scene.get_node("%CloudButton")
+    check(tile.button_pressed, "Cloud save is on by default")
+    equal(tile.icon, tile.icon_on, "On shows the cloud")
+    equal(
+        tile.tooltip_text,
+        tr("SETTINGS_CLOUD_WAITING_ACCESSIBLE"),
+        "On but not signed in is a state of its own, not silence"
+    )
 
     SettingsManager.play_games_enabled = false
     scene.refresh_from_settings()
-    check(not toggle.button_pressed, "A deliberate opt-out darkens the switch")
-    check(not status.visible, "Nobody who switched it off is told about a sign-in")
+    check(not tile.button_pressed, "A deliberate opt-out darkens the tile")
+    equal(tile.icon, tile.icon_off, "Off shows the struck-through cloud")
+    equal(tile.tooltip_text, tr("SETTINGS_CLOUD_OFF_ACCESSIBLE"), "And says so")
 
-    SettingsManager.play_games_enabled = restore_enabled
     tree.root.remove_child(scene)
     scene.free()
+    restore_settings_file(restore_settings)
 
 
 func test_the_sound_tile_is_lit_when_sound_is_audible() -> void:
@@ -558,8 +566,7 @@ func test_the_sound_tile_is_lit_when_sound_is_audible() -> void:
     ).instantiate()
     var tree := Engine.get_main_loop() as SceneTree
     tree.root.add_child(scene)
-    var restore_muted := SettingsManager.audio_muted
-    var restore_haptics := SettingsManager.haptics_enabled
+    var restore_settings: Variant = preserve_settings_file()
 
     # Set the autoload fields directly: saving here would write a real settings file.
     SettingsManager.audio_muted = false
@@ -578,10 +585,9 @@ func test_the_sound_tile_is_lit_when_sound_is_audible() -> void:
     equal(sound.icon, sound.icon_off, "Muted sound shows the off icon")
     equal(haptics.icon, haptics.icon_off, "Disabled vibration shows the off icon")
 
-    SettingsManager.audio_muted = restore_muted
-    SettingsManager.haptics_enabled = restore_haptics
     tree.root.remove_child(scene)
     scene.free()
+    restore_settings_file(restore_settings)
 
 
 func test_body_panels_sit_outside_their_scroll_container() -> void:

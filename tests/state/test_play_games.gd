@@ -157,6 +157,8 @@ func test_a_failed_sign_in_leaves_the_game_completely_playable() -> void:
 
 
 func test_switching_cloud_save_off_ends_the_session_for_the_game() -> void:
+    # `set_enabled` persists, and the only path it persists to is the real settings file.
+    var restore_settings: Variant = preserve_settings_file()
     var state := _install_fake_plugin(true)
     PlayGames._start()
     state["client"].answer(true)
@@ -167,7 +169,7 @@ func test_switching_cloud_save_off_ends_the_session_for_the_game() -> void:
     check(not PlayGames.enabled(), "And the switch is off")
 
     _remove_fake_plugin(state)
-    SettingsManager.load_settings()
+    restore_settings_file(restore_settings)
 
 
 ## Installs the plugin doubles and sets the switch, returning what the caller must clean up.

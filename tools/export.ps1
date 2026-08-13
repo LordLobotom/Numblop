@@ -180,7 +180,11 @@ switch ($Target) {
 $previousGradleOptions = [Environment]::GetEnvironmentVariable("GRADLE_OPTS", "Process")
 $originalPresets = $null
 try {
-    if ($Target -like "android-release*" -and $previousGradleOptions -notmatch 'org\.gradle\.daemon=false') {
+    # Applies to every Android target, not just release: the debug preset builds through Gradle too
+    # now that the Play Games plugin has to be linked, and it hits the same Windows
+    # redirected-output handle deadlock the daemon causes. A debug export that hangs for the full
+    # timeout with no output is exactly what that looks like.
+    if ($Target -like "android-*" -and $previousGradleOptions -notmatch 'org\.gradle\.daemon=false') {
         $scriptedGradleOptions = (($previousGradleOptions, "-Dorg.gradle.daemon=false") |
             Where-Object { -not [string]::IsNullOrWhiteSpace($_) }) -join " "
         [Environment]::SetEnvironmentVariable("GRADLE_OPTS", $scriptedGradleOptions, "Process")

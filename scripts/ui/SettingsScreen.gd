@@ -21,10 +21,9 @@ signal exit_requested
 @onready var haptics_button: IconToggle = %HapticsButton
 @onready var sound_caption: Label = %SoundCaption
 @onready var haptics_caption: Label = %HapticsCaption
-@onready var play_games_item: VBoxContainer = %PlayGamesItem
-@onready var play_games_button: CheckButton = %PlayGamesButton
-@onready var play_games_status: Label = %PlayGamesStatus
-@onready var play_games_hint: Label = %PlayGamesHint
+@onready var cloud_item: VBoxContainer = %CloudItem
+@onready var cloud_button: IconToggle = %CloudButton
+@onready var cloud_caption: Label = %CloudCaption
 @onready var hint_label: Label = %HintLabel
 @onready var exit_button: Button = %ExitButton
 @onready var exit_dialog: Control = %ExitDialog
@@ -61,7 +60,7 @@ func _ready() -> void:
     sfx_slider.drag_ended.connect(_on_sfx_drag_ended)
     mute_button.toggled.connect(_on_sound_toggled)
     haptics_button.toggled.connect(_on_haptics_toggled)
-    play_games_button.toggled.connect(_on_play_games_toggled)
+    cloud_button.toggled.connect(_on_cloud_toggled)
     PlayGames.availability_changed.connect(_on_play_games_availability_changed)
     PlayGames.sign_in_state_changed.connect(_on_play_games_sign_in_changed)
     exit_button.pressed.connect(show_exit_confirmation)
@@ -102,10 +101,11 @@ func _sync_controls_from_settings() -> void:
     # the two are inverses of each other and this is the one place that conversion happens.
     mute_button.button_pressed = not SettingsManager.audio_muted
     haptics_button.button_pressed = SettingsManager.haptics_enabled
-    play_games_button.button_pressed = SettingsManager.play_games_enabled
+    cloud_button.button_pressed = SettingsManager.play_games_enabled
     _syncing_controls = false
     mute_button.refresh()
     haptics_button.refresh()
+    cloud_button.refresh()
     _refresh_volume_values()
     _refresh_language_selection()
     _refresh_toggle_accessibility()
@@ -121,9 +121,7 @@ func _refresh_text() -> void:
     sfx_label.text = tr("SETTINGS_SFX")
     sound_caption.text = tr("SETTINGS_SOUND")
     haptics_caption.text = tr("SETTINGS_HAPTICS")
-    play_games_button.text = tr("SETTINGS_PLAY_GAMES")
-    play_games_hint.text = tr("SETTINGS_PLAY_GAMES_HINT")
-    _refresh_play_games_status()
+    cloud_caption.text = tr("SETTINGS_CLOUD")
     _refresh_toggle_accessibility()
     exit_button.text = tr("SETTINGS_EXIT")
     dialog_title.text = tr("SETTINGS_EXIT_TITLE")
@@ -245,22 +243,14 @@ func _on_sound_toggled(audible: bool) -> void:
         preview_player.play()
 
 
-## Shows or hides the Play Games row and refreshes its status line.
+## Shows or hides the cloud-save tile.
 ##
 ## Hidden unless a usable plugin is present, which means every Windows and Web player -- and every
-## Android build without the plugin -- sees no account switch at all. Offering one that cannot work
-## would be a promise the game has no way to keep.
+## Android build without the plugin -- sees the original two tiles and nothing else. Offering a
+## backup switch that cannot work would be a promise the game has no way to keep.
 func refresh_play_games() -> void:
-    play_games_item.visible = PlayGames.available()
-    _refresh_play_games_status()
-
-
-func _refresh_play_games_status() -> void:
-    play_games_status.text = tr(
-        "SETTINGS_PLAY_GAMES_SIGNED_IN" if PlayGames.signed_in()
-        else "SETTINGS_PLAY_GAMES_SIGNED_OUT"
-    )
-    play_games_status.visible = SettingsManager.play_games_enabled
+    cloud_item.visible = PlayGames.available()
+    _refresh_toggle_accessibility()
 
 
 func _on_play_games_availability_changed(_available: bool) -> void:
@@ -270,16 +260,21 @@ func _on_play_games_availability_changed(_available: bool) -> void:
 
 func _on_play_games_sign_in_changed(_signed_in: bool) -> void:
     if is_node_ready():
-        _refresh_play_games_status()
+        _refresh_toggle_accessibility()
 
 
-func _on_play_games_toggled(enabled: bool) -> void:
+## The tile is lit by the *setting*, exactly like the sound and vibration tiles beside it.
+##
+## Tying it to whether sign-in actually succeeded was considered and rejected: a switch whose light
+## ignores the tap is not a switch. Whether Google let the device in is reported through the
+## accessible name instead, where it informs without turning the control into a status lamp.
+func _on_cloud_toggled(enabled: bool) -> void:
     if _syncing_controls:
         return
     # The autoload owns both the stored preference and the session, so nothing here writes the
     # setting itself -- otherwise the two could disagree about whether the SDK may start.
     PlayGames.set_enabled(enabled)
-    _refresh_play_games_status()
+    _refresh_toggle_accessibility()
 
 
 func _on_haptics_toggled(enabled: bool) -> void:
@@ -304,9 +299,19 @@ func _refresh_toggle_accessibility() -> void:
         else "SETTINGS_SOUND_OFF_ACCESSIBLE"
     )
     haptics_button.tooltip_text = tr(
-        "SETTINGS_HAPTICS_ON_ACCESSIBLE" if haptics_button.button_pressed
-        else "SETTINGS_HAPTICS_OFF_ACCESSIBLE"
+        "SETTINGS_HAPTICS_OFF_ACCESSIBLE" if not haptics_button.button_pressed
+        else "SETTINGS_HAPTICS_ON_ACCESSIBLE"
     )
+    # Three states, not two: off, on and working, on but not signed in. The last one is the whole
+    # reason this reads the session rather than only the switch -- a guardian who turned backup on
+    # and never got signed in has nothing else on this screen that would tell them.
+    var cloud_key := "SETTINGS_CLOUD_OFF_ACCESSIBLE"
+    if cloud_button.button_pressed:
+        cloud_key = (
+            "SETTINGS_CLOUD_ON_ACCESSIBLE" if PlayGames.signed_in()
+            else "SETTINGS_CLOUD_WAITING_ACCESSIBLE"
+        )
+    cloud_button.tooltip_text = tr(cloud_key)
 
 
 func _preview_audio_preferences() -> void:
