@@ -1,5 +1,122 @@
 # Numblop Decision Log
 
+## 2026-08-13 — Cloud save on by default, and the plugin spike settles the integration
+
+**The community plugin wins.** `godot-sdk-integrations/godot-play-game-services` v3.4.0 is vendored
+unmodified at `addons/GodotPlayGameServices/` with its release hash recorded in `VENDORED.txt`. It
+supports authentication and Saved Games, and the in-house Kotlin fallback was not needed.
+
+The spike overturned three assumptions this repository had already built tooling around, which is
+exactly what a spike is for:
+
+- **It installs to `addons/`, not `android/plugins/`.** `addons/` is versioned, so the plugin is
+  committed like source and needs no reinstall-every-export step. `tools/install-play-games-plugin.ps1`
+  was **deleted**: the plugin's own `EditorExportPlugin` already injects the AAR, the Gradle
+  dependencies and the manifest meta-data, and the script would have written a second, conflicting
+  `game_services_project_id` string resource — a build failure waiting to happen.
+- **The project id is an export option, not an environment variable.**
+  `godot_play_game_services/game_id` on both Android presets. The leading-space workaround this
+  document warned about does not apply, because the id reaches the manifest through `@string/`.
+- **Saved Games expose conflicts natively.** `conflict_emitted(PlayGamesSnapshotConflict)` hands over
+  both candidate snapshots, which is precisely the input `CloudSaveMerge` already takes. The merge
+  written before any plugin existed turns out to plug straight in.
+
+**Cloud save is now on by default and initialises automatically**, reversing the opt-in design from
+earlier the same day. The reasoning that changed:
+
+- The account decision is not Numblop's to make. Google, and Family Link for supervised children,
+  already govern whether a child may sign in to Play Games at all. A second gate on top would be
+  weaker than the one that already exists — a child who can find the Settings screen can pass an
+  arithmetic parent gate in a multiplication game — while costing every honest player their backup.
+- The problem worth solving is a lost phone taking a year of practice with it. An opt-in switch
+  buried in Settings does not solve it for the children who most need it.
+- `B35`, the parent gate, is therefore dropped rather than deferred.
+- A missing `play_games/enabled` key reads as **on**, so existing installs get cloud save without
+  anyone finding a switch. Turning it off is a deliberate act that survives restarts.
+
+Unchanged by any of this: the data-safety declaration and privacy policy still have to be rewritten
+before release, leaderboards are still the higher-risk surface and still last, and a failed sign-in
+still has to cost a child nothing — which now has its own test that generates a full practice round
+after authentication comes back false.
+
+**Also fixed here:** `SaveManager` parsed saves with `JSON.parse_string`, which pushes an *engine*
+error on malformed input. A corrupt save is something that class handles, not an engine fault, so it
+now uses a `JSON` instance and its own warning. That stops a corrupt profile filling a child's device
+log — and stops the deliberate-corruption tests making `tools/run-tests.ps1` exit non-zero while
+reporting every test passed, which it had been doing unnoticed for several rounds.
+
+## 2026-08-13 — Numblop stops being an app that cannot reach the network
+
+M5 is approved and P1 is built, so the "no networking" clause in `AGENTS.md` is retired and
+replaced. Both Android presets now request `INTERNET` and `ACCESS_NETWORK_STATE`, and both build
+through Gradle so the plugin can be linked. What replaces the old rule is narrower and stricter than
+"no networking": **the game stays fully playable offline, signed out, and accountless, forever.**
+
+- **`permissions/internet=false` was a deliberate tripwire, so it was replaced rather than
+  deleted.** `test_project_contract.gd` now pins the two permissions that are wanted and asserts the
+  absence of the ones that would be a Families-policy violation — advertising id, location, camera,
+  microphone, contacts. The duty the old pin carried is carried forward, not dropped.
+- **The SDK is not initialised until a guardian opts in.** The Play Games v2 SDK signs in
+  automatically on `initialize()`, so initialising it for a child who never opted in would create an
+  account association behind their back. The opt-in therefore gates initialisation itself, not just
+  the calls after it, and that is the single most important assertion in `test_play_games.gd`.
+- **The opt-in lives in `settings.cfg`, not the profile.** It describes the device and its guardian's
+  choice, not the child's progress, so resetting a profile must not silently re-enable it.
+- **`PlayGames.gd` is the only file in the repository that knows Play Games exists.** A test walks
+  `scripts/core/`, `scripts/app/`, `scripts/ui/` and `scenes/` and fails if any of them so much as
+  mentions it. Delete the autoload and the game still runs.
+- **No plugin was chosen yet, and the code does not need one to be.** The wrapper looks for any of
+  several singleton names and feature-detects the methods it calls; a plugin that is present but
+  incomplete is treated as absent, which fails safe to offline rather than half-wired. Whichever
+  route wins the spike — community plugin or in-house Kotlin — only has to satisfy
+  `PlayGames.REQUIRED_METHODS`.
+- **The Android Debug preset moved to a Gradle build** because a plugin cannot be linked without
+  one, and a debug APK that cannot sign in is useless for testing this.
+- **`tools/install-play-games-plugin.ps1` follows the `patch-android-template.ps1` pattern**, since
+  `android/` is git-ignored and Godot regenerates it. It is a no-op until the plugin binaries are
+  vendored, so exports keep working meanwhile, and it demands the project id only once a plugin is
+  actually being linked — a missing id then would ship an app that dies on launch.
+- **The project id goes in a string resource whose value keeps a leading space.** Without it the
+  build tools parse the digits as a float and the app crashes at launch with an error that names
+  none of this.
+- **Unrelated but found the hard way:** `tests/run_tests.gd` used to hang for the full 120-second
+  timeout when any test file had a parse error, because a broken script still loads and only fails
+  at `new()`. It now scores that as a failure and continues.
+
+## 2026-08-13 — The cloud merge, written before the cloud
+
+`CloudSaveMerge` reconciles two saves of the same profile. It is pure and static, has no plugin,
+network, clock, or file access, and exists in full before any Play API is called — because it is the
+one piece of the cloud work that can silently destroy a childhood of practice, and it is entirely
+provable on a laptop.
+
+- **The governing rule is asymmetric on purpose:** never lose mastery, an owned item, an
+  achievement, or a streak record; accept imprecision in the coin balance instead. A hat vanishing
+  is a betrayal a child notices; being fifty coins short of the arithmetic sum is invisible.
+- **Timestamps decide nothing on their own.** The base save is chosen by experience, then finished
+  rounds, then `save_counter`, and only then the clock, with a stable `profile_id` comparison as the
+  final tie-break. A tablet whose clock is a year fast would otherwise win every merge permanently
+  and erase the other device — a total failure mode, not a degraded one.
+- **The merge is commutative except for `profile_id` and `cloud`**, which describe the device rather
+  than the player and always come from the local side. Both devices must otherwise compute the same
+  state whichever way round they merge, or a two-device pair oscillates forever. A test compares the
+  hashes of both directions.
+- **The balance is recomputed, never carried or summed.** Two devices that each earned 400 and each
+  bought a different 100-coin item end up owning both items with 200 coins, not 400 and not 600.
+  That downward imprecision is the documented cost of never losing an item, and it is asserted by
+  test rather than left as a hope.
+- **An unlocked island never closes**, even when it arrives on the *losing* save and even when the
+  fact that opened it has since decayed below the gate on both devices.
+- **A finished tutorial on either device is finished.** Being walked through the basics again
+  because the other phone had not caught up would read as the game forgetting the child.
+- **The same streak length recorded twice keeps the earlier moment**, because that is the run that
+  actually happened; two different lengths are two real records and both survive.
+- **A merged save adopted onto a fresh device drops the other device's `profile_id` and `cloud`
+  block** rather than importing them, so the new device generates its own identity on the next write.
+- **Left for the cloud phase, deliberately:** the merged `save_counter` does not yet reach disk,
+  because `SaveManager` derives the counter from the file already there. Wiring that now would mean
+  adding a parameter for a phase that does not exist; it is recorded as `C20` instead.
+
 ## 2026-08-12 — Save version 10: durability and a coin ledger, before any networking
 
 Play Games Services is approved in scope — sign-in, cloud saves, and both leaderboards (total XP and

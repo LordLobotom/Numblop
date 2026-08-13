@@ -9,9 +9,10 @@ which files it owned. Only these remain open:
 
 - `D2 BLOCKED(no authorized physical Android device connected)` Physical Android install/run/log
   smoke command and checklist. Depends: C3. Owns: `tools/`, `docs/RELEASES.md`, smoke tests.
-- `D18 TODO` Release execution: generate the release keystore, export and verify the signed AAB,
-  enable GitHub Pages, complete the physical-device checklist (unblocks D2), and upload to the Play
-  internal test track. Depends: D2, D14–D17. Owns: release workflow (manual steps).
+- `D18 TODO` Release execution, remaining items only: enable GitHub Pages (main, `/docs`) and
+  complete the physical-device checklist (unblocks D2). The keystore, signing, AAB verification, and
+  a first internal-track upload (`0.4.0` / code `12`) are all done. Depends: D2, D14–D17.
+  Owns: release workflow (manual steps).
 
 The next milestone is M5, Google Play Games Services, planned in
 [`GOOGLE_PLAY_GAMES.md`](GOOGLE_PLAY_GAMES.md). Its offline prerequisite phase is done; see the M5
@@ -246,12 +247,33 @@ Phase P0 only. Everything from P1 onwards waits on `D18` and a decision entry; s
   `scripts/autoload/SaveManager.gd`, `scripts/app/CoinLedger.gd`, `scripts/app/SaveMigration.gd`,
   `scripts/app/LocalCloudSync.gd`, `scripts/app/LocalProgress.gd`, `CosmeticCatalog.CATEGORIES`,
   app-state save wiring, and `tests/state/`.
-- `C19 TODO` `scripts/app/CloudSaveMerge.gd`: the pure two-save merge from
-  [`GOOGLE_PLAY_GAMES.md`](GOOGLE_PLAY_GAMES.md) §7, with commutativity, idempotence, and
-  never-lose-an-item tests. No networking; can be written before any Play work. Depends: C18.
-- `D22 TODO` Play Games plugin spike on Godot 4.6.2, export-preset and manifest changes, and the
-  contract-test update that deliberately replaces the `permissions/internet=false` pin. Blocked on
-  the compliance gate below. Depends: D18, C19.
+- `C19 DONE` `scripts/app/CloudSaveMerge.gd`: the pure two-save merge from
+  [`GOOGLE_PLAY_GAMES.md`](GOOGLE_PLAY_GAMES.md) §7 — commutative except for this device's own
+  identity, monotonic on mastery and unlocks, unioning items, achievements and streak records, and
+  recomputing the balance through `CoinLedger`. No networking. Owns: `scripts/app/CloudSaveMerge.gd`
+  and `tests/state/test_cloud_save_merge.gd`. Depends: C18.
+- `D22 DONE` Network permissions and Gradle builds on both Android presets, the contract-test
+  rewrite that replaces the `permissions/internet=false` pin with permission assertions of its own,
+  and `tools/install-play-games-plugin.ps1` wired into `tools/export.ps1`. Owns: `export_presets.cfg`,
+  `tools/`, `tests/smoke/test_project_contract.gd`. Depends: C19.
+- `C21 DONE` `scripts/autoload/PlayGames.gd`: opt-in gated, plugin-agnostic sign-in wrapper that is
+  a no-op on every non-Android build, plus the `play_games/enabled` setting and the test that no
+  other script may reference the autoload. Owns: `scripts/autoload/PlayGames.gd`, `SettingsManager`,
+  `project.godot` autoload list, `tests/state/test_play_games.gd`.
+- `D23 DONE` Plugin spike: `godot-sdk-integrations/godot-play-game-services` v3.4.0 vendored
+  unmodified at `addons/GodotPlayGameServices/`, the game id set as an export option on both Android
+  presets, and `tools/install-play-games-plugin.ps1` deleted as redundant and conflicting. Owns:
+  `addons/`, `export_presets.cfg`, `tools/export.ps1`. Depends: D22.
+- `B34 DONE` Cloud-save row in Settings — switch, sign-in status line, and explanation in all ten
+  languages — hidden unless a usable plugin is present, and on by default. Owns:
+  `scenes/screens/SettingsScreen.tscn`, `scripts/ui/SettingsScreen.gd`, `localization/strings.csv`,
+  `tests/ui/test_main_scene.gd`. Depends: C21.
+- `B35 DROPPED` Parent gate in front of the cloud-save switch. Google and Family Link already own
+  the account decision for supervised children; a second, weaker gate would be theatre and would
+  cost honest players their backup. See the 2026-08-13 decision entry.
+- `C20 TODO` Seed the merged `save_counter` when writing a merge result, so it sorts after both
+  parents instead of `local + 1`. Belongs with the cloud-save phase that first needs it, not before.
+  Depends: C19, D22.
 - Compliance gate before any networking build reaches a track: privacy policy rewrite, Play Console
   data-safety declaration, Families and target-audience questionnaires, content rating re-check.
 

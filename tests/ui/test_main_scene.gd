@@ -494,6 +494,62 @@ func test_nav_screens_leave_room_for_the_device_safe_area() -> void:
         scene.free()
 
 
+## A Google account switch that cannot work is worse than no switch: a guardian would flip it and
+## nothing would happen. So the row hides itself unless a usable plugin is actually present, which
+## is never the case on Windows, on the Web, or in this test run without a stand-in.
+func test_the_play_games_row_stays_hidden_until_a_plugin_can_serve_it() -> void:
+    var scene: SettingsScreen = (
+        load("res://scenes/screens/SettingsScreen.tscn") as PackedScene
+    ).instantiate()
+    var tree := Engine.get_main_loop() as SceneTree
+    tree.root.add_child(scene)
+
+    var row: Control = scene.get_node("%PlayGamesItem")
+    check(not row.visible, "No plugin means no cloud-save switch is offered at all")
+
+    var fake_plugin := Node.new()
+    var fake_client := Node.new()
+    PlayGames._set_plugin_for_test(fake_plugin, fake_client)
+    scene.refresh_play_games()
+    check(row.visible, "A usable plugin reveals the row")
+
+    PlayGames._set_plugin_for_test(null)
+    scene.refresh_play_games()
+    check(not row.visible, "Losing the plugin hides it again")
+
+    fake_plugin.free()
+    fake_client.free()
+    tree.root.remove_child(scene)
+    scene.free()
+
+
+func test_the_cloud_save_switch_follows_the_stored_setting() -> void:
+    var scene: SettingsScreen = (
+        load("res://scenes/screens/SettingsScreen.tscn") as PackedScene
+    ).instantiate()
+    var tree := Engine.get_main_loop() as SceneTree
+    tree.root.add_child(scene)
+    var restore_enabled := SettingsManager.play_games_enabled
+
+    # Set the autoload field directly: saving here would write a real settings file.
+    SettingsManager.play_games_enabled = true
+    scene.refresh_from_settings()
+    var toggle: CheckButton = scene.get_node("%PlayGamesButton")
+    var status: Label = scene.get_node("%PlayGamesStatus")
+    check(toggle.button_pressed, "Cloud save is on by default")
+    check(status.visible, "A device with cloud save on sees where it stands")
+    equal(status.text, tr("SETTINGS_PLAY_GAMES_SIGNED_OUT"), "On is not the same as signed in")
+
+    SettingsManager.play_games_enabled = false
+    scene.refresh_from_settings()
+    check(not toggle.button_pressed, "A deliberate opt-out darkens the switch")
+    check(not status.visible, "Nobody who switched it off is told about a sign-in")
+
+    SettingsManager.play_games_enabled = restore_enabled
+    tree.root.remove_child(scene)
+    scene.free()
+
+
 func test_the_sound_tile_is_lit_when_sound_is_audible() -> void:
     # The tile says "Sound" but the stored setting is a mute, so the two are inverses. Get
     # that backwards and the screen confidently reports the opposite of the truth.

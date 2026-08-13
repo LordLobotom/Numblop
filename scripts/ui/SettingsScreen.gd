@@ -21,6 +21,10 @@ signal exit_requested
 @onready var haptics_button: IconToggle = %HapticsButton
 @onready var sound_caption: Label = %SoundCaption
 @onready var haptics_caption: Label = %HapticsCaption
+@onready var play_games_item: VBoxContainer = %PlayGamesItem
+@onready var play_games_button: CheckButton = %PlayGamesButton
+@onready var play_games_status: Label = %PlayGamesStatus
+@onready var play_games_hint: Label = %PlayGamesHint
 @onready var hint_label: Label = %HintLabel
 @onready var exit_button: Button = %ExitButton
 @onready var exit_dialog: Control = %ExitDialog
@@ -57,6 +61,9 @@ func _ready() -> void:
     sfx_slider.drag_ended.connect(_on_sfx_drag_ended)
     mute_button.toggled.connect(_on_sound_toggled)
     haptics_button.toggled.connect(_on_haptics_toggled)
+    play_games_button.toggled.connect(_on_play_games_toggled)
+    PlayGames.availability_changed.connect(_on_play_games_availability_changed)
+    PlayGames.sign_in_state_changed.connect(_on_play_games_sign_in_changed)
     exit_button.pressed.connect(show_exit_confirmation)
     cancel_exit_button.pressed.connect(hide_exit_confirmation)
     confirm_exit_button.pressed.connect(_confirm_exit)
@@ -95,12 +102,14 @@ func _sync_controls_from_settings() -> void:
     # the two are inverses of each other and this is the one place that conversion happens.
     mute_button.button_pressed = not SettingsManager.audio_muted
     haptics_button.button_pressed = SettingsManager.haptics_enabled
+    play_games_button.button_pressed = SettingsManager.play_games_enabled
     _syncing_controls = false
     mute_button.refresh()
     haptics_button.refresh()
     _refresh_volume_values()
     _refresh_language_selection()
     _refresh_toggle_accessibility()
+    refresh_play_games()
 
 
 func _refresh_text() -> void:
@@ -112,6 +121,9 @@ func _refresh_text() -> void:
     sfx_label.text = tr("SETTINGS_SFX")
     sound_caption.text = tr("SETTINGS_SOUND")
     haptics_caption.text = tr("SETTINGS_HAPTICS")
+    play_games_button.text = tr("SETTINGS_PLAY_GAMES")
+    play_games_hint.text = tr("SETTINGS_PLAY_GAMES_HINT")
+    _refresh_play_games_status()
     _refresh_toggle_accessibility()
     exit_button.text = tr("SETTINGS_EXIT")
     dialog_title.text = tr("SETTINGS_EXIT_TITLE")
@@ -231,6 +243,43 @@ func _on_sound_toggled(audible: bool) -> void:
     # Turning it back on demonstrates what was turned on.
     if audible:
         preview_player.play()
+
+
+## Shows or hides the Play Games row and refreshes its status line.
+##
+## Hidden unless a usable plugin is present, which means every Windows and Web player -- and every
+## Android build without the plugin -- sees no account switch at all. Offering one that cannot work
+## would be a promise the game has no way to keep.
+func refresh_play_games() -> void:
+    play_games_item.visible = PlayGames.available()
+    _refresh_play_games_status()
+
+
+func _refresh_play_games_status() -> void:
+    play_games_status.text = tr(
+        "SETTINGS_PLAY_GAMES_SIGNED_IN" if PlayGames.signed_in()
+        else "SETTINGS_PLAY_GAMES_SIGNED_OUT"
+    )
+    play_games_status.visible = SettingsManager.play_games_enabled
+
+
+func _on_play_games_availability_changed(_available: bool) -> void:
+    if is_node_ready():
+        refresh_play_games()
+
+
+func _on_play_games_sign_in_changed(_signed_in: bool) -> void:
+    if is_node_ready():
+        _refresh_play_games_status()
+
+
+func _on_play_games_toggled(enabled: bool) -> void:
+    if _syncing_controls:
+        return
+    # The autoload owns both the stored preference and the session, so nothing here writes the
+    # setting itself -- otherwise the two could disagree about whether the SDK may start.
+    PlayGames.set_enabled(enabled)
+    _refresh_play_games_status()
 
 
 func _on_haptics_toggled(enabled: bool) -> void:

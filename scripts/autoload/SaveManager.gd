@@ -329,9 +329,17 @@ func _read_state_file(path: String) -> Dictionary:
         return {}
     var text := file.get_as_text()
     file.close()
-    var parsed: Variant = JSON.parse_string(text)
+    # A JSON instance rather than `JSON.parse_string`: the static helper pushes an engine error on
+    # malformed input, and a corrupt save is something this class handles, not an engine fault. It
+    # would otherwise fill a child's device log -- and fail the test runner, which treats any
+    # `ERROR:` line as a failed run.
+    var parser := JSON.new()
+    if parser.parse(text) != OK:
+        push_warning("Profile data at %s is invalid: %s" % [path, parser.get_error_message()])
+        return {}
+    var parsed: Variant = parser.data
     if parsed is not Dictionary:
-        push_warning("Profile data at %s is invalid" % path)
+        push_warning("Profile data at %s is not an object" % path)
         return {}
     return parsed
 

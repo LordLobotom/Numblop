@@ -1,10 +1,15 @@
 # Google Play Games Services — Integration Plan
 
-- **Status:** Approved in scope. Phase P0 (local prerequisites) is **implemented**; everything from
-  P1 onwards is still a plan.
-- **Milestone:** M5. The networking phases start after `D18` ships an offline release.
+- **Status:** Approved in scope. Phases P0 and P0b are **implemented**; everything from P1 onwards is
+  still a plan.
+- **Milestone:** M5.
 - **Prerequisite:** P1 onwards breaks the "no networking" product contract in `AGENTS.md`. It does
   not begin until an entry in [`DECISIONS.md`](DECISIONS.md) approves that change.
+- **Not a prerequisite:** another Play upload. `0.4.0` / code `12` is already on the internal track,
+  so the app entry exists and Play App Signing is enrolled — its SHA-1 is what the OAuth credential
+  in §9 needs, and locally signed test builds are covered by the upload-key SHA-1 plus a testers
+  list. Save version 10 and this integration are expected to ship in one release, so the privacy,
+  data-safety, and Families paperwork happens once.
 
 ### Decisions taken (2026-08-12)
 
@@ -43,13 +48,30 @@ Three consequences that are not negotiable:
 1. **The privacy policy and Play Console data-safety answers must be updated in the same release
    that first contains the networking build**, not afterwards. `docs/privacy/index.md` is public at
    the URL declared in the store listing and is currently explicit about the `INTERNET` permission.
-2. **Sign-in must be optional, off by default, and never required to play.** A child-directed app
-   that gates content behind a Google account will not pass Families review, and it would break the
-   product promise regardless of review.
+2. **Nothing may ever be required to play.** No account, no network, no sign-in. Cloud save is *on*
+   by default, but a failed or refused sign-in has to cost a child exactly nothing.
 3. **The leaderboard identity must be the Play gamer tag, never Numblop's own nickname field.** The
    nickname is free text typed by a child, saved locally, and unmoderated. Publishing it to other
    players turns an innocuous local convenience into user-generated content with a moderation duty.
    The gamer tag is chosen and moderated by Google and carries the account's own visibility settings.
+
+### Cloud save is on by default, and Google owns the account gate
+
+Decided 2026-08-13, replacing an earlier opt-in design.
+
+On Android the plugin initialises at startup and checks for an existing session. There is **no
+Numblop-specific guardian opt-in and no parent gate in front of it**, because the account decision is
+not this game's to make: Google, and Family Link for supervised children, already govern whether a
+child may sign in to Play Games and what a supervised account is allowed to do. Adding a second,
+weaker gate on top would be theatre — a child who can read the Settings screen can pass an
+arithmetic challenge in a multiplication game — while costing every honest player their backup.
+
+The problem actually worth solving is a lost phone taking a year of practice with it, and an opt-in
+switch buried in Settings does not solve it for the children who most need it.
+
+What this does **not** change: the data-safety declaration and privacy policy still have to be
+rewritten before release, the leaderboards are still the higher-risk surface and still last, and the
+game still has to be completely playable with sign-in failing.
 
 ### Leaderboards: in scope, and last
 
@@ -217,26 +239,36 @@ live, it is out.
 
 ## 5. Technical integration
 
-### 5.1 Android plugin
+### 5.1 Android plugin — chosen and vendored
 
-Godot 4.2+ uses the v2 Android plugin API (`GodotAndroidPluginV2`), which requires a Gradle build
-and a `.gdap` config plus AAR under `res://android/plugins/`.
+**`godot-sdk-integrations/godot-play-game-services` v3.4.0**, vendored unmodified at
+`addons/GodotPlayGameServices/`. Provenance and the release hash are in `VENDORED.txt` beside it.
+The in-house Kotlin fallback was not needed.
 
-Two options:
+What the spike found, which differs from this document's earlier assumptions:
 
-- **Community plugin — `godot-play-game-services`.** Wraps PGS v2 for sign-in, achievements,
-  leaderboards, saved games/snapshots, players, and events. Saves the most work.
-  *Must be verified against Godot 4.6.2 before it is adopted* — the plugin's AAR builds against a
-  specific `godot-lib` version, and the last release predating 4.6 may need a rebuild from source.
-  Treat "does it build and run on 4.6.2" as a spike, not an assumption.
-- **In-house Kotlin plugin.** The surface actually needed is small: initialise, `isAuthenticated`,
-  `signIn`, `submitScore`, `unlockAchievement`, `setAchievementSteps`, `openSnapshot`,
-  `writeSnapshot`, `resolveConflict`. A few hundred lines of Kotlin, no external dependency, full
-  control of the merged manifest, and it can be pinned to 4.6.2 exactly.
+- **It installs to `addons/`, not `android/plugins/`.** `addons/` is versioned, so the plugin is
+  committed like any other source and needs no reinstall-on-every-export tooling. The
+  `tools/install-play-games-plugin.ps1` written before the spike was deleted: it duplicated work the
+  plugin already does and would have written a **conflicting second `game_services_project_id`
+  string resource**, breaking the build.
+- **The plugin injects its own manifest meta-data, Gradle dependencies, and string resource** through
+  an `EditorExportPlugin`. It pulls `com.google.android.gms:play-services-games-v2:21.0.0` and
+  `com.google.code.gson:gson:2.11.0`.
+- **The project id is an export option, not an environment variable.**
+  `godot_play_game_services/game_id` in `export_presets.cfg`, set on both Android presets. The
+  leading-space trick is unnecessary here because the id reaches the manifest via `@string/`.
+- **One autoload, `GodotPlayGameServices`; the feature clients are Nodes.** `PlayGamesSignInClient`,
+  `PlayGamesSnapshotsClient`, and the rest are instantiated rather than global. Numblop creates only
+  the ones it uses, as children of its own `PlayGames` autoload.
+- **Saved Games are fully supported and expose conflicts natively**: `save_game`, `load_game`,
+  `game_saved`, `game_loaded`, and `conflict_emitted(PlayGamesSnapshotConflict)` carrying both
+  candidate snapshots. That maps directly onto `CloudSaveMerge` in §7 — the conflict signal supplies
+  the two saves the merge already knows how to reconcile.
 
-**Recommendation:** spike the community plugin for one day. If it builds cleanly on 4.6.2, use it.
-If it needs patching, write the in-house plugin instead — a forked AAR that must be rebuilt for every
-Godot update is worse than owning the code.
+Numblop talks to the plugin only through `scripts/autoload/PlayGames.gd`, and looks everything up by
+node path and script path rather than by `class_name`, so deleting the addon leaves the game parsing
+and running with cloud save simply unavailable.
 
 ### 5.2 Export presets and the pinned project contract
 
@@ -260,70 +292,61 @@ with `tools:node="remove"` if it appears.
 Also verify after the first Gradle build: APK/AAB size delta (expect a few MB), and that no
 `ACCESS_ADSERVICES_*` or advertising-related permission was merged in.
 
-### 5.3 The git-ignored `android/` problem
+### 5.3 The git-ignored `android/` tree — a non-problem, as it turned out
 
-`/android/` is git-ignored at the repository root, and Godot overwrites it whenever the build
-template is reinstalled. Both the plugin files (`android/plugins/*.gdap` + AAR) and the manifest
-meta-data live there.
+`/android/` is git-ignored and Godot overwrites it whenever the build template is reinstalled, which
+is why `tools/patch-android-template.ps1` re-applies the SDK levels on every Android export.
 
-Follow the pattern that already exists for exactly this reason: `tools/patch-android-template.ps1`
-is idempotent and is invoked automatically by `tools/export.ps1` on every Android release export.
-Add a sibling `tools/install-play-games-plugin.ps1` that:
+The plugin needs none of that. It lives in `addons/`, which is versioned, and its
+`EditorExportPlugin` regenerates everything that belongs under `android/` at export time — the AAR
+reference, the Gradle dependencies, the manifest meta-data, and `android/build/res/values/strings.xml`
+carrying the game id. Nothing extra to install and nothing extra to re-apply.
 
-1. copies the versioned plugin artefacts from a tracked location (e.g. `third_party/play-games/`)
-   into `android/plugins/`;
-2. patches `android/build/AndroidManifest.xml` with the required meta-data;
-3. is idempotent and safe to run on every export.
+### 5.4 Manifest meta-data — supplied by the plugin
 
-Wire it into `export.ps1` next to the existing template patch. The alternative — un-ignoring
-`android/` — drags Godot's entire generated Gradle tree into version control and is worse.
-
-### 5.4 Manifest meta-data
+The plugin injects this itself, so nothing here is hand-written:
 
 ```xml
 <meta-data android:name="com.google.android.gms.games.APP_ID"
            android:value="@string/game_services_project_id" />
-<meta-data android:name="com.google.android.gms.version"
-           android:value="@integer/google_play_services_version" />
 ```
 
-`game_services_project_id` **must be a string resource whose value begins with a space** (e.g.
-`" 123456789012"`). Without the leading space the build tools parse the numeric id as a float and
-the app crashes on start with an opaque error. This is the single most common first-time failure.
+The id comes from the `godot_play_game_services/game_id` export option, which the plugin writes into
+a string resource. Because it reaches the manifest through `@string/` rather than as an inline
+value, the leading-space workaround that earlier drafts of this document warned about does not apply.
 
 ### 5.5 Godot-side architecture
 
-Two new files plus one pure model — the shape mirrors how the learning core is already separated
-from the platform:
-
 ```
+addons/GodotPlayGameServices/     Vendored plugin, unmodified. Never edited.
 scripts/app/CloudSaveMerge.gd     Pure, deterministic merge of two profile dictionaries.
                                   No plugin, no clock, no files. Unit-testable headlessly.
-scripts/app/PlayGamesCatalog.gd   Static mapping: local achievement id -> Play achievement id,
-                                  and the two leaderboard ids. Pure data.
-scripts/autoload/PlayGames.gd     Thin autoload. Owns the plugin singleton, the sign-in state,
-                                  the pending-submission queue, and the snapshot calls.
-                                  Every method is a no-op when the plugin is absent.
+scripts/autoload/PlayGames.gd     Thin wrapper. Owns the plugin lookup, the feature client Nodes,
+                                  and the sign-in state. Every method is a no-op when the plugin
+                                  is absent.
 ```
+
+A `PlayGamesCatalog.gd` mapping local achievement ids to Play ids arrives with P3; it is not needed
+for sign-in or cloud save.
 
 Rules that keep this from infecting the rest of the codebase:
 
 - `scripts/core/` is untouched. It has no idea Play exists.
-- `PlayGames.gd` checks `Engine.has_singleton()` once at `_ready()`. On Windows, Web, in the editor,
-  and on an Android build without the plugin, `available()` is `false` and every call returns
-  immediately. **No `#if`-style platform branching anywhere else.**
-- `AppState` never calls `PlayGames` directly for gameplay. It emits what it already emits, and
-  `PlayGames` listens on `EventBus` (`reward_applied`, `achievements_unlocked`, `streak_changed`,
-  `profile_saved`). If the autoload were deleted, the game would still run.
+- `PlayGames.gd` resolves the plugin by **node path and script path**, never by `class_name`, so
+  deleting the addon leaves the file parsing and reporting unavailable rather than breaking the
+  build. **No `#if`-style platform branching anywhere else.**
+- Only `SettingsScreen` may reference the autoload, and only to offer the switch. `AppState` never
+  calls it; when P2 needs a sync trigger it will listen on `EventBus` instead. A test walks
+  `scripts/core/`, `scripts/app/`, `scripts/ui/` and `scenes/` and enforces this, with a second test
+  asserting that `scripts/core/` and `scripts/app/` can never be added to the exemption list.
 - **All the difficult logic lives in `CloudSaveMerge.gd`, which is pure.** That is the whole point:
   conflict resolution is the part that can silently destroy a child's progress, and it must be
   testable exhaustively without an Android device, a network, or a Google account.
-- New settings keys in `user://settings.cfg`, so they never touch the progress file:
+- The switch lives in `user://settings.cfg`, never in the progress file:
 
 ```ini
 [play_games]
-enabled=false      ; opt-in, off until a parent turns it on
-auto_sync=true
+enabled=true       ; cloud save; on unless deliberately switched off
 ```
 
 ---
@@ -496,7 +519,9 @@ Everything below is manual, done once, and gates any device testing.
 2. *Credentials* → add an **Android** credential. It needs an OAuth 2.0 client in the linked Google
    Cloud project with the SHA-1 of **both** the upload certificate **and** the Play App Signing
    certificate. Missing the Play App Signing SHA-1 is the classic "works from Android Studio, fails
-   from the Play track" bug.
+   from the Play track" bug. Both are available already: the upload certificate is
+   `numblop-upload.jks`, and Play App Signing was enrolled by the code `12` upload — read its SHA-1
+   from Play Console → *Setup* → *App integrity*.
 3. Enable **Saved Games** in the project configuration. Snapshots do not work until this is on.
 4. Create the achievements — one per entry in `AchievementCatalog`. Record each generated Play id in
    `PlayGamesCatalog.gd`. Use **incremental** achievements for the tiered ones (streak, XP,
@@ -533,15 +558,47 @@ Atomic write, backup, and recovery (§3.1); save v10 with `save_counter`, the `c
 migrations, and unknown-key preservation (§3.2); the coin ledger (§3.3). Ships as a normal offline
 release and is valuable on its own — it closes a real truncation risk that predates any Play work.
 
-**P0b — `CloudSaveMerge`, still with no networking. ☐**
-The merge from §7, written and unit-tested against synthetic save pairs, before any Play API exists.
-**The part that can silently destroy a child's progress is proven on a laptop first.** It can be
-written any time; it does not depend on P1.
+**P0b — `CloudSaveMerge`, still with no networking. ☑ Done.**
+The merge from §7 in `scripts/app/CloudSaveMerge.gd`, pure and static, covered by
+`tests/state/test_cloud_save_merge.gd`. **The part that can silently destroy a child's progress is
+proven on a laptop before any Play API exists.**
 
-**P1 — Plugin spike and sign-in only. ☐**
-Console setup, plugin verified on 4.6.2, manifest and export-preset changes, `PlayGames.gd` with
-sign-in and nothing else. Success criteria: the game behaves identically for a signed-out player,
-Windows and Web builds are unaffected, and the merged manifest contains no advertising permission.
+One integration requirement it leaves for P2: the merged `save_counter` must actually reach disk.
+`SaveManager.save_game_state()` derives the counter from the file already there, so writing a merge
+result through the ordinary path would stamp `local + 1`, which can be lower than the remote parent
+and would make the next sync treat the merge as the stale side. P2 either seeds the counter or
+writes the merged dictionary directly.
+
+**P1 — Plugin spike and sign-in only. ◐ In progress.**
+
+Done:
+- Play Console configured — PGS project created, Android OAuth credential linked, testers added,
+  Saved Games enabled. **The PGS project stays in draft until sign-in and cloud save are verified on
+  a device.**
+- Both Android presets request `INTERNET` and `ACCESS_NETWORK_STATE` and build through Gradle;
+  `test_project_contract.gd` pins that and asserts no advertising, location, camera, microphone, or
+  contacts permission.
+- `scripts/autoload/PlayGames.gd` — opt-in gated, plugin-agnostic, no-op on every non-Android build,
+  and covered by `tests/state/test_play_games.gd` including a test that no other script may
+  reference it.
+- `play_games/enabled` in `settings.cfg`, defaulting to off.
+- `tools/install-play-games-plugin.ps1`, wired into `tools/export.ps1`; a no-op until the plugin
+  binaries are vendored. `NUMBLOP_PLAY_GAMES_PROJECT_ID` is set to the project id `1018864218554`.
+- A Settings row — a switch, a sign-in status line, and a one-line explanation in all ten languages.
+  It **hides itself unless a usable plugin is present**, so no Windows or Web player is offered an
+  account switch that cannot work.
+
+Remaining:
+- **The plugin spike itself** — pick between the community plugin and an in-house Kotlin wrapper,
+  vendor it to `third_party/play-games/`, confirm it builds against Godot 4.6.2.
+- Verify the merged manifest of a real build carries no `AD_ID` permission.
+- **A parent gate in front of the switch, before any release that contains it.** Today the switch is
+  plain, which is fine while no plugin is vendored — the row cannot even appear. It is not fine in a
+  shipped children's app, where a child could enable a Google account association themselves. See
+  the open question in §12 and phase P5.
+
+Success criteria: the game behaves identically for a signed-out player, Windows and Web builds are
+unaffected, and a tester account can sign in on a device.
 
 **P2 — Cloud save. ☐**
 Wire `CloudSaveMerge` to `SnapshotsClient`. First-sign-in handling from §7.6, the `.premerge` safety

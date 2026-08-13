@@ -47,6 +47,11 @@ function Initialize-NumblopAndroidGradle {
     # Re-applied on every export: the template is git-ignored and Godot may
     # overwrite it with its stock compile SDK, which is lower than our target.
     & (Join-Path $PSScriptRoot "patch-android-template.ps1")
+
+    # The Play Games plugin needs nothing here. It is vendored in `addons/`, which is versioned,
+    # and its own EditorExportPlugin injects the .aar, the Gradle dependencies, the manifest
+    # meta-data and `android/build/res/values/strings.xml` at export time. The game id it writes
+    # comes from `godot_play_game_services/game_id` in export_presets.cfg.
 }
 
 # Godot has no per-option command line override, so an unsigned export needs
@@ -89,6 +94,10 @@ switch ($Target) {
         )
     }
     "android-debug" {
+        # The debug preset builds through Gradle too now, because a plugin cannot be linked
+        # without it -- and a debug APK that cannot sign in is useless for testing Play Games.
+        Initialize-NumblopAndroidGradle
+
         $arguments = @(
             "--headless", "--path", $repoRoot,
             "--export-debug", "Android Debug", (Join-Path $buildRoot "Numblop-debug.apk")
@@ -183,7 +192,9 @@ try {
     }
     # A first Gradle run downloads the plugin and dependencies and outlasts the
     # timeout that is generous for every other target.
-    $exportTimeoutSeconds = if ($Target -like "android-release*") { 1800 } else { 600 }
+    # Every Android target builds through Gradle now that the Play Games plugin is linked, and a
+    # first build downloads play-services and its transitive dependencies.
+    $exportTimeoutSeconds = if ($Target -like "android-*") { 1800 } else { 600 }
     Invoke-NumblopGodot -Godot $godot -Arguments $arguments -TimeoutSeconds $exportTimeoutSeconds
 }
 finally {

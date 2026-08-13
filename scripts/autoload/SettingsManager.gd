@@ -28,6 +28,16 @@ var sfx_volume := DEFAULT_SFX_VOLUME
 var audio_muted := false
 var haptics_enabled := true
 
+## Whether this device backs progress up through Play Games Services.
+##
+## On by default: losing a phone and losing a year of practice with it is the problem worth solving,
+## and Google -- through the device account and Family Link for supervised children -- already
+## governs whether a child may sign in at all. Numblop adds no gate of its own in front of that.
+##
+## It lives here in device settings rather than in the progress file because it records a choice
+## about this device, so resetting a child's profile must not silently change it.
+var play_games_enabled := true
+
 
 func _ready() -> void:
     load_settings()
@@ -41,6 +51,7 @@ func load_settings(path: String = SETTINGS_PATH) -> void:
     sfx_volume = DEFAULT_SFX_VOLUME
     audio_muted = false
     haptics_enabled = true
+    play_games_enabled = true
     var config := ConfigFile.new()
     if config.load(path) == OK:
         var saved := str(config.get_value("language", "locale", SYSTEM_LOCALE))
@@ -58,6 +69,7 @@ func load_settings(path: String = SETTINGS_PATH) -> void:
         )
         audio_muted = bool(config.get_value("audio", "muted", false))
         haptics_enabled = bool(config.get_value("haptics", "enabled", true))
+        play_games_enabled = bool(config.get_value("play_games", "enabled", true))
 
 
 func set_locale_preference(locale: String, path: String = SETTINGS_PATH) -> Error:
@@ -107,6 +119,11 @@ func audio_preferences() -> Dictionary:
 
 func set_haptics_enabled(enabled: bool, path: String = SETTINGS_PATH) -> Error:
     haptics_enabled = enabled
+    return _save_settings(path)
+
+
+func set_play_games_enabled(enabled: bool, path: String = SETTINGS_PATH) -> Error:
+    play_games_enabled = enabled
     return _save_settings(path)
 
 
@@ -165,4 +182,5 @@ func _save_settings(path: String) -> Error:
     config.set_value("audio", "sfx_volume", sfx_volume)
     config.set_value("audio", "muted", audio_muted)
     config.set_value("haptics", "enabled", haptics_enabled)
+    config.set_value("play_games", "enabled", play_games_enabled)
     return config.save(path)

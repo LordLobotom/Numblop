@@ -137,6 +137,10 @@ sources for the same number with nothing keeping them in step.
 but a divergence means a bug. `tests/state/test_coin_ledger.gd` walks the real earning and spending
 paths and asserts the invariant after each one.
 
+`CloudSaveMerge` is the one caller that *does* re-derive the balance, because that is the case a
+stored balance cannot survive. Its rules are in [`GOOGLE_PLAY_GAMES.md`](GOOGLE_PLAY_GAMES.md) §7;
+the summary is that everything earned merges upward and only the balance is approximated, downward.
+
 ### When a save happens
 
 Writes are frequent and small, and every one is a full-file rewrite:
@@ -182,6 +186,11 @@ to.
 
 Failing to refresh the backup is a warning, not a failure: losing the safety net is not a reason to
 lose the save.
+
+The rename pair was verified by hand on Windows **and in the Web build**, where `user://` is a
+browser-backed virtual filesystem rather than real files: continue an existing profile, play a round,
+buy an item, reload the page, progress intact. That check matters because a failed commit rename on
+Web would fail every save — worse than the truncation this replaced.
 
 `SaveManager._load_state_dictionary()` tries in order:
 
@@ -257,6 +266,9 @@ muted=false
 
 [haptics]
 enabled=true
+
+[play_games]
+enabled=true           ; cloud save through Play Games Services; on unless switched off
 ```
 
 - `locale="system"` resolves through `SettingsManager.effective_locale()`: the device language when
@@ -269,6 +281,12 @@ enabled=true
 
 Settings are written in place, without the atomic dance. A corrupt settings file costs the player a
 volume slider, not their progress.
+
+`play_games/enabled` lives here rather than in the profile on purpose: it records a decision about
+this device, not a child's progress, so resetting a profile must not silently change it. It defaults
+to **on** — a missing key or a settings file written before the key existed both read as on, so
+nobody has to find a switch to get their progress backed up. Switching it off stops Numblop talking
+to Play Games entirely; it does not sign the account out of Play, which is the account's business.
 
 ## Android backup
 
@@ -302,6 +320,7 @@ a future parent-facing action.
 | Atomic write, backup, recovery, deletion | `tests/state/test_save_durability.gd` |
 | Migration, ledger back-fill, write counter, cloud block, unknown fields | `tests/state/test_save_migration.gd` |
 | Coin ledger arithmetic and the balance invariant | `tests/state/test_coin_ledger.gd` |
+| Two-save merge: commutativity, monotonicity, balance recompute | `tests/state/test_cloud_save_merge.gd` |
 | Coins, XP, level, completed rounds, milestone bonus | `tests/state/test_progression_persistence.gd` |
 | Cosmetic ownership and equip persistence | `tests/state/test_cosmetics_persistence.gd` |
 | Streak counters and milestone rows | `tests/state/test_streak_persistence.gd` |

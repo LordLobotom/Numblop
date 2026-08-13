@@ -23,6 +23,7 @@ scripts/autoload/       EventBus, settings, saves, and current local app state
 scripts/ui/             Scene presentation and input handling
 localization/           Source translation catalog
 ui/                     Theme, fonts, icons, branding, shaders, and UI-native assets
+addons/                 Vendored third-party plugins; never edited in place
 tests/core/             Learning rules, generator, and catalog tests
 tests/state/            Persistence, lifecycle, and app-state tests
 tests/ui/               Scene contract and interaction tests
@@ -77,6 +78,10 @@ must not live in a scene, but they do not read files or drive the frame loop eit
   merged between two devices; these four terms can.
 - `SaveMigration` brings a loaded save dictionary up to the current schema in memory. It exists for
   the changes field tolerance cannot cover — a field whose value must be computed from other fields.
+- `CloudSaveMerge` reconciles two saves of the same profile into one. Pure and static, so the code
+  that could silently destroy a childhood of practice is provable without a device or a network. It
+  is commutative except for this device's own identity, monotonic on everything earned, and
+  recomputes the balance through `CoinLedger` rather than carrying it.
 - `CosmeticCatalog` defines stable local item ids, prices, display keys, palette colors, and the
   authoring rectangle each accessory is framed by.
 - `LanguageCatalog` is the single list of shipped languages, used by `SettingsManager` to validate a
@@ -103,7 +108,18 @@ must not live in a scene, but they do not read files or drive the frame loop eit
   every purchase, and every finished round; the coins are banked immediately while the celebration is
   queued for the next end-of-round page.
 
-Milestone and achievement rewards never enter the deterministic learning core.
+- `PlayGames` is the only file that knows Play Games Services exists. It wraps the vendored
+  `addons/GodotPlayGameServices` plugin, resolving it by node path and script path rather than by
+  `class_name`, so removing the addon leaves this file parsing and simply reporting unavailable.
+  Cloud save is on by default: on Android it initialises at startup and checks the existing session,
+  and Google — with Family Link for supervised children — owns the account decision rather than any
+  gate of Numblop's own. Everywhere else `available()` is false and every method returns
+  immediately. A failed or refused sign-in changes nothing about the game. A test walks
+  `scripts/core/`, `scripts/app/`, `scripts/ui/` and `scenes/` and fails if anything except the
+  Settings screen references it.
+
+Milestone and achievement rewards never enter the deterministic learning core. No game rule waits on
+a network call.
 
 ## Persistence
 

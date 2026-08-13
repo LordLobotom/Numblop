@@ -10,7 +10,7 @@ ui-localization, app-state, qa-release); delegate to them for work confined to o
 ## Commands
 
 ```powershell
-# Full test suite (230 tests). -GodotPath is required from a .claude/worktrees/ checkout.
+# Full test suite (265 tests). -GodotPath is required from a .claude/worktrees/ checkout.
 powershell -ExecutionPolicy Bypass -File tools/run-tests.ps1 -GodotPath "C:\Users\eMich\source\Godot\Godot_v4.6.2-stable_win64_console.exe"
 
 # Bilingual responsive screenshots -> artifacts/responsive/

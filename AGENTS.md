@@ -9,12 +9,21 @@
   5x table (7 current / 2 older weak / 1 older automated) and 12 from the 6x table onwards
   (8 current / 3 older weak / 1 older automated). A fact counts as automated only at mastery
   100, and the automated slot always takes the fact that has waited longest.
-- Data stays on one device in one local child profile (optional local nickname only).
-  Do not add accounts, analytics, advertisements, cloud services, networking, or remote
-  configuration. A Play Games Services integration is *planned* in
-  `docs/GOOGLE_PLAY_GAMES.md`; until that milestone is separately approved and recorded in
-  `docs/DECISIONS.md`, this rule stands as written and the Android build keeps
-  `permissions/internet=false`.
+- The game must remain **fully playable offline, signed out, and with no account**. That is the
+  product promise and it does not expire. Do not add analytics, advertisements, remote
+  configuration, or any third-party SDK beyond the approved one below.
+- Play Games Services is approved as milestone M5 (`docs/GOOGLE_PLAY_GAMES.md`) and the Android
+  builds request `INTERNET` and `ACCESS_NETWORK_STATE`. Cloud save is on by default and initialises
+  automatically on Android; Google and Family Link own the account decision, and Numblop adds no
+  gate of its own. All of it is confined to `scripts/autoload/PlayGames.gd` — no scene except the
+  Settings screen, no learning rule, and no `scripts/app/` model may reference it, and a test
+  enforces that. No game rule may ever wait on a network call, and a failed sign-in must cost a
+  child nothing.
+- `addons/GodotPlayGameServices/` is vendored third-party code. Never edit it; replace it wholesale
+  from an upstream release and re-verify, per its `VENDORED.txt`.
+- **Before any networking build reaches a Play track**, `docs/privacy/index.md`, the Play Console
+  data-safety declaration, and the Families/target-audience answers must be updated in the same
+  change. Today's published policy still says the app cannot send anything off the device.
 - All ten shipped languages are required for every user-facing string. Never place
   user-facing prose directly in GDScript.
 - The canonical learning behavior is `docs/didactic_algorithm.md`, including its confirmed
@@ -42,7 +51,7 @@ If documents conflict, use the highest applicable source and record the resoluti
 
 - Engine: Godot `4.6.2`, GDScript, GL Compatibility renderer.
 - Run: `C:\Users\eMich\source\Godot\Godot_v4.6.2-stable_win64.exe --path .`.
-- Test: `powershell -ExecutionPolicy Bypass -File tools/run-tests.ps1` (230 tests).
+- Test: `powershell -ExecutionPolicy Bypass -File tools/run-tests.ps1` (265 tests).
 - Boot smoke after any scene or layout change:
   `Godot_v4.6.2-stable_win64_console.exe --headless --path . --quit-after 120`. Tests instantiate
   scenes but never run a real layout pass, so a recursion crash passes the suite undetected.

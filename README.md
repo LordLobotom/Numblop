@@ -10,11 +10,11 @@ adaptive Web build that fits a phone while using a wider canvas on desktop. The 
 in ten languages.
 
 The Android package ID is permanently fixed as `cz.gutcloud.numblop`.
-Public version `0.4.1`, Play version code `13`.
+Public version `0.4.2`, Play version code `14`.
 
 ## Project status
 
-The complete game loop is playable and covered by 230 automated tests plus bilingual responsive
+The complete game loop is playable and covered by 265 automated tests plus bilingual responsive
 screenshot captures. Progression, cosmetics, achievements, and the guided tutorial are all
 implemented and persisted.
 
@@ -95,15 +95,17 @@ The full persistence contract, including every field and when each write happens
 
 ## Offline and local by design
 
-Numblop works entirely without networking. The Android build does not even request the `INTERNET`
-permission. There are no accounts, no analytics, no advertising, no in-app purchases, no remote
-configuration, and no third-party SDKs. All coins are earned by playing.
+Numblop is fully playable offline, signed out, and with no account — that is the product promise and
+it does not expire. There are no analytics, no advertising, no in-app purchases, and no remote
+configuration. All coins are earned by playing.
 
-A Google Play Games Services integration — sign-in, cloud saves, and XP/best-streak leaderboards — is
-planned and fully specified in [`docs/GOOGLE_PLAY_GAMES.md`](docs/GOOGLE_PLAY_GAMES.md). Its offline
-prerequisites (save version 10) are implemented; **no networking code exists**. The networking phases
-change the permission, privacy-policy, and data-safety position, and the plan treats that as a
-deliberate, separately approved step. Offline play stays fully functional either way.
+A Google Play Games Services integration — sign-in, cloud saves, and XP/best-streak leaderboards —
+is approved and under way; the plan is [`docs/GOOGLE_PLAY_GAMES.md`](docs/GOOGLE_PLAY_GAMES.md).
+Save version 10, the cloud-save merge, and Android sign-in are implemented. Cloud save is on by
+default, and Google — with Family Link for supervised children — owns the account decision. Saving
+to the cloud itself is not wired up yet. All of it is confined to a single autoload, and a failed or
+refused sign-in costs a player nothing. No release containing it ships before the privacy policy and
+the Play Console data-safety declaration are updated to match.
 
 ## Languages
 
