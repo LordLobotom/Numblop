@@ -42,9 +42,9 @@ drilování. Dejte svému dítěti parťáka, za kterým se bude samo vracet.
 
 ## Bezpečnost dat (odpovědi pro Play Console)
 
-- Sbírá nebo sdílí aplikace některé z požadovaných typů dat? **Ne**
-- Sbíraná data: **žádná** · Sdílená data: **žádná**
-- URL zásad ochrany soukromí: https://lordlobotom.github.io/Numblop/privacy/
+- Sbírá nebo sdílí aplikace některé z požadovaných typů dat? **Ano** – zálohu Saved Games ve
+  Hrách Google Play. Formulář vyplňte podle tabulky v `docs/PLAY_CONSOLE_COMPLIANCE.md`.
+- URL zásad ochrany soukromí: https://numblop.gutcloud.cz/cs/privacy/
 
 ## Ostatní pole
 

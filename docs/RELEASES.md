@@ -15,7 +15,9 @@
 - Android SDK levels: Min SDK `24`, Target SDK `36`, pinned in the Android Release preset and by
   the same contract test.
 - Privacy policy URL for Play Console (data safety + store listing):
-  `https://lordlobotom.github.io/Numblop/privacy/` (served by GitHub Pages from `docs/`).
+  `https://numblop.gutcloud.cz/en/privacy/` and `https://numblop.gutcloud.cz/cs/privacy/`, published
+  from the `numblop-landing` repository. `docs/privacy/index.md` is the bilingual source text that
+  the site content is kept in step with; it is not itself served anywhere.
 
 ## App icons
 

@@ -42,9 +42,9 @@ of drills. Give your child a practice buddy they will actually want to visit.
 
 ## Data safety (Play Console answers)
 
-- Does your app collect or share any of the required user data types? **No**
-- Data collected: **None** · Data shared: **None**
-- Privacy policy URL: https://lordlobotom.github.io/Numblop/privacy/
+- Does your app collect or share any of the required user data types? **Yes** — the Play Games
+  Saved Games snapshot. Fill the form from the table in `docs/PLAY_CONSOLE_COMPLIANCE.md`.
+- Privacy policy URL: https://numblop.gutcloud.cz/en/privacy/
 
 ## Other listing fields
 

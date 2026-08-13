@@ -982,9 +982,19 @@ func test_settings_screen_has_language_audio_mute_and_safe_exit_controls() -> vo
     check(scene.get_node("%HapticsCaption") is Label, "Vibration tile is captioned")
     check(scene.get_node("%PrivacyButton").custom_minimum_size.y >= 48.0, "Privacy touch target")
     equal(
-        SettingsScreen.PRIVACY_POLICY_URL,
-        "https://lordlobotom.github.io/Numblop/privacy/",
+        SettingsScreen.privacy_policy_url("cs"),
+        "https://numblop.gutcloud.cz/cs/privacy/",
         "Settings opens the published policy URL"
+    )
+    equal(
+        SettingsScreen.privacy_policy_url("en_US"),
+        "https://numblop.gutcloud.cz/en/privacy/",
+        "A regional locale still resolves to its published policy page"
+    )
+    equal(
+        SettingsScreen.privacy_policy_url("de"),
+        "https://numblop.gutcloud.cz/en/privacy/",
+        "An unpublished language falls back to the English policy"
     )
     check(scene.get_node("%ExitButton").custom_minimum_size.y >= 48.0, "Exit touch target")
     check(scene.get_node("%ExitDialog") is Control, "Custom exit confirmation overlay")

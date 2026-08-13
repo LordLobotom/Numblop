@@ -73,8 +73,9 @@ artifact inspection proves otherwise.
 
 ## Privacy-policy and store fields
 
-- Privacy URL: `https://lordlobotom.github.io/Numblop/privacy/`.
-- The URL must resolve publicly through GitHub Pages before the networking build is submitted.
+- Privacy URL: `https://numblop.gutcloud.cz/en/privacy/` (Czech: `/cs/privacy/`).
+- The URL must resolve publicly before the networking build is submitted. GitHub Pages was never
+  enabled for this repository, so the former `lordlobotom.github.io` address returned 404.
 - The policy is linked from the Play listing and must also be reachable inside the app.
 - Developer/privacy contact: `emichalgut@gmail.com`.
 - The app does not create a Numblop account, so the app-account-creation deletion rule does not
