@@ -126,5 +126,6 @@ func test_collection_targets_match_the_paid_items_in_the_cosmetics_catalog() -> 
 
 
 func _remove_test_file() -> void:
-    if FileAccess.file_exists(TEST_PATH):
-        DirAccess.remove_absolute(ProjectSettings.globalize_path(TEST_PATH))
+    # Clears the backup too: without it, one case could recover another case's save through the
+    # backup fallback and the suite would start depending on its own order.
+    SaveManager.delete_profile(TEST_PATH)

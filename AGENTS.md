@@ -42,7 +42,7 @@ If documents conflict, use the highest applicable source and record the resoluti
 
 - Engine: Godot `4.6.2`, GDScript, GL Compatibility renderer.
 - Run: `C:\Users\eMich\source\Godot\Godot_v4.6.2-stable_win64.exe --path .`.
-- Test: `powershell -ExecutionPolicy Bypass -File tools/run-tests.ps1` (198 tests).
+- Test: `powershell -ExecutionPolicy Bypass -File tools/run-tests.ps1` (230 tests).
 - Boot smoke after any scene or layout change:
   `Godot_v4.6.2-stable_win64_console.exe --headless --path . --quit-after 120`. Tests instantiate
   scenes but never run a real layout pass, so a recursion crash passes the suite undetected.

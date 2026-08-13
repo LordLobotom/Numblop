@@ -85,7 +85,9 @@ func set_nickname(raw_nickname: String) -> bool:
         streak.to_dictionary(),
         sanitized,
         achievements.to_dictionary(),
-        progress.completed_sessions
+        progress.completed_sessions,
+        onboarding.to_dictionary(),
+        progress.ledger()
     )
     if save_error != OK:
         return false
@@ -499,7 +501,8 @@ func _save_game_state(
         _nickname,
         achievements.to_dictionary(),
         progress.completed_sessions,
-        onboarding.to_dictionary()
+        onboarding.to_dictionary(),
+        progress.ledger()
     )
 
 
@@ -514,7 +517,8 @@ func _save_state_with_cosmetics(updated_cosmetics: LocalCosmetics, coins: int) -
         _nickname,
         achievements.to_dictionary(),
         progress.completed_sessions,
-        onboarding.to_dictionary()
+        onboarding.to_dictionary(),
+        progress.ledger()
     )
 
 

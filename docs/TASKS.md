@@ -13,9 +13,9 @@ which files it owned. Only these remain open:
   enable GitHub Pages, complete the physical-device checklist (unblocks D2), and upload to the Play
   internal test track. Depends: D2, D14–D17. Owns: release workflow (manual steps).
 
-The next milestone after those is M5, Google Play Games Services. It has no task lines yet on
-purpose: it starts from [`GOOGLE_PLAY_GAMES.md`](GOOGLE_PLAY_GAMES.md) and a decision entry, and its
-tasks are written when that phase is actually approved.
+The next milestone is M5, Google Play Games Services, planned in
+[`GOOGLE_PLAY_GAMES.md`](GOOGLE_PLAY_GAMES.md). Its offline prerequisite phase is done; see the M5
+section at the end of this file. The networking phases start after `D18` and a decision entry.
 
 **Reading this file:** it records what was built and by which track, not what the game does today.
 For current behavior use [`GAME_DESIGN.md`](GAME_DESIGN.md), [`ARCHITECTURE.md`](ARCHITECTURE.md),
@@ -232,6 +232,28 @@ that has since been superseded.
 - `B33 DONE` Petting is a stroke across the avatar; a tap does nothing. Bilingual hint updated,
   and the reaction draws its voice from a three-clip no-repeat pool.
   Owns: `scripts/ui/BlobCharacter.gd`, blob scene audio, localization, UI tests.
+
+## M5 tasks — Google Play Games Services
+
+Phase P0 only. Everything from P1 onwards waits on `D18` and a decision entry; see
+[`GOOGLE_PLAY_GAMES.md`](GOOGLE_PLAY_GAMES.md) §10 for the phase order.
+
+- `C18 DONE` Save version 10 and the durability work cloud synchronisation needs, all offline:
+  atomic write through a temporary file with the previous save kept as a recoverable backup,
+  fall-through loading, `SaveManager.delete_profile`, an explicit `SaveMigration` step, a monotonic
+  `save_counter` with an injectable clock, unknown-field preservation, the inert `cloud` block, and
+  the `CoinLedger` buckets with a back-fill that reproduces every existing balance exactly. Owns:
+  `scripts/autoload/SaveManager.gd`, `scripts/app/CoinLedger.gd`, `scripts/app/SaveMigration.gd`,
+  `scripts/app/LocalCloudSync.gd`, `scripts/app/LocalProgress.gd`, `CosmeticCatalog.CATEGORIES`,
+  app-state save wiring, and `tests/state/`.
+- `C19 TODO` `scripts/app/CloudSaveMerge.gd`: the pure two-save merge from
+  [`GOOGLE_PLAY_GAMES.md`](GOOGLE_PLAY_GAMES.md) §7, with commutativity, idempotence, and
+  never-lose-an-item tests. No networking; can be written before any Play work. Depends: C18.
+- `D22 TODO` Play Games plugin spike on Godot 4.6.2, export-preset and manifest changes, and the
+  contract-test update that deliberately replaces the `permissions/internet=false` pin. Blocked on
+  the compliance gate below. Depends: D18, C19.
+- Compliance gate before any networking build reaches a track: privacy policy rewrite, Play Console
+  data-safety declaration, Families and target-audience questionnaires, content rating re-check.
 
 Claim the lowest-numbered unblocked task in your track. Only the stated owner changes the task's
 owned files; coordinate contract changes through the owning track.

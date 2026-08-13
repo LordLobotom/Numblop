@@ -1,9 +1,22 @@
 # Google Play Games Services — Integration Plan
 
-- **Status:** Proposed. Nothing in this document is implemented.
-- **Milestone:** M5, after `D18` ships an offline release.
-- **Prerequisite:** this breaks the "no networking" product contract in `AGENTS.md`. It does not
-  begin until an entry in [`DECISIONS.md`](DECISIONS.md) approves it.
+- **Status:** Approved in scope. Phase P0 (local prerequisites) is **implemented**; everything from
+  P1 onwards is still a plan.
+- **Milestone:** M5. The networking phases start after `D18` ships an offline release.
+- **Prerequisite:** P1 onwards breaks the "no networking" product contract in `AGENTS.md`. It does
+  not begin until an entry in [`DECISIONS.md`](DECISIONS.md) approves that change.
+
+### Decisions taken (2026-08-12)
+
+- **Both leaderboards are in scope** — total XP and highest streak. If Families or privacy review
+  makes them problematic, they are dropped from the release rather than redesigned; the phase order
+  below puts them last precisely so that dropping them costs nothing else.
+- **Phase order is fixed** as: local save hardening → authentication → cloud save → achievements →
+  leaderboards.
+- **The coin ledger is implemented up front**, not deferred. A balance is known to be unmergeable,
+  and adding the fix later would mean a second migration over live player data.
+- **Privacy policy, Play Console data safety, and the Families declarations are updated before the
+  first networking build ships**, not after.
 
 The goal is that a child who loses or replaces a device gets their progress back, and that a child
 who wants to can compare their XP and best streak with others. The constraint is that **nothing
@@ -38,26 +51,22 @@ Three consequences that are not negotiable:
    players turns an innocuous local convenience into user-generated content with a moderation duty.
    The gamer tag is chosen and moderated by Google and carries the account's own visibility settings.
 
-### The leaderboard decision that must be made before any code
+### Leaderboards: in scope, and last
 
 Google's Families policy governs social features in child-directed apps, and Play Games leaderboards
-are a social surface. There are three viable positions, in increasing order of risk:
+are a social surface. Both leaderboards are in scope, and they are built **last** so that the risk
+they carry stays contained:
 
-- **A — Cloud save only.** No leaderboards, no achievements published to Play. Easiest to justify,
-  covers the actual pain point (losing progress), and needs the least policy argument.
-- **B — Cloud save + Play achievements.** Achievements are per-player and not comparative, so they
-  add little exposure. Still no leaderboards.
-- **C — Everything, including the two public leaderboards.** Highest value to the player, highest
-  review risk, and the one requiring the gamer-tag rule above plus a parent gate.
+- Cloud save and achievements ship first and are independently valuable. Neither depends on a
+  leaderboard existing.
+- If Families or privacy review objects to the leaderboards, they are **dropped from the release**.
+  Because they are the final phase and nothing else references them, dropping them means deleting two
+  Play Console entries and two submission calls — not a redesign.
+- The fallback, if that happens, is a **local-only comparison against the player's own history** —
+  best streak this week versus all time — which needs no network and no policy argument at all.
 
-**Recommendation: build A and B first and ship them.** They are strictly more valuable than the
-leaderboards and carry a fraction of the risk. Add C as a separate release once the account plumbing
-has proven itself in production, so a leaderboard rejection cannot block the cloud save that players
-actually need. The phases in §10 are ordered accordingly.
-
-If C is rejected at review, the fallback is a **local-only leaderboard against the player's own
-history** — best streak this week versus all time — which needs no network and no policy argument at
-all.
+The two rules above (optional sign-in, gamer-tag identity) are what make the leaderboards arguable at
+review. They are not optional themselves.
 
 ---
 
@@ -82,23 +91,36 @@ And three things that are genuinely missing and must be built first — see §3.
 
 ---
 
-## 3. Prerequisites in the local save (do these before touching Play)
+## 3. Prerequisites in the local save — **implemented**
 
-### 3.1 Atomic writes and a backup copy
+These are done and shipped in save version 10. They contain no networking and were built and tested
+entirely offline, which is the whole point: the parts that can silently destroy a child's progress
+are provable on a laptop before a single Play API is called.
 
-`SaveManager.save_game_state()` opens `profile.json` with `FileAccess.WRITE`, which truncates before
-writing. A process killed mid-write leaves a truncated file that loads as a brand-new profile. Today
-that risk is tolerable. Once a cloud restore can also overwrite the file, it is not.
+### 3.1 Atomic writes, a backup copy, and recovery
 
-Change to: write `profile.json.tmp`, close, rename over `profile.json`, and keep the previous
-contents as `profile.json.bak`. On load, if the primary file fails to parse and the backup does,
-use the backup and say so in the log. This is worth doing on its own merits, independently of Play.
+`SaveManager.save_game_state()` used to open `profile.json` with `FileAccess.WRITE`, which truncates
+before writing. A process killed mid-write left a truncated file that loaded as a brand-new profile.
 
-### 3.2 A real schema version and a monotonic write counter
+The write is now:
 
-Today `version` is written on every save and **never read** — compatibility comes from field-tolerant
-loading. That works locally, where there is only ever one file. It does not work for a merge, which
-must decide which of two files is newer without trusting a device clock.
+1. write the full JSON to `profile.json.tmp` and close it;
+2. rename the existing `profile.json` to `profile.json.bak`, replacing any previous backup;
+3. rename `profile.json.tmp` over `profile.json`.
+
+Both renames replace atomically on every platform Godot targets. At no point do the two files hold
+partial data at the same time: a crash between steps 2 and 3 leaves the previous save under the
+backup name, and loading falls through to it.
+
+Loading tries the primary file, then the backup, then gives up and starts fresh. A recovery is
+logged. `SaveManager.recover_count` records how many times a load fell through, so a test can assert
+that recovery actually happened rather than that nothing crashed.
+
+### 3.2 A real schema version, a monotonic write counter, and migrations
+
+`version` used to be written on every save and **never read** — compatibility came from
+field-tolerant loading. That works locally, where there is only ever one file. It does not work for a
+merge, which must decide which of two saves is newer without trusting a device clock.
 
 Save version 10 adds, at the top level:
 
@@ -107,7 +129,6 @@ Save version 10 adds, at the top level:
   "version": 10,
   "save_counter": 4213,
   "updated_at_unix": 1786000000,
-  "device_id": "9f1c…",
   "cloud": {
     "last_synced_counter": 4200,
     "last_synced_at_unix": 1785990000,
@@ -116,22 +137,29 @@ Save version 10 adds, at the top level:
 }
 ```
 
-- `save_counter` increments on **every** write and never resets. It is the primary ordering signal.
-- `updated_at_unix` is informational and is only ever a tie-breaker of last resort. A child's tablet
-  clock can be wrong by years; never let it decide a merge on its own.
-- `device_id` is the existing `profile_id`, copied here so a snapshot names its origin.
-- `cloud` records what has already been synchronised, so an unchanged profile does not re-upload.
-- `version` finally becomes something the loader reads: a save whose `version` is **greater** than
-  `SAVE_VERSION` is from a newer app build and must not be silently loaded and re-saved, because
-  re-saving would drop the fields this build does not know about.
+- `save_counter` increments on **every** write and never resets. It is the primary ordering signal
+  for a merge, and it is the one signal a wrong clock cannot corrupt.
+- `updated_at_unix` is informational and only ever a tie-breaker of last resort.
+- `cloud` records what has already been synchronised, so an unchanged profile does not re-upload,
+  and remembers which Play account this profile last belonged to.
+- There is deliberately **no `device_id` field**: `profile_id` already is this device's pseudonym, and
+  storing the same value twice in one file is a second thing to keep in step. The snapshot payload in
+  §6.1 carries `profile_id` under the name `device_id`; the local file does not duplicate it.
 
-Existing saves back-fill trivially: absent counter → `0`, absent `device_id` → the existing
-`profile_id`, absent `cloud` → empty.
+`SaveMigration` is now a real, ordered migration step applied to every loaded dictionary before any
+model sees it — not just field tolerance. Field tolerance still handles an *added* field for free;
+migration exists for the fields whose value must be **computed** from other fields, which is exactly
+what the coin ledger needs. Migration happens in memory only: booting an old profile never writes to
+it, and the migrated shape lands on disk with the next ordinary save.
+
+Unknown top-level keys are now **preserved** across a save. If a newer build writes a field this
+build does not know, this build round-trips it instead of deleting it, so a downgrade — or an older
+device syncing an newer snapshot — cannot silently drop data.
 
 ### 3.3 A coin ledger, so a merge cannot invent or destroy currency
 
-This is the one place the current model genuinely cannot merge. `coins` is a balance; balances are
-not mergeable. Two devices that each earned 100 coins and each bought a different hat cannot be
+This is the one place the model genuinely could not merge. `coins` is a balance; balances are not
+mergeable. Two devices that each earned 100 coins and each bought a different hat cannot be
 reconciled from balances alone.
 
 Save v10 therefore also records **what was earned**, not only what is left:
@@ -144,13 +172,24 @@ Save v10 therefore also records **what was earned**, not only what is left:
 }
 ```
 
-Achievement earnings are *not* stored: they are derived by summing
-`AchievementCatalog.reward_coins(id)` over the granted set, which is deterministic. Spending is
-likewise derived: the price of every paid item owned, from `CosmeticCatalog`.
+Only the two monotonic buckets are stored. The other two terms are **derived**, which is what makes
+them merge-safe — a set union produces the same number on both devices:
 
-Back-fill for an existing save: `earned_rounds = coins + derived_spent − earned_milestones −
-derived_achievement_coins`, floored at zero, with `earned_milestones = 0`. The split between the two
-buckets is lost for old saves, which is harmless — only their sum is used.
+- achievement earnings = `Σ AchievementCatalog.reward_coins(id)` over the granted set;
+- spending = `Σ CosmeticCatalog` price of every paid item owned.
+
+`CoinLedger` (`scripts/app/CoinLedger.gd`) owns this arithmetic. It is pure and static, so the merge
+in §7.4 calls exactly the same code the running game does, and both are covered by the same tests.
+
+Back-fill for an existing save, applied by `SaveMigration`:
+`earned_rounds = max(0, coins + derived_spent − derived_achievement_coins)` with
+`earned_milestones = 0`. The split between the two buckets is lost for old saves, which is harmless:
+only their sum is ever used, and their sum is preserved exactly.
+
+A consistency invariant worth stating, because the tests assert it: for any state reachable by
+playing, `CoinLedger.balance(...)` equals the stored `coins`. The stored balance stays authoritative
+at runtime — the ledger is not re-derived on every load — but a divergence between the two means a
+bug, and `CoinLedger.balance()` is what a merge uses to recompute.
 
 ---
 
@@ -489,32 +528,42 @@ Everything below is manual, done once, and gates any device testing.
 
 Each phase ends in something shippable, and each one keeps offline play intact.
 
-**P0 — Local prerequisites (no networking at all).**
-Atomic write + backup (§3.1), save v10 with `save_counter` and the coin ledger (§3.2, §3.3), and
-`CloudSaveMerge.gd` written and unit-tested against synthetic snapshot pairs. **The entire merge is
-built and proven before any Play API is called.** Fully testable on Windows. Ships as a normal
-offline release.
+**P0 — Local prerequisites (no networking at all). ☑ Done.**
+Atomic write, backup, and recovery (§3.1); save v10 with `save_counter`, the `cloud` block, real
+migrations, and unknown-key preservation (§3.2); the coin ledger (§3.3). Ships as a normal offline
+release and is valuable on its own — it closes a real truncation risk that predates any Play work.
 
-**P1 — Plugin spike and sign-in only.**
+**P0b — `CloudSaveMerge`, still with no networking. ☐**
+The merge from §7, written and unit-tested against synthetic save pairs, before any Play API exists.
+**The part that can silently destroy a child's progress is proven on a laptop first.** It can be
+written any time; it does not depend on P1.
+
+**P1 — Plugin spike and sign-in only. ☐**
 Console setup, plugin verified on 4.6.2, manifest and export-preset changes, `PlayGames.gd` with
-sign-in and nothing else. Success criterion: the game behaves identically for a signed-out player,
+sign-in and nothing else. Success criteria: the game behaves identically for a signed-out player,
 Windows and Web builds are unaffected, and the merged manifest contains no advertising permission.
 
-**P2 — Achievements.**
+**P2 — Cloud save. ☐**
+Wire `CloudSaveMerge` to `SnapshotsClient`. First-sign-in handling from §7.6, the `.premerge` safety
+copy, and the schema-newer refusal from §6.2. This is the phase players actually feel, which is why
+it comes before achievements.
+
+**P3 — Achievements. ☐**
 Map the catalog, push unlocks and absolute steps on `EventBus.achievements_unlocked`, backfill
 everything already granted on first sign-in. Local stays truth; Play is a mirror.
 
-**P3 — Cloud save.**
-Wire `CloudSaveMerge` (already proven in P0) to `SnapshotsClient`. First-sign-in handling from §7.6,
-the `.premerge` safety copy, and the schema-newer refusal from §6.2.
+**P4 — Leaderboards. ☐**
+Total XP and best streak, gamer-tag identity, submissions on round end and sign-in. Last on purpose:
+if review objects, this phase is dropped without touching anything before it.
 
-**P4 — Leaderboards.**
-Only if position C was approved. Two leaderboards, gamer-tag identity, submissions on round end and
-sign-in.
-
-**P5 — Polish.**
+**P5 — Polish. ☐**
 Settings UI for sign-in/sign-out behind a parent gate, a child-appropriate "we merged your progress"
 moment, and the account-deletion path Play requires.
+
+**Compliance gate — before P1 ships to any track, not after.**
+Rewrite `docs/privacy/index.md` in both languages, update the Play Console data-safety declaration,
+re-answer the Families and target-audience questionnaires, and re-check the content rating. §9 lists
+the specific items.
 
 ---
 
@@ -562,13 +611,15 @@ easiest to skip. They are mandatory before the cloud-save phase leaves the inter
 
 ## 12. Open questions to resolve before P1
 
-1. **Leaderboard position A, B, or C** (§1). Everything else follows from this.
-2. **Community plugin or in-house Kotlin** (§5.1). Answered by the one-day spike, not by preference.
-3. **Parent gate mechanism** for enabling sign-in — Google offers no standard widget, and a simple
+1. **Community plugin or in-house Kotlin** (§5.1). Answered by the one-day spike, not by preference.
+2. **Parent gate mechanism** for enabling sign-in — Google offers no standard widget, and a simple
    arithmetic gate is both conventional and, for a multiplication game, slightly funny.
-4. **Account deletion path.** Play provides account-level controls, but the store listing must state
+3. **Account deletion path.** Play provides account-level controls, but the store listing must state
    how a player removes their data. Decide whether "sign out and delete cloud save" lives in Settings.
-5. **Web and Windows builds** get none of this. Confirm that is acceptable, and that a child moving
+4. **Web and Windows builds** get none of this. Confirm that is acceptable, and that a child moving
    between the Web build and Android will not expect shared progress.
-6. **Whether Play achievement unlocks should be re-derived from the local granted set on every
+5. **Whether Play achievement unlocks should be re-derived from the local granted set on every
    sign-in**, or only backfilled once. Re-deriving is more robust and costs one batch call.
+
+Resolved on 2026-08-12: leaderboard scope (both, built last, droppable), phase order, and building
+the coin ledger up front rather than migrating twice.

@@ -1,5 +1,53 @@
 # Numblop Decision Log
 
+## 2026-08-12 — Save version 10: durability and a coin ledger, before any networking
+
+Play Games Services is approved in scope — sign-in, cloud saves, and both leaderboards (total XP and
+best streak) — in the order local hardening → authentication → cloud save → achievements →
+leaderboards. This entry covers the first of those, which contains no networking at all and ships as
+an ordinary offline release.
+
+- **Leaderboards are in scope and built last.** If Families or privacy review objects, they are
+  dropped from the release rather than redesigned. Nothing before them references them, so dropping
+  them costs two Play Console entries and two calls. Cloud save is the phase players actually feel,
+  so it comes before achievements — a change from the first draft of the plan.
+- **The coin ledger is built now rather than later.** A balance cannot be merged: two devices that
+  each earn 100 coins and each buy a different hat both read zero, and nothing in those numbers says
+  the child owns two hats. `earned_rounds` and `earned_milestones` are stored and monotonic;
+  achievement earnings and cosmetic spending are **derived** from the granted and owned sets, because
+  those sets union cleanly and a stored total would be a second source for the same number with
+  nothing keeping the two in step. Deferring this would have meant a second migration over live
+  player data.
+- **The back-fill reproduces every existing balance exactly.** Everything not derivable is attributed
+  to rounds; the split between rounds and milestones is unrecoverable after the fact and only the sum
+  is ever used. A test asserts the rebuilt ledger implies the balance the save already had.
+- **Writes are now atomic.** `FileAccess.WRITE` truncates on open, so a process killed mid-write left
+  a half file that parsed as nothing and loaded as a brand-new profile. Writes go to a temporary file
+  and land through two atomic renames, with the previous save kept as `profile.json.bak`. Loading
+  falls through to the backup, which also covers a crash between the two renames. This was worth
+  doing on its own merits — cloud save only raised the stakes.
+- **`version` is finally read.** `SaveMigration` is a real ordered step, guarded by the fields it
+  produces rather than by the version alone, so re-running it is a no-op. That guard matters because
+  an older build round-trips a newer save and stamps its own version on the way out.
+- **Unknown top-level fields are preserved across a save**, so a downgrade — or an older device
+  handling a newer cloud snapshot — cannot silently delete what it does not understand.
+- **`save_counter` is the merge ordering signal, not the clock.** A child's tablet clock can be wrong
+  by years, and the failure mode of trusting it is total: the wrong device would win every merge
+  permanently. `updated_at_unix` is recorded but is only ever a tie-breaker of last resort.
+- **No `device_id` field was added**, contrary to the first draft of the plan. `profile_id` already
+  is this device's pseudonym; storing it twice would be a second thing to keep in step. The snapshot
+  payload carries it under that name instead.
+- **The `cloud` block is written now while inert**, so switching synchronisation on later needs no
+  second migration over live saves.
+- **Tests clear the backup, not just the profile.** `SaveManager.delete_profile()` exists partly for
+  that: without it one case could recover another's save through the fallback, and the suite would
+  quietly become order-dependent.
+- **Documented, not fixed: `profile_id` survives a profile reset.** The reset writes over the file
+  rather than deleting it, and an id is only generated when none is found.
+  [`adr/0001`](adr/0001-teacher-classroom-mode.md) assumes a reset produces a new pseudonym; it does
+  not. Changing that is a deliberate decision, not a silent correction, so today's behavior is
+  recorded in `SAVE_SYSTEM.md` along with the one-line change that would alter it.
+
 ## 2026-08-12 — Documentation reconciled against the code, and a Play Games plan
 
 A full audit of every document against the shipped `0.4.1` build. The code was not changed; the

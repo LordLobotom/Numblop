@@ -7,6 +7,18 @@ const CATEGORY_HAT := "hat"
 const CATEGORY_GLASSES := "glasses"
 const CATEGORY_NECKLACE := "necklace"
 const CATEGORY_FOOTWEAR := "footwear"
+
+## Every category, in shop tab order. The canonical list for anything that has to walk the whole
+## catalog, such as totalling what a profile has spent.
+const CATEGORIES: Array[String] = [
+    CATEGORY_BODY_COLOR,
+    CATEGORY_BELLY_COLOR,
+    CATEGORY_HAT,
+    CATEGORY_GLASSES,
+    CATEGORY_NECKLACE,
+    CATEGORY_FOOTWEAR,
+]
+
 const DEFAULT_BODY_COLOR_ID := "green"
 const DEFAULT_BELLY_COLOR_ID := "cream"
 const DEFAULT_HAT_ID := "hat_none"

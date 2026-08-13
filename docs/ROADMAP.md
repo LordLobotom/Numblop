@@ -2,7 +2,7 @@
 
 Legend: ☐ todo · ◐ in progress · ☑ done
 
-Status reviewed against the code on 2026-08-12 at version `0.4.1` / Play version code `13`, with 198
+Status reviewed against the code on 2026-08-12 at version `0.4.1` / Play version code `13`, with 230
 tests passing.
 
 ## M0 — Foundation ☑
@@ -83,16 +83,29 @@ question for the usability pass in M2.
 
 Acceptance: the internal Play build installs, updates, runs fully offline, and retains its save.
 
-## M5 — Google Play Games Services ☐
+## M5 — Google Play Games Services ◐
 
 Sign-in, cloud saves synchronised with the existing local save, and XP and best-streak leaderboards,
-with the game remaining fully playable offline and signed-out.
+with the game remaining fully playable offline and signed-out. Full plan, including Play Console
+setup, Families-policy and privacy consequences, and the testing strategy:
+[`GOOGLE_PLAY_GAMES.md`](GOOGLE_PLAY_GAMES.md).
 
-This milestone deliberately breaks the current "no networking" product contract, so it does not begin
-until `D18` has shipped an offline release and the change is accepted as a decision entry. The full
-technical plan — permissions, plugin, schema versioning, conflict resolution, Play Console setup,
-Families-policy and privacy consequences, phases, and testing strategy — is
-[`GOOGLE_PLAY_GAMES.md`](GOOGLE_PLAY_GAMES.md). Nothing in it is implemented.
+- ☑ **P0 — offline prerequisites (save version 10).** Atomic writes with a recoverable backup,
+  fall-through loading, an explicit migration step, a monotonic `save_counter`, unknown-field
+  preservation, the inert `cloud` block, and the coin ledger. Contains no networking and ships as a
+  normal offline release; it closes a real truncation risk that predates any Play work.
+- ☐ P0b — `CloudSaveMerge`, the pure two-save merge, unit-tested before any Play API exists.
+- ☐ P1 — plugin spike, manifest and export-preset changes, sign-in only.
+- ☐ P2 — cloud save.
+- ☐ P3 — achievements mirrored to Play.
+- ☐ P4 — the two leaderboards. Last on purpose: if Families or privacy review objects, this phase is
+  dropped without touching anything before it.
+- ☐ P5 — settings UI behind a parent gate, merge messaging, account-deletion path.
+
+The networking phases deliberately break the current "no networking" product contract, so they do not
+begin until `D18` has shipped an offline release and the change is accepted as a decision entry. The
+privacy policy, Play Console data-safety declaration, and Families declarations are updated **before**
+the first networking build reaches any track.
 
 Acceptance: a signed-out player is unaffected in every way; a signed-in player can lose their device
 and recover their progress; no conflict path can silently destroy a child's local progress.

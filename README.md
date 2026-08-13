@@ -14,7 +14,7 @@ Public version `0.4.1`, Play version code `13`.
 
 ## Project status
 
-The complete game loop is playable and covered by 198 automated tests plus bilingual responsive
+The complete game loop is playable and covered by 230 automated tests plus bilingual responsive
 screenshot captures. Progression, cosmetics, achievements, and the guided tutorial are all
 implemented and persisted.
 
@@ -86,8 +86,9 @@ the fact that has waited longest. The complete contract is
 - Achievements pay coins once each: first round (100), streak tiers 10/20/50/100/500/1000, XP tiers
   500/1000/5000/10000, one per completed cosmetic collection, and one per fully mastered island.
 - Everything lives in one local profile at `user://profile.json`, plus device preferences in
-  `user://settings.cfg`. Loading is field-tolerant, so older saves keep working and missing data
-  falls back to safe defaults.
+  `user://settings.cfg`. Saves are written atomically with a recoverable backup, and loading is
+  field-tolerant with an explicit migration step, so older saves keep working and an interrupted
+  write cannot cost a child their progress.
 
 The full persistence contract, including every field and when each write happens, is
 [`docs/SAVE_SYSTEM.md`](docs/SAVE_SYSTEM.md).
@@ -98,10 +99,11 @@ Numblop works entirely without networking. The Android build does not even reque
 permission. There are no accounts, no analytics, no advertising, no in-app purchases, no remote
 configuration, and no third-party SDKs. All coins are earned by playing.
 
-A Google Play Games Services integration — sign-in, cloud saves, and leaderboards — is planned and
-fully specified in [`docs/GOOGLE_PLAY_GAMES.md`](docs/GOOGLE_PLAY_GAMES.md), but **not implemented**.
-It would change the permission, privacy-policy, and data-safety position, and the document treats
-that as a deliberate, separately approved step. Offline play stays fully functional either way.
+A Google Play Games Services integration — sign-in, cloud saves, and XP/best-streak leaderboards — is
+planned and fully specified in [`docs/GOOGLE_PLAY_GAMES.md`](docs/GOOGLE_PLAY_GAMES.md). Its offline
+prerequisites (save version 10) are implemented; **no networking code exists**. The networking phases
+change the permission, privacy-policy, and data-safety position, and the plan treats that as a
+deliberate, separately approved step. Offline play stays fully functional either way.
 
 ## Languages
 

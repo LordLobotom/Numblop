@@ -71,6 +71,12 @@ must not live in a scene, but they do not read files or drive the frame loop eit
   is the single guard that makes a reward one-time.
 - `LocalOnboarding` holds the tutorial's `completed` flag and resumed `step`.
 - `LocalNickname` sanitises the optional nickname (control characters stripped, max 16 characters).
+- `LocalCloudSync` holds the Play Games synchronisation bookkeeping. Inert until that phase exists.
+- `CoinLedger` is pure, static coin accounting: the two stored lifetime buckets plus achievement
+  earnings and cosmetic spending, both *derived* from sets rather than stored. A balance cannot be
+  merged between two devices; these four terms can.
+- `SaveMigration` brings a loaded save dictionary up to the current schema in memory. It exists for
+  the changes field tolerance cannot cover — a field whose value must be computed from other fields.
 - `CosmeticCatalog` defines stable local item ids, prices, display keys, palette colors, and the
   authoring rectangle each accessory is framed by.
 - `LanguageCatalog` is the single list of shipped languages, used by `SettingsManager` to validate a
@@ -85,6 +91,8 @@ must not live in a scene, but they do not read files or drive the frame loop eit
   buses, and is the only caller of `Input.vibrate_handheld`.
 - `SaveManager` owns `user://profile.json` serialization. Every write rewrites the whole file, and any
   argument a caller omits is re-read from disk first, so no save path can drop another system's data.
+  Writes go through a temporary file and two atomic renames, keeping the previous save as a backup
+  that loading falls through to; unknown fields written by a newer build are preserved.
 - `AppState` owns the loaded `LearningProfile`, the `SessionController`, and every `Local*` model. It
   chooses runtime random seeds, so the deterministic generator never has to. It projects capped
   aggregate mastery and per-fact bands into read-only map-stage progress, projects the cosmetics
@@ -100,12 +108,12 @@ Milestone and achievement rewards never enter the deterministic learning core.
 ## Persistence
 
 Two files: `user://profile.json` for everything the child earned, and `user://settings.cfg` for
-device preferences. Compatibility comes from field-tolerant loaders rather than version branching,
-so an unknown field is ignored and a missing one takes a documented default.
+device preferences. Compatibility comes from field-tolerant loaders plus an explicit `SaveMigration`
+step for the fields that must be computed rather than defaulted.
 
-The current save version is `9`. **Every field, every write path, the versioning approach, and the
-known failure behaviour are documented in [`SAVE_SYSTEM.md`](SAVE_SYSTEM.md)** — that file is the
-contract; do not restate its field list here.
+The current save version is `10`. **Every field, every write path, the durability guarantees, the
+migration history, and the coin ledger are documented in [`SAVE_SYSTEM.md`](SAVE_SYSTEM.md)** — that
+file is the contract; do not restate its field list here.
 
 ## UI and display
 
