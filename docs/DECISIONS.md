@@ -1,5 +1,38 @@
 # Numblop Decision Log
 
+## 2026-08-13 — P2 fails closed at the plugin's unresolved-conflict boundary
+
+The normal Saved Games path is implemented behind `PlayGames.gd`: a fixed snapshot is loaded after
+sign-in, newer schemas are refused, two progressed saves get a durable `.premerge` parent, the pure
+`CloudSaveMerge` result is written with a counter above both parents, `AppState` reloads through a
+provider-neutral method, and upload is acknowledged only after an exact read-back. Local save and
+application-pause events trigger the asynchronous work; gameplay never awaits it.
+
+The plugin spike's statement that conflicts are exposed remains true, but exposure is not
+resolution. Vendored v3.4.0 supplies the conflict id and both snapshots yet has no GDScript or
+Android bridge for the Play Games `resolveConflict` operation. The current upstream source has the
+same omission, and repository policy forbids a private edit to vendored code.
+
+Therefore an SDK conflict is merged and saved locally, the pre-merge copy is retained, and further
+uploads are blocked for that launch. Numblop will not call ordinary save on a still-conflicted
+snapshot and risk silently replacing either candidate. Full cloud convergence is `C22`, blocked
+until an upstream release provides the missing bridge and can be replaced wholesale. **The
+server-side conflict remains unresolved, so the same player will encounter it again after every
+launch and cloud backup is effectively unavailable until that bridge ships.** Settings does not
+pretend the enabled backup is healthy: its fourth accessible state says that backup needs attention
+and that progress remains safe on this device, in all ten languages.
+
+An upload read-back mismatch is also fail-closed but not allowed to loop forever. Each mismatch is
+reported, the merge-triggered immediate retry is suppressed, and later local saves may retry only
+up to three consecutive failures per launch. The third failure blocks further uploads and selects
+the same needs-attention state, protecting battery and mobile data while keeping local play intact.
+
+The compliance half is also explicit: the bilingual privacy policy and a conservative Play Console
+worksheet now describe Play Games processing and the cloud payload, and Settings links to the policy
+in every shipped language. Enabling the public Pages URL and applying Data safety, Families,
+target-audience, and content-rating answers remain authenticated manual release gates. No networking
+build may enter a Play track before those gates close.
+
 ## 2026-08-13 — Cloud save on by default, and the plugin spike settles the integration
 
 **The community plugin wins.** `godot-sdk-integrations/godot-play-game-services` v3.4.0 is vendored

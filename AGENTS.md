@@ -42,7 +42,7 @@
 7. `docs/ROADMAP.md` — milestone order and acceptance gates.
 8. `docs/DECISIONS.md` — accepted decisions that extend the documents above.
 9. `docs/RELEASES.md` — Windows, Android, and Web delivery process.
-10. `docs/TASKS.md` — historical task ledger and the two remaining open items.
+10. `docs/TASKS.md` — historical task ledger, remaining manual release work, and active M5 tasks.
 
 If documents conflict, use the highest applicable source and record the resolution in
 `docs/DECISIONS.md`.
@@ -51,7 +51,7 @@ If documents conflict, use the highest applicable source and record the resoluti
 
 - Engine: Godot `4.6.2`, GDScript, GL Compatibility renderer.
 - Run: `C:\Users\eMich\source\Godot\Godot_v4.6.2-stable_win64.exe --path .`.
-- Test: `powershell -ExecutionPolicy Bypass -File tools/run-tests.ps1` (265 tests).
+- Test: `powershell -ExecutionPolicy Bypass -File tools/run-tests.ps1` (274 tests).
 - Boot smoke after any scene or layout change:
   `Godot_v4.6.2-stable_win64_console.exe --headless --path . --quit-after 120`. Tests instantiate
   scenes but never run a real layout pass, so a recursion crash passes the suite undetected.

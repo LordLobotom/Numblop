@@ -25,6 +25,7 @@ signal exit_requested
 @onready var cloud_button: IconToggle = %CloudButton
 @onready var cloud_caption: Label = %CloudCaption
 @onready var hint_label: Label = %HintLabel
+@onready var privacy_button: Button = %PrivacyButton
 @onready var exit_button: Button = %ExitButton
 @onready var exit_dialog: Control = %ExitDialog
 @onready var exit_scrim: ColorRect = %ExitScrim
@@ -47,6 +48,7 @@ const DIALOG_SIDE_MARGIN := 20.0
 const DIALOG_MAX_WIDTH := 360.0
 const VERSION_SETTING := "application/config/version"
 const VERSION_FALLBACK := "0.1.0"
+const PRIVACY_POLICY_URL := "https://lordlobotom.github.io/Numblop/privacy/"
 ## Ten flags wrap to 5 + 5 inside the settings card. 48 px is the touch minimum, and the flag
 ## itself is inset so the checkmark in the corner never covers it.
 const FLAG_BUTTON_SIZE := Vector2(48.0, 48.0)
@@ -63,6 +65,8 @@ func _ready() -> void:
     cloud_button.toggled.connect(_on_cloud_toggled)
     PlayGames.availability_changed.connect(_on_play_games_availability_changed)
     PlayGames.sign_in_state_changed.connect(_on_play_games_sign_in_changed)
+    PlayGames.cloud_sync_state_changed.connect(_on_cloud_sync_state_changed)
+    privacy_button.pressed.connect(_open_privacy_policy)
     exit_button.pressed.connect(show_exit_confirmation)
     cancel_exit_button.pressed.connect(hide_exit_confirmation)
     confirm_exit_button.pressed.connect(_confirm_exit)
@@ -123,6 +127,7 @@ func _refresh_text() -> void:
     haptics_caption.text = tr("SETTINGS_HAPTICS")
     cloud_caption.text = tr("SETTINGS_CLOUD")
     _refresh_toggle_accessibility()
+    privacy_button.text = tr("SETTINGS_PRIVACY")
     exit_button.text = tr("SETTINGS_EXIT")
     dialog_title.text = tr("SETTINGS_EXIT_TITLE")
     dialog_message.text = tr("SETTINGS_EXIT_CONFIRM")
@@ -263,6 +268,11 @@ func _on_play_games_sign_in_changed(_signed_in: bool) -> void:
         _refresh_toggle_accessibility()
 
 
+func _on_cloud_sync_state_changed(_state: StringName) -> void:
+    if is_node_ready():
+        _refresh_toggle_accessibility()
+
+
 ## The tile is lit by the *setting*, exactly like the sound and vibration tiles beside it.
 ##
 ## Tying it to whether sign-in actually succeeded was considered and rejected: a switch whose light
@@ -302,15 +312,17 @@ func _refresh_toggle_accessibility() -> void:
         "SETTINGS_HAPTICS_OFF_ACCESSIBLE" if not haptics_button.button_pressed
         else "SETTINGS_HAPTICS_ON_ACCESSIBLE"
     )
-    # Three states, not two: off, on and working, on but not signed in. The last one is the whole
-    # reason this reads the session rather than only the switch -- a guardian who turned backup on
-    # and never got signed in has nothing else on this screen that would tell them.
+    # Four states: off, on and working, on but not signed in, and on but needing attention. The
+    # fourth is essential while the upstream plugin cannot resolve a persistent server conflict.
     var cloud_key := "SETTINGS_CLOUD_OFF_ACCESSIBLE"
     if cloud_button.button_pressed:
-        cloud_key = (
-            "SETTINGS_CLOUD_ON_ACCESSIBLE" if PlayGames.signed_in()
-            else "SETTINGS_CLOUD_WAITING_ACCESSIBLE"
-        )
+        if PlayGames.cloud_needs_attention():
+            cloud_key = "SETTINGS_CLOUD_ATTENTION_ACCESSIBLE"
+        else:
+            cloud_key = (
+                "SETTINGS_CLOUD_ON_ACCESSIBLE" if PlayGames.signed_in()
+                else "SETTINGS_CLOUD_WAITING_ACCESSIBLE"
+            )
     cloud_button.tooltip_text = tr(cloud_key)
 
 
@@ -347,6 +359,10 @@ func _request_map() -> void:
 func _request_future_feature(feature_signal: Signal) -> void:
     _flush_audio_preferences()
     feature_signal.emit()
+
+
+func _open_privacy_policy() -> void:
+    OS.shell_open(PRIVACY_POLICY_URL)
 
 
 func show_exit_confirmation() -> void:

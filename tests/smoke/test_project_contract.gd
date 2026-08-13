@@ -104,6 +104,34 @@ func test_network_access_is_exactly_what_play_games_needs_and_nothing_more() -> 
     )
 
 
+func test_aab_verifier_checks_the_merged_network_permission_contract() -> void:
+    var file := FileAccess.open("res://tools/verify-aab.ps1", FileAccess.READ)
+    check(file != null, "AAB verifier must open")
+    if file == null:
+        return
+    var verifier := file.get_as_text()
+    for required in [
+        "android\\.permission\\.VIBRATE",
+        "android\\.permission\\.INTERNET",
+        "android\\.permission\\.ACCESS_NETWORK_STATE",
+    ]:
+        check(verifier.contains(required), "AAB verifier requires %s" % required)
+    for forbidden in [
+        "android\\.permission\\.AD_ID",
+        "com\\.google\\.android\\.gms\\.permission\\.AD_ID",
+        "android\\.permission\\.ACCESS_FINE_LOCATION",
+        "android\\.permission\\.ACCESS_COARSE_LOCATION",
+        "android\\.permission\\.CAMERA",
+        "android\\.permission\\.RECORD_AUDIO",
+        "android\\.permission\\.READ_CONTACTS",
+    ]:
+        check(verifier.contains(forbidden), "AAB verifier rejects %s" % forbidden)
+    check(
+        not verifier.contains("Numblop must stay offline"),
+        "Verifier no longer rejects the approved Play Games network permission"
+    )
+
+
 func test_numblop_icon_is_used_by_windows_and_android_exports() -> void:
     var file := FileAccess.open("res://export_presets.cfg", FileAccess.READ)
     check(file != null, "Export presets must open")

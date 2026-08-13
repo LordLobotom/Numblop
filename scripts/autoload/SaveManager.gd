@@ -10,6 +10,10 @@ const BACKUP_SUFFIX := ".bak"
 ## Only ever exists during a write. A leftover one means the process died mid-save; it is
 ## overwritten by the next write and never read.
 const TEMP_SUFFIX := ".tmp"
+## Safety copy written before a cloud merge. It is deliberately separate from the rolling backup:
+## the backup protects one write, while this copy protects the merge decision until a later sync is
+## verified.
+const PREMERGE_SUFFIX := ".premerge"
 
 ## Every field this build writes. Anything else found in a save is preserved untouched, so a file
 ## written by a newer build survives a round trip through this one instead of losing fields.
@@ -77,7 +81,10 @@ func save_game_state(
     achievements: Variant = null,
     completed_sessions: Variant = null,
     onboarding: Variant = null,
-    ledger: Variant = null
+    ledger: Variant = null,
+    cloud: Variant = null,
+    minimum_save_counter: int = 0,
+    incoming_unknown_fields: Dictionary = {}
 ) -> Error:
     var existing := _load_state_dictionary(path)
     var cosmetics_to_save := cosmetics
@@ -109,6 +116,7 @@ func save_game_state(
 
     # Unknown fields first, so nothing this build owns can be shadowed by a stale value.
     var data := _preserved_unknown_fields(existing)
+    data.merge(_preserved_unknown_fields(incoming_unknown_fields), true)
     var profile_data := profile.to_dictionary()
     for key in profile_data:
         data[key] = profile_data[key]
@@ -132,17 +140,71 @@ func save_game_state(
     data["onboarding"] = LocalOnboarding.new(onboarding_to_save).to_dictionary()
     data["nickname"] = nickname_to_save
     data["profile_id"] = profile_id
-    data["save_counter"] = _number_from_state(existing, "save_counter") + 1
+    data["save_counter"] = maxi(
+        _number_from_state(existing, "save_counter"),
+        maxi(0, minimum_save_counter)
+    ) + 1
     data["updated_at_unix"] = _now()
-    # Nothing updates the cloud block yet, so it is carried through validated. The field exists now
-    # so that switching synchronisation on later needs no second migration over live saves.
-    data["cloud"] = LocalCloudSync.new(_cloud_from_state(existing)).to_dictionary()
+    var cloud_to_save: Dictionary = cloud if cloud is Dictionary else _cloud_from_state(existing)
+    data["cloud"] = LocalCloudSync.new(cloud_to_save).to_dictionary()
 
     var write_error := _write_atomically(path, JSON.stringify(data, "  "))
     if write_error != OK:
         return write_error
     EventBus.profile_saved.emit()
     return OK
+
+
+## Writes a validated merge result and guarantees that its counter sorts after both parents.
+##
+## The ordinary save path derives its counter from the local file. A remote parent can be much
+## newer, so cloud merges seed the counter from the merged dictionary as well (C20).
+func save_merged_state(
+    merged: Dictionary,
+    cloud: Dictionary,
+    path: String = PROFILE_PATH
+) -> Error:
+    var migrated := SaveMigration.migrate(merged)
+    if migrated.is_empty() or SaveMigration.is_from_newer_build(migrated):
+        return ERR_INVALID_DATA
+    var progress_data := _progress_from_state(migrated)
+    return save_game_state(
+        LearningProfile.from_dictionary(migrated),
+        int(progress_data["coins"]),
+        int(progress_data["experience"]),
+        path,
+        _cosmetics_from_state(migrated),
+        _streak_from_state(migrated),
+        _nickname_from_state(migrated),
+        _achievements_from_state(migrated),
+        int(progress_data["completed_sessions"]),
+        _onboarding_from_state(migrated),
+        {
+            "earned_rounds": int(progress_data["earned_rounds"]),
+            "earned_milestones": int(progress_data["earned_milestones"]),
+        },
+        cloud,
+        _number_from_state(migrated, "save_counter"),
+        migrated
+    )
+
+
+## Returns the complete migrated dictionary for cloud payload and merge code.
+func load_state(path: String = PROFILE_PATH) -> Dictionary:
+    return _load_state_dictionary(path)
+
+
+## Keeps the exact local parent beside the profile before any two-progress merge.
+func write_premerge_copy(data: Dictionary, path: String = PROFILE_PATH) -> Error:
+    if data.is_empty():
+        return ERR_INVALID_DATA
+    return _write_atomically(path + PREMERGE_SUFFIX, JSON.stringify(data, "  "))
+
+
+func clear_premerge_copy(path: String = PROFILE_PATH) -> void:
+    _delete_if_exists(path + PREMERGE_SUFFIX)
+    _delete_if_exists(path + PREMERGE_SUFFIX + BACKUP_SUFFIX)
+    _delete_if_exists(path + PREMERGE_SUFFIX + TEMP_SUFFIX)
 
 
 ## Writes through a temporary file so an interrupted save can never truncate the real one.
@@ -190,6 +252,7 @@ func delete_profile(path: String = PROFILE_PATH) -> void:
     _delete_if_exists(path)
     _delete_if_exists(path + BACKUP_SUFFIX)
     _delete_if_exists(path + TEMP_SUFFIX)
+    clear_premerge_copy(path)
 
 
 func load_profile(path: String = PROFILE_PATH) -> LearningProfile:

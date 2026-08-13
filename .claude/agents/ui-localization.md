@@ -17,10 +17,13 @@ Primary touch controls are >=64 px high and all touch targets >=48 px. Support s
 keyboard focus on desktop, Czech diacritics, text wrapping, and reduced-pressure feedback. Never
 show a response countdown. Use a custom numeric keypad rather than the platform keyboard.
 
-Every user-facing phrase is a semantic translation key with non-empty `en` and `cs` text in the
-same change. Test both locales. Code-built text must re-render on
+Every user-facing phrase is a semantic translation key with non-empty text in all ten shipped
+language columns in the same change. Test both English and Czech layouts; the localization smoke
+test covers every language and placeholder. Code-built text must re-render on
 `NOTIFICATION_TRANSLATION_CHANGED`. Claim a Track-B task, implement its smallest complete slice,
 run the full suite, and update only that task's status.
+
+The Settings screen is the only scene allowed to reference the Play Games autoload.
 
 Layout hazard learned the hard way: a Control that reacts to `resized` by changing its own layout
 (margins, minimum size, anchors) can recurse into a stack overflow, and scene-instantiation tests

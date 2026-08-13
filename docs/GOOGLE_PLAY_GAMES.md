@@ -1,10 +1,12 @@
 # Google Play Games Services — Integration Plan
 
-- **Status:** Approved in scope. Phases P0 and P0b are **implemented**; everything from P1 onwards is
-  still a plan.
+- **Status:** Approved in scope. P0, P0b, P1 code, and the normal P2 snapshot path are
+  **implemented**. P1 still needs tester sign-in on hardware. Full P2 convergence is blocked because
+  the vendored v3.4.0 plugin reports conflicts but exposes no conflict-resolution call.
 - **Milestone:** M5.
-- **Prerequisite:** P1 onwards breaks the "no networking" product contract in `AGENTS.md`. It does
-  not begin until an entry in [`DECISIONS.md`](DECISIONS.md) approves that change.
+- **Approval:** The 2026-08-13 decision entry approved the networking boundary. Android now requests
+  only the connectivity permissions Play Games needs; offline, signed-out, accountless play remains
+  permanent.
 - **Not a prerequisite:** another Play upload. `0.4.0` / code `12` is already on the internal track,
   so the app entry exists and Play App Signing is enrolled — its SHA-1 is what the OAuth credential
   in §9 needs, and locally signed test builds are covered by the upload-key SHA-1 plus a testers
@@ -336,7 +338,8 @@ Rules that keep this from infecting the rest of the codebase:
   deleting the addon leaves the file parsing and reporting unavailable rather than breaking the
   build. **No `#if`-style platform branching anywhere else.**
 - Only `SettingsScreen` may reference the autoload, and only to offer the switch. `AppState` never
-  calls it; when P2 needs a sync trigger it will listen on `EventBus` instead. A test walks
+  calls it; save and pause triggers reach `PlayGames` through `EventBus`. A provider-neutral
+  `AppState.reload_profile_from_disk()` callable refreshes runtime models after a durable merge. A test walks
   `scripts/core/`, `scripts/app/`, `scripts/ui/` and `scenes/` and enforces this, with a second test
   asserting that `scripts/core/` and `scripts/app/` can never be added to the exemption list.
 - **All the difficult logic lives in `CloudSaveMerge.gd`, which is pure.** That is the whole point:
@@ -563,13 +566,10 @@ The merge from §7 in `scripts/app/CloudSaveMerge.gd`, pure and static, covered 
 `tests/state/test_cloud_save_merge.gd`. **The part that can silently destroy a child's progress is
 proven on a laptop before any Play API exists.**
 
-One integration requirement it leaves for P2: the merged `save_counter` must actually reach disk.
-`SaveManager.save_game_state()` derives the counter from the file already there, so writing a merge
-result through the ordinary path would stamp `local + 1`, which can be lower than the remote parent
-and would make the next sync treat the merge as the stale side. P2 either seeds the counter or
-writes the merged dictionary directly.
+P2 closed its remaining integration requirement with `SaveManager.save_merged_state()`: the merged
+`save_counter` is seeded above both parents before the result reaches disk.
 
-**P1 — Plugin spike and sign-in only. ◐ In progress.**
+**P1 — Plugin spike and sign-in only. ◐ Code complete; device confirmation outstanding.**
 
 Done:
 - Play Console configured — PGS project created, Android OAuth credential linked, testers added,
@@ -578,12 +578,14 @@ Done:
 - Both Android presets request `INTERNET` and `ACCESS_NETWORK_STATE` and build through Gradle;
   `test_project_contract.gd` pins that and asserts no advertising, location, camera, microphone, or
   contacts permission.
-- `scripts/autoload/PlayGames.gd` — opt-in gated, plugin-agnostic, no-op on every non-Android build,
-  and covered by `tests/state/test_play_games.gd` including a test that no other script may
-  reference it.
-- `play_games/enabled` in `settings.cfg`, defaulting to off.
-- `tools/install-play-games-plugin.ps1`, wired into `tools/export.ps1`; a no-op until the plugin
-  binaries are vendored. `NUMBLOP_PLAY_GAMES_PROJECT_ID` is set to the project id `1018864218554`.
+- `scripts/autoload/PlayGames.gd` — the only game-side file that wraps the plugin, no-op on every
+  non-Android build, and covered by `tests/state/test_play_games.gd` including a test that no
+  gameplay system may reference it.
+- `play_games/enabled` in `settings.cfg`, defaulting to on. Android startup silently checks the
+  existing Play session; Google and Family Link own the account decision.
+- `godot-sdk-integrations/godot-play-game-services` v3.4.0 vendored unmodified at
+  `addons/GodotPlayGameServices/`. Its export plugin injects the AAR, dependencies, manifest
+  metadata, and game id `1018864218554`; the pre-spike installer script was deleted.
 - A Settings tile — a third icon tile beside Sound and Vibration, with a drawn cloud that is struck
   through when off, a one-word caption in all ten languages, and three accessible states (off, on
   and signed in, on but not signed in). It **hides itself unless a usable plugin is present**, so no
@@ -595,22 +597,41 @@ Done:
   siblings — a light that ignored the tap would not be a switch — and whether Google actually
   signed the device in is carried by the accessible name instead.
 
+Verified locally:
+- A fresh Godot 4.6.2 Gradle debug export links the plugin and carries exactly
+  `ACCESS_NETWORK_STATE`, `INTERNET`, and `VIBRATE`; the merged manifest has no `AD_ID` permission.
+- A second Numblop parent gate was explicitly dropped. It would be weaker than Google/Family Link
+  and would prevent the automatic backup this milestone exists to provide.
+
 Remaining:
-- **The plugin spike itself** — pick between the community plugin and an in-house Kotlin wrapper,
-  vendor it to `third_party/play-games/`, confirm it builds against Godot 4.6.2.
-- Verify the merged manifest of a real build carries no `AD_ID` permission.
-- **A parent gate in front of the switch, before any release that contains it.** Today the switch is
-  plain, which is fine while no plugin is vendored — the row cannot even appear. It is not fine in a
-  shipped children's app, where a child could enable a Google account association themselves. See
-  the open question in §12 and phase P5.
+- Confirm a listed tester account signs in on a real Android device. The PGS project stays in draft
+  until that and P2 cloud save are verified.
 
 Success criteria: the game behaves identically for a signed-out player, Windows and Web builds are
 unaffected, and a tester account can sign in on a device.
 
-**P2 — Cloud save. ☐**
-Wire `CloudSaveMerge` to `SnapshotsClient`. First-sign-in handling from §7.6, the `.premerge` safety
-copy, and the schema-newer refusal from §6.2. This is the phase players actually feel, which is why
-it comes before achievements.
+**P2 — Cloud save. ◐ Normal path complete; conflict convergence blocked upstream.**
+
+Implemented in `PlayGames.gd` and covered by fake-client tests:
+
+- fixed snapshot `numblop_profile_v1` with schema, app version, write time, device id, counter, and
+  the complete profile;
+- player-id binding, first-sign-in load, empty-side adoption, pure merge, seeded durable write, and
+  asynchronous upload on sign-in, pause, and local-save events;
+- `.premerge` recovery before every two-progress merge, refusal to touch a newer schema, generic
+  runtime reload, and exact read-back before acknowledging an upload or clearing the safety copy;
+- an empty cloud uploads the existing file without a pointless preliminary local rewrite, while
+  three consecutive read-back mismatches stop further attempts for that launch;
+- both conflict candidates are merged into the local durable save, after which uploads are blocked
+  for that launch.
+
+The last behavior is deliberately fail-closed. The plugin's GDScript and Android bridge expose the
+conflict id and candidates but no `resolveConflict` operation; current upstream has the same gap.
+The vendored addon may not be patched locally. P2 becomes complete only after an upstream release
+adds that bridge, it is replaced wholesale, and the physical two-device matrix passes. Until then,
+the unresolved server conflict returns on every launch and cloud backup is effectively unavailable
+for that player. The Settings tile exposes a fourth accessible needs-attention state and explicitly
+says that progress remains safe on the device.
 
 **P3 — Achievements. ☐**
 Map the catalog, push unlocks and absolute steps on `EventBus.achievements_unlocked`, backfill
@@ -621,13 +642,14 @@ Total XP and best streak, gamer-tag identity, submissions on round end and sign-
 if review objects, this phase is dropped without touching anything before it.
 
 **P5 — Polish. ☐**
-Settings UI for sign-in/sign-out behind a parent gate, a child-appropriate "we merged your progress"
-moment, and the account-deletion path Play requires.
+A child-appropriate "we merged your progress" moment and the account-deletion path Play requires.
+Google and Family Link remain the account gate; Numblop does not add another one.
 
 **Compliance gate — before P1 ships to any track, not after.**
-Rewrite `docs/privacy/index.md` in both languages, update the Play Console data-safety declaration,
-re-answer the Families and target-audience questionnaires, and re-check the content rating. §9 lists
-the specific items.
+The bilingual `docs/privacy/index.md` rewrite and `docs/PLAY_CONSOLE_COMPLIANCE.md` worksheet are
+complete, and Settings links to the policy in all ten languages. An authenticated Console session
+must still apply the data-safety answers, re-answer Families and target audience, re-check content
+rating, and verify the public URL. §9 lists the specific items.
 
 ---
 
@@ -650,7 +672,7 @@ the specific items.
 method is a no-op when unavailable; the pending queue survives a failed submit and flushes once; no
 gameplay path ever blocks on a call.
 
-**Existing suite:** the full 198 tests must still pass unchanged. If a Play change requires editing a
+**Existing suite:** the full 274-test baseline must still pass. If a Play change requires editing a
 test that is not about Play, that is a signal the isolation in §5.5 has leaked.
 
 **Manual device matrix** (extends the checklist in [`RELEASES.md`](RELEASES.md)):
@@ -673,17 +695,15 @@ easiest to skip. They are mandatory before the cloud-save phase leaves the inter
 
 ---
 
-## 12. Open questions to resolve before P1
+## 12. Open questions for the remaining phases
 
-1. **Community plugin or in-house Kotlin** (§5.1). Answered by the one-day spike, not by preference.
-2. **Parent gate mechanism** for enabling sign-in — Google offers no standard widget, and a simple
-   arithmetic gate is both conventional and, for a multiplication game, slightly funny.
-3. **Account deletion path.** Play provides account-level controls, but the store listing must state
+1. **Account deletion path.** Play provides account-level controls, but the store listing must state
    how a player removes their data. Decide whether "sign out and delete cloud save" lives in Settings.
-4. **Web and Windows builds** get none of this. Confirm that is acceptable, and that a child moving
+2. **Web and Windows builds** get none of this. Confirm that is acceptable, and that a child moving
    between the Web build and Android will not expect shared progress.
-5. **Whether Play achievement unlocks should be re-derived from the local granted set on every
+3. **Whether Play achievement unlocks should be re-derived from the local granted set on every
    sign-in**, or only backfilled once. Re-deriving is more robust and costs one batch call.
 
-Resolved on 2026-08-12: leaderboard scope (both, built last, droppable), phase order, and building
-the coin ledger up front rather than migrating twice.
+Resolved: the community plugin is vendored; cloud defaults on; Google/Family Link own the account
+gate; leaderboard scope remains both, built last and droppable; and the coin ledger was built before
+networking rather than migrated twice.

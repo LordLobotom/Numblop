@@ -103,11 +103,18 @@ left out is re-read from disk before writing, so no save path can silently drop 
 | `onboarding` | `completed` bool, `step` int | `LocalOnboarding` | Anything that is not a real bool counts as "not finished", so a corrupt save replays the tutorial rather than skipping it. |
 | `nickname` | string, ≤ 16 chars | `LocalNickname.sanitize` | Control characters stripped, trimmed, truncated to 16. Optional; empty is normal. |
 | `profile_id` | 32 lowercase hex chars | `SaveManager` | 16 random bytes from `Crypto`, generated on the first save and preserved by every later one, **including a profile reset** (see "Resetting"). A device-local pseudonym that links to no identity. |
-| `cloud` | `last_synced_counter`, `last_synced_at_unix`, `player_id` | `LocalCloudSync` | Inert until the cloud phase exists. Carried through validated on every save. Non-numeric counters read as `0`, so a corrupt value cannot make this device win a future merge. |
+| `cloud` | `last_synced_counter`, `last_synced_at_unix`, `player_id` | `LocalCloudSync` | Play Games acknowledgement and account binding. Carried through validated on every save. Non-numeric counters read as `0`, so a corrupt value cannot suppress a future upload. |
 
 Unknown top-level fields are **preserved**. If a newer build writes something this build does not
 know, it is round-tripped rather than deleted, so a downgrade — or an older device handling a newer
 cloud snapshot — cannot silently drop data. `SaveManager.KNOWN_FIELDS` is the list that decides this.
+
+Before combining two saves that both contain progress, `SaveManager` writes the exact local parent
+to `profile.json.premerge`. The ordinary `.bak` protects one atomic write; `.premerge` protects the
+merge decision and is cleared only after the uploaded JSON has been read back exactly. An unresolved
+Play conflict deliberately leaves this copy in place. `save_merged_state()` seeds the next
+`save_counter` above both parents, so a remote parent with a higher counter cannot make the merged
+result look stale.
 
 ### The coin ledger
 
@@ -321,6 +328,7 @@ a future parent-facing action.
 | Migration, ledger back-fill, write counter, cloud block, unknown fields | `tests/state/test_save_migration.gd` |
 | Coin ledger arithmetic and the balance invariant | `tests/state/test_coin_ledger.gd` |
 | Two-save merge: commutativity, monotonicity, balance recompute | `tests/state/test_cloud_save_merge.gd` |
+| Snapshot payload, normal sync, schema refusal, unresolved conflict safety | `tests/state/test_play_games.gd` |
 | Coins, XP, level, completed rounds, milestone bonus | `tests/state/test_progression_persistence.gd` |
 | Cosmetic ownership and equip persistence | `tests/state/test_cosmetics_persistence.gd` |
 | Streak counters and milestone rows | `tests/state/test_streak_persistence.gd` |

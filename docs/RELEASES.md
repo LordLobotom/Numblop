@@ -230,15 +230,19 @@ powershell -ExecutionPolicy Bypass -File tools/verify-aab.ps1
 The tool checks the bundle structure (manifest, dex, both ABIs' native libraries), verifies the
 upload signature with `jarsigner`, and — when `NUMBLOP_BUNDLETOOL_JAR` points at a
 `bundletool-all-<version>.jar` downloaded once from `github.com/google/bundletool/releases` —
-asserts the manifest: package id, version code/name, VIBRATE present, INTERNET absent, and
-`allowBackup="true"`. Success prints `NUMBLOP_AAB_VERIFY_OK`.
+asserts the merged manifest: package id, version code/name, `VIBRATE`, `INTERNET`, and
+`ACCESS_NETWORK_STATE` present, `allowBackup="true"`, and no advertising-id, location, camera,
+microphone, or contacts permission. Success prints `NUMBLOP_AAB_VERIFY_OK`.
 
 ## Release checklist
 
 1. Full tests pass; every language column and the version values are reviewed.
 2. Windows, Web, and debug APK export without script/export errors; Web HTTP smoke passes.
 3. `tools/android-smoke.ps1` passes and the physical checklist above passes with networking disabled.
+   With networking restored, a listed Play Games tester also signs in successfully and switching
+   cloud save off returns the app to purely local behavior.
 4. Save survives pause, force-stop, relaunch, and application update.
 5. Signed AAB passes `tools/verify-aab.ps1` and is uploaded to an internal Play test track.
-6. Store listing, screenshots, content rating, data-safety answers, and privacy text match the
-   actual offline/no-data-collection behavior.
+6. Store listing, screenshots, content rating, data-safety answers, Families/target-audience answers,
+   and privacy text match the Play Games build. The policy and declarations are updated before the
+   first networking build reaches any Play track.

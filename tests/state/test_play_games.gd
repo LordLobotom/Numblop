@@ -6,6 +6,7 @@ extends NumblopTestCase
 ## plugin rather than only on real hardware, where it would never be exercised at all.
 
 const TEST_SETTINGS_PATH := "user://numblop_play_games_settings_test.cfg"
+const TEST_CLOUD_PATH := "user://numblop_play_games_cloud_test.json"
 ## The autoload name resolves to the live instance, so the script itself is loaded to get a
 ## throwaway copy that cannot disturb the running game's settings.
 const SettingsManagerScript: GDScript = preload("res://scripts/autoload/SettingsManager.gd")
@@ -40,6 +41,58 @@ class FakeSignInClient:
     ## Plays back what Google would have answered.
     func answer(authenticated: bool) -> void:
         user_authenticated.emit(authenticated)
+
+
+class FakeSnapshotsClient:
+    extends Node
+
+    signal game_saved(is_saved: bool, save_data_name: String, save_data_description: String)
+    signal game_loaded(snapshot: Variant)
+    signal conflict_emitted(conflict: Variant)
+
+    var load_calls: Array[Array] = []
+    var save_calls: Array[Dictionary] = []
+
+    func load_game(file_name: String, create_if_not_found := false) -> void:
+        load_calls.append([file_name, create_if_not_found])
+
+    func save_game(
+        file_name: String,
+        description: String,
+        content: PackedByteArray,
+        played_time_millis: int = 0,
+        progress_value: int = 0
+    ) -> void:
+        save_calls.append({
+            "file_name": file_name,
+            "description": description,
+            "content": content,
+            "played_time_millis": played_time_millis,
+            "progress_value": progress_value,
+        })
+
+    func answer_loaded(snapshot: Variant) -> void:
+        game_loaded.emit(snapshot)
+
+    func answer_saved(saved: bool = true) -> void:
+        var description := ""
+        if not save_calls.is_empty():
+            description = String(save_calls[-1]["description"])
+        game_saved.emit(saved, PlayGames.SNAPSHOT_NAME, description)
+
+
+class FakePlayersClient:
+    extends Node
+
+    signal current_player_loaded(current_player: Variant)
+
+    var load_calls := 0
+
+    func load_current_player(_force_reload: bool) -> void:
+        load_calls += 1
+
+    func answer(player_id: String) -> void:
+        current_player_loaded.emit({"player_id": player_id})
 
 
 func test_cloud_save_is_on_for_a_device_that_has_never_been_configured() -> void:
@@ -172,16 +225,225 @@ func test_switching_cloud_save_off_ends_the_session_for_the_game() -> void:
     restore_settings_file(restore_settings)
 
 
+func test_snapshot_payload_round_trips_the_exact_profile() -> void:
+    var state := LearningProfile.new().to_dictionary()
+    state["version"] = SaveMigration.CURRENT_VERSION
+    state["save_counter"] = 12
+    state["experience"] = 34
+    state["profile_id"] = "0123456789abcdef0123456789abcdef"
+    PlayGames.clock_override = func() -> int: return 1786000456
+    var payload := PlayGames.build_snapshot_payload(state)
+    PlayGames.clock_override = Callable()
+    var decoded := PlayGames.decode_snapshot_payload(
+        JSON.stringify(payload).to_utf8_buffer()
+    )
+    equal(decoded["schema"], SaveMigration.CURRENT_VERSION, "Payload carries the schema")
+    equal(decoded["save_counter"], 12, "Payload carries the ordering counter")
+    equal(decoded["written_at_unix"], 1786000456, "Payload uses the injected clock")
+    var decoded_profile: Dictionary = decoded["profile"]
+    equal(
+        LearningProfile.from_dictionary(decoded_profile).to_dictionary(),
+        LearningProfile.from_dictionary(state).to_dictionary(),
+        "The complete learning profile survives JSON"
+    )
+    equal(decoded_profile["profile_id"], state["profile_id"], "Device identity survives JSON")
+    equal(decoded_profile["experience"], state["experience"], "Progress survives JSON")
+
+
+func test_sign_in_loads_merges_uploads_and_verifies_before_acknowledging() -> void:
+    _remove_cloud_profile()
+    var profile := LearningProfile.new()
+    profile.set_mastery(2, 3, 25)
+    SaveManager.save_game_state(profile, 7, 7, TEST_CLOUD_PATH)
+
+    var state := _install_fake_plugin(true, true)
+    PlayGames.profile_path = TEST_CLOUD_PATH
+    PlayGames.reload_profile_callable = func() -> void: pass
+    PlayGames._on_user_authenticated(true)
+    equal(state["players"].load_calls, 1, "A signed-in player identity is loaded")
+    state["players"].answer("player-one")
+    equal(state["snapshots"].load_calls.size(), 1, "Remote save is checked first")
+
+    var counter_before_upload := SaveManager.load_save_counter(TEST_CLOUD_PATH)
+    state["snapshots"].answer_loaded(null)
+    equal(state["snapshots"].save_calls.size(), 1, "Local progress uploads into an empty cloud")
+    equal(
+        SaveManager.load_save_counter(TEST_CLOUD_PATH),
+        counter_before_upload,
+        "An empty cloud does not cause a pointless preliminary local rewrite"
+    )
+    var sent: Dictionary = state["snapshots"].save_calls[0]
+    var sent_payload := PlayGames.decode_snapshot_payload(sent["content"])
+    equal(sent_payload["profile"]["experience"], 7, "The actual local progress was sent")
+
+    state["snapshots"].answer_saved(true)
+    equal(state["snapshots"].load_calls.size(), 2, "A dispatched commit is read back")
+    state["snapshots"].answer_loaded({"content": sent["content"]})
+    var cloud := SaveManager.load_cloud_sync(TEST_CLOUD_PATH)
+    equal(cloud["player_id"], "player-one", "The confirmed account binding is stored")
+    equal(
+        cloud["last_synced_counter"],
+        SaveManager.load_save_counter(TEST_CLOUD_PATH),
+        "Only an exact read-back is acknowledged"
+    )
+
+    _remove_fake_plugin(state)
+    _remove_cloud_profile()
+
+
+func test_three_mismatched_upload_readbacks_block_further_retries() -> void:
+    _remove_cloud_profile()
+    SaveManager.save_game_state(LearningProfile.new(), 4, 4, TEST_CLOUD_PATH)
+    var state := _install_fake_plugin(true, true)
+    PlayGames.profile_path = TEST_CLOUD_PATH
+    PlayGames.reload_profile_callable = func() -> void: pass
+    var reported: Array[StringName] = []
+    var listener := func(value: StringName) -> void: reported.append(value)
+    PlayGames.cloud_sync_state_changed.connect(listener)
+
+    PlayGames._on_user_authenticated(true)
+    state["players"].answer("player-one")
+    for attempt in PlayGames.MAX_VERIFICATION_FAILURES:
+        state["snapshots"].answer_loaded(null)
+        state["snapshots"].answer_saved(true)
+        state["snapshots"].answer_loaded({"content": "not the upload".to_utf8_buffer()})
+        if attempt < PlayGames.MAX_VERIFICATION_FAILURES - 1:
+            PlayGames.sync_now(true)
+
+    equal(
+        state["snapshots"].save_calls.size(),
+        PlayGames.MAX_VERIFICATION_FAILURES,
+        "A persistent mismatch gets only the bounded number of uploads"
+    )
+    equal(
+        reported.count(&"verification_retry_pending"),
+        PlayGames.MAX_VERIFICATION_FAILURES - 1,
+        "Each recoverable mismatch reports a pending retry"
+    )
+    check(reported.has(&"verification_failed"), "The final mismatch reports why sync stopped")
+    equal(PlayGames.sync_state(), &"blocked", "The session stops attempting cloud writes")
+    check(PlayGames.cloud_needs_attention(), "Settings can report the blocked state")
+    var loads_before: int = state["snapshots"].load_calls.size()
+    PlayGames.sync_now(true)
+    equal(
+        state["snapshots"].load_calls.size(),
+        loads_before,
+        "A blocked session ignores later sync requests"
+    )
+
+    PlayGames.cloud_sync_state_changed.disconnect(listener)
+    _remove_fake_plugin(state)
+    _remove_cloud_profile()
+
+
+func test_a_newer_cloud_schema_is_never_loaded_or_overwritten() -> void:
+    _remove_cloud_profile()
+    SaveManager.save_game_state(LearningProfile.new(), 0, 0, TEST_CLOUD_PATH)
+    var state := _install_fake_plugin(true, true)
+    PlayGames.profile_path = TEST_CLOUD_PATH
+    PlayGames.reload_profile_callable = func() -> void: pass
+    PlayGames._on_user_authenticated(true)
+    state["players"].answer("player-one")
+    var future := {
+        "schema": SaveMigration.CURRENT_VERSION + 1,
+        "profile": SaveManager.load_state(TEST_CLOUD_PATH),
+    }
+    state["snapshots"].answer_loaded({"content": JSON.stringify(future).to_utf8_buffer()})
+    equal(state["snapshots"].save_calls.size(), 0, "A future schema is never overwritten")
+    equal(PlayGames.sync_state(), &"blocked", "Upload is blocked for the session")
+    _remove_fake_plugin(state)
+    _remove_cloud_profile()
+
+
+func test_switching_off_ignores_a_snapshot_response_that_was_already_in_flight() -> void:
+    var restore_settings: Variant = preserve_settings_file()
+    _remove_cloud_profile()
+    SaveManager.save_game_state(LearningProfile.new(), 0, 0, TEST_CLOUD_PATH)
+    var state := _install_fake_plugin(true, true)
+    PlayGames.profile_path = TEST_CLOUD_PATH
+    PlayGames.reload_profile_callable = func() -> void: pass
+    PlayGames._on_user_authenticated(true)
+    state["players"].answer("player-one")
+    equal(state["snapshots"].load_calls.size(), 1, "A load is outstanding")
+
+    PlayGames.set_enabled(false)
+    state["snapshots"].answer_loaded(null)
+    equal(state["snapshots"].save_calls.size(), 0, "The late response cannot restart cloud access")
+    check(not PlayGames.signed_in(), "The wrapper remains signed out")
+
+    _remove_fake_plugin(state)
+    _remove_cloud_profile()
+    restore_settings_file(restore_settings)
+
+
+func test_an_unresolvable_plugin_conflict_is_merged_locally_and_never_overwritten() -> void:
+    _remove_cloud_profile()
+    var local_profile := LearningProfile.new()
+    local_profile.set_mastery(2, 4, 20)
+    SaveManager.save_game_state(local_profile, 0, 0, TEST_CLOUD_PATH)
+    var local := SaveManager.load_state(TEST_CLOUD_PATH)
+
+    var first := local.duplicate(true)
+    var first_profile := LearningProfile.from_dictionary(first)
+    first_profile.set_mastery(2, 4, 65)
+    first.merge(first_profile.to_dictionary(), true)
+    first["profile_id"] = "remote-a"
+    first["save_counter"] = 8
+    var second := local.duplicate(true)
+    var second_profile := LearningProfile.from_dictionary(second)
+    second_profile.set_mastery(2, 5, 75)
+    second.merge(second_profile.to_dictionary(), true)
+    second["profile_id"] = "remote-b"
+    second["save_counter"] = 9
+
+    var state := _install_fake_plugin(true, true)
+    PlayGames.profile_path = TEST_CLOUD_PATH
+    PlayGames.reload_profile_callable = func() -> void: pass
+    PlayGames._on_user_authenticated(true)
+    state["players"].answer("player-one")
+    PlayGames._on_snapshot_conflict({
+        "conflicting_snapshot": {
+            "content": JSON.stringify(PlayGames.build_snapshot_payload(first)).to_utf8_buffer(),
+        },
+        "server_snapshot": {
+            "content": JSON.stringify(PlayGames.build_snapshot_payload(second)).to_utf8_buffer(),
+        },
+    })
+
+    var merged := SaveManager.load_profile(TEST_CLOUD_PATH)
+    equal(merged.get_mastery(2, 4), 65, "First candidate survives locally")
+    equal(merged.get_mastery(2, 5), 75, "Second candidate survives locally")
+    equal(state["snapshots"].save_calls.size(), 0, "Unresolvable conflict is not overwritten")
+    check(
+        FileAccess.file_exists(TEST_CLOUD_PATH + SaveManager.PREMERGE_SUFFIX),
+        "The pre-merge parent remains recoverable"
+    )
+    _remove_fake_plugin(state)
+    _remove_cloud_profile()
+
+
 ## Installs the plugin doubles and sets the switch, returning what the caller must clean up.
-func _install_fake_plugin(cloud_save_on: bool) -> Dictionary:
+func _install_fake_plugin(cloud_save_on: bool, with_cloud := false) -> Dictionary:
     var previous := SettingsManager.play_games_enabled
     SettingsManager.play_games_enabled = cloud_save_on
     var plugin := FakePlugin.new()
     var client := FakeSignInClient.new()
     PlayGames.add_child(client)
-    client.user_authenticated.connect(PlayGames._on_user_authenticated)
-    PlayGames._set_plugin_for_test(plugin, client)
-    return {"plugin": plugin, "client": client, "previous": previous}
+    var snapshots: Node = null
+    var players: Node = null
+    if with_cloud:
+        snapshots = FakeSnapshotsClient.new()
+        players = FakePlayersClient.new()
+        PlayGames.add_child(snapshots)
+        PlayGames.add_child(players)
+    PlayGames._set_plugin_for_test(plugin, client, snapshots, players)
+    return {
+        "plugin": plugin,
+        "client": client,
+        "snapshots": snapshots,
+        "players": players,
+        "previous": previous,
+    }
 
 
 func _remove_fake_plugin(state: Dictionary) -> void:
@@ -189,8 +451,14 @@ func _remove_fake_plugin(state: Dictionary) -> void:
     var client: Node = state["client"]
     PlayGames.remove_child(client)
     client.free()
+    for key in ["snapshots", "players"]:
+        var cloud_client: Node = state.get(key)
+        if cloud_client != null:
+            PlayGames.remove_child(cloud_client)
+            cloud_client.free()
     state["plugin"].free()
     SettingsManager.play_games_enabled = bool(state["previous"])
+    PlayGames.reload_profile_callable = Callable(AppState, "reload_profile_from_disk")
 
 
 ## The one screen allowed to know about Play Games: it is the switch that turns it on.
@@ -246,3 +514,7 @@ func _check_directory_never_mentions_play_games(directory_path: String) -> void:
 func _remove_settings_file() -> void:
     if FileAccess.file_exists(TEST_SETTINGS_PATH):
         DirAccess.remove_absolute(TEST_SETTINGS_PATH)
+
+
+func _remove_cloud_profile() -> void:
+    SaveManager.delete_profile(TEST_CLOUD_PATH)

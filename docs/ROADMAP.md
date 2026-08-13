@@ -2,7 +2,7 @@
 
 Legend: ☐ todo · ◐ in progress · ☑ done
 
-Status reviewed against the code on 2026-08-13 at version `0.4.2` / Play version code `14`, with 265
+Status reviewed against the code on 2026-08-13 at version `0.4.2` / Play version code `14`, with 274
 tests passing.
 
 ## M0 — Foundation ☑
@@ -109,19 +109,23 @@ setup, Families-policy and privacy consequences, and the testing strategy:
   `PlayGames` wrapper, and the Settings row. Cloud save is on by default and initialises
   automatically on Android; Google and Family Link own the account decision. Still to confirm on
   real hardware: a tester account signing in.
-- ☐ P2 — cloud save.
+- ◐ **P2 — cloud save.** The normal fixed-snapshot load/merge/upload path, first-sign-in handling,
+  `.premerge` recovery, newer-schema refusal, account binding, and read-back acknowledgement are
+  implemented. The vendored plugin emits both conflict candidates but exposes no supported way to
+  resolve the conflict id, so Numblop merges them locally and blocks upload for that launch. Cloud
+  convergence and the physical two-device matrix remain blocked on an upstream bridge plus hardware.
 - ☐ P3 — achievements mirrored to Play.
 - ☐ P4 — the two leaderboards. Last on purpose: if Families or privacy review objects, this phase is
   dropped without touching anything before it.
-- ☐ P5 — settings UI behind a parent gate, merge messaging, account-deletion path.
+- ☐ P5 — merge messaging and the account-deletion path. Google and Family Link remain the account
+  gate; Numblop does not add a second one.
 
-The networking phases deliberately break the current "no networking" product contract, so they do not
-begin until the change is accepted as a decision entry. They do **not** wait on another release: the
-app is already on Play, so the credential setup P1 needs is unblocked today.
+The networking implementation is accepted in `DECISIONS.md`, but it remains outside every Play track
+until the compliance and physical-device gates below are complete.
 
-The privacy policy, Play Console data-safety declaration, and Families declarations are updated
-**before** the first networking build reaches any track. Save version 10 and the PGS work are
-expected to ship in the same release, so that paperwork happens once rather than twice.
+The bilingual privacy policy and `PLAY_CONSOLE_COMPLIANCE.md` worksheet are ready. The authenticated
+Play Console data-safety, Families/target-audience, and content-rating forms must be applied and the
+policy URL made public **before** the first networking build reaches any track.
 
 Acceptance: a signed-out player is unaffected in every way; a signed-in player can lose their device
 and recover their progress; no conflict path can silently destroy a child's local progress.

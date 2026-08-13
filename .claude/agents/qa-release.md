@@ -17,6 +17,11 @@ portrait. Preserve GL Compatibility and ETC2/ASTC import. Tests must fail on non
 `SCRIPT ERROR`, `Parse Error`, or missing success markers. Never commit keystores, credentials,
 passwords, build products, or generated Gradle output.
 
+Both Android presets intentionally request `INTERNET` and `ACCESS_NETWORK_STATE` for Play Games.
+Release verification requires those permissions and rejects advertising id, location, camera,
+microphone, and contacts permissions. Never edit `addons/GodotPlayGameServices/` in place; replace
+it wholesale from an upstream release and verify its provenance per `VENDORED.txt`.
+
 Release validation means a real artifact: inspect APK/AAB metadata and signatures, install on a
 physical Android device when in scope, and verify Windows output. Claim a Track-D task, keep tools
 non-interactive and reproducible, run the complete suite, and update only your task status.

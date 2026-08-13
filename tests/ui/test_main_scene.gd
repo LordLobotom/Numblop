@@ -553,6 +553,16 @@ func test_the_cloud_tile_is_lit_by_the_setting_and_names_the_session_separately(
     equal(tile.icon, tile.icon_off, "Off shows the struck-through cloud")
     equal(tile.tooltip_text, tr("SETTINGS_CLOUD_OFF_ACCESSIBLE"), "And says so")
 
+    SettingsManager.play_games_enabled = true
+    scene.refresh_from_settings()
+    PlayGames._set_cloud_state(&"conflict_saved_locally")
+    equal(
+        tile.tooltip_text,
+        tr("SETTINGS_CLOUD_ATTENTION_ACCESSIBLE"),
+        "A fail-closed conflict is spoken instead of looking healthy forever"
+    )
+    PlayGames._set_cloud_state(&"signed_out")
+
     tree.root.remove_child(scene)
     scene.free()
     restore_settings_file(restore_settings)
@@ -970,6 +980,12 @@ func test_settings_screen_has_language_audio_mute_and_safe_exit_controls() -> vo
         check(toggle.icon_on != toggle.icon_off, "%s looks different when off" % toggle_name)
     check(scene.get_node("%SoundCaption") is Label, "Sound tile is captioned")
     check(scene.get_node("%HapticsCaption") is Label, "Vibration tile is captioned")
+    check(scene.get_node("%PrivacyButton").custom_minimum_size.y >= 48.0, "Privacy touch target")
+    equal(
+        SettingsScreen.PRIVACY_POLICY_URL,
+        "https://lordlobotom.github.io/Numblop/privacy/",
+        "Settings opens the published policy URL"
+    )
     check(scene.get_node("%ExitButton").custom_minimum_size.y >= 48.0, "Exit touch target")
     check(scene.get_node("%ExitDialog") is Control, "Custom exit confirmation overlay")
     check(scene.has_method("show_exit_confirmation"), "Settings can open the exit confirmation")
@@ -989,6 +1005,11 @@ func test_settings_screen_has_language_audio_mute_and_safe_exit_controls() -> vo
     )
     var scene_tree := Engine.get_main_loop() as SceneTree
     scene_tree.root.add_child(scene)
+    equal(
+        scene.get_node("%PrivacyButton").text,
+        tr("SETTINGS_PRIVACY"),
+        "The privacy policy is reachable in the current language"
+    )
     # The flags are generated from LanguageCatalog once the screen enters the tree, so there is
     # nothing to inspect before this point. They are the only label the language row has, so the
     # picture is drawn at 38 px inside a 48 px button: the finger still gets its touch target.

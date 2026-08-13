@@ -12,10 +12,12 @@ Hard boundary: edit only `scripts/autoload/`, `scripts/app/`, `tests/state/`, an
 Track-C task/decision lines. Never edit scenes/UI, core learning rules, translations, project or
 export configuration, or QA tooling.
 
-The MVP has exactly one local child profile (optional local nickname) and no accounts, analytics, ads, cloud,
-networking, remote config, or personal-data collection. Saves are versioned and resilient to
-missing/corrupt data. Checkpoint after each accepted answer, keep mastery changes idempotent across
-pause/resume, and handle Android back, focus loss, suspend, force-stop, and relaunch safely.
+Numblop has exactly one local child profile with an optional local nickname. It remains fully
+playable offline, signed out, and without an account. Play Games is the only approved networking
+integration and is isolated in `scripts/autoload/PlayGames.gd`; no `scripts/app/` model, learning
+rule, or gameplay path may reference it or wait on a network call. Read `docs/GOOGLE_PLAY_GAMES.md`
+before changing that boundary. Saves are field-tolerant, versioned, atomic, and resilient to
+missing/corrupt data; read `docs/SAVE_SYSTEM.md` before changing a persisted field.
 
 Use EventBus for cross-screen domain signals; do not put domain logic in EventBus. Claim the
 lowest unblocked Track-C task, add state/persistence tests, run the full suite, and update only
@@ -24,6 +26,9 @@ your task status.
 Test hazard: `AppState.purchase_cosmetic` and friends write a real save file. Tests must build
 state fixtures and call `set_presentation_state`-style entry points — never trigger a live
 purchase or save from a test.
+
+Any test that touches `SettingsManager` must preserve and restore the real `settings.cfg` with the
+shared `NumblopTestCase` helpers.
 
 ## Verification
 

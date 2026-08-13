@@ -14,13 +14,16 @@ Public version `0.4.2`, Play version code `14`.
 
 ## Project status
 
-The complete game loop is playable and covered by 265 automated tests plus bilingual responsive
+The complete game loop is playable and covered by 274 automated tests plus bilingual responsive
 screenshot captures. Progression, cosmetics, achievements, and the guided tutorial are all
 implemented and persisted.
 
-What remains before the first Play release is manual, not code: generate the release keystore,
-export and verify the signed AAB, enable GitHub Pages for the privacy policy, run the physical-device
-checklist, and upload to an internal test track. See `D18` in [`docs/ROADMAP.md`](docs/ROADMAP.md).
+The first internal Play build (`0.4.0`, code `12`) is uploaded and Play App Signing is enrolled. The
+release keystore, signed-AAB workflow, and verification path are established. Before the next
+networking build reaches a Play track, GitHub Pages must serve the updated privacy policy, the
+physical-device checklist must pass, and the Play Console data-safety and Families declarations must
+be brought into line with Play Games Services. See `D18` and M5 in
+[`docs/ROADMAP.md`](docs/ROADMAP.md).
 
 ## What is playable
 
@@ -101,11 +104,12 @@ configuration. All coins are earned by playing.
 
 A Google Play Games Services integration — sign-in, cloud saves, and XP/best-streak leaderboards —
 is approved and under way; the plan is [`docs/GOOGLE_PLAY_GAMES.md`](docs/GOOGLE_PLAY_GAMES.md).
-Save version 10, the cloud-save merge, and Android sign-in are implemented. Cloud save is on by
-default, and Google — with Family Link for supervised children — owns the account decision. Saving
-to the cloud itself is not wired up yet. All of it is confined to a single autoload, and a failed or
-refused sign-in costs a player nothing. No release containing it ships before the privacy policy and
-the Play Console data-safety declaration are updated to match.
+Save version 10, the cloud-save merge, Android sign-in, and the normal snapshot load/merge/upload
+path are implemented. Cloud save is on by default, and Google — with Family Link for supervised
+children — owns the account decision. The vendored plugin exposes conflicting snapshots but no API
+to resolve their conflict id, so Numblop preserves and merges those candidates locally and blocks
+upload for that launch instead of risking an overwrite. All Play code remains confined to one
+autoload, and a failed or refused sign-in costs a player nothing.
 
 ## Languages
 
@@ -223,7 +227,8 @@ Start with [`AGENTS.md`](AGENTS.md) for repository rules and the source-of-truth
 | [`docs/ROADMAP.md`](docs/ROADMAP.md) | Milestone status and acceptance gates |
 | [`docs/RELEASES.md`](docs/RELEASES.md) | Windows, Android, and Web delivery |
 | [`docs/DECISIONS.md`](docs/DECISIONS.md) | Accepted implementation decisions, newest first |
-| [`docs/GOOGLE_PLAY_GAMES.md`](docs/GOOGLE_PLAY_GAMES.md) | Planned Play Games Services integration (not implemented) |
+| [`docs/GOOGLE_PLAY_GAMES.md`](docs/GOOGLE_PLAY_GAMES.md) | Play Games integration, cloud-save status, and remaining device work |
+| [`docs/PLAY_CONSOLE_COMPLIANCE.md`](docs/PLAY_CONSOLE_COMPLIANCE.md) | Data safety, Families, target-audience, and content-rating worksheet |
 | [`docs/TASKS.md`](docs/TASKS.md) | Historical task ledger and remaining open work |
 
 ## Bundled assets

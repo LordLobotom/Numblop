@@ -72,7 +72,8 @@ must not live in a scene, but they do not read files or drive the frame loop eit
   is the single guard that makes a reward one-time.
 - `LocalOnboarding` holds the tutorial's `completed` flag and resumed `step`.
 - `LocalNickname` sanitises the optional nickname (control characters stripped, max 16 characters).
-- `LocalCloudSync` holds the Play Games synchronisation bookkeeping. Inert until that phase exists.
+- `LocalCloudSync` holds the Play Games synchronisation bookkeeping: the confirmed account binding,
+  last acknowledged local counter, and acknowledgement time.
 - `CoinLedger` is pure, static coin accounting: the two stored lifetime buckets plus achievement
   earnings and cosmetic spending, both *derived* from sets rather than stored. A balance cannot be
   merged between two devices; these four terms can.
@@ -116,7 +117,16 @@ must not live in a scene, but they do not read files or drive the frame loop eit
   gate of Numblop's own. Everywhere else `available()` is false and every method returns
   immediately. A failed or refused sign-in changes nothing about the game. A test walks
   `scripts/core/`, `scripts/app/`, `scripts/ui/` and `scenes/` and fails if anything except the
-  Settings screen references it.
+  Settings screen references it. On sign-in it loads the fixed `numblop_profile_v1` snapshot,
+  refuses newer schemas, writes a `.premerge` recovery copy before combining two progressed saves,
+  persists the pure `CloudSaveMerge` result, reloads `AppState` through a provider-neutral method,
+  and uploads asynchronously. A dispatched upload is acknowledged only after an exact read-back.
+  Three consecutive read-back mismatches block uploads for the launch instead of retrying after
+  every answer indefinitely.
+  The current vendored plugin cannot resolve a Play conflict id; that path merges both candidates
+  locally and blocks further uploads for the launch rather than overwriting either side. Because
+  the server conflict persists, Settings exposes the blocked state instead of presenting backup as
+  healthy.
 
 Milestone and achievement rewards never enter the deterministic learning core. No game rule waits on
 a network call.

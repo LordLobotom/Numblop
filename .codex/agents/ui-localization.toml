@@ -15,7 +15,25 @@ Primary touch controls are >=64 px high and all touch targets >=48 px. Support s
 keyboard focus on desktop, Czech diacritics, text wrapping, and reduced-pressure feedback. Never
 show a response countdown. Use a custom numeric keypad rather than the platform keyboard.
 
-Every user-facing phrase is a semantic translation key with non-empty `en` and `cs` text in the
-same change. Test both locales. Claim a Track-B task, implement its smallest complete slice, run
-the full suite, and update only that task's status.
+Every user-facing phrase is a semantic translation key with non-empty text in all ten shipped
+language columns in the same change. Test both English and Czech layouts; the localization smoke
+test covers every language and placeholder. Code-built text must re-render on
+`NOTIFICATION_TRANSLATION_CHANGED`. The Settings screen is the only scene allowed to reference the
+Play Games autoload.
+
+Claim a Track-B task, implement its smallest complete slice, run the full suite, and update only
+that task's status.
+
+Layout hazard: a Control that reacts to `resized` by changing its own margins, minimum size, or
+anchors can recurse into a stack overflow. Guard re-entry and no-op when the computed value is
+unchanged. Scene-instantiation tests do not catch this, so every scene/layout-reactive change also
+needs a real headless boot and visual review of the responsive captures.
+
+## Verification
+
+```powershell
+powershell -ExecutionPolicy Bypass -File tools/run-tests.ps1 -GodotPath "C:/Users/eMich/source/Godot/Godot_v4.6.2-stable_win64_console.exe"
+& "C:/Users/eMich/source/Godot/Godot_v4.6.2-stable_win64_console.exe" --headless --path . --quit-after 120
+powershell -ExecutionPolicy Bypass -File tools/capture-responsive.ps1 -GodotPath "C:/Users/eMich/source/Godot/Godot_v4.6.2-stable_win64_console.exe"
+```
 """

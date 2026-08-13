@@ -188,6 +188,41 @@ func test_the_write_counter_survives_a_legacy_save_and_keeps_climbing() -> void:
     _remove_test_file()
 
 
+func test_a_cloud_merge_counter_sorts_after_both_parents() -> void:
+    _remove_test_file()
+    SaveManager.save_game_state(LearningProfile.new(), 0, 0, TEST_PATH)
+    var merged := SaveManager.load_state(TEST_PATH)
+    merged["save_counter"] = 27
+    merged["experience"] = 9
+    equal(
+        SaveManager.save_merged_state(
+            merged,
+            {"last_synced_counter": 0, "last_synced_at_unix": 0, "player_id": "g1"},
+            TEST_PATH
+        ),
+        OK,
+        "Merged state writes"
+    )
+    equal(SaveManager.load_save_counter(TEST_PATH), 28, "C20 seeds after the remote parent")
+    equal(SaveManager.load_progress(TEST_PATH)["experience"], 9, "Merged progress reaches disk")
+    equal(SaveManager.load_cloud_sync(TEST_PATH)["player_id"], "g1", "Player binding reaches disk")
+    _remove_test_file()
+
+
+func test_a_premerge_copy_survives_beside_the_profile_until_cleared() -> void:
+    _remove_test_file()
+    var local := LearningProfile.new().to_dictionary()
+    local["coins"] = 42
+    equal(SaveManager.write_premerge_copy(local, TEST_PATH), OK, "Safety copy writes")
+    check(FileAccess.file_exists(TEST_PATH + SaveManager.PREMERGE_SUFFIX), "Safety copy exists")
+    SaveManager.clear_premerge_copy(TEST_PATH)
+    check(
+        not FileAccess.file_exists(TEST_PATH + SaveManager.PREMERGE_SUFFIX),
+        "A verified sync may clear it"
+    )
+    _remove_test_file()
+
+
 func test_the_recorded_write_time_uses_the_injected_clock() -> void:
     _remove_test_file()
     SaveManager.clock_override = func() -> int: return 1786000123

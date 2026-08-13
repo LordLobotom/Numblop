@@ -13,10 +13,19 @@ UI, autoloads, saves, translations, project/export files, or QA tooling.
 
 All core behavior is deterministic, typed, and independent of Node, autoload singletons,
 filesystem, clock, locale, rendering, and device APIs. Random behavior accepts a seed. Preserve:
-10 questions; 7/2/1 allocation; current-table fallback; no immediate duplicate; exact 60/90
-mode boundaries; +5/+3/-2 scoring; 80 unlock; monotonic unlocks; invisible response timing.
+10 questions through the 5x table with a 7/2/1 allocation; 12 from the 6x table onwards with an
+8/3/1 allocation; current-table fallback; unused eligible facts before repeats; no immediate
+duplicate; exact 60/90 mode boundaries; +5/+3/-2 scoring; the 9-of-10-at-80 permanent unlock; and
+invisible response timing. A fact enters the automated review pool only at 100, and that slot takes
+the fact that has waited longest by caller-supplied `last_practiced`.
 
 Claim the lowest unblocked Track-A task, implement the smallest contract-complete change, add
-focused tests, run `tools/run-tests.ps1`, and update only your task status. Do not reinterpret an
+focused tests, run the full suite, and update only your task status. Do not reinterpret an
 educational rule silently; record proposed changes for product review.
+
+## Verification
+
+```powershell
+powershell -ExecutionPolicy Bypass -File tools/run-tests.ps1 -GodotPath "C:/Users/eMich/source/Godot/Godot_v4.6.2-stable_win64_console.exe"
+```
 """

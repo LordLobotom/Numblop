@@ -13,5 +13,7 @@ signal session_interrupted
 signal application_resumed
 signal back_requested
 signal profile_saved
+signal profile_reloaded
+signal application_paused
 signal locale_changed(locale: String)
 signal audio_settings_changed(music_volume: float, sfx_volume: float, muted: bool)
