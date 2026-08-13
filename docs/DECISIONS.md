@@ -1,5 +1,18 @@
 # Numblop Decision Log
 
+## 2026-08-13 — Cloud backup requests Play Games sign-in on startup
+
+Hardware testing of code 15 confirmed that a fresh install still remained signed out until the
+player found Settings. That makes reinstall recovery technically available but practically hidden,
+which contradicts the default-on backup goal. The product decision is therefore to request Google
+Play Games sign-in automatically once per Android launch whenever backup is enabled.
+
+The request stays asynchronous and occurs after the game is interactive. Google and Family Link
+remain the account gate; refusal, restriction, missing network, or missing account changes no local
+gameplay and shows no Numblop error. The Settings tile remains both a manual retry and a persistent
+opt-out. This supersedes only code 15's user-initiated-only trigger, not its visible status or dialog.
+The change ships as `0.4.4` / Play code `16`.
+
 ## 2026-08-13 — Signed-out cloud backup gets an explicit recovery path
 
 The first Play-installed hardware run exposed a gap that fake success-path tests could not: the

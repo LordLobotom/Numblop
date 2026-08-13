@@ -149,13 +149,13 @@ func test_a_plugin_without_a_sign_in_client_counts_as_unavailable() -> void:
     fake.free()
 
 
-func test_an_available_plugin_authenticates_without_being_asked() -> void:
-    # Cloud save is on by default, so a child who never touches Settings still gets their progress
-    # backed up. Google and Family Link decide whether the account may actually sign in.
+func test_an_available_plugin_requests_google_sign_in_on_startup() -> void:
+    # Cloud save is on by default, so a fresh install must ask Google for its account without
+    # requiring the player to discover Settings first. Google and Family Link remain the gate.
     var state := _install_fake_plugin(true)
     PlayGames._start()
-    equal(state["client"].is_authenticated_calls, 1, "Startup checks the existing session")
-    equal(state["client"].sign_in_calls, 0, "Without forcing an interactive sign-in prompt")
+    equal(state["client"].sign_in_calls, 1, "Startup requests Play Games sign-in")
+    equal(state["client"].is_authenticated_calls, 0, "It does not stop at a passive status check")
     _remove_fake_plugin(state)
 
 
@@ -197,6 +197,7 @@ func test_the_signed_in_state_comes_from_google_not_from_asking() -> void:
 
     PlayGames._start()
     check(not PlayGames.signed_in(), "Asking is not being signed in")
+    equal(client.sign_in_calls, 1, "Startup asks exactly once")
 
     client.answer(true)
     check(PlayGames.signed_in(), "Google's answer decides")

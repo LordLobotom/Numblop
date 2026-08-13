@@ -131,7 +131,10 @@ func _start() -> void:
     _resolve_plugin()
     availability_changed.emit(available())
     if available() and enabled():
-        _authenticate()
+        # Google Play Games is the account gate for cloud backup. Ask it to sign in once per
+        # launch instead of merely inspecting the current state; failure remains asynchronous and
+        # costs the offline game nothing, while a fresh install can restore without finding Settings.
+        sign_in()
 
 
 func _resolve_plugin() -> void:

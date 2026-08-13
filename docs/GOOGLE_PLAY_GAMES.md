@@ -495,18 +495,18 @@ The requirement is that offline is not a degraded mode, it is the normal mode.
 
 - Every game rule — questions, mastery, coins, achievements, streaks, purchases — is evaluated and
   saved locally, exactly as today. Nothing awaits a network call, ever.
-- The existing Play session is checked once per launch, asynchronously, after the game is already
-  interactive. Failure is silent. Interactive sign-in is attempted only after an explicit Settings
-  action; it is never forced during startup.
+- Play Games sign-in is requested once per Android launch, asynchronously, after the game is already
+  interactive. This lets a fresh install restore without requiring the player to discover Settings.
+  Failure or refusal is silent and changes no gameplay; Settings remains the manual retry and opt-out.
 - Leaderboard and achievement submissions go into a small pending queue held in
   `user://settings.cfg`-adjacent state (not in the progress file) and are flushed on the next
   successful sign-in. The Play SDK buffers some of this itself, but do not rely on it: local values
   are absolute and re-submission is idempotent.
 - Snapshot sync is attempted on sign-in, on app pause, and after a finished round — debounced, and
   skipped entirely when `save_counter == cloud.last_synced_counter`.
-- A signed-out or never-signed-in player sees no unsolicited dialogs, spinners, or error toasts.
-  Settings visibly reports **Sign in**; pressing that tile opens Numblop's Sign in / Turn off choice.
-  Sync failures are logged, with fail-closed states reported on the same tile.
+- A signed-out or never-signed-in player sees no Numblop error toast or blocking spinner. Google may
+  show its account/sign-in surface for the single startup request. Settings visibly reports
+  **Sign in** and offers Sign in / Turn off; fail-closed states appear on the same tile.
 - Airplane mode for a month followed by one sync must produce a correct merge. This is a required
   test case, not a hypothetical.
 
@@ -583,8 +583,8 @@ Done:
 - `scripts/autoload/PlayGames.gd` — the only game-side file that wraps the plugin, no-op on every
   non-Android build, and covered by `tests/state/test_play_games.gd` including a test that no
   gameplay system may reference it.
-- `play_games/enabled` in `settings.cfg`, defaulting to on. Android startup silently checks the
-  existing Play session; Google and Family Link own the account decision.
+- `play_games/enabled` in `settings.cfg`, defaulting to on. Android startup requests Play Games
+  sign-in once; Google and Family Link own the account decision, and failure leaves play unchanged.
 - `godot-sdk-integrations/godot-play-game-services` v3.4.0 vendored unmodified at
   `addons/GodotPlayGameServices/`. Its export plugin injects the AAR, dependencies, manifest
   metadata, and game id `1018864218554`; the pre-spike installer script was deleted.

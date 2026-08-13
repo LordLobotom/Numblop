@@ -69,7 +69,7 @@ question for the usability pass in M2.
 
 - ☑ Final icons (adaptive foreground/background/monochrome), boot splash, store text and 9:16
   screenshots (`store/`), privacy disclosure (`docs/privacy/`).
-- ☑ Version `0.4.3` / Play version code `15`, pinned across project and both Android presets by
+- ☑ Version `0.4.4` / Play version code `16`, pinned across project and both Android presets by
   `tests/smoke/test_project_contract.gd`.
 - ☑ AAB verification tooling (`tools/verify-aab.ps1`) and an interactive signing path that never
   places the keystore password in a file, variable, or shell history.
