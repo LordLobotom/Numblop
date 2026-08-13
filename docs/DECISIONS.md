@@ -1,5 +1,20 @@
 # Numblop Decision Log
 
+## 2026-08-13 — Hardware isolates cloud failure to Play App Signing OAuth
+
+The Play-installed `0.4.4` / code 16 does request sign-in automatically, but Google rejects it before
+Numblop receives an account: device logs explicitly report that the Android application is not
+registered for OAuth 2.0, followed by `DEVELOPER_ERROR` and `User signed in: false`. Consequently no
+player id, snapshot load, or snapshot upload is reached; the merge and Saved Games code remain
+unexercised on hardware.
+
+The certificate was extracted from the Play-delivered base APK rather than copied from a document:
+package `cz.gutcloud.numblop`, Play App Signing SHA-1
+`ED:48:7F:8E:CE:13:07:05:A1:6D:3E:45:70:F9:4A:B3:4F:BF:C1:B7`. The upload certificate is different
+(`EB:D1:EA:96:87:CE:DA:41:05:9D:13:0B:CC:93:3D:E1:8A:63:72:DB`), as Play App Signing requires.
+The release blocker is therefore Console configuration: create/select the Android OAuth client for
+the Play package/fingerprint pair and link it as the PGS Android credential. No rebuild is required.
+
 ## 2026-08-13 — Cloud backup requests Play Games sign-in on startup
 
 Hardware testing of code 15 confirmed that a fresh install still remained signed out until the

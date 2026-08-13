@@ -521,12 +521,14 @@ Everything below is manual, done once, and gates any device testing.
 1. Play Console → the Numblop app → *Play Games Services* → *Setup and management* →
    *Configuration*. Create a new Games Services project and link the app `cz.gutcloud.numblop`.
    Note the numeric **project id** — this is the `APP_ID` from §5.4.
-2. *Credentials* → add an **Android** credential. It needs an OAuth 2.0 client in the linked Google
-   Cloud project with the SHA-1 of **both** the upload certificate **and** the Play App Signing
-   certificate. Missing the Play App Signing SHA-1 is the classic "works from Android Studio, fails
-   from the Play track" bug. Both are available already: the upload certificate is
-   `numblop-upload.jks`, and Play App Signing was enrolled by the code `12` upload — read its SHA-1
-   from Play Console → *Setup* → *App integrity*.
+2. *Credentials* → add an **Android** credential backed by an Android OAuth 2.0 client in the linked
+   Google Cloud project. The Play-distributed app must use the **Play App Signing certificate**
+   SHA-1, not the upload-certificate SHA-1; Android OAuth clients bind one package/fingerprint pair,
+   so a separately signed local build needs a separate client/credential. Missing the Play App
+   Signing SHA-1 is the classic "upload succeeds, Play install gets `DEVELOPER_ERROR`" bug. Read it
+   from Play Console → *Protected with Play* → *Play app signing*. The fingerprint independently
+   extracted from the Play-installed code 16 APK is
+   `ED:48:7F:8E:CE:13:07:05:A1:6D:3E:45:70:F9:4A:B3:4F:BF:C1:B7`.
 3. Enable **Saved Games** in the project configuration. Snapshots do not work until this is on.
 4. Create the achievements — one per entry in `AchievementCatalog`. Record each generated Play id in
    `PlayGamesCatalog.gd`. Use **incremental** achievements for the tiered ones (streak, XP,
@@ -574,9 +576,10 @@ P2 closed its remaining integration requirement with `SaveManager.save_merged_st
 **P1 — Plugin spike and sign-in only. ◐ Code complete; device confirmation outstanding.**
 
 Done:
-- Play Console configured — PGS project created, Android OAuth credential linked, testers added,
-  Saved Games enabled. **The PGS project stays in draft until sign-in and cloud save are verified on
-  a device.**
+- Play Console partly configured — PGS project created, testers added, and Saved Games enabled.
+  Hardware code 16 proved that the linked Android OAuth credential does not match the Play App
+  Signing SHA-1 and returns `DEVELOPER_ERROR`; replace/link the credential described in §9 before
+  retrying. **The PGS project stays in draft until sign-in and cloud save are verified on a device.**
 - Both Android presets request `INTERNET` and `ACCESS_NETWORK_STATE` and build through Gradle;
   `test_project_contract.gd` pins that and asserts no advertising, location, camera, microphone, or
   contacts permission.

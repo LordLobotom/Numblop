@@ -7,6 +7,13 @@ Status values: `TODO`, `WIP(@agent)`, `BLOCKED(reason)`, `DONE`.
 Everything below this section is kept as a historical ledger of what each track built and which
 files it owned. These release and M5 items remain open:
 
+- `D26 BLOCKED(Play Console access)` Replace/link the PGS Android OAuth credential for
+  `cz.gutcloud.numblop` using the Play App Signing SHA-1
+  `ED:48:7F:8E:CE:13:07:05:A1:6D:3E:45:70:F9:4A:B3:4F:BF:C1:B7`. Hardware code 16 currently logs
+  OAuth package/fingerprint mismatch, `DEVELOPER_ERROR`, and `User signed in: false`, so no snapshot
+  call can occur. After propagation, repeat sign-in, verified upload, and reinstall recovery with
+  ADB logs before further testing. Owns: authenticated Play/Cloud Console configuration and the
+  physical-device checklist.
 - `C24 DONE` Request Google Play Games sign-in automatically once per Android launch while
   cloud backup is enabled; failure remains silent and offline play remains unchanged. Owns:
   `scripts/autoload/PlayGames.gd`, `tests/state/test_play_games.gd`.
