@@ -48,7 +48,7 @@ const DIALOG_SIDE_MARGIN := 20.0
 const DIALOG_MAX_WIDTH := 360.0
 const VERSION_SETTING := "application/config/version"
 const VERSION_FALLBACK := "0.1.0"
-const PRIVACY_POLICY_URL := "https://lordlobotom.github.io/Numblop/privacy/"
+const PRIVACY_POLICY_URL := "https://numblop.gutcloud.cz/en/privacy/"
 ## Ten flags wrap to 5 + 5 inside the settings card. 48 px is the touch minimum, and the flag
 ## itself is inset so the checkmark in the corner never covers it.
 const FLAG_BUTTON_SIZE := Vector2(48.0, 48.0)

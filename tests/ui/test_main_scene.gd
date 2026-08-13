@@ -983,7 +983,7 @@ func test_settings_screen_has_language_audio_mute_and_safe_exit_controls() -> vo
     check(scene.get_node("%PrivacyButton").custom_minimum_size.y >= 48.0, "Privacy touch target")
     equal(
         SettingsScreen.PRIVACY_POLICY_URL,
-        "https://lordlobotom.github.io/Numblop/privacy/",
+        "https://numblop.gutcloud.cz/en/privacy/",
         "Settings opens the published policy URL"
     )
     check(scene.get_node("%ExitButton").custom_minimum_size.y >= 48.0, "Exit touch target")

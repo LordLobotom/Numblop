@@ -1,8 +1,8 @@
 # Google Play Console compliance worksheet
 
-Status: repository side prepared on 2026-08-13 for the first Play Games cloud-save build. The live
-Play Console answers still require an authenticated Console session and must be reviewed again
-against the exact artifact before submission.
+Status: the live Play Console Data safety and Families answers below were recorded on 2026-08-13
+for the first Play Games cloud-save build. The public Czech and English policy pages returned HTTP
+200 on that date. Re-check the declarations against every later networking artifact.
 
 This worksheet is intentionally conservative. Google Play defines collection as data transmitted
 off device by the app or any bundled SDK, even when the developer never receives it. Google Play
@@ -26,36 +26,30 @@ saved progress, device identifiers, and diagnostics. Sources:
   Settings cloud tile stops all Numblop Play Games calls when switched off.
 - No Numblop account is created. Google/Family Link owns the Play Games profile.
 
-## Data safety draft
+## Recorded Data safety declaration
 
-Answer **Yes** to “Does your app collect or share any of the required user data types?” Data sent by
-the Play Games SDK and Saved Games snapshot counts even though GutCloud runs no server.
+The Console answer to “Does your app collect or share any of the required user data types?” is
+**Yes**. Data sent by the Play Games SDK and Saved Games snapshot counts even though GutCloud runs
+no server.
 
 Security answers:
 
 - Data encrypted in transit: **Yes** — Play Games transport is encrypted.
-- Users can request deletion: disclose Google's per-game/Play Games deletion controls and the
-  contact address from the privacy policy. Do not claim that switching the in-game tile off deletes
-  an existing snapshot.
-- Independent security review: **No**, unless one is actually completed later.
+- Data shared with third parties: **No**.
+- Numblop does not create or manage its own user accounts.
+- Users can remove local data through Android and Play Games data through Google's controls.
+  Switching the in-game tile off does not delete an existing snapshot.
 
-Declare the following conservatively. “Shared with Google Play Games” should be selected if the
-Console treats Google's processing for Play-wide analytics/improvement as third-party sharing; do
-not use the service-provider exception without the Console's current wording confirming it.
-
-| Data type | Collected | Optional | Purposes |
+| Data type | Collected | Required/optional | Purpose |
 |---|---|---|---|
-| Personal info — Name | Yes; Google account/profile name may be processed, and the optional local nickname is included in the snapshot | Yes | App functionality, account management |
-| Personal info — Email address | Yes; Play Games says it may process it when discoverable; Numblop does not receive it | Yes | Account management |
-| Personal info — User IDs | Yes; Play player id plus Numblop's random profile id | Yes | App functionality, account management, fraud prevention/security |
-| Location — Approximate location | Yes; Play Games may derive country/region from IP | Yes | App functionality, analytics, fraud prevention/security |
-| App activity — App interactions | Yes; mastery, XP, streaks, achievements, cosmetics and other saved progress | Yes | App functionality |
-| App info and performance — Diagnostics | Yes if shown by the current Play Games SDK disclosure | Yes | App functionality, analytics |
-| Device or other IDs | Yes if shown by the current Play Games SDK disclosure; the snapshot also carries a random pseudonymous profile id | Yes | App functionality, fraud prevention/security |
+| Personal info — Name / gamer tag | Yes | Optional | App functionality |
+| Personal info — User IDs / Play player ID | Yes | Optional | App functionality |
+| App info and performance — Diagnostics | Yes | Required | Analytics |
+| App info and performance — Other app performance data | Yes | Required | Analytics |
+| App activity — Other actions | Yes | Optional | App functionality |
 
-Do **not** declare advertising, financial data, contacts, precise location, photos/videos, audio,
-health, messages, browsing history, search history, or files/documents unless the final SDK report or
-artifact inspection proves otherwise.
+No other data type is currently declared. Revisit this table if the Play Games SDK disclosure,
+Saved Games payload, permissions, achievements, leaderboards, or Console wording changes.
 
 ## Target audience and Families
 
@@ -68,13 +62,15 @@ artifact inspection proves otherwise.
   section before that build; Play gamer tags, never local nicknames, are the only allowed identity.
 - SDK/API disclosure: list Google Play Games Services. Confirm its terms allow supervised child
   profiles; Family Link requires parent approval to create such a profile.
+- Families policy commitment: **Enabled**.
 - Re-run the IARC questionnaire. P2 cloud save alone does not add chat or exchange of free-form
   content. Do not answer leaderboard/social questions until P4 actually exists.
 
 ## Privacy-policy and store fields
 
-- Privacy URL: `https://lordlobotom.github.io/Numblop/privacy/`.
-- The URL must resolve publicly through GitHub Pages before the networking build is submitted.
+- Canonical privacy URL: `https://numblop.gutcloud.cz/en/privacy/`.
+- Czech policy URL: `https://numblop.gutcloud.cz/cs/privacy/`.
+- Both URLs returned HTTP 200 on 2026-08-13.
 - The policy is linked from the Play listing and must also be reachable inside the app.
 - Developer/privacy contact: `emichalgut@gmail.com`.
 - The app does not create a Numblop account, so the app-account-creation deletion rule does not
@@ -84,9 +80,8 @@ artifact inspection proves otherwise.
 ## Final Console pass
 
 1. Upload or inspect the exact candidate only after `tools/verify-aab.ps1` passes with bundletool.
-2. Save the Data safety form answers above; compare the generated summary word-for-word with the
-   privacy policy.
-3. Save Target audience and content, Families, SDK, and IARC answers.
+2. Compare the generated Data safety summary with the recorded answers and the live privacy policy.
+3. Re-check Target audience and content, Families, SDK, and IARC answers.
 4. Do not send changes for review until the physical-device sign-in/cloud matrix passes.
 5. Capture screenshots or export the completed declarations for the release record; never place
    account credentials or private Console data in this repository.

@@ -42,9 +42,14 @@ of drills. Give your child a practice buddy they will actually want to visit.
 
 ## Data safety (Play Console answers)
 
-- Does your app collect or share any of the required user data types? **No**
-- Data collected: **None** · Data shared: **None**
-- Privacy policy URL: https://lordlobotom.github.io/Numblop/privacy/
+- Does your app collect or share any of the required user data types? **Yes**
+- Data collected: optional name/gamer tag, optional user/Player ID, required diagnostics and other
+  app performance data, and optional other actions.
+- Purposes: app functionality for optional profile/gameplay data; analytics for required diagnostic
+  and app-performance data.
+- Data shared with third parties: **None**. Data is encrypted in transit.
+- Numblop creates and manages no account. Families policy commitment: **Enabled**.
+- Privacy policy URL: https://numblop.gutcloud.cz/en/privacy/
 
 ## Other listing fields
 

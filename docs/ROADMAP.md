@@ -78,7 +78,6 @@ question for the usability pass in M2.
 - ☑ `0.4.0` / code `12` uploaded to the Play internal test track, so the app entry exists and Play
   App Signing is enrolled — which is what later makes the Play Games credential setup possible.
 - ☐ **`D18` — remaining manual items:**
-  - enable GitHub Pages (main, `/docs`) so the privacy-policy URL resolves;
   - complete the physical-device checklist in [`RELEASES.md`](RELEASES.md), which also unblocks `D2`;
   - upload the next build to the internal track when there is a reason to cut one.
 - Windows and Web builds remain convenient matching test targets.
@@ -123,9 +122,9 @@ setup, Families-policy and privacy consequences, and the testing strategy:
 The networking implementation is accepted in `DECISIONS.md`, but it remains outside every Play track
 until the compliance and physical-device gates below are complete.
 
-The bilingual privacy policy and `PLAY_CONSOLE_COMPLIANCE.md` worksheet are ready. The authenticated
-Play Console data-safety, Families/target-audience, and content-rating forms must be applied and the
-policy URL made public **before** the first networking build reaches any track.
+The bilingual privacy policy is public and the recorded Play Console Data safety declaration and
+Families commitment are in `PLAY_CONSOLE_COMPLIANCE.md`. Target-audience and content-rating answers
+still need their final release check **before** the first networking build reaches any track.
 
 Acceptance: a signed-out player is unaffected in every way; a signed-in player can lose their device
 and recover their progress; no conflict path can silently destroy a child's local progress.

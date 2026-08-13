@@ -9,9 +9,9 @@ files it owned. These release and M5 items remain open:
 
 - `D2 BLOCKED(no authorized physical Android device connected)` Physical Android install/run/log
   smoke command and checklist. Depends: C3. Owns: `tools/`, `docs/RELEASES.md`, smoke tests.
-- `D18 TODO` Release execution, remaining items only: enable GitHub Pages (main, `/docs`) and
-  complete the physical-device checklist (unblocks D2). The keystore, signing, AAB verification, and
-  a first internal-track upload (`0.4.0` / code `12`) are all done. Depends: D2, D14–D17.
+- `D18 TODO` Release execution, remaining item: complete the physical-device checklist (unblocks
+  D2). The public privacy site, keystore, signing, AAB verification, and a first internal-track
+  upload (`0.4.0` / code `12`) are all done. Depends: D2, D14–D17.
   Owns: release workflow (manual steps).
 - `C22 BLOCKED(upstream snapshot API has no conflict-resolution call)` Finish P2 cloud convergence
   when a release of https://github.com/godot-sdk-integrations/godot-play-game-services exposes a
@@ -19,9 +19,10 @@ files it owned. These release and M5 items remain open:
   complete the physical two-device matrix. The implemented path preserves and merges both
   candidates locally, reports that backup needs attention, and blocks upload for that launch.
   Owns: `scripts/autoload/PlayGames.gd`, vendor replacement as a whole, and `tests/state/`.
-- `D23 BLOCKED(authenticated Play Console session required)` Apply the answers in
-  `docs/PLAY_CONSOLE_COMPLIANCE.md`, re-run the Families/target-audience and content-rating forms,
-  and verify the public privacy-policy URL. No networking build reaches a track first.
+- `D23 TODO` Data safety is configured, the Families policy commitment is enabled, and the public
+  Czech/English privacy URLs return HTTP 200. Re-check target-audience and content-rating answers,
+  and reconcile the live policy's analytics wording with the recorded declaration before any
+  networking build reaches a track.
 
 The active milestone is M5, Google Play Games Services, specified in
 [`GOOGLE_PLAY_GAMES.md`](GOOGLE_PLAY_GAMES.md). Its offline prerequisites, sign-in code, and normal

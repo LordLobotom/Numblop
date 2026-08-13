@@ -647,9 +647,10 @@ Google and Family Link remain the account gate; Numblop does not add another one
 
 **Compliance gate — before P1 ships to any track, not after.**
 The bilingual `docs/privacy/index.md` rewrite and `docs/PLAY_CONSOLE_COMPLIANCE.md` worksheet are
-complete, and Settings links to the policy in all ten languages. An authenticated Console session
-must still apply the data-safety answers, re-answer Families and target audience, re-check content
-rating, and verify the public URL. §9 lists the specific items.
+complete, and Settings links to the policy in all ten languages. The public Czech/English policy
+pages return HTTP 200, Data safety is configured, and the Families commitment is enabled. The live
+policy's analytics wording, target-audience answers, and content rating still need their final
+release check. §9 lists the specific items.
 
 ---
 

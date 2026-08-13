@@ -42,9 +42,14 @@ drilování. Dejte svému dítěti parťáka, za kterým se bude samo vracet.
 
 ## Bezpečnost dat (odpovědi pro Play Console)
 
-- Sbírá nebo sdílí aplikace některé z požadovaných typů dat? **Ne**
-- Sbíraná data: **žádná** · Sdílená data: **žádná**
-- URL zásad ochrany soukromí: https://lordlobotom.github.io/Numblop/privacy/
+- Sbírá nebo sdílí aplikace některé z požadovaných typů dat? **Ano**
+- Sbíraná data: volitelné jméno/herní přezdívka, volitelné ID uživatele/hráče, povinné
+  diagnostické a jiné údaje o výkonu aplikace a volitelné jiné akce.
+- Účely: funkce aplikace pro volitelné profilové/herní údaje; analytika pro povinné diagnostické
+  údaje a údaje o výkonu aplikace.
+- Data sdílená se třetími stranami: **žádná**. Data jsou při přenosu šifrována.
+- Numblop nevytváří ani nespravuje vlastní účet. Závazek zásad pro rodiny: **zapnutý**.
+- URL zásad ochrany soukromí: https://numblop.gutcloud.cz/en/privacy/
 
 ## Ostatní pole
 
