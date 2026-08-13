@@ -103,7 +103,9 @@ func set_enabled(is_enabled: bool) -> void:
         return
     SettingsManager.set_play_games_enabled(is_enabled)
     if is_enabled:
-        _authenticate()
+        # Re-enabling backup is an explicit user action. Unlike the silent startup check, this
+        # must use Google's interactive sign-in path so a signed-out player can actually recover.
+        sign_in()
         return
     _sync_timer.stop()
     _sync_requested = false

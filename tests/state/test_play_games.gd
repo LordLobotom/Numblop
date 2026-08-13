@@ -168,6 +168,24 @@ func test_a_device_switched_off_never_authenticates() -> void:
     _remove_fake_plugin(state)
 
 
+func test_explicitly_enabling_backup_requests_interactive_sign_in() -> void:
+    var restore_settings: Variant = preserve_settings_file()
+    var state := _install_fake_plugin(false)
+
+    PlayGames.set_enabled(true)
+
+    check(PlayGames.enabled(), "The explicit choice is persisted")
+    equal(state["client"].sign_in_calls, 1, "Enabling backup opens Google's sign-in path")
+    equal(
+        state["client"].is_authenticated_calls,
+        0,
+        "The explicit choice is not reduced to another silent status check"
+    )
+
+    _remove_fake_plugin(state)
+    restore_settings_file(restore_settings)
+
+
 func test_the_signed_in_state_comes_from_google_not_from_asking() -> void:
     # A sign-in call that returns is not a sign-in that succeeded. Offline, a restricted family
     # account, or a declined prompt all come back the same way.

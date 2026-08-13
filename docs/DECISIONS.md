@@ -1,5 +1,24 @@
 # Numblop Decision Log
 
+## 2026-08-13 — Signed-out cloud backup gets an explicit recovery path
+
+The first Play-installed hardware run exposed a gap that fake success-path tests could not: the
+plugin's startup `is_authenticated()` check correctly returned false, but Numblop never followed it
+with the separate interactive `sign_in()` operation. The lit cloud tile represented the enabled
+preference, not a signed-in account, so no player id was loaded and no snapshot could be uploaded.
+
+Numblop still does not force a Google dialog during startup. A signed-out tile now says **Sign in**
+visibly, and pressing it opens the existing in-game overlay with two honest choices: **Sign in**
+calls the plugin's interactive path, while **Turn off** persists the existing opt-out. Signed-in,
+syncing, off, and needs-attention captions are likewise visible in all ten languages. The overlay
+reuses the settings dialog and adds no height to the already-full card. Re-enabling a previously
+disabled backup is itself an explicit action and therefore calls interactive sign-in directly.
+
+This closes the UI/authentication gap without weakening the permanent offline contract: the dialog
+is user-initiated, declining or failing changes no gameplay, and local progress remains authoritative.
+The fix ships as `0.4.3` / Play code `15`; Play-track sign-in and reinstall recovery still require a
+real-device pass before the Saved Games path is considered verified.
+
 ## 2026-08-13 — P2 fails closed at the plugin's unresolved-conflict boundary
 
 The normal Saved Games path is implemented behind `PlayGames.gd`: a fixed snapshot is loaded after
@@ -79,9 +98,9 @@ screen already speaks. The cloud glyph is a new SVG in `ui/icon/`, struck throug
 how the other two tiles say "off".
 
 The tile is lit by the **setting**, exactly like its siblings — a light that ignored the tap would
-not be a switch. Whether Google actually signed the device in is carried by the accessible name,
-which has three states rather than two: off, on and signed in, on but not signed in. That last one
-is the state a guardian most needs and the only place on the screen that can report it.
+not be a switch. Whether Google actually signed the device in is reported by both the visible
+one-line caption and the accessible name. A later hardware pass added an explicit sign-in choice
+for the signed-out state; see the decision above.
 
 **Two test-hygiene faults were found and fixed, both mine:**
 

@@ -291,13 +291,13 @@ func _configure_screen(screen: Control, screen_name: String, locale: String) -> 
             if screen_name == "settings_cloud":
                 # The cloud-save row hides itself unless a real plugin is present, so it is
                 # invisible on every desktop build -- including the one that takes these captures.
-                # Standing a double in for the plugin is the only way its layout, its wrapped
-                # explanation, and the length of that sentence in ten languages ever get reviewed
-                # without a phone in hand.
+                # Standing a double in for the plugin is the only way its tile and user-initiated
+                # sign-in choice get reviewed without a phone in hand.
                 _play_games_double = Node.new()
                 _play_games_client_double = Node.new()
                 PlayGames._set_plugin_for_test(_play_games_double, _play_games_client_double)
                 settings_screen.refresh_play_games()
+                settings_screen.show_cloud_sign_in_choice()
             if screen_name == "settings_exit":
                 settings_screen.show_exit_confirmation()
         "choice":

@@ -495,16 +495,18 @@ The requirement is that offline is not a degraded mode, it is the normal mode.
 
 - Every game rule — questions, mastery, coins, achievements, streaks, purchases — is evaluated and
   saved locally, exactly as today. Nothing awaits a network call, ever.
-- Sign-in is attempted at most once per launch, asynchronously, after the game is already interactive.
-  Failure is silent.
+- The existing Play session is checked once per launch, asynchronously, after the game is already
+  interactive. Failure is silent. Interactive sign-in is attempted only after an explicit Settings
+  action; it is never forced during startup.
 - Leaderboard and achievement submissions go into a small pending queue held in
   `user://settings.cfg`-adjacent state (not in the progress file) and are flushed on the next
   successful sign-in. The Play SDK buffers some of this itself, but do not rely on it: local values
   are absolute and re-submission is idempotent.
 - Snapshot sync is attempted on sign-in, on app pause, and after a finished round — debounced, and
   skipped entirely when `save_counter == cloud.last_synced_counter`.
-- A signed-out or never-signed-in player sees no dialogs, no spinners, and no error toasts. Sync
-  failures are logged, not surfaced.
+- A signed-out or never-signed-in player sees no unsolicited dialogs, spinners, or error toasts.
+  Settings visibly reports **Sign in**; pressing that tile opens Numblop's Sign in / Turn off choice.
+  Sync failures are logged, with fail-closed states reported on the same tile.
 - Airplane mode for a month followed by one sync must produce a correct merge. This is a required
   test case, not a hypothetical.
 
@@ -587,15 +589,16 @@ Done:
   `addons/GodotPlayGameServices/`. Its export plugin injects the AAR, dependencies, manifest
   metadata, and game id `1018864218554`; the pre-spike installer script was deleted.
 - A Settings tile — a third icon tile beside Sound and Vibration, with a drawn cloud that is struck
-  through when off, a one-word caption in all ten languages, and three accessible states (off, on
-  and signed in, on but not signed in). It **hides itself unless a usable plugin is present**, so no
+  through when off, visible status captions in all ten languages, and matching accessible states.
+  A signed-out press offers interactive Sign in or a persistent opt-out. It **hides itself unless a
+  usable plugin is present**, so no
   Windows or Web player is offered a backup switch that cannot work.
 
   It became a tile rather than a labelled row because the settings card was already full: a row
   pushed *Close game* below the fold, and scrollbars are hidden, so a guardian would not have found
   it. A third tile costs zero vertical space. The tile is lit by the **setting**, like its two
   siblings — a light that ignored the tap would not be a switch — and whether Google actually
-  signed the device in is carried by the accessible name instead.
+  signed the device in is also carried by its visible caption and accessible name.
 
 Verified locally:
 - A fresh Godot 4.6.2 Gradle debug export links the plugin and carries exactly

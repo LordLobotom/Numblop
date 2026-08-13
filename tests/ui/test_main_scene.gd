@@ -1,6 +1,20 @@
 extends NumblopTestCase
 
 
+class FakeCloudSignInClient:
+    extends Node
+
+    signal user_authenticated(is_authenticated: bool)
+
+    var sign_in_calls := 0
+
+    func is_authenticated() -> void:
+        pass
+
+    func sign_in() -> void:
+        sign_in_calls += 1
+
+
 ## Resolves a footer crest by path.
 ##
 ## The five items now live in scenes/components/NavBar.tscn, so their unique names
@@ -539,8 +553,10 @@ func test_the_cloud_tile_is_lit_by_the_setting_and_names_the_session_separately(
     SettingsManager.play_games_enabled = true
     scene.refresh_from_settings()
     var tile: IconToggle = scene.get_node("%CloudButton")
+    var caption: Label = scene.get_node("%CloudCaption")
     check(tile.button_pressed, "Cloud save is on by default")
     equal(tile.icon, tile.icon_on, "On shows the cloud")
+    equal(caption.text, tr("SETTINGS_CLOUD_SIGN_IN"), "Signed out is visible without a tooltip")
     equal(
         tile.tooltip_text,
         tr("SETTINGS_CLOUD_WAITING_ACCESSIBLE"),
@@ -551,11 +567,13 @@ func test_the_cloud_tile_is_lit_by_the_setting_and_names_the_session_separately(
     scene.refresh_from_settings()
     check(not tile.button_pressed, "A deliberate opt-out darkens the tile")
     equal(tile.icon, tile.icon_off, "Off shows the struck-through cloud")
+    equal(caption.text, tr("SETTINGS_CLOUD_OFF"), "The caption also names the opt-out")
     equal(tile.tooltip_text, tr("SETTINGS_CLOUD_OFF_ACCESSIBLE"), "And says so")
 
     SettingsManager.play_games_enabled = true
     scene.refresh_from_settings()
     PlayGames._set_cloud_state(&"conflict_saved_locally")
+    equal(caption.text, tr("SETTINGS_CLOUD_ATTENTION"), "A blocked backup is visible")
     equal(
         tile.tooltip_text,
         tr("SETTINGS_CLOUD_ATTENTION_ACCESSIBLE"),
@@ -565,6 +583,44 @@ func test_the_cloud_tile_is_lit_by_the_setting_and_names_the_session_separately(
 
     tree.root.remove_child(scene)
     scene.free()
+    restore_settings_file(restore_settings)
+
+
+func test_signed_out_cloud_tile_offers_sign_in_or_a_real_opt_out() -> void:
+    var restore_settings: Variant = preserve_settings_file()
+    SettingsManager.play_games_enabled = true
+    var fake_plugin := Node.new()
+    var fake_client := FakeCloudSignInClient.new()
+    PlayGames._set_plugin_for_test(fake_plugin, fake_client)
+
+    var scene: SettingsScreen = (
+        load("res://scenes/screens/SettingsScreen.tscn") as PackedScene
+    ).instantiate()
+    var tree := Engine.get_main_loop() as SceneTree
+    tree.root.add_child(scene)
+
+    scene._on_cloud_toggled(false)
+    check(scene.get_node("%ExitDialog").visible, "The signed-out tile explains both choices")
+    check(scene.get_node("%CloudButton").button_pressed, "Opening the choice does not opt out")
+    equal(
+        scene.get_node("%ConfirmExitButton").text,
+        tr("SETTINGS_CLOUD_DIALOG_SIGN_IN"),
+        "The primary action signs in"
+    )
+    scene._confirm_exit()
+    equal(fake_client.sign_in_calls, 1, "The explicit action reaches Google sign-in")
+    check(SettingsManager.play_games_enabled, "Attempting sign-in keeps backup enabled")
+
+    scene._on_cloud_toggled(false)
+    scene._on_cancel_dialog()
+    check(not SettingsManager.play_games_enabled, "The alternative remains a genuine opt-out")
+    check(not scene.get_node("%CloudButton").button_pressed, "The tile reflects the opt-out")
+
+    tree.root.remove_child(scene)
+    scene.free()
+    PlayGames._set_plugin_for_test(null)
+    fake_plugin.free()
+    fake_client.free()
     restore_settings_file(restore_settings)
 
 

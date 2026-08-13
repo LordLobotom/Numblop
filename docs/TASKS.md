@@ -7,6 +7,14 @@ Status values: `TODO`, `WIP(@agent)`, `BLOCKED(reason)`, `DONE`.
 Everything below this section is kept as a historical ledger of what each track built and which
 files it owned. These release and M5 items remain open:
 
+- `C23 WIP(@codex)` Provide an explicit, user-initiated Play Games sign-in path after the
+  automatic session check returns signed out, without prompting during startup. Owns:
+  `scripts/autoload/PlayGames.gd`, `tests/state/test_play_games.gd`.
+- `B36 WIP(@codex)` Make the cloud tile's signed-out state visible and reuse the settings dialog
+  to offer Sign in or Turn off backup without increasing the settings card height. Owns:
+  `scripts/ui/SettingsScreen.gd`, `localization/strings.csv`, `tests/ui/test_main_scene.gd`.
+- `D24 WIP(@codex)` Produce and verify the signed Android fix build (`0.4.3`, code `15`). Owns:
+  version/export configuration, release documentation, and artifact verification.
 - `D2 BLOCKED(no authorized physical Android device connected)` Physical Android install/run/log
   smoke command and checklist. Depends: C3. Owns: `tools/`, `docs/RELEASES.md`, smoke tests.
 - `D18 TODO` Release execution, remaining item: complete the physical-device checklist (unblocks
