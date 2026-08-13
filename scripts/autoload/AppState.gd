@@ -160,10 +160,13 @@ func record_answer(question: PracticeQuestion, correct: bool, elapsed_seconds: f
 
 
 func abandon_session() -> void:
+    var had_session := active_session_result != null
     _session_bonus_coins = 0
     session_controller.abandon_active_session()
     active_session_result = null
     active_session.clear()
+    if had_session:
+        EventBus.session_ended.emit()
 
 
 func handle_application_paused() -> bool:
@@ -214,6 +217,7 @@ func claim_completed_session_reward() -> Dictionary:
     session_controller.clear_completed_session()
     active_session_result = null
     active_session.clear()
+    EventBus.session_ended.emit()
     return reward
 
 

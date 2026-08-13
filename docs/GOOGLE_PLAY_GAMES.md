@@ -502,8 +502,10 @@ The requirement is that offline is not a degraded mode, it is the normal mode.
   `user://settings.cfg`-adjacent state (not in the progress file) and are flushed on the next
   successful sign-in. The Play SDK buffers some of this itself, but do not rely on it: local values
   are absolute and re-submission is idempotent.
-- Snapshot sync is attempted on sign-in, on app pause, and after a finished round — debounced, and
-  skipped entirely when `save_counter == cloud.last_synced_counter`.
+- Snapshot sync is attempted on sign-in, on app pause, after a finished round, and for local changes
+  such as purchases made outside practice — debounced, and skipped entirely when
+  `save_counter == cloud.last_synced_counter`. Per-answer saves only mark work pending; no remote
+  response may write or reload the profile until the runtime session has ended.
 - A signed-out or never-signed-in player sees no Numblop error toast or blocking spinner. Google may
   show its account/sign-in surface for the single startup request. Settings visibly reports
   **Sign in** and offers Sign in / Turn off; fail-closed states appear on the same tile.
@@ -623,7 +625,8 @@ Implemented in `PlayGames.gd` and covered by fake-client tests:
 - fixed snapshot `numblop_profile_v1` with schema, app version, write time, device id, counter, and
   the complete profile;
 - player-id binding, first-sign-in load, empty-side adoption, pure merge, seeded durable write, and
-  asynchronous upload on sign-in, pause, and local-save events;
+  asynchronous upload on sign-in, pause, and local-save events outside practice; answer saves are
+  coalesced until the session ends, including when a snapshot response is already in flight;
 - `.premerge` recovery before every two-progress merge, refusal to touch a newer schema, generic
   runtime reload, and exact read-back before acknowledging an upload or clearing the safety copy;
 - an empty cloud uploads the existing file without a pointless preliminary local rewrite, while

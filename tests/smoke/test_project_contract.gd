@@ -3,7 +3,7 @@ extends NumblopTestCase
 
 func test_public_identity_and_portrait_window_are_pinned() -> void:
     equal(ProjectSettings.get_setting("application/config/name"), "Numblop", "Public name")
-    equal(ProjectSettings.get_setting("application/config/version"), "0.4.4", "Public version")
+    equal(ProjectSettings.get_setting("application/config/version"), "0.4.5", "Public version")
     equal(
         ProjectSettings.get_setting("application/config/icon"),
         "res://ui/branding/numblop_ico.png",
@@ -52,8 +52,8 @@ func test_android_identity_and_offline_export_contract_are_pinned() -> void:
     var config := file.get_as_text()
     check(config.contains('package/unique_name="cz.gutcloud.numblop"'), "Permanent package ID")
     check(config.contains('gradle_build/export_format=1'), "Release preset builds an AAB")
-    equal(config.count('version/name="0.4.4"'), 2, "Android exports use the public version")
-    equal(config.count("version/code=16"), 2, "Android exports share the Play version code")
+    equal(config.count('version/name="0.4.5"'), 2, "Android exports use the public version")
+    equal(config.count("version/code=17"), 2, "Android exports share the Play version code")
     check(config.contains('gradle_build/min_sdk="24"'), "Release preset pins Min SDK 24")
     check(config.contains('gradle_build/target_sdk="36"'), "Release preset pins Target SDK 36")
     # tools/export.ps1 -Target android-release-unsigned flips this off for one build and

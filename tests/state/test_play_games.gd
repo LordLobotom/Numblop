@@ -310,6 +310,126 @@ func test_sign_in_loads_merges_uploads_and_verifies_before_acknowledging() -> vo
     _remove_cloud_profile()
 
 
+func test_answer_saves_wait_until_the_round_has_ended_before_syncing() -> void:
+    _remove_cloud_profile()
+    SaveManager.save_game_state(LearningProfile.new(), 0, 0, TEST_CLOUD_PATH)
+    var state := _install_fake_plugin(true, true)
+    PlayGames.profile_path = TEST_CLOUD_PATH
+    PlayGames.reload_profile_callable = func() -> void: pass
+
+    PlayGames._on_user_authenticated(true)
+    state["players"].answer("player-one")
+    state["snapshots"].answer_loaded(null)
+    var first_upload: Dictionary = state["snapshots"].save_calls[0]
+    state["snapshots"].answer_saved(true)
+    state["snapshots"].answer_loaded({"content": first_upload["content"]})
+    var loads_before_round: int = state["snapshots"].load_calls.size()
+
+    EventBus.session_started.emit(10)
+    var changed := SaveManager.load_profile(TEST_CLOUD_PATH)
+    changed.set_mastery(2, 2, 15)
+    SaveManager.save_game_state(changed, 0, 0, TEST_CLOUD_PATH)
+    PlayGames._begin_sync_if_needed()
+    equal(
+        state["snapshots"].load_calls.size(),
+        loads_before_round,
+        "A per-answer save cannot start cloud work during practice"
+    )
+
+    EventBus.session_ended.emit()
+    PlayGames._sync_timer.stop()
+    PlayGames._begin_sync_if_needed()
+    equal(
+        state["snapshots"].load_calls.size(),
+        loads_before_round + 1,
+        "The deferred save starts syncing once the round is settled"
+    )
+
+    _remove_fake_plugin(state)
+    _remove_cloud_profile()
+
+
+func test_a_snapshot_that_returns_during_practice_cannot_interrupt_the_round() -> void:
+    _remove_cloud_profile()
+    var local_profile := LearningProfile.new()
+    local_profile.set_mastery(2, 3, 10)
+    SaveManager.save_game_state(local_profile, 0, 0, TEST_CLOUD_PATH)
+    var remote := SaveManager.load_state(TEST_CLOUD_PATH)
+    var remote_profile := LearningProfile.from_dictionary(remote)
+    remote_profile.set_mastery(2, 3, 80)
+    remote.merge(remote_profile.to_dictionary(), true)
+    remote["profile_id"] = "remote-device"
+    remote["save_counter"] = int(remote["save_counter"]) + 5
+    var remote_content := JSON.stringify(
+        PlayGames.build_snapshot_payload(remote)
+    ).to_utf8_buffer()
+
+    var state := _install_fake_plugin(true, true)
+    PlayGames.profile_path = TEST_CLOUD_PATH
+    var reloads: Array[int] = []
+    PlayGames.reload_profile_callable = func() -> void: reloads.append(1)
+    PlayGames._on_user_authenticated(true)
+    state["players"].answer("player-one")
+    equal(state["snapshots"].load_calls.size(), 1, "The startup load is in flight")
+
+    EventBus.session_started.emit(10)
+    state["snapshots"].answer_loaded({"content": remote_content})
+    equal(reloads.size(), 0, "An in-flight response cannot reload AppState during practice")
+    equal(
+        SaveManager.load_profile(TEST_CLOUD_PATH).get_mastery(2, 3),
+        10,
+        "The remote merge is deferred before it touches the durable local profile"
+    )
+    equal(state["snapshots"].save_calls.size(), 0, "Nothing stale is uploaded")
+
+    EventBus.session_ended.emit()
+    PlayGames._sync_timer.stop()
+    PlayGames._begin_sync_if_needed()
+    equal(state["snapshots"].load_calls.size(), 2, "The remote comparison is retried afterwards")
+    state["snapshots"].answer_loaded({"content": remote_content})
+    equal(reloads.size(), 1, "The safe retry applies the merged profile")
+    equal(
+        SaveManager.load_profile(TEST_CLOUD_PATH).get_mastery(2, 3),
+        80,
+        "The deferred remote progress is preserved"
+    )
+
+    _remove_fake_plugin(state)
+    _remove_cloud_profile()
+
+
+func test_an_upload_dispatched_before_practice_is_not_verified_during_the_round() -> void:
+    _remove_cloud_profile()
+    SaveManager.save_game_state(LearningProfile.new(), 0, 0, TEST_CLOUD_PATH)
+    var state := _install_fake_plugin(true, true)
+    PlayGames.profile_path = TEST_CLOUD_PATH
+    PlayGames.reload_profile_callable = func() -> void: pass
+    PlayGames._on_user_authenticated(true)
+    state["players"].answer("player-one")
+    state["snapshots"].answer_loaded(null)
+    equal(state["snapshots"].save_calls.size(), 1, "The upload was dispatched from home")
+
+    EventBus.session_started.emit(10)
+    state["snapshots"].answer_saved(true)
+    equal(
+        state["snapshots"].load_calls.size(),
+        1,
+        "Its verification read-back cannot start during practice"
+    )
+
+    EventBus.session_ended.emit()
+    PlayGames._sync_timer.stop()
+    PlayGames._begin_sync_if_needed()
+    equal(
+        state["snapshots"].load_calls.size(),
+        2,
+        "A fresh comparison retries after the round instead"
+    )
+
+    _remove_fake_plugin(state)
+    _remove_cloud_profile()
+
+
 func test_three_mismatched_upload_readbacks_block_further_retries() -> void:
     _remove_cloud_profile()
     SaveManager.save_game_state(LearningProfile.new(), 4, 4, TEST_CLOUD_PATH)

@@ -1,6 +1,7 @@
 extends Node
 
 signal session_started(question_count: int)
+signal session_ended
 signal answer_recorded(fact_key: String, correct: bool, mastery: int)
 signal table_unlocked(completed_table: int, new_table: int)
 signal progress_changed(coins: int, experience: int, level: int)

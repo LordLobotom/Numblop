@@ -34,6 +34,7 @@ var _pending_upload_json := ""
 var _pending_upload_counter := 0
 var _verification_failures := 0
 var _cloud_state: StringName = &"signed_out"
+var _practice_active := false
 var _sync_timer: Timer
 var _sync_timeout_timer: Timer
 var clock_override := Callable()
@@ -53,6 +54,8 @@ func _ready() -> void:
     add_child(_sync_timeout_timer)
     _sync_timeout_timer.timeout.connect(_on_sync_timeout)
     EventBus.profile_saved.connect(_on_local_profile_saved)
+    EventBus.session_started.connect(_on_session_started)
+    EventBus.session_ended.connect(_on_session_ended)
     EventBus.application_paused.connect(_on_application_paused)
     reload_profile_callable = Callable(AppState, "reload_profile_from_disk")
     # Deferred so a slow or misbehaving plugin can never delay the first frame a child sees.
@@ -228,12 +231,28 @@ func _update_sign_in_state(state: bool) -> void:
 func _on_local_profile_saved() -> void:
     if not cloud_available() or not signed_in() or _upload_blocked_for_session:
         return
+    # Answers are deliberately saved after every tap, but cloud work belongs between rounds. Apart
+    # from avoiding needless network traffic, this prevents a remote merge from replacing the
+    # in-memory profile and interrupting the question that is currently on screen.
+    if _practice_active:
+        _sync_requested = true
+        return
     var state := SaveManager.load_state(profile_path)
     var cloud := LocalCloudSync.new(_dictionary(state, "cloud"))
     if cloud.last_synced_counter == _number(state, "save_counter"):
         return
     _sync_requested = true
     _sync_timer.start()
+
+
+func _on_session_started(_question_count: int) -> void:
+    _practice_active = true
+
+
+func _on_session_ended() -> void:
+    _practice_active = false
+    if _sync_requested and cloud_available() and signed_in() and not _upload_blocked_for_session:
+        _sync_timer.start()
 
 
 func _on_application_paused() -> void:
@@ -244,6 +263,9 @@ func _on_application_paused() -> void:
 
 func _begin_sync_if_needed() -> void:
     if _sync_in_flight:
+        _sync_requested = true
+        return
+    if _practice_active:
         _sync_requested = true
         return
     if not cloud_available() or not signed_in() or not enabled() \
@@ -271,6 +293,14 @@ func _on_game_loaded(snapshot: Variant) -> void:
     if not _sync_in_flight or not signed_in() or not enabled():
         return
     _sync_timeout_timer.stop()
+    if _practice_active:
+        # The request may have started on the home screen and returned after Play was tapped. Do
+        # not write or reload anything until AppState has settled the round; its per-answer saves
+        # remain authoritative in the meantime.
+        _sync_requested = true
+        _finish_sync()
+        _set_cloud_state(&"ready")
+        return
     var content := _snapshot_content(snapshot)
     if _verifying_upload:
         _verify_uploaded_content(content)
@@ -338,6 +368,14 @@ func _upload_state(state: Dictionary) -> void:
 func _on_game_saved(is_saved: bool, save_data_name: String, _description: String) -> void:
     if not _sync_in_flight or save_data_name != SNAPSHOT_NAME:
         return
+    if _practice_active:
+        # The commit was already dispatched, but even its read-back and local acknowledgement wait
+        # until practice ends. The next comparison safely converges whether that commit landed or
+        # not.
+        _sync_requested = true
+        _finish_sync()
+        _set_cloud_state(&"ready")
+        return
     if not is_saved:
         _finish_sync()
         return
@@ -388,6 +426,11 @@ func _on_snapshot_conflict(conflict: Variant) -> void:
     if not _sync_in_flight or not signed_in() or not enabled():
         return
     _sync_timeout_timer.stop()
+    if _practice_active:
+        _sync_requested = true
+        _finish_sync()
+        _set_cloud_state(&"ready")
+        return
     var local := SaveManager.load_state(profile_path)
     if SaveManager.write_premerge_copy(local, profile_path) != OK:
         _block_upload(&"premerge_failed")
@@ -528,6 +571,7 @@ func _set_plugin_for_test(
     _verifying_upload = false
     _verification_failures = 0
     _cloud_state = &"signed_out"
+    _practice_active = false
     profile_path = SaveManager.PROFILE_PATH
     if fake_plugin != null:
         _connect_cloud_clients()

@@ -1,5 +1,22 @@
 # Numblop Decision Log
 
+## 2026-08-13 - Cloud synchronization never applies a profile during practice
+
+Hardware testing of code 16 exposed a lifecycle race rather than an Android crash. Every answer is
+saved locally, and the cloud wrapper used every local-save event as a debounced sync trigger. A
+snapshot request started on the home screen could therefore return after practice began; applying
+its merge called `AppState.reload_profile_from_disk()`, which correctly discards an unfinished
+runtime session and consequently sent the player home partway through a round.
+
+Practice is now an explicit exclusion window for cloud work. Per-answer saves remain immediate and
+authoritative, but their cloud requests coalesce until the session is settled. Purchases and other
+saves made outside practice still synchronize normally. If an already-running snapshot load or
+conflict response arrives during practice, it is discarded before any durable write or runtime
+reload and retried after the round ends. App pause first abandons the runtime session, so its existing
+best-effort sync remains safe. Three fake-client regressions cover the per-answer trigger, an
+in-flight snapshot response, and an upload acknowledgement crossing into practice. The fix ships as
+`0.4.5` / Play code `17`.
+
 ## 2026-08-13 — Hardware isolates cloud failure to Play App Signing OAuth
 
 The Play-installed `0.4.4` / code 16 does request sign-in automatically, but Google rejects it before

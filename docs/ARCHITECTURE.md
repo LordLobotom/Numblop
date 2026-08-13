@@ -121,6 +121,8 @@ must not live in a scene, but they do not read files or drive the frame loop eit
   refuses newer schemas, writes a `.premerge` recovery copy before combining two progressed saves,
   persists the pure `CloudSaveMerge` result, reloads `AppState` through a provider-neutral method,
   and uploads asynchronously. A dispatched upload is acknowledged only after an exact read-back.
+  Practice is an exclusion window: per-answer local saves are coalesced, and even an in-flight
+  snapshot response is deferred before it can write or reload until the runtime session has ended.
   Three consecutive read-back mismatches block uploads for the launch instead of retrying after
   every answer indefinitely.
   The current vendored plugin cannot resolve a Play conflict id; that path merges both candidates
