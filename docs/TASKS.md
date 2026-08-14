@@ -7,6 +7,27 @@ Status values: `TODO`, `WIP(@agent)`, `BLOCKED(reason)`, `DONE`.
 Everything below this section is kept as a historical ledger of what each track built and which
 files it owned. These release and M5 items remain open:
 
+- `B32 DONE` Ship dedicated achievement artwork at 192 px in `TrophyScreen` and 512 px RGBA8 for
+  Play Console, with the 1254 px originals kept out of git and out of every export. Adds 1.76 MB to
+  the build instead of the ~41 MB the originals would have cost. Owns:
+  `scripts/ui/TrophyScreen.gd`, `ui/achievements/`, `store/achievements/`,
+  `tools/resize-achievement-icons.ps1`, `tests/ui/test_trophy_screen.gd`.
+- `C26 DONE` P3 — push achievement unlocks and absolute step counts to Play Games, with a sign-in
+  backfill of everything earned offline. Unlocks are immediate; steps refresh at round end. All of
+  it stays inside the one autoload and a failed call costs a player nothing. Owns:
+  `scripts/autoload/PlayGamesCatalog.gd`, `scripts/autoload/PlayGames.gd`,
+  `tests/state/test_play_games.gd`, `tests/state/test_play_games_catalog.gd`.
+  Remaining: verify on hardware that the 25 achievements actually unlock in the Play Games app.
+- `D27 DONE` Generate the Play Console bulk-achievement import (three CSVs plus icons) from the
+  catalog and the ten-language string table, with the Play point budget checked in the suite. The
+  ZIP is built on demand into git-ignored `artifacts/`. Owns:
+  `tools/export-play-achievements.ps1`, `tests/smoke/export_play_achievements.gd`,
+  `tests/smoke/ExportPlayAchievements.tscn`, `tests/smoke/test_play_achievements_export.gd`.
+- `D28 TODO` Quests eligibility needs four achievements reliably reachable within an hour of play.
+  Today only First Steps, Streak 10 and Streak 20 qualify; 500 XP is roughly fifty rounds and the
+  first island needs every `2×` fact at mastery 100. Baseline achievement compliance is already met
+  (25 > the required 10), so this only gates Quests. Adding an easy fourth means a new catalog entry
+  and its coin reward, which is a learning-and-economy decision, not a packaging one.
 - `B31 DONE` Stop the guided tutorial replaying on a restored profile, and shorten its shop detour
   to one Buy-button step that requires no purchase. The overlay now re-reads onboarding state on
   `EventBus.profile_reloaded` and holds the finger while `EventBus.external_restore_pending` is

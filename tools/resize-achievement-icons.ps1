@@ -16,15 +16,21 @@ $sourceRoot = Join-Path $repoRoot "input\achievements"
 $storeRoot = Join-Path $repoRoot "store\achievements"
 $uiRoot = Join-Path $repoRoot "ui\achievements"
 
-# Play Console accepts a 512x512 JPEG or a 32-bit PNG, and 32-bit means RGBA8. The current art is
-# opaque `rgb24`, so ffmpeg would emit 24-bit and the Console would reject it: the store set forces
-# the alpha channel on.
-#
-# The shipped set does the opposite and passes no format at all, which makes ffmpeg keep whatever
-# the source has. Painting an all-opaque alpha channel into a game texture is a quarter more bytes
-# in the build and in VRAM for nothing, and art that really is cut out still keeps its alpha.
+# Play Console accepts a 512x512 JPEG or a 32-bit PNG, and 32-bit means RGBA8, so the format is
+# forced rather than inferred: the originals are opaque `rgb24` and a 24-bit PNG is rejected.
 $storeSize = 512
 $uiSize = 192
+
+# Every icon is a round gold medallion inscribed in a square, and the source bakes a black
+# backdrop into the corners. Left alone that reads as a black square sitting on top of the cream
+# trophy tile, with hard corners in an otherwise rounded screen. The mask cuts the circle out
+# instead, so the art sits directly on whatever is behind it.
+#
+# Applied at full resolution and only then scaled down, which is what antialiases the rim: masking
+# after the downscale would leave a stair-stepped edge. `W` and `H` keep it independent of the
+# source size.
+$circleMask = "format=rgba,geq=r='r(X,Y)':g='g(X,Y)':b='b(X,Y)':" +
+    "a='clip(255*(W/2-hypot(X-(W-1)/2,Y-(H-1)/2)),0,255)'"
 
 function Resolve-Ffmpeg {
     param([string]$Requested)
@@ -48,14 +54,11 @@ New-Item -ItemType Directory -Force -Path $storeRoot | Out-Null
 New-Item -ItemType Directory -Force -Path $uiRoot | Out-Null
 
 foreach ($source in $sources) {
-    foreach ($target in @(
-            @{ Root = $storeRoot; Size = $storeSize; Format = @("-pix_fmt", "rgba") },
-            @{ Root = $uiRoot; Size = $uiSize; Format = @() }
-        )) {
-        $size = $target.Size
-        $destination = Join-Path $target.Root $source.Name
+    foreach ($size in @($storeSize, $uiSize)) {
+        $root = if ($size -eq $storeSize) { $storeRoot } else { $uiRoot }
+        $destination = Join-Path $root $source.Name
         & $ffmpeg -y -loglevel error -i $source.FullName `
-            -vf "scale=$($size):$($size):flags=lanczos" @($target.Format) $destination
+            -vf "$circleMask,scale=$($size):$($size):flags=lanczos" -pix_fmt rgba $destination
         if ($LASTEXITCODE -ne 0) { throw "ffmpeg failed on $($source.Name) at $size px" }
     }
     Write-Host "  $($source.BaseName)"

@@ -244,9 +244,16 @@ microphone, or contacts permission. Success prints `NUMBLOP_AAB_VERIFY_OK`.
 2. Windows, Web, and debug APK export without script/export errors; Web HTTP smoke passes.
 3. `tools/android-smoke.ps1` passes and the physical checklist above passes with networking disabled.
    With networking restored, a listed Play Games tester also signs in successfully and switching
-   cloud save off returns the app to purely local behavior.
+   cloud save off returns the app to purely local behavior. On that signed-in device, finishing a
+   round unlocks First Steps in the Play Games app, and a profile with offline progress shows its
+   earned achievements after the first sign-in rather than starting from zero.
 4. Save survives pause, force-stop, relaunch, and application update.
 5. Signed AAB passes `tools/verify-aab.ps1` and is uploaded to an internal Play test track.
 6. Store listing, screenshots, content rating, data-safety answers, Families/target-audience answers,
    and privacy text match the Play Games build. The policy and declarations are updated before the
    first networking build reaches any Play track.
+7. Play Console assets in `store/` are current: `icon_512.png`, `feature_graphic_1024x500.png`,
+   `screenshots/`, `listing/`, and — once achievements are configured — the 25 icons in
+   `store/achievements/`. That folder carries a `.gdignore` and is excluded from every export
+   preset, so it is uploaded by hand and never reaches a build. Regenerate it together with
+   `ui/achievements/` through `tools/resize-achievement-icons.ps1` whenever the art is redrawn.

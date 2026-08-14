@@ -113,7 +113,8 @@ setup, Families-policy and privacy consequences, and the testing strategy:
   implemented. The vendored plugin emits both conflict candidates but exposes no supported way to
   resolve the conflict id, so Numblop merges them locally and blocks upload for that launch. Cloud
   convergence and the physical two-device matrix remain blocked on an upstream bridge plus hardware.
-- ☐ P3 — achievements mirrored to Play.
+- ☑ P3 — achievements mirrored to Play. Unlocks immediate, absolute steps at round end, sign-in
+  backfills what was earned offline. Hardware verification outstanding.
 - ☐ P4 — the two leaderboards. Last on purpose: if Families or privacy review objects, this phase is
   dropped without touching anything before it.
 - ☐ P5 — merge messaging and the account-deletion path. Google and Family Link remain the account

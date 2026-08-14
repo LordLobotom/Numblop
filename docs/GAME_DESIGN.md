@@ -89,8 +89,9 @@ Trophies is a read-only screen with two parts:
   ended streak exceeds every previously ended streak, a milestone row is added with its count and the
   local date and time of the interrupting mistake. Shorter ended streaks reset the counter but add no
   row. Streaks never change mastery or rewards.
-- Achievement cards, each with an icon, title, description, progress towards its target, and its coin
-  reward.
+- Achievement cards, each with its own icon, title, description, progress towards its target, and
+  its coin reward. Every achievement has dedicated artwork — a round medallion named after the
+  achievement id — and a locked one is the same picture, dimmed.
 
 ### Outfit
 

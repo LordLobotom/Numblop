@@ -644,9 +644,74 @@ the unresolved server conflict returns on every launch and cloud backup is effec
 for that player. The Settings tile exposes a fourth accessible needs-attention state and explicitly
 says that progress remains safe on the device.
 
-**P3 — Achievements. ☐**
-Map the catalog, push unlocks and absolute steps on `EventBus.achievements_unlocked`, backfill
-everything already granted on first sign-in. Local stays truth; Play is a mirror.
+**P3 — Achievements. ☑ implemented, pending hardware verification.**
+Local stays truth; Play is a mirror that is only ever written to.
+
+- `scripts/autoload/PlayGamesCatalog.gd` holds the 25 opaque Console ids. It sits beside
+  `PlayGames.gd` rather than with the other catalogs because everything under `scripts/app/` is
+  forbidden from naming Play. `tests/state/test_play_games_catalog.gd` fails if the achievement
+  catalog grows an entry the table does not know — without it a new achievement would silently
+  never reach Play, failing nowhere at runtime.
+- **Unlocks are sent the moment an achievement completes, mid-round included.** Unlike a snapshot
+  merge this reads nothing back and touches no local state, so there is nothing for it to disturb
+  and no reason to make a child wait for the round to end.
+- **Steps are absolute, never deltas**, refreshed on `EventBus.session_ended` and on sign-in. Play
+  keeps the higher value, so a local mastery dip or a reinstall that has not merged yet cannot move
+  a Play progress bar backwards. Per-answer pushes were rejected: 25 calls per tap is not worth the
+  precision on a child's device.
+- **Sign-in backfills everything.** A child may have played offline for months before an account
+  ever exists, and all of it has to arrive on the first sign-in. Achievements do not need the
+  snapshot clients, so the backfill does not wait on the cloud-save handshake.
+- Every call is fire-and-forget; the plugin's replies are not connected. An achievement that fails
+  to reach Play costs a child nothing. What has already been sent is remembered for the launch so
+  an unchanged achievement is not resent every round, and it is cleared on sign-out so a different
+  account is told everything from scratch.
+- `AppState` is read through `achievements_state_callable`, the same seam shape as
+  `reload_profile_callable`, which is what keeps the state provider swappable in tests and keeps
+  `AppState` itself unaware that Play exists.
+
+Artwork is already drawn for all 25, one file per `AchievementCatalog` id, in two sizes:
+
+| Where | Size | Purpose |
+|---|---|---|
+| `store/achievements/<id>.png` | 512×512 RGBA8 | uploaded in Play Console; never ships in the app |
+| `ui/achievements/<id>.png` | 192×192 RGBA8 | the `TrophyScreen` tile, 1.76 MB in the build |
+
+Console icons must be a 512×512 JPEG or a **32-bit** PNG — 32-bit meaning RGBA8, so a 24-bit file
+is rejected. `tools/resize-achievement-icons.ps1` regenerates both sets from the full-size
+originals and forces the pixel format; the originals live in `input/`, which is git-ignored and
+excluded from every export preset. `store/` carries a `.gdignore`, so the Console set is invisible
+to Godot and costs the build nothing.
+
+**Creating the 25 entries in Console** is a ZIP import rather than 250 form fields.
+`tools/export-play-achievements.ps1` writes `artifacts/play-achievements.zip` containing the three
+CSVs Console expects — no header rows, unquoted, comma-separated — plus the 25 icons:
+
+| File | Columns |
+|---|---|
+| `AchievementsMetadata.csv` | Name, Description, Incremental Value, Steps Needed, Initial State, Points, List Order |
+| `AchievementsLocalizations.csv` | Name, Localized name, Localized description, Locale |
+| `AchievementsIconsMappings.csv` | Name, icon filename |
+
+Names, descriptions and step targets are read from `AchievementCatalog` and `strings.csv`, so what
+Console shows is what the game shows, in all ten languages. English is the default locale and lives
+in the metadata file; the other nine are localization rows.
+
+**Locale codes come from the game's own language list in Play Games Services, not from the language
+tag.** A row naming a locale the game is not configured for rejects the entire import, and Console
+reports it by listing all 25 achievements rather than naming the locale — so the failure says
+nothing about where it is. Two of the nine break the `xx-YY` pattern: **Slovak is bare `sk`** and
+Norwegian is `no-NO`. `CONSOLE_LOCALES` in `tests/smoke/export_play_achievements.gd` mirrors the
+configured list and the suite fails on a code that is not in it; update both together if a language
+is added to the game in Console. Play points are the one editorial table — `POINTS` in
+`tests/smoke/export_play_achievements.gd` — spending 1075 of the 2000 a game may ever use, which
+leaves 925 for achievements added with later content. Everything is `Revealed`: nothing here is a
+spoiler. `tests/smoke/test_play_achievements_export.gd` fails if an achievement is added without a
+point value, if the budget is exceeded, or if any string in any language grows a comma.
+
+Regenerate and re-import after adding an achievement or rewording a string. Note that Console's own
+upload dialog spells the third file `AchievementsIconsMappings.csv` while Google's help page spells
+it `AchievementsIconMappings.csv`; the dialog wins, but rename it if an import is rejected.
 
 **P4 — Leaderboards. ☐**
 Total XP and best streak, gamer-tag identity, submissions on round end and sign-in. Last on purpose:
@@ -684,7 +749,7 @@ release check. §9 lists the specific items.
 method is a no-op when unavailable; the pending queue survives a failed submit and flushes once; no
 gameplay path ever blocks on a call.
 
-**Existing suite:** the full 284-test baseline must still pass. If a Play change requires editing a
+**Existing suite:** the full 301-test baseline must still pass. If a Play change requires editing a
 test that is not about Play, that is a signal the isolation in §5.5 has leaked.
 
 **Manual device matrix** (extends the checklist in [`RELEASES.md`](RELEASES.md)):

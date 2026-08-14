@@ -14,6 +14,7 @@ const PLUGIN_AUTOLOAD_PATH := "/root/GodotPlayGameServices"
 const SIGN_IN_CLIENT_SCRIPT := "res://addons/GodotPlayGameServices/scripts/sign_in/sign_in_client.gd"
 const SNAPSHOTS_CLIENT_SCRIPT := "res://addons/GodotPlayGameServices/scripts/snapshots/snapshots_client.gd"
 const PLAYERS_CLIENT_SCRIPT := "res://addons/GodotPlayGameServices/scripts/players/players_client.gd"
+const ACHIEVEMENTS_CLIENT_SCRIPT := "res://addons/GodotPlayGameServices/scripts/achievements/achievements_client.gd"
 const SNAPSHOT_NAME := "numblop_profile_v1"
 const SYNC_DEBOUNCE_SECONDS := 2.0
 const SYNC_TIMEOUT_SECONDS := 15.0
@@ -23,6 +24,11 @@ var _plugin: Node = null
 var _sign_in_client: Node = null
 var _snapshots_client: Node = null
 var _players_client: Node = null
+var _achievements_client: Node = null
+## What this launch has already told Play, so an unchanged achievement is not resent on every
+## round. Play is idempotent about both calls; this only keeps the traffic honest.
+var _published_unlocks: Dictionary = {}
+var _published_steps: Dictionary = {}
 var _signed_in := false
 var _player_id := ""
 var _sync_in_flight := false
@@ -40,6 +46,7 @@ var _sync_timer: Timer
 var _sync_timeout_timer: Timer
 var clock_override := Callable()
 var reload_profile_callable := Callable()
+var achievements_state_callable := Callable()
 var profile_path := SaveManager.PROFILE_PATH
 
 
@@ -57,8 +64,10 @@ func _ready() -> void:
     EventBus.profile_saved.connect(_on_local_profile_saved)
     EventBus.session_started.connect(_on_session_started)
     EventBus.session_ended.connect(_on_session_ended)
+    EventBus.achievements_unlocked.connect(_on_achievements_unlocked)
     EventBus.application_paused.connect(_on_application_paused)
     reload_profile_callable = Callable(AppState, "reload_profile_from_disk")
+    achievements_state_callable = Callable(AppState, "achievements_state")
     # Deferred so a slow or misbehaving plugin can never delay the first frame a child sees.
     call_deferred("_start")
 
@@ -69,6 +78,10 @@ func available() -> bool:
 
 func cloud_available() -> bool:
     return available() and _snapshots_client != null and _players_client != null
+
+
+func achievements_available() -> bool:
+    return available() and _achievements_client != null
 
 
 func signed_in() -> bool:
@@ -155,6 +168,7 @@ func _resolve_plugin() -> void:
     _sign_in_client = _create_client(SIGN_IN_CLIENT_SCRIPT, "NumblopSignInClient")
     _snapshots_client = _create_client(SNAPSHOTS_CLIENT_SCRIPT, "NumblopSnapshotsClient")
     _players_client = _create_client(PLAYERS_CLIENT_SCRIPT, "NumblopPlayersClient")
+    _achievements_client = _create_client(ACHIEVEMENTS_CLIENT_SCRIPT, "NumblopAchievementsClient")
     _connect_cloud_clients()
 
 
@@ -200,7 +214,13 @@ func _authenticate() -> void:
 
 func _on_user_authenticated(is_authenticated: bool) -> void:
     _update_sign_in_state(is_authenticated and enabled())
-    if not _signed_in or not cloud_available():
+    if not _signed_in:
+        return
+    # Backfill before anything else. A child may have played offline for months, and everything
+    # they earned in that time has to reach Play the first time they ever sign in. Achievements do
+    # not need the snapshot clients, so this does not wait on the cloud-save handshake.
+    publish_achievements()
+    if not cloud_available():
         return
     _players_client.load_current_player(true)
 
@@ -226,6 +246,10 @@ func _update_sign_in_state(state: bool) -> void:
         _sync_in_flight = false
         _verifying_upload = false
         _set_restore_pending(false)
+        # A different account must be told everything from scratch rather than inheriting what the
+        # previous one was already known to have.
+        _published_unlocks.clear()
+        _published_steps.clear()
     sign_in_state_changed.emit(_signed_in)
     _set_cloud_state(&"ready" if state else &"signed_out")
 
@@ -253,8 +277,68 @@ func _on_session_started(_question_count: int) -> void:
 
 func _on_session_ended() -> void:
     _practice_active = false
+    # Progress bars move with a finished round, so this is where step counts are refreshed.
+    publish_achievements()
     if _sync_requested and cloud_available() and signed_in() and not _upload_blocked_for_session:
         _sync_timer.start()
+
+
+## Sent the moment an achievement completes, mid-round included.
+##
+## Nothing here reads anything back or touches the local profile, so unlike a snapshot merge it
+## cannot disturb the question on screen. There is no reason to make a child wait for the round to
+## end before Play tells them what they just did.
+func _on_achievements_unlocked(_entries: Array) -> void:
+    publish_achievements()
+
+
+## Mirrors the local achievement state onto Play.
+##
+## Local is the truth and Play is the mirror: this only ever pushes, never reads back and never
+## changes anything the game owns. Every call is fire-and-forget — the plugin's replies are not even
+## connected — because an achievement that fails to reach Play must cost a child nothing at all.
+func publish_achievements() -> void:
+    if not achievements_available() or not signed_in() or not enabled():
+        return
+    if not achievements_state_callable.is_valid():
+        return
+    var state: Variant = achievements_state_callable.call()
+    if state is not Dictionary:
+        return
+    var entries: Variant = (state as Dictionary).get("achievements", [])
+    if entries is not Array:
+        return
+    for entry in entries:
+        if entry is Dictionary:
+            _publish_achievement(entry)
+
+
+func _publish_achievement(entry: Dictionary) -> void:
+    var local_id := String(entry.get("id", ""))
+    # An achievement can exist in the game before it exists in Console. Skipping it keeps the build
+    # playable; `tests/state/test_play_games_catalog.gd` is what stops it from shipping that way.
+    var play_id := PlayGamesCatalog.achievement_id(local_id)
+    if play_id.is_empty():
+        return
+
+    if bool(entry.get("completed", false)):
+        if _published_unlocks.has(local_id):
+            return
+        _published_unlocks[local_id] = true
+        _achievements_client.unlock_achievement(play_id)
+        return
+
+    var target := int(entry.get("target", 0))
+    # A one-step achievement has no progress to report; it is either unlocked or it is not.
+    if target <= 1:
+        return
+    var progress := clampi(int(entry.get("progress", 0)), 0, target)
+    if progress <= 0 or int(_published_steps.get(local_id, 0)) >= progress:
+        return
+    _published_steps[local_id] = progress
+    # Absolute steps, not a delta. Play keeps the higher value, which is exactly what a local
+    # mastery dip -- or a reinstall that has not merged yet -- must not be able to undo.
+    _achievements_client.set_achievement_steps(play_id, progress)
 
 
 func _on_application_paused() -> void:
@@ -585,12 +669,16 @@ func _set_plugin_for_test(
     fake_plugin: Node,
     fake_sign_in_client: Node = null,
     fake_snapshots_client: Node = null,
-    fake_players_client: Node = null
+    fake_players_client: Node = null,
+    fake_achievements_client: Node = null
 ) -> void:
     _plugin = fake_plugin
     _sign_in_client = fake_sign_in_client if fake_plugin != null else null
     _snapshots_client = fake_snapshots_client if fake_plugin != null else null
     _players_client = fake_players_client if fake_plugin != null else null
+    _achievements_client = fake_achievements_client if fake_plugin != null else null
+    _published_unlocks.clear()
+    _published_steps.clear()
     _signed_in = false
     _player_id = ""
     _sync_in_flight = false

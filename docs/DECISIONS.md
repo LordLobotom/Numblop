@@ -1,5 +1,58 @@
 # Numblop Decision Log
 
+## 2026-08-15 — Play achievements are pushed, never waited on
+
+- P3 is implemented. The 25 Console ids live in `scripts/autoload/PlayGamesCatalog.gd`, on the Play
+  side of the isolation wall because `scripts/app/` may not name Play at all.
+- **Unlocks go out immediately, mid-round included.** Cloud save defers to the end of a round
+  because a snapshot merge replaces the in-memory profile and would interrupt the question on
+  screen. An achievement push reads nothing back and writes nothing local, so that reason does not
+  apply, and making a child wait to be told what they just did is a worse experience for no gain.
+- **Steps are absolute rather than incremental.** `set_achievement_steps` keeps the higher value,
+  so a fact that drops below mastery 100, or a reinstall whose cloud merge has not landed yet,
+  cannot drag a Play progress bar backwards. `increment_achievement` would have made every retry
+  and every duplicate event corrupt the count.
+- Steps refresh on `session_ended` and on sign-in, not per answer: 25 network calls per tap is not
+  a trade worth making on a child's device for progress-bar precision nobody is watching.
+- **Sign-in backfills the whole state.** The expected case is a child who played offline for months
+  before any account existed. It runs before the cloud-save handshake, because achievements need
+  only the sign-in client.
+- Everything is fire-and-forget — the plugin's reply signals are deliberately not connected. There
+  is no failure here that a child should ever be told about, let alone blocked by.
+- An achievement with no Console id is skipped rather than raised, so a build can add one before
+  Console has it; a test is what stops that reaching a release.
+
+## 2026-08-15 — Achievement art ships at the size each destination needs, and nowhere else
+
+- 25 icons arrived as 1254 px squares, 51 MB in total. Left in `assets/` they would have been
+  imported losslessly and exported: measured at 0.82× source, that is **+41 MB**, taking the AAB
+  from 67 MB to about 108 MB. The trophy tile is 64 px.
+- Three destinations, each already behaving the way this needs, so nothing new was invented:
+  `store/achievements/` at 512×512 for Play Console (`store/.gdignore` hides it from Godot and
+  `store/*` is in every preset's `exclude_filter`, yet it is tracked in git);
+  `ui/achievements/` at 192×192 for `TrophyScreen`, which is 3× the tile and **1.76 MB** in the
+  build; and `input/achievements/` for the originals, git-ignored and export-excluded already.
+  A `.gdignore` was added to that one subfolder so 51 MB is never imported either.
+- The originals stay out of git deliberately. Git history is permanent — 51 MB committed once is
+  51 MB in every clone forever, even after a later delete.
+- **The black backdrop is masked off.** Every icon is a round medallion inscribed in a square with
+  pure-black corners. Composited unchanged it read as a black square with hard corners sitting on
+  the rounded cream tile. `tools/resize-achievement-icons.ps1` cuts the inscribed circle at full
+  resolution and only then downscales, so the rim is antialiased by the resample rather than left
+  stair-stepped.
+- Both sets are RGBA8. For Play Console that is a requirement, not a preference: it accepts a
+  512×512 JPEG or a **32-bit** PNG, and 32-bit means RGBA8, so ffmpeg's `-pix_fmt rgba` is load
+  bearing — an opaque source would otherwise encode as 24-bit and be rejected.
+- `TrophyScreen.achievement_icon` resolves `res://ui/achievements/<id>.png` and falls back to the
+  shared trophy crest when a file is missing, so an achievement can enter the catalog before its
+  art is drawn. `tests/ui/test_trophy_screen.gd` pins that every catalog id has artwork, that it is
+  192×192, and that no two achievements share a file.
+- **The Play Console import is generated, not typed.** `tools/export-play-achievements.ps1` builds
+  the ZIP of three CSVs plus icons from `AchievementCatalog` and `strings.csv`. Retyping 25 names
+  and 225 localized rows into a web form would drift the first time a string is reworded, and there
+  is no reason for Console to disagree with the game about what an achievement is called. Only the
+  Play point values are editorial, and a test fails if a new achievement arrives without one.
+
 ## 2026-08-14 — The tutorial yields to a restored save, and shows the shop without selling
 
 - **A reloaded profile ends the tutorial.** The overlay read `AppState.onboarding` once at boot,

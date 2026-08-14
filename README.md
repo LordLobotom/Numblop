@@ -14,7 +14,7 @@ Public version `0.4.2`, Play version code `14`.
 
 ## Project status
 
-The complete game loop is playable and covered by 284 automated tests plus bilingual responsive
+The complete game loop is playable and covered by 301 automated tests plus bilingual responsive
 screenshot captures. Progression, cosmetics, achievements, and the guided tutorial are all
 implemented and persisted.
 
@@ -104,9 +104,11 @@ configuration. All coins are earned by playing.
 
 A Google Play Games Services integration — sign-in, cloud saves, and XP/best-streak leaderboards —
 is approved and under way; the plan is [`docs/GOOGLE_PLAY_GAMES.md`](docs/GOOGLE_PLAY_GAMES.md).
-Save version 10, the cloud-save merge, Android sign-in, and the normal snapshot load/merge/upload
-path are implemented. Cloud save is on by default, and Google — with Family Link for supervised
-children — owns the account decision. The vendored plugin exposes conflicting snapshots but no API
+Save version 10, the cloud-save merge, Android sign-in, the normal snapshot load/merge/upload path,
+and the achievement mirror are implemented. Cloud save is on by default, and Google — with Family
+Link for supervised children — owns the account decision. Achievements are only ever pushed to
+Play: unlocks go out as they happen, progress is sent as an absolute step count that Play cannot be
+moved backwards from, and signing in for the first time backfills everything earned offline. The vendored plugin exposes conflicting snapshots but no API
 to resolve their conflict id, so Numblop preserves and merges those candidates locally and blocks
 upload for that launch instead of risking an overwrite. All Play code remains confined to one
 autoload, and a failed or refused sign-in costs a player nothing.

@@ -95,6 +95,23 @@ class FakePlayersClient:
         current_player_loaded.emit({"player_id": player_id})
 
 
+## Records what would have gone to Play. Nothing answers back, because nothing in the game waits
+## for an achievement call to return.
+class FakeAchievementsClient:
+    extends Node
+
+    signal achievement_unlocked(is_unlocked: bool, achievement_id: String)
+
+    var unlocked: Array[String] = []
+    var steps: Array[Array] = []
+
+    func unlock_achievement(achievement_id: String) -> void:
+        unlocked.append(achievement_id)
+
+    func set_achievement_steps(achievement_id: String, num_steps: int) -> void:
+        steps.append([achievement_id, num_steps])
+
+
 func test_cloud_save_is_on_for_a_device_that_has_never_been_configured() -> void:
     # Both the fresh-install case and an existing settings file written before the key existed:
     # the missing value reads as on, so nobody has to find a switch to get their progress backed up.
@@ -634,8 +651,158 @@ func test_switching_cloud_save_off_releases_a_pending_restore() -> void:
     _remove_cloud_profile()
 
 
+func test_signing_in_backfills_everything_earned_offline() -> void:
+    # The case that matters most: a child who played for months with no account, then signs in
+    # once. Everything they already earned has to arrive, not just what happens next.
+    var state := _install_fake_plugin(true, false, true)
+    PlayGames.achievements_state_callable = func() -> Dictionary:
+        return {"achievements": [
+            {"id": "first_steps", "target": 1, "progress": 1, "completed": true},
+            {"id": "streak_50", "target": 50, "progress": 37, "completed": false},
+            {"id": "island_2", "target": 10, "progress": 10, "completed": true},
+        ]}
+
+    PlayGames._on_user_authenticated(true)
+    var achievements: FakeAchievementsClient = state["achievements"]
+    equal(achievements.unlocked.size(), 2, "Both finished achievements are unlocked")
+    check(
+        achievements.unlocked.has(PlayGamesCatalog.achievement_id("first_steps"))
+            and achievements.unlocked.has(PlayGamesCatalog.achievement_id("island_2")),
+        "Unlocked by their Play ids, not their local ones"
+    )
+    equal(achievements.steps.size(), 1, "Only the unfinished one reports progress")
+    equal(
+        achievements.steps[0],
+        [PlayGamesCatalog.achievement_id("streak_50"), 37],
+        "Absolute step count, so Play can never be moved backwards"
+    )
+
+    _remove_fake_plugin(state)
+
+
+func test_an_achievement_reaches_play_without_waiting_for_the_round_to_end() -> void:
+    # Unlike a snapshot merge, this reads nothing back and touches no local state, so there is
+    # nothing for it to disturb mid-question -- and nothing worth making a child wait for.
+    var state := _install_fake_plugin(true, false, true)
+    # A dictionary, because a lambda captures a local by value: reassigning a bool after building
+    # the callable would never be seen inside it.
+    var live := {"completed": false}
+    PlayGames.achievements_state_callable = func() -> Dictionary:
+        var completed := bool(live["completed"])
+        return {"achievements": [
+            {"id": "streak_10", "target": 10, "progress": 10 if completed else 4,
+                "completed": completed},
+        ]}
+    PlayGames._on_user_authenticated(true)
+    var achievements: FakeAchievementsClient = state["achievements"]
+    equal(achievements.unlocked.size(), 0, "Nothing is unlocked yet")
+
+    EventBus.session_started.emit(10)
+    live["completed"] = true
+    EventBus.achievements_unlocked.emit([])
+    equal(achievements.unlocked.size(), 1, "The unlock is sent during the round")
+    equal(
+        achievements.unlocked[0],
+        PlayGamesCatalog.achievement_id("streak_10"),
+        "And it is the right one"
+    )
+
+    EventBus.session_ended.emit()
+    _remove_fake_plugin(state)
+
+
+func test_nothing_unchanged_is_sent_to_play_twice() -> void:
+    var state := _install_fake_plugin(true, false, true)
+    # See above: the lambda has to read through a reference type to see later changes.
+    var live := {"progress": 20}
+    PlayGames.achievements_state_callable = func() -> Dictionary:
+        return {"achievements": [
+            {"id": "first_steps", "target": 1, "progress": 1, "completed": true},
+            {
+                "id": "experience_500",
+                "target": 500,
+                "progress": int(live["progress"]),
+                "completed": false,
+            },
+        ]}
+
+    PlayGames._on_user_authenticated(true)
+    PlayGames.publish_achievements()
+    var achievements: FakeAchievementsClient = state["achievements"]
+    equal(achievements.unlocked.size(), 1, "A finished achievement is unlocked once per launch")
+    equal(achievements.steps.size(), 1, "An unchanged step count is not resent")
+
+    live["progress"] = 45
+    PlayGames.publish_achievements()
+    equal(achievements.steps.size(), 2, "Real progress is sent")
+    equal(achievements.steps[1][1], 45, "With the new absolute value")
+
+    live["progress"] = 30
+    PlayGames.publish_achievements()
+    equal(achievements.steps.size(), 2, "A local dip is never pushed as a lower step count")
+
+    _remove_fake_plugin(state)
+
+
+func test_a_signed_out_or_switched_off_player_sends_nothing() -> void:
+    var state := _install_fake_plugin(true, false, true)
+    PlayGames.achievements_state_callable = func() -> Dictionary:
+        return {"achievements": [
+            {"id": "first_steps", "target": 1, "progress": 1, "completed": true},
+        ]}
+    var achievements: FakeAchievementsClient = state["achievements"]
+
+    PlayGames.publish_achievements()
+    equal(achievements.unlocked.size(), 0, "Signed out, Play hears nothing")
+
+    PlayGames._on_user_authenticated(true)
+    equal(achievements.unlocked.size(), 1, "Signed in, it does")
+
+    PlayGames._update_sign_in_state(false)
+    PlayGames.publish_achievements()
+    equal(achievements.unlocked.size(), 1, "Signing out stops it again")
+
+    # A different account must be told from scratch rather than inheriting the last one's state.
+    PlayGames._on_user_authenticated(true)
+    equal(achievements.unlocked.size(), 2, "A fresh sign-in republishes everything")
+
+    _remove_fake_plugin(state)
+
+
+func test_an_achievement_missing_from_console_is_skipped_not_crashed() -> void:
+    var state := _install_fake_plugin(true, false, true)
+    PlayGames.achievements_state_callable = func() -> Dictionary:
+        return {"achievements": [
+            {"id": "not_in_console_yet", "target": 1, "progress": 1, "completed": true},
+            {"id": "first_steps", "target": 1, "progress": 1, "completed": true},
+        ]}
+    PlayGames._on_user_authenticated(true)
+    var achievements: FakeAchievementsClient = state["achievements"]
+    equal(achievements.unlocked.size(), 1, "The known achievement still reaches Play")
+    equal(
+        achievements.unlocked[0],
+        PlayGamesCatalog.achievement_id("first_steps"),
+        "And the unmapped one is simply skipped"
+    )
+    _remove_fake_plugin(state)
+
+
+func test_a_device_without_the_achievements_client_still_plays() -> void:
+    var state := _install_fake_plugin(true, false, false)
+    check(not PlayGames.achievements_available(), "No achievements client, no achievements")
+    PlayGames._on_user_authenticated(true)
+    check(PlayGames.signed_in(), "Sign-in is unaffected")
+    PlayGames.publish_achievements()
+    EventBus.session_ended.emit()
+    _remove_fake_plugin(state)
+
+
 ## Installs the plugin doubles and sets the switch, returning what the caller must clean up.
-func _install_fake_plugin(cloud_save_on: bool, with_cloud := false) -> Dictionary:
+func _install_fake_plugin(
+    cloud_save_on: bool,
+    with_cloud := false,
+    with_achievements := false
+) -> Dictionary:
     var previous := SettingsManager.play_games_enabled
     SettingsManager.play_games_enabled = cloud_save_on
     var plugin := FakePlugin.new()
@@ -643,17 +810,22 @@ func _install_fake_plugin(cloud_save_on: bool, with_cloud := false) -> Dictionar
     PlayGames.add_child(client)
     var snapshots: Node = null
     var players: Node = null
+    var achievements: Node = null
     if with_cloud:
         snapshots = FakeSnapshotsClient.new()
         players = FakePlayersClient.new()
         PlayGames.add_child(snapshots)
         PlayGames.add_child(players)
-    PlayGames._set_plugin_for_test(plugin, client, snapshots, players)
+    if with_achievements:
+        achievements = FakeAchievementsClient.new()
+        PlayGames.add_child(achievements)
+    PlayGames._set_plugin_for_test(plugin, client, snapshots, players, achievements)
     return {
         "plugin": plugin,
         "client": client,
         "snapshots": snapshots,
         "players": players,
+        "achievements": achievements,
         "previous": previous,
     }
 
@@ -663,7 +835,7 @@ func _remove_fake_plugin(state: Dictionary) -> void:
     var client: Node = state["client"]
     PlayGames.remove_child(client)
     client.free()
-    for key in ["snapshots", "players"]:
+    for key in ["snapshots", "players", "achievements"]:
         var cloud_client: Node = state.get(key)
         if cloud_client != null:
             PlayGames.remove_child(cloud_client)
@@ -671,6 +843,7 @@ func _remove_fake_plugin(state: Dictionary) -> void:
     state["plugin"].free()
     SettingsManager.play_games_enabled = bool(state["previous"])
     PlayGames.reload_profile_callable = Callable(AppState, "reload_profile_from_disk")
+    PlayGames.achievements_state_callable = Callable(AppState, "achievements_state")
 
 
 ## The one screen allowed to know about Play Games: it is the switch that turns it on.
