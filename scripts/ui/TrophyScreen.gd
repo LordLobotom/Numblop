@@ -13,6 +13,8 @@ const BOLD_FONT: Font = preload("res://ui/fonts/Baloo2Bold.tres")
 const CARD_HEIGHT := 92.0
 const ICON_TILE_SIZE := 64.0
 const LOCKED_ICON_MODULATE := Color(1.0, 1.0, 1.0, 0.45)
+## One icon per achievement id, drawn at 192 px so a 64 px tile still holds up at 3x.
+const ICON_DIRECTORY := "res://ui/achievements"
 
 @onready var title_label: Label = %TitleLabel
 @onready var best_label: Label = %BestLabel
@@ -20,6 +22,9 @@ const LOCKED_ICON_MODULATE := Color(1.0, 1.0, 1.0, 0.45)
 @onready var navigation: NavBar = $SafeArea/Content/Navigation
 
 var _state: Dictionary = {}
+## Resolved icons by achievement id. The card list is thrown away and rebuilt on every refresh and
+## on every language change, so the lookup is cached rather than repeated 25 times a rebuild.
+var _icons: Dictionary = {}
 
 
 func _ready() -> void:
@@ -78,7 +83,7 @@ func _achievement_card(entry: Dictionary) -> PanelContainer:
     var row := HBoxContainer.new()
     row.add_theme_constant_override("separation", 10)
     card.add_child(row)
-    row.add_child(_icon_tile(completed))
+    row.add_child(_icon_tile(String(entry.get("id", "")), completed))
 
     var details := VBoxContainer.new()
     details.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -108,21 +113,38 @@ func _achievement_card(entry: Dictionary) -> PanelContainer:
     return card
 
 
-func _icon_tile(completed: bool) -> PanelContainer:
+func _icon_tile(achievement_id: String, completed: bool) -> PanelContainer:
     var tile := PanelContainer.new()
     tile.custom_minimum_size = Vector2(ICON_TILE_SIZE, ICON_TILE_SIZE)
     tile.size_flags_vertical = Control.SIZE_SHRINK_CENTER
     tile.add_theme_stylebox_override("panel", _icon_tile_style(completed))
 
-    # Placeholder art: every achievement shares the trophy crest until dedicated icons exist.
     var icon := TextureRect.new()
-    icon.texture = TROPHY_TEXTURE
+    icon.texture = achievement_icon(achievement_id)
     icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
     icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
     icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
     icon.modulate = Color.WHITE if completed else LOCKED_ICON_MODULATE
     tile.add_child(icon)
     return tile
+
+
+## The artwork for one achievement, named after its id, or the shared trophy crest when there is
+## none.
+##
+## The fallback is what lets an achievement be added to the catalog before its art is drawn: the
+## new row appears with the old placeholder instead of an empty tile or a broken load.
+func achievement_icon(achievement_id: String) -> Texture2D:
+    if _icons.has(achievement_id):
+        return _icons[achievement_id]
+    var icon := TROPHY_TEXTURE
+    var icon_path := "%s/%s.png" % [ICON_DIRECTORY, achievement_id]
+    if not achievement_id.is_empty() and ResourceLoader.exists(icon_path):
+        var loaded: Resource = load(icon_path)
+        if loaded is Texture2D:
+            icon = loaded
+    _icons[achievement_id] = icon
+    return icon
 
 
 func _footer_row(entry: Dictionary, completed: bool) -> HBoxContainer:
