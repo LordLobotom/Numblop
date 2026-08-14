@@ -111,6 +111,34 @@ switch ($Target) {
                 "GODOT_ANDROID_KEYSTORE_RELEASE_PATH", $KeystorePath, "Process"
             )
         }
+
+        # With the keystore known, the rest can be discovered rather than typed: the encrypted
+        # password normally sits beside it under the same base name, and a keystore knows its own
+        # alias. That is what lets a release export run with no arguments at all.
+        $resolvedKeystore = [Environment]::GetEnvironmentVariable(
+            "GODOT_ANDROID_KEYSTORE_RELEASE_PATH"
+        )
+        if ($PasswordFile -eq "") {
+            $PasswordFile = $env:GODOT_ANDROID_KEYSTORE_RELEASE_PASSWORD_FILE
+        }
+        if ([string]::IsNullOrWhiteSpace($PasswordFile) `
+                -and -not [string]::IsNullOrWhiteSpace($resolvedKeystore)) {
+            $adjacentPassword = [System.IO.Path]::ChangeExtension($resolvedKeystore, ".pwd")
+            if (Test-Path -LiteralPath $adjacentPassword -PathType Leaf) {
+                $PasswordFile = $adjacentPassword
+            }
+        }
+        if ([string]::IsNullOrWhiteSpace($PasswordFile)) {
+            $PasswordFile = ""
+        }
+        if ($Alias -eq "" `
+                -and [string]::IsNullOrWhiteSpace($env:GODOT_ANDROID_KEYSTORE_RELEASE_USER) `
+                -and $PasswordFile -ne "" `
+                -and -not [string]::IsNullOrWhiteSpace($resolvedKeystore)) {
+            $Alias = Get-NumblopKeystoreAlias `
+                -KeystorePath $resolvedKeystore -PasswordFile $PasswordFile
+        }
+
         if ($Alias -ne "") {
             [Environment]::SetEnvironmentVariable(
                 "GODOT_ANDROID_KEYSTORE_RELEASE_USER", $Alias, "Process"
@@ -217,5 +245,7 @@ finally {
 if ($Target -eq "android-release-unsigned") {
     Write-Host ""
     Write-Host "Unsigned bundle ready. Sign it with:" -ForegroundColor Cyan
-    Write-Host "  tools/sign-aab.ps1 -KeystorePath <keystore.jks> -Alias <alias>"
+    Write-Host "  tools/sign-aab.ps1"
+    Write-Host ("  (add -KeystorePath/-Alias/-PasswordFile only when they cannot be " +
+        "discovered; see docs/RELEASES.md)")
 }

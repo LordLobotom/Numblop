@@ -2,7 +2,7 @@
 
 Legend: ☐ todo · ◐ in progress · ☑ done
 
-Status reviewed against the code on 2026-08-13 at version `0.4.2` / Play version code `14`, with 274
+Status reviewed against the code on 2026-08-15 at version `0.4.6` / Play version code `18`, with 301
 tests passing.
 
 ## M0 — Foundation ☑
@@ -69,7 +69,7 @@ question for the usability pass in M2.
 
 - ☑ Final icons (adaptive foreground/background/monochrome), boot splash, store text and 9:16
   screenshots (`store/`), privacy disclosure (`docs/privacy/`).
-- ☑ Version `0.4.5` / Play version code `17`, pinned across project and both Android presets by
+- ☑ Version `0.4.6` / Play version code `18`, pinned across project and both Android presets by
   `tests/smoke/test_project_contract.gd`.
 - ☑ AAB verification tooling (`tools/verify-aab.ps1`) and an interactive signing path that never
   places the keystore password in a file, variable, or shell history.
