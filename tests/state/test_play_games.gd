@@ -561,6 +561,79 @@ func test_an_unresolvable_plugin_conflict_is_merged_locally_and_never_overwritte
     _remove_cloud_profile()
 
 
+func test_a_restore_that_could_replace_this_device_is_announced_on_the_bus() -> void:
+    # This is what lets a scene wait for a restore without ever naming Play Games, and it is why a
+    # reinstalled child is not walked through the tutorial the cloud already finished for them.
+    _remove_cloud_profile()
+    SaveManager.save_game_state(LearningProfile.new(), 3, 3, TEST_CLOUD_PATH)
+    var state := _install_fake_plugin(true, true)
+    PlayGames.profile_path = TEST_CLOUD_PATH
+    PlayGames.reload_profile_callable = func() -> void: pass
+
+    var announced: Array = []
+    var listener := func(pending: bool) -> void: announced.append(pending)
+    EventBus.external_restore_pending.connect(listener)
+
+    PlayGames._on_user_authenticated(true)
+    state["players"].answer("player-one")
+    check(PlayGames.restore_pending(), "A started comparison could still bring a remote save")
+    equal(announced.size(), 1, "The wait is announced once, not once per check")
+    equal(announced[0], true, "The bus carries the raised flag")
+
+    state["snapshots"].answer_loaded(null)
+    check(
+        not PlayGames.restore_pending(),
+        "An empty cloud cannot replace anything, so nothing waits for the upload to finish"
+    )
+    equal(announced.size(), 2, "The end of the wait is announced too")
+    equal(announced[1], false, "The bus carries the lowered flag")
+
+    EventBus.external_restore_pending.disconnect(listener)
+    _remove_fake_plugin(state)
+    _remove_cloud_profile()
+
+
+func test_a_comparison_that_never_answers_still_ends_the_wait() -> void:
+    # Nothing in the game may wait on the network forever. The sync timeout is the guarantee, so a
+    # silent server can never leave a screen holding back what it wanted to show.
+    _remove_cloud_profile()
+    SaveManager.save_game_state(LearningProfile.new(), 1, 1, TEST_CLOUD_PATH)
+    var state := _install_fake_plugin(true, true)
+    PlayGames.profile_path = TEST_CLOUD_PATH
+    PlayGames.reload_profile_callable = func() -> void: pass
+
+    PlayGames._on_user_authenticated(true)
+    state["players"].answer("player-one")
+    check(PlayGames.restore_pending(), "The comparison is outstanding")
+
+    PlayGames._on_sync_timeout()
+    check(not PlayGames.restore_pending(), "A timed-out comparison releases the wait")
+
+    _remove_fake_plugin(state)
+    _remove_cloud_profile()
+
+
+func test_switching_cloud_save_off_releases_a_pending_restore() -> void:
+    # `set_enabled` persists, and the only path it persists to is the real settings file.
+    _remove_cloud_profile()
+    var restore_settings: Variant = preserve_settings_file()
+    SaveManager.save_game_state(LearningProfile.new(), 1, 1, TEST_CLOUD_PATH)
+    var state := _install_fake_plugin(true, true)
+    PlayGames.profile_path = TEST_CLOUD_PATH
+    PlayGames.reload_profile_callable = func() -> void: pass
+
+    PlayGames._on_user_authenticated(true)
+    state["players"].answer("player-one")
+    check(PlayGames.restore_pending(), "The comparison is outstanding")
+
+    PlayGames.set_enabled(false)
+    check(not PlayGames.restore_pending(), "Turning backup off cannot strand a waiting screen")
+
+    _remove_fake_plugin(state)
+    restore_settings_file(restore_settings)
+    _remove_cloud_profile()
+
+
 ## Installs the plugin doubles and sets the switch, returning what the caller must clean up.
 func _install_fake_plugin(cloud_save_on: bool, with_cloud := false) -> Dictionary:
     var previous := SettingsManager.play_games_enabled

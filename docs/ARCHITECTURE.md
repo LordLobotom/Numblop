@@ -185,7 +185,10 @@ file is the contract; do not restate its field list here.
   (round, mastery bonus, achievements, total) step by step, then holds until the auto-return or a tap.
 - `OnboardingTutorial` is a sibling overlay in `Main.tscn` that drives a finger through the whole
   loop. It resolves its targets through accessors the screens expose, so it never reaches into their
-  internals, and it records its step through `AppState` so a restart resumes there.
+  internals, and it records its step through `AppState` so a restart resumes there. It re-reads that
+  state on `EventBus.profile_reloaded` rather than trusting what it read at boot, and holds the
+  finger back while `EventBus.external_restore_pending` says a remote save could still replace the
+  profile — both provider-agnostic, so the overlay never names Play Games.
 
 ## Localization
 

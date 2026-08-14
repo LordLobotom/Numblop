@@ -7,6 +7,13 @@ Status values: `TODO`, `WIP(@agent)`, `BLOCKED(reason)`, `DONE`.
 Everything below this section is kept as a historical ledger of what each track built and which
 files it owned. These release and M5 items remain open:
 
+- `B31 DONE` Stop the guided tutorial replaying on a restored profile, and shorten its shop detour
+  to one Buy-button step that requires no purchase. The overlay now re-reads onboarding state on
+  `EventBus.profile_reloaded` and holds the finger while `EventBus.external_restore_pending` is
+  raised; the hats-tab and first-hat steps and the now-dead `CosmeticsScreen` accessors are gone.
+  Owns: `scripts/ui/OnboardingTutorial.gd`, `scripts/ui/CosmeticsScreen.gd`,
+  `scripts/autoload/EventBus.gd`, `scripts/autoload/PlayGames.gd`,
+  `tests/ui/test_onboarding_tutorial.gd`, `tests/state/test_play_games.gd`.
 - `D26 DONE` Replace/link the PGS Android OAuth credential for
   `cz.gutcloud.numblop` using the Play App Signing SHA-1
   `ED:48:7F:8E:CE:13:07:05:A1:6D:3E:45:70:F9:4A:B3:4F:BF:C1:B7`. After Console propagation, hardware

@@ -103,7 +103,8 @@ Complete this checklist on the phone while it remains disconnected from Wi-Fi an
 2. Select English, relaunch, then select Czech and relaunch; each remembered choice must persist.
    Spot-check German and Finnish for the longest strings overflowing a button.
 3. On a fresh install, follow the guided finger tutorial end to end; then kill the app mid-tutorial
-   and confirm it resumes on the step it stopped at, and never replays once completed.
+   and confirm it resumes on the step it stopped at, and never replays once completed. Leave the
+   shop **without buying anything** at least once and confirm the finger moves on to Home.
 4. Stroke the blob and confirm the happy face, heart, and animation respond without requiring sound.
    A plain tap must do nothing.
 5. Open Settings; switch languages, adjust both volume bars, verify mute, toggle haptics off and

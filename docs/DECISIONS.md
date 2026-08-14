@@ -1,5 +1,34 @@
 # Numblop Decision Log
 
+## 2026-08-14 — The tutorial yields to a restored save, and shows the shop without selling
+
+- **A reloaded profile ends the tutorial.** The overlay read `AppState.onboarding` once at boot,
+  so a fresh install or a second device latched "not onboarded" while the cloud restore was still
+  arriving, and walked a child who had already been taught through the whole loop again. It now
+  re-reads that state on `EventBus.profile_reloaded`: completed ends the sequence, and a further
+  saved step moves the finger forward. It never rewinds -- the merge already takes the further of
+  the two devices' steps, and walking a child back to a control they have used teaches nothing.
+- **The finger waits for a restore that could still cancel it.** `PlayGames` publishes
+  `EventBus.external_restore_pending` while a remote comparison is outstanding, and the overlay
+  holds the finger back on a profile that has played nothing and tapped nothing. The bus carries
+  the fact alone, so the scene never names Play Games and the isolation rule in §5.5 of
+  `GOOGLE_PLAY_GAMES.md` still holds. The flag is lowered as soon as the *download* half resolves:
+  the upload that follows is this device's own data going out and cannot change what is on screen.
+  Nothing is gated -- offline no comparison ever starts, and online the existing 15 s sync timeout
+  bounds the wait. Only the finger is withheld; the game is fully playable throughout.
+- **The shop is one step, and nothing has to be bought.** Hats tab and first hat are gone; the
+  finger goes from the Outfit crest straight to the Buy button, and the step ends when the child
+  buys anything or leaves the shop. Pointing at Buy is safe unconditionally because
+  `CosmeticsScreen` keeps that button visible on every path.
+- The affordability exit is dropped with them. Every paid item costs 100 coins and a first round
+  pays roughly 10-30, so `coins < price` was true on the frame the step began -- the Buy button was
+  never actually pointed at. With no purchase required and leaving always allowed, the step cannot
+  dead-end, so the exit bought nothing but invisibility.
+- `CosmeticsScreen.item_card` and `previewed_item` existed only for the two deleted steps and were
+  removed with them. The screens still expose `correct_answer_control` and `stage_button`.
+- The nine steps are: Play, the correct answer, the chest, the Cosmetics crest, Buy, Home, Play
+  again, the Map crest after the next completed round, and the open island.
+
 ## 2026-08-13 - Cloud synchronization never applies a profile during practice
 
 Hardware testing of code 16 exposed a lifecycle race rather than an Android crash. Every answer is
@@ -691,6 +720,7 @@ recorded on 2026-08-01.
   answer on the first question, the reward chest, the Cosmetics crest, the Hats tab, the first
   hat, Buy, Home, Play again, the Map crest after the next completed round, and the open island.
   Then it marks itself completed and never runs again.
+  *(Superseded on 2026-08-14: the shop is now shown in one step and nothing has to be bought.)*
 - The overlay ignores input. Nothing is gated, dimmed, or blocked; a child who ignores the finger
   plays the game normally. The finger is guidance, not a modal.
 - Steps advance on state the app already publishes -- a started session, a correct answer, a
@@ -704,6 +734,7 @@ recorded on 2026-08-01.
 - The buy step also ends if the hat has become unaffordable, so a child who spent their coins
   elsewhere is never left with a finger on a permanently disabled button. On the intended path
   the First Steps achievement pays 100 coins with the first round, which covers the hat.
+  *(Superseded on 2026-08-14: no affordability exit, because nothing has to be bought.)*
 - Save v9 stores `{completed, step}`. The step is kept so closing the game mid-tutorial resumes
   on the same control; only `completed` decides whether the tutorial ever runs again.
 - A save written before v9 that already has completed rounds counts as onboarded. That child

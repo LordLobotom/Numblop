@@ -14,7 +14,7 @@ Public version `0.4.2`, Play version code `14`.
 
 ## Project status
 
-The complete game loop is playable and covered by 274 automated tests plus bilingual responsive
+The complete game loop is playable and covered by 284 automated tests plus bilingual responsive
 screenshot captures. Progression, cosmetics, achievements, and the guided tutorial are all
 implemented and persisted.
 

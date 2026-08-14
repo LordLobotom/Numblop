@@ -338,7 +338,9 @@ Rules that keep this from infecting the rest of the codebase:
   deleting the addon leaves the file parsing and reporting unavailable rather than breaking the
   build. **No `#if`-style platform branching anywhere else.**
 - Only `SettingsScreen` may reference the autoload, and only to offer the switch. `AppState` never
-  calls it; save and pause triggers reach `PlayGames` through `EventBus`. A provider-neutral
+  calls it; save and pause triggers reach `PlayGames` through `EventBus`, and the one fact it
+  publishes back the same way is `external_restore_pending`, which says a remote save could still
+  replace this device without naming who is bringing it. A provider-neutral
   `AppState.reload_profile_from_disk()` callable refreshes runtime models after a durable merge. A test walks
   `scripts/core/`, `scripts/app/`, `scripts/ui/` and `scenes/` and enforces this, with a second test
   asserting that `scripts/core/` and `scripts/app/` can never be added to the exemption list.
@@ -682,7 +684,7 @@ release check. §9 lists the specific items.
 method is a no-op when unavailable; the pending queue survives a failed submit and flushes once; no
 gameplay path ever blocks on a call.
 
-**Existing suite:** the full 274-test baseline must still pass. If a Play change requires editing a
+**Existing suite:** the full 284-test baseline must still pass. If a Play change requires editing a
 test that is not about Play, that is a signal the isolation in §5.5 has leaked.
 
 **Manual device matrix** (extends the checklist in [`RELEASES.md`](RELEASES.md)):
@@ -692,7 +694,8 @@ test that is not about Play, that is a signal the isolation in §5.5 has leaked.
 | 1 | Never sign in, play a full session | Byte-for-byte the current experience; no dialogs |
 | 2 | Airplane mode from launch, full round, chest, purchase | Everything works; nothing hangs |
 | 3 | Sign in on a device with local progress, cloud empty | Local uploads, nothing changes on screen |
-| 4 | Reinstall, sign in, cloud has progress | Progress restored, tutorial does not replay |
+| 4 | Reinstall, sign in, cloud has progress | Progress restored, tutorial does not replay — no finger appears at all, not even briefly |
+| 4b | Second device, first launch, signed into the same account | Same as 4: a fresh local save is the same code path as a reinstall |
 | 5 | Two devices, both offline, different purchases, then both sync | Both items owned on both devices, coins non-negative, identical final state |
 | 6 | Sign out mid-session | Play stops, game continues, local save intact |
 | 7 | Kill the app during a snapshot write | Local profile still loads; backup used if needed |

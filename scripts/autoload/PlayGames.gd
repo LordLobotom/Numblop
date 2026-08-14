@@ -33,6 +33,7 @@ var _verifying_upload := false
 var _pending_upload_json := ""
 var _pending_upload_counter := 0
 var _verification_failures := 0
+var _restore_pending := false
 var _cloud_state: StringName = &"signed_out"
 var _practice_active := false
 var _sync_timer: Timer
@@ -224,6 +225,7 @@ func _update_sign_in_state(state: bool) -> void:
         _player_id = ""
         _sync_in_flight = false
         _verifying_upload = false
+        _set_restore_pending(false)
     sign_in_state_changed.emit(_signed_in)
     _set_cloud_state(&"ready" if state else &"signed_out")
 
@@ -284,6 +286,8 @@ func _begin_sync_if_needed() -> void:
     _force_remote_check = false
     _sync_in_flight = true
     _verifying_upload = false
+    # From here until the comparison resolves, the local save may still be replaced by a remote one.
+    _set_restore_pending(true)
     _set_cloud_state(&"syncing")
     _snapshots_client.load_game(SNAPSHOT_NAME, false)
     _sync_timeout_timer.start()
@@ -331,6 +335,9 @@ func _on_game_loaded(snapshot: Variant) -> void:
             _set_cloud_state(&"synced")
             _finish_sync()
         else:
+            # Nothing came back, so nothing can overwrite this device. The upload that follows is
+            # this device's own data going out and cannot change what is already on screen.
+            _set_restore_pending(false)
             _upload_state(local)
         return
     if CloudSaveMerge.has_progress(local) and CloudSaveMerge.has_progress(remote):
@@ -343,6 +350,8 @@ func _on_game_loaded(snapshot: Variant) -> void:
         _block_upload(&"local_write_failed")
         return
     _reload_runtime_profile()
+    # The restored state is on disk and in memory; the rest of this sync only pushes it back out.
+    _set_restore_pending(false)
     _upload_state(SaveManager.load_state(profile_path))
 
 
@@ -465,6 +474,10 @@ func _finish_sync() -> void:
     _verifying_upload = false
     _pending_upload_json = ""
     _pending_upload_counter = 0
+    # Announced only once this autoload has settled, and the backstop for every path that ends a
+    # sync early: a timeout, a block, a deferral to the end of practice, or a sign-out. Nothing may
+    # leave the flag raised.
+    _set_restore_pending(false)
     if _sync_requested and not _upload_blocked_for_session:
         call_deferred("_begin_sync_if_needed")
 
@@ -479,6 +492,21 @@ func _on_sync_timeout() -> void:
 func _reload_runtime_profile() -> void:
     if reload_profile_callable.is_valid():
         reload_profile_callable.call()
+
+
+## Announces whether a remote save could still land on top of this device.
+##
+## Published on `EventBus` rather than through this autoload's own signals, so a scene can wait for
+## a restore without ever naming Play Games.
+func _set_restore_pending(pending: bool) -> void:
+    if _restore_pending == pending:
+        return
+    _restore_pending = pending
+    EventBus.external_restore_pending.emit(pending)
+
+
+func restore_pending() -> bool:
+    return _restore_pending
 
 
 func _set_cloud_state(state: StringName) -> void:
@@ -570,6 +598,7 @@ func _set_plugin_for_test(
     _upload_blocked_for_session = false
     _verifying_upload = false
     _verification_failures = 0
+    _set_restore_pending(false)
     _cloud_state = &"signed_out"
     _practice_active = false
     profile_path = SaveManager.PROFILE_PATH
