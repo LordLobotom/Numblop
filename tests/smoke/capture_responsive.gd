@@ -24,6 +24,7 @@ const SCREENS: Array[String] = [
     "map_detail",
     "map_unlock",
     "settings",
+    "settings_cloud",
     "settings_exit",
     "choice",
     "milestone",
@@ -38,6 +39,9 @@ const SCREENS: Array[String] = [
 const OUTPUT_DIRECTORY := "res://artifacts/responsive"
 
 var _failed := false
+## Stand-ins for the Play Games plugin, so the cloud-save row can be photographed on a desktop.
+var _play_games_double: Node = null
+var _play_games_client_double: Node = null
 
 
 func _ready() -> void:
@@ -103,7 +107,20 @@ func _capture_screen(locale: String, capture_size: Vector2i, screen_name: String
         print("CAPTURED %s" % output_path)
 
     viewport.queue_free()
+    _release_play_games_doubles()
     await get_tree().process_frame
+
+
+## Every capture starts from a clean state, so a stand-in installed for one screen cannot leak into
+## the next and quietly change what a later shot shows.
+func _release_play_games_doubles() -> void:
+    if _play_games_double == null:
+        return
+    PlayGames._set_plugin_for_test(null)
+    _play_games_double.free()
+    _play_games_client_double.free()
+    _play_games_double = null
+    _play_games_client_double = null
 
 
 func _create_screen(screen_name: String) -> Control:
@@ -116,7 +133,7 @@ func _create_screen(screen_name: String) -> Control:
         scene_path = "res://scenes/screens/TrophyScreen.tscn"
     elif screen_name in ["map", "map_detail", "map_unlock"]:
         scene_path = "res://scenes/screens/MapScreen.tscn"
-    elif screen_name in ["settings", "settings_exit"]:
+    elif screen_name in ["settings", "settings_cloud", "settings_exit"]:
         scene_path = "res://scenes/screens/SettingsScreen.tscn"
     elif screen_name in ["reward", "reward_opened", "reward_scrolling"]:
         scene_path = "res://scenes/screens/RewardScreen.tscn"
@@ -267,10 +284,20 @@ func _configure_screen(screen: Control, screen_name: String, locale: String) -> 
             map_screen.set_stage_states(stage_states)
             if screen_name == "map_detail":
                 map_screen.show_table_details(4)
-        "settings", "settings_exit":
+        "settings", "settings_cloud", "settings_exit":
             SettingsManager.locale_preference = locale
             var settings_screen := screen as SettingsScreen
             settings_screen.refresh_from_settings()
+            if screen_name == "settings_cloud":
+                # The cloud-save row hides itself unless a real plugin is present, so it is
+                # invisible on every desktop build -- including the one that takes these captures.
+                # Standing a double in for the plugin is the only way its tile and user-initiated
+                # sign-in choice get reviewed without a phone in hand.
+                _play_games_double = Node.new()
+                _play_games_client_double = Node.new()
+                PlayGames._set_plugin_for_test(_play_games_double, _play_games_client_double)
+                settings_screen.refresh_play_games()
+                settings_screen.show_cloud_sign_in_choice()
             if screen_name == "settings_exit":
                 settings_screen.show_exit_confirmation()
         "choice":

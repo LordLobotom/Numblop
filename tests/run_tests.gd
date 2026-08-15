@@ -29,7 +29,15 @@ func _run_suite() -> void:
             failed += 1
             print("FAIL %s could not load" % path)
             continue
-        var test: NumblopTestCase = script.new()
+        # A file with a parse error still loads as a GDScript, but cannot be instantiated. Without
+        # this guard the suite calls into null and hangs instead of finishing, so one broken test
+        # file costs a 120-second timeout with no clue in the runner's own output.
+        var instance: Variant = script.new() if script.can_instantiate() else null
+        if instance is not NumblopTestCase:
+            failed += 1
+            print("FAIL %s could not be instantiated -- parse error, or not a NumblopTestCase" % path)
+            continue
+        var test: NumblopTestCase = instance
         for method in test.get_method_list():
             var method_name: String = method.name
             if not method_name.begins_with("test_"):

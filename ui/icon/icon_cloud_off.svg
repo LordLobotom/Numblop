@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <!-- The off variant of icon_cloud_on.svg. A slash rather than a different shape, matching how
+       the sound and vibration tiles say "off": the same glyph, struck through. The cut-out behind
+       the stroke keeps the slash readable once IconToggle fades the whole glyph to 40% opacity. -->
+  <defs>
+    <mask id="slash">
+      <rect width="64" height="64" fill="#fff"/>
+      <line x1="13" y1="53" x2="53" y2="13" stroke="#000" stroke-width="11" stroke-linecap="round"/>
+    </mask>
+  </defs>
+  <g fill="#1a1a1a">
+    <path d="M46.5 47H19.5a11.5 11.5 0 0 1-1.7-22.87 15 15 0 0 1 27.2-4.9A12.5 12.5 0 0 1 46.5 47z"
+          mask="url(#slash)"/>
+  </g>
+  <line x1="14.5" y1="51.5" x2="51.5" y2="14.5" stroke="#1a1a1a" stroke-width="5.5"
+        stroke-linecap="round"/>
+</svg>

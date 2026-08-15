@@ -1,6 +1,20 @@
 extends NumblopTestCase
 
 
+class FakeCloudSignInClient:
+    extends Node
+
+    signal user_authenticated(is_authenticated: bool)
+
+    var sign_in_calls := 0
+
+    func is_authenticated() -> void:
+        pass
+
+    func sign_in() -> void:
+        sign_in_calls += 1
+
+
 ## Resolves a footer crest by path.
 ##
 ## The five items now live in scenes/components/NavBar.tscn, so their unique names
@@ -494,6 +508,165 @@ func test_nav_screens_leave_room_for_the_device_safe_area() -> void:
         scene.free()
 
 
+## A Google account switch that cannot work is worse than no switch: a guardian would flip it and
+## nothing would happen. So the row hides itself unless a usable plugin is actually present, which
+## is never the case on Windows, on the Web, or in this test run without a stand-in.
+func test_the_play_games_row_stays_hidden_until_a_plugin_can_serve_it() -> void:
+    var scene: SettingsScreen = (
+        load("res://scenes/screens/SettingsScreen.tscn") as PackedScene
+    ).instantiate()
+    var tree := Engine.get_main_loop() as SceneTree
+    tree.root.add_child(scene)
+
+    var tile: Control = scene.get_node("%CloudItem")
+    check(not tile.visible, "No plugin means the row keeps its original two tiles")
+
+    var fake_plugin := Node.new()
+    var fake_client := Node.new()
+    PlayGames._set_plugin_for_test(fake_plugin, fake_client)
+    scene.refresh_play_games()
+    check(tile.visible, "A usable plugin reveals the third tile")
+
+    PlayGames._set_plugin_for_test(null)
+    scene.refresh_play_games()
+    check(not tile.visible, "Losing the plugin hides it again")
+
+    fake_plugin.free()
+    fake_client.free()
+    tree.root.remove_child(scene)
+    scene.free()
+
+
+func test_a_wrapping_cloud_caption_leaves_the_three_tiles_on_one_line() -> void:
+    # The reported bug, reproduced: with the tiles centred, the two-line caption that Czech,
+    # Norwegian, Finnish and Swedish all produce for "Backup on" made its own item taller than its
+    # siblings, which pushed Sound and Vibration *down* while the cloud button stayed at the top.
+    # This is the one case the responsive captures cannot show, because the tile hides itself on a
+    # build without the plugin -- so it is asserted against a real layout pass instead.
+    var scene: SettingsScreen = (
+        load("res://scenes/screens/SettingsScreen.tscn") as PackedScene
+    ).instantiate()
+    var tree := Engine.get_main_loop() as SceneTree
+    tree.root.add_child(scene)
+    scene.size = Vector2(390, 844)
+    var fake_plugin := Node.new()
+    var fake_client := Node.new()
+    PlayGames._set_plugin_for_test(fake_plugin, fake_client)
+    scene.refresh_play_games()
+
+    var caption: Label = scene.get_node("%CloudCaption")
+    # Deliberately longer than the two lines the captions reserve. Two lines alone would not prove
+    # anything -- the reserved height already makes the three items equally tall in that case, so
+    # centred items would still line up. Overflowing it is what isolates the alignment.
+    caption.text = "Sikkerhetskopien trenger tilsyn"
+    await tree.process_frame
+    await tree.process_frame
+    await tree.process_frame
+
+    check(caption.get_line_count() >= 3, "The caption really does outgrow its reserved height")
+    var tops: Array[float] = []
+    for toggle_name in ["MuteButton", "HapticsButton", "CloudButton"]:
+        tops.append((scene.get_node("%%%s" % toggle_name) as Control).global_position.y)
+    equal(
+        snappedf(tops.max() - tops.min(), 0.5),
+        0.0,
+        "All three tiles start at the same height, whatever the caption below them does"
+    )
+
+    PlayGames._set_plugin_for_test(null)
+    fake_plugin.free()
+    fake_client.free()
+    tree.root.remove_child(scene)
+    scene.free()
+
+
+func test_the_cloud_tile_is_lit_by_the_setting_and_names_the_session_separately() -> void:
+    # The tile follows the switch, like the two beside it -- a light that ignored the tap would
+    # not be a switch. Whether Google actually let the device in is carried by the accessible
+    # name, which is the only place on this screen that can say it.
+    var scene: SettingsScreen = (
+        load("res://scenes/screens/SettingsScreen.tscn") as PackedScene
+    ).instantiate()
+    var tree := Engine.get_main_loop() as SceneTree
+    tree.root.add_child(scene)
+    # The screen has a debounce timer that saves preferences, and it saves to the real settings
+    # file. Bracketing the whole case is the only reliable guard.
+    var restore_settings: Variant = preserve_settings_file()
+
+    SettingsManager.play_games_enabled = true
+    scene.refresh_from_settings()
+    var tile: IconToggle = scene.get_node("%CloudButton")
+    var caption: Label = scene.get_node("%CloudCaption")
+    check(tile.button_pressed, "Cloud save is on by default")
+    equal(tile.icon, tile.icon_on, "On shows the cloud")
+    equal(caption.text, tr("SETTINGS_CLOUD_SIGN_IN"), "Signed out is visible without a tooltip")
+    equal(
+        tile.tooltip_text,
+        tr("SETTINGS_CLOUD_WAITING_ACCESSIBLE"),
+        "On but not signed in is a state of its own, not silence"
+    )
+
+    SettingsManager.play_games_enabled = false
+    scene.refresh_from_settings()
+    check(not tile.button_pressed, "A deliberate opt-out darkens the tile")
+    equal(tile.icon, tile.icon_off, "Off shows the struck-through cloud")
+    equal(caption.text, tr("SETTINGS_CLOUD_OFF"), "The caption also names the opt-out")
+    equal(tile.tooltip_text, tr("SETTINGS_CLOUD_OFF_ACCESSIBLE"), "And says so")
+
+    SettingsManager.play_games_enabled = true
+    scene.refresh_from_settings()
+    PlayGames._set_cloud_state(&"conflict_saved_locally")
+    equal(caption.text, tr("SETTINGS_CLOUD_ATTENTION"), "A blocked backup is visible")
+    equal(
+        tile.tooltip_text,
+        tr("SETTINGS_CLOUD_ATTENTION_ACCESSIBLE"),
+        "A fail-closed conflict is spoken instead of looking healthy forever"
+    )
+    PlayGames._set_cloud_state(&"signed_out")
+
+    tree.root.remove_child(scene)
+    scene.free()
+    restore_settings_file(restore_settings)
+
+
+func test_signed_out_cloud_tile_offers_sign_in_or_a_real_opt_out() -> void:
+    var restore_settings: Variant = preserve_settings_file()
+    SettingsManager.play_games_enabled = true
+    var fake_plugin := Node.new()
+    var fake_client := FakeCloudSignInClient.new()
+    PlayGames._set_plugin_for_test(fake_plugin, fake_client)
+
+    var scene: SettingsScreen = (
+        load("res://scenes/screens/SettingsScreen.tscn") as PackedScene
+    ).instantiate()
+    var tree := Engine.get_main_loop() as SceneTree
+    tree.root.add_child(scene)
+
+    scene._on_cloud_toggled(false)
+    check(scene.get_node("%ExitDialog").visible, "The signed-out tile explains both choices")
+    check(scene.get_node("%CloudButton").button_pressed, "Opening the choice does not opt out")
+    equal(
+        scene.get_node("%ConfirmExitButton").text,
+        tr("SETTINGS_CLOUD_DIALOG_SIGN_IN"),
+        "The primary action signs in"
+    )
+    scene._confirm_exit()
+    equal(fake_client.sign_in_calls, 1, "The explicit action reaches Google sign-in")
+    check(SettingsManager.play_games_enabled, "Attempting sign-in keeps backup enabled")
+
+    scene._on_cloud_toggled(false)
+    scene._on_cancel_dialog()
+    check(not SettingsManager.play_games_enabled, "The alternative remains a genuine opt-out")
+    check(not scene.get_node("%CloudButton").button_pressed, "The tile reflects the opt-out")
+
+    tree.root.remove_child(scene)
+    scene.free()
+    PlayGames._set_plugin_for_test(null)
+    fake_plugin.free()
+    fake_client.free()
+    restore_settings_file(restore_settings)
+
+
 func test_the_sound_tile_is_lit_when_sound_is_audible() -> void:
     # The tile says "Sound" but the stored setting is a mute, so the two are inverses. Get
     # that backwards and the screen confidently reports the opposite of the truth.
@@ -502,8 +675,7 @@ func test_the_sound_tile_is_lit_when_sound_is_audible() -> void:
     ).instantiate()
     var tree := Engine.get_main_loop() as SceneTree
     tree.root.add_child(scene)
-    var restore_muted := SettingsManager.audio_muted
-    var restore_haptics := SettingsManager.haptics_enabled
+    var restore_settings: Variant = preserve_settings_file()
 
     # Set the autoload fields directly: saving here would write a real settings file.
     SettingsManager.audio_muted = false
@@ -522,10 +694,9 @@ func test_the_sound_tile_is_lit_when_sound_is_audible() -> void:
     equal(sound.icon, sound.icon_off, "Muted sound shows the off icon")
     equal(haptics.icon, haptics.icon_off, "Disabled vibration shows the off icon")
 
-    SettingsManager.audio_muted = restore_muted
-    SettingsManager.haptics_enabled = restore_haptics
     tree.root.remove_child(scene)
     scene.free()
+    restore_settings_file(restore_settings)
 
 
 func test_body_panels_sit_outside_their_scroll_container() -> void:
@@ -908,6 +1079,40 @@ func test_settings_screen_has_language_audio_mute_and_safe_exit_controls() -> vo
         check(toggle.icon_on != toggle.icon_off, "%s looks different when off" % toggle_name)
     check(scene.get_node("%SoundCaption") is Label, "Sound tile is captioned")
     check(scene.get_node("%HapticsCaption") is Label, "Vibration tile is captioned")
+    # The three tiles are one row of equals, and the tallest caption decides the row height. Centred
+    # items would float the two short captions downwards and leave the cloud tile visibly higher
+    # than its siblings the moment a language wraps "Backup on" onto two lines -- which Czech,
+    # Norwegian and Finnish all do. Top alignment plus a reserved second line keeps the icons on one
+    # line, and keeps `Close game` from moving as the cloud caption changes state.
+    var toggle_row: HBoxContainer = (
+        scene.get_node("%SoundCaption").get_parent().get_parent() as HBoxContainer
+    )
+    for item in toggle_row.get_children():
+        equal(
+            (item as VBoxContainer).alignment,
+            BoxContainer.ALIGNMENT_BEGIN,
+            "%s tops its tile out with the others" % item.name
+        )
+    for caption_name in ["SoundCaption", "HapticsCaption", "CloudCaption"]:
+        var caption: Label = scene.get_node("%%%s" % caption_name)
+        equal(caption.custom_minimum_size.y, 40.0, "%s reserves a second line" % caption_name)
+        equal(caption.autowrap_mode, TextServer.AUTOWRAP_WORD, "%s wraps" % caption_name)
+    check(scene.get_node("%PrivacyButton").custom_minimum_size.y >= 48.0, "Privacy touch target")
+    equal(
+        SettingsScreen.privacy_policy_url("cs"),
+        "https://numblop.gutcloud.cz/cs/privacy/",
+        "Settings opens the published policy URL"
+    )
+    equal(
+        SettingsScreen.privacy_policy_url("en_US"),
+        "https://numblop.gutcloud.cz/en/privacy/",
+        "A regional locale still resolves to its published policy page"
+    )
+    equal(
+        SettingsScreen.privacy_policy_url("de"),
+        "https://numblop.gutcloud.cz/en/privacy/",
+        "An unpublished language falls back to the English policy"
+    )
     check(scene.get_node("%ExitButton").custom_minimum_size.y >= 48.0, "Exit touch target")
     check(scene.get_node("%ExitDialog") is Control, "Custom exit confirmation overlay")
     check(scene.has_method("show_exit_confirmation"), "Settings can open the exit confirmation")
@@ -927,6 +1132,11 @@ func test_settings_screen_has_language_audio_mute_and_safe_exit_controls() -> vo
     )
     var scene_tree := Engine.get_main_loop() as SceneTree
     scene_tree.root.add_child(scene)
+    equal(
+        scene.get_node("%PrivacyButton").text,
+        tr("SETTINGS_PRIVACY"),
+        "The privacy policy is reachable in the current language"
+    )
     # The flags are generated from LanguageCatalog once the screen enters the tree, so there is
     # nothing to inspect before this point. They are the only label the language row has, so the
     # picture is drawn at 38 px inside a 48 px button: the finger still gets its touch target.

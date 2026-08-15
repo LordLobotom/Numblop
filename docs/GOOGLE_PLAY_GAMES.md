@@ -1,9 +1,29 @@
 # Google Play Games Services — Integration Plan
 
-- **Status:** Proposed. Nothing in this document is implemented.
-- **Milestone:** M5, after `D18` ships an offline release.
-- **Prerequisite:** this breaks the "no networking" product contract in `AGENTS.md`. It does not
-  begin until an entry in [`DECISIONS.md`](DECISIONS.md) approves it.
+- **Status:** Approved in scope. P0, P0b, P1 code, and the normal P2 snapshot path are
+  **implemented**. P1 still needs tester sign-in on hardware. Full P2 convergence is blocked because
+  the vendored v3.4.0 plugin reports conflicts but exposes no conflict-resolution call.
+- **Milestone:** M5.
+- **Approval:** The 2026-08-13 decision entry approved the networking boundary. Android now requests
+  only the connectivity permissions Play Games needs; offline, signed-out, accountless play remains
+  permanent.
+- **Not a prerequisite:** another Play upload. `0.4.0` / code `12` is already on the internal track,
+  so the app entry exists and Play App Signing is enrolled — its SHA-1 is what the OAuth credential
+  in §9 needs, and locally signed test builds are covered by the upload-key SHA-1 plus a testers
+  list. Save version 10 and this integration are expected to ship in one release, so the privacy,
+  data-safety, and Families paperwork happens once.
+
+### Decisions taken (2026-08-12)
+
+- **Both leaderboards are in scope** — total XP and highest streak. If Families or privacy review
+  makes them problematic, they are dropped from the release rather than redesigned; the phase order
+  below puts them last precisely so that dropping them costs nothing else.
+- **Phase order is fixed** as: local save hardening → authentication → cloud save → achievements →
+  leaderboards.
+- **The coin ledger is implemented up front**, not deferred. A balance is known to be unmergeable,
+  and adding the fix later would mean a second migration over live player data.
+- **Privacy policy, Play Console data safety, and the Families declarations are updated before the
+  first networking build ships**, not after.
 
 The goal is that a child who loses or replaces a device gets their progress back, and that a child
 who wants to can compare their XP and best streak with others. The constraint is that **nothing
@@ -30,34 +50,47 @@ Three consequences that are not negotiable:
 1. **The privacy policy and Play Console data-safety answers must be updated in the same release
    that first contains the networking build**, not afterwards. `docs/privacy/index.md` is public at
    the URL declared in the store listing and is currently explicit about the `INTERNET` permission.
-2. **Sign-in must be optional, off by default, and never required to play.** A child-directed app
-   that gates content behind a Google account will not pass Families review, and it would break the
-   product promise regardless of review.
+2. **Nothing may ever be required to play.** No account, no network, no sign-in. Cloud save is *on*
+   by default, but a failed or refused sign-in has to cost a child exactly nothing.
 3. **The leaderboard identity must be the Play gamer tag, never Numblop's own nickname field.** The
    nickname is free text typed by a child, saved locally, and unmoderated. Publishing it to other
    players turns an innocuous local convenience into user-generated content with a moderation duty.
    The gamer tag is chosen and moderated by Google and carries the account's own visibility settings.
 
-### The leaderboard decision that must be made before any code
+### Cloud save is on by default, and Google owns the account gate
+
+Decided 2026-08-13, replacing an earlier opt-in design.
+
+On Android the plugin initialises at startup and checks for an existing session. There is **no
+Numblop-specific guardian opt-in and no parent gate in front of it**, because the account decision is
+not this game's to make: Google, and Family Link for supervised children, already govern whether a
+child may sign in to Play Games and what a supervised account is allowed to do. Adding a second,
+weaker gate on top would be theatre — a child who can read the Settings screen can pass an
+arithmetic challenge in a multiplication game — while costing every honest player their backup.
+
+The problem actually worth solving is a lost phone taking a year of practice with it, and an opt-in
+switch buried in Settings does not solve it for the children who most need it.
+
+What this does **not** change: the data-safety declaration and privacy policy still have to be
+rewritten before release, the leaderboards are still the higher-risk surface and still last, and the
+game still has to be completely playable with sign-in failing.
+
+### Leaderboards: in scope, and last
 
 Google's Families policy governs social features in child-directed apps, and Play Games leaderboards
-are a social surface. There are three viable positions, in increasing order of risk:
+are a social surface. Both leaderboards are in scope, and they are built **last** so that the risk
+they carry stays contained:
 
-- **A — Cloud save only.** No leaderboards, no achievements published to Play. Easiest to justify,
-  covers the actual pain point (losing progress), and needs the least policy argument.
-- **B — Cloud save + Play achievements.** Achievements are per-player and not comparative, so they
-  add little exposure. Still no leaderboards.
-- **C — Everything, including the two public leaderboards.** Highest value to the player, highest
-  review risk, and the one requiring the gamer-tag rule above plus a parent gate.
+- Cloud save and achievements ship first and are independently valuable. Neither depends on a
+  leaderboard existing.
+- If Families or privacy review objects to the leaderboards, they are **dropped from the release**.
+  Because they are the final phase and nothing else references them, dropping them means deleting two
+  Play Console entries and two submission calls — not a redesign.
+- The fallback, if that happens, is a **local-only comparison against the player's own history** —
+  best streak this week versus all time — which needs no network and no policy argument at all.
 
-**Recommendation: build A and B first and ship them.** They are strictly more valuable than the
-leaderboards and carry a fraction of the risk. Add C as a separate release once the account plumbing
-has proven itself in production, so a leaderboard rejection cannot block the cloud save that players
-actually need. The phases in §10 are ordered accordingly.
-
-If C is rejected at review, the fallback is a **local-only leaderboard against the player's own
-history** — best streak this week versus all time — which needs no network and no policy argument at
-all.
+The two rules above (optional sign-in, gamer-tag identity) are what make the leaderboards arguable at
+review. They are not optional themselves.
 
 ---
 
@@ -82,23 +115,36 @@ And three things that are genuinely missing and must be built first — see §3.
 
 ---
 
-## 3. Prerequisites in the local save (do these before touching Play)
+## 3. Prerequisites in the local save — **implemented**
 
-### 3.1 Atomic writes and a backup copy
+These are done and shipped in save version 10. They contain no networking and were built and tested
+entirely offline, which is the whole point: the parts that can silently destroy a child's progress
+are provable on a laptop before a single Play API is called.
 
-`SaveManager.save_game_state()` opens `profile.json` with `FileAccess.WRITE`, which truncates before
-writing. A process killed mid-write leaves a truncated file that loads as a brand-new profile. Today
-that risk is tolerable. Once a cloud restore can also overwrite the file, it is not.
+### 3.1 Atomic writes, a backup copy, and recovery
 
-Change to: write `profile.json.tmp`, close, rename over `profile.json`, and keep the previous
-contents as `profile.json.bak`. On load, if the primary file fails to parse and the backup does,
-use the backup and say so in the log. This is worth doing on its own merits, independently of Play.
+`SaveManager.save_game_state()` used to open `profile.json` with `FileAccess.WRITE`, which truncates
+before writing. A process killed mid-write left a truncated file that loaded as a brand-new profile.
 
-### 3.2 A real schema version and a monotonic write counter
+The write is now:
 
-Today `version` is written on every save and **never read** — compatibility comes from field-tolerant
-loading. That works locally, where there is only ever one file. It does not work for a merge, which
-must decide which of two files is newer without trusting a device clock.
+1. write the full JSON to `profile.json.tmp` and close it;
+2. rename the existing `profile.json` to `profile.json.bak`, replacing any previous backup;
+3. rename `profile.json.tmp` over `profile.json`.
+
+Both renames replace atomically on every platform Godot targets. At no point do the two files hold
+partial data at the same time: a crash between steps 2 and 3 leaves the previous save under the
+backup name, and loading falls through to it.
+
+Loading tries the primary file, then the backup, then gives up and starts fresh. A recovery is
+logged. `SaveManager.recover_count` records how many times a load fell through, so a test can assert
+that recovery actually happened rather than that nothing crashed.
+
+### 3.2 A real schema version, a monotonic write counter, and migrations
+
+`version` used to be written on every save and **never read** — compatibility came from
+field-tolerant loading. That works locally, where there is only ever one file. It does not work for a
+merge, which must decide which of two saves is newer without trusting a device clock.
 
 Save version 10 adds, at the top level:
 
@@ -107,7 +153,6 @@ Save version 10 adds, at the top level:
   "version": 10,
   "save_counter": 4213,
   "updated_at_unix": 1786000000,
-  "device_id": "9f1c…",
   "cloud": {
     "last_synced_counter": 4200,
     "last_synced_at_unix": 1785990000,
@@ -116,22 +161,29 @@ Save version 10 adds, at the top level:
 }
 ```
 
-- `save_counter` increments on **every** write and never resets. It is the primary ordering signal.
-- `updated_at_unix` is informational and is only ever a tie-breaker of last resort. A child's tablet
-  clock can be wrong by years; never let it decide a merge on its own.
-- `device_id` is the existing `profile_id`, copied here so a snapshot names its origin.
-- `cloud` records what has already been synchronised, so an unchanged profile does not re-upload.
-- `version` finally becomes something the loader reads: a save whose `version` is **greater** than
-  `SAVE_VERSION` is from a newer app build and must not be silently loaded and re-saved, because
-  re-saving would drop the fields this build does not know about.
+- `save_counter` increments on **every** write and never resets. It is the primary ordering signal
+  for a merge, and it is the one signal a wrong clock cannot corrupt.
+- `updated_at_unix` is informational and only ever a tie-breaker of last resort.
+- `cloud` records what has already been synchronised, so an unchanged profile does not re-upload,
+  and remembers which Play account this profile last belonged to.
+- There is deliberately **no `device_id` field**: `profile_id` already is this device's pseudonym, and
+  storing the same value twice in one file is a second thing to keep in step. The snapshot payload in
+  §6.1 carries `profile_id` under the name `device_id`; the local file does not duplicate it.
 
-Existing saves back-fill trivially: absent counter → `0`, absent `device_id` → the existing
-`profile_id`, absent `cloud` → empty.
+`SaveMigration` is now a real, ordered migration step applied to every loaded dictionary before any
+model sees it — not just field tolerance. Field tolerance still handles an *added* field for free;
+migration exists for the fields whose value must be **computed** from other fields, which is exactly
+what the coin ledger needs. Migration happens in memory only: booting an old profile never writes to
+it, and the migrated shape lands on disk with the next ordinary save.
+
+Unknown top-level keys are now **preserved** across a save. If a newer build writes a field this
+build does not know, this build round-trips it instead of deleting it, so a downgrade — or an older
+device syncing an newer snapshot — cannot silently drop data.
 
 ### 3.3 A coin ledger, so a merge cannot invent or destroy currency
 
-This is the one place the current model genuinely cannot merge. `coins` is a balance; balances are
-not mergeable. Two devices that each earned 100 coins and each bought a different hat cannot be
+This is the one place the model genuinely could not merge. `coins` is a balance; balances are not
+mergeable. Two devices that each earned 100 coins and each bought a different hat cannot be
 reconciled from balances alone.
 
 Save v10 therefore also records **what was earned**, not only what is left:
@@ -144,13 +196,24 @@ Save v10 therefore also records **what was earned**, not only what is left:
 }
 ```
 
-Achievement earnings are *not* stored: they are derived by summing
-`AchievementCatalog.reward_coins(id)` over the granted set, which is deterministic. Spending is
-likewise derived: the price of every paid item owned, from `CosmeticCatalog`.
+Only the two monotonic buckets are stored. The other two terms are **derived**, which is what makes
+them merge-safe — a set union produces the same number on both devices:
 
-Back-fill for an existing save: `earned_rounds = coins + derived_spent − earned_milestones −
-derived_achievement_coins`, floored at zero, with `earned_milestones = 0`. The split between the two
-buckets is lost for old saves, which is harmless — only their sum is used.
+- achievement earnings = `Σ AchievementCatalog.reward_coins(id)` over the granted set;
+- spending = `Σ CosmeticCatalog` price of every paid item owned.
+
+`CoinLedger` (`scripts/app/CoinLedger.gd`) owns this arithmetic. It is pure and static, so the merge
+in §7.4 calls exactly the same code the running game does, and both are covered by the same tests.
+
+Back-fill for an existing save, applied by `SaveMigration`:
+`earned_rounds = max(0, coins + derived_spent − derived_achievement_coins)` with
+`earned_milestones = 0`. The split between the two buckets is lost for old saves, which is harmless:
+only their sum is ever used, and their sum is preserved exactly.
+
+A consistency invariant worth stating, because the tests assert it: for any state reachable by
+playing, `CoinLedger.balance(...)` equals the stored `coins`. The stored balance stays authoritative
+at runtime — the ledger is not re-derived on every load — but a divergence between the two means a
+bug, and `CoinLedger.balance()` is what a merge uses to recompute.
 
 ---
 
@@ -178,26 +241,36 @@ live, it is out.
 
 ## 5. Technical integration
 
-### 5.1 Android plugin
+### 5.1 Android plugin — chosen and vendored
 
-Godot 4.2+ uses the v2 Android plugin API (`GodotAndroidPluginV2`), which requires a Gradle build
-and a `.gdap` config plus AAR under `res://android/plugins/`.
+**`godot-sdk-integrations/godot-play-game-services` v3.4.0**, vendored unmodified at
+`addons/GodotPlayGameServices/`. Provenance and the release hash are in `VENDORED.txt` beside it.
+The in-house Kotlin fallback was not needed.
 
-Two options:
+What the spike found, which differs from this document's earlier assumptions:
 
-- **Community plugin — `godot-play-game-services`.** Wraps PGS v2 for sign-in, achievements,
-  leaderboards, saved games/snapshots, players, and events. Saves the most work.
-  *Must be verified against Godot 4.6.2 before it is adopted* — the plugin's AAR builds against a
-  specific `godot-lib` version, and the last release predating 4.6 may need a rebuild from source.
-  Treat "does it build and run on 4.6.2" as a spike, not an assumption.
-- **In-house Kotlin plugin.** The surface actually needed is small: initialise, `isAuthenticated`,
-  `signIn`, `submitScore`, `unlockAchievement`, `setAchievementSteps`, `openSnapshot`,
-  `writeSnapshot`, `resolveConflict`. A few hundred lines of Kotlin, no external dependency, full
-  control of the merged manifest, and it can be pinned to 4.6.2 exactly.
+- **It installs to `addons/`, not `android/plugins/`.** `addons/` is versioned, so the plugin is
+  committed like any other source and needs no reinstall-on-every-export tooling. The
+  `tools/install-play-games-plugin.ps1` written before the spike was deleted: it duplicated work the
+  plugin already does and would have written a **conflicting second `game_services_project_id`
+  string resource**, breaking the build.
+- **The plugin injects its own manifest meta-data, Gradle dependencies, and string resource** through
+  an `EditorExportPlugin`. It pulls `com.google.android.gms:play-services-games-v2:21.0.0` and
+  `com.google.code.gson:gson:2.11.0`.
+- **The project id is an export option, not an environment variable.**
+  `godot_play_game_services/game_id` in `export_presets.cfg`, set on both Android presets. The
+  leading-space trick is unnecessary here because the id reaches the manifest via `@string/`.
+- **One autoload, `GodotPlayGameServices`; the feature clients are Nodes.** `PlayGamesSignInClient`,
+  `PlayGamesSnapshotsClient`, and the rest are instantiated rather than global. Numblop creates only
+  the ones it uses, as children of its own `PlayGames` autoload.
+- **Saved Games are fully supported and expose conflicts natively**: `save_game`, `load_game`,
+  `game_saved`, `game_loaded`, and `conflict_emitted(PlayGamesSnapshotConflict)` carrying both
+  candidate snapshots. That maps directly onto `CloudSaveMerge` in §7 — the conflict signal supplies
+  the two saves the merge already knows how to reconcile.
 
-**Recommendation:** spike the community plugin for one day. If it builds cleanly on 4.6.2, use it.
-If it needs patching, write the in-house plugin instead — a forked AAR that must be rebuilt for every
-Godot update is worse than owning the code.
+Numblop talks to the plugin only through `scripts/autoload/PlayGames.gd`, and looks everything up by
+node path and script path rather than by `class_name`, so deleting the addon leaves the game parsing
+and running with cloud save simply unavailable.
 
 ### 5.2 Export presets and the pinned project contract
 
@@ -221,70 +294,64 @@ with `tools:node="remove"` if it appears.
 Also verify after the first Gradle build: APK/AAB size delta (expect a few MB), and that no
 `ACCESS_ADSERVICES_*` or advertising-related permission was merged in.
 
-### 5.3 The git-ignored `android/` problem
+### 5.3 The git-ignored `android/` tree — a non-problem, as it turned out
 
-`/android/` is git-ignored at the repository root, and Godot overwrites it whenever the build
-template is reinstalled. Both the plugin files (`android/plugins/*.gdap` + AAR) and the manifest
-meta-data live there.
+`/android/` is git-ignored and Godot overwrites it whenever the build template is reinstalled, which
+is why `tools/patch-android-template.ps1` re-applies the SDK levels on every Android export.
 
-Follow the pattern that already exists for exactly this reason: `tools/patch-android-template.ps1`
-is idempotent and is invoked automatically by `tools/export.ps1` on every Android release export.
-Add a sibling `tools/install-play-games-plugin.ps1` that:
+The plugin needs none of that. It lives in `addons/`, which is versioned, and its
+`EditorExportPlugin` regenerates everything that belongs under `android/` at export time — the AAR
+reference, the Gradle dependencies, the manifest meta-data, and `android/build/res/values/strings.xml`
+carrying the game id. Nothing extra to install and nothing extra to re-apply.
 
-1. copies the versioned plugin artefacts from a tracked location (e.g. `third_party/play-games/`)
-   into `android/plugins/`;
-2. patches `android/build/AndroidManifest.xml` with the required meta-data;
-3. is idempotent and safe to run on every export.
+### 5.4 Manifest meta-data — supplied by the plugin
 
-Wire it into `export.ps1` next to the existing template patch. The alternative — un-ignoring
-`android/` — drags Godot's entire generated Gradle tree into version control and is worse.
-
-### 5.4 Manifest meta-data
+The plugin injects this itself, so nothing here is hand-written:
 
 ```xml
 <meta-data android:name="com.google.android.gms.games.APP_ID"
            android:value="@string/game_services_project_id" />
-<meta-data android:name="com.google.android.gms.version"
-           android:value="@integer/google_play_services_version" />
 ```
 
-`game_services_project_id` **must be a string resource whose value begins with a space** (e.g.
-`" 123456789012"`). Without the leading space the build tools parse the numeric id as a float and
-the app crashes on start with an opaque error. This is the single most common first-time failure.
+The id comes from the `godot_play_game_services/game_id` export option, which the plugin writes into
+a string resource. Because it reaches the manifest through `@string/` rather than as an inline
+value, the leading-space workaround that earlier drafts of this document warned about does not apply.
 
 ### 5.5 Godot-side architecture
 
-Two new files plus one pure model — the shape mirrors how the learning core is already separated
-from the platform:
-
 ```
+addons/GodotPlayGameServices/     Vendored plugin, unmodified. Never edited.
 scripts/app/CloudSaveMerge.gd     Pure, deterministic merge of two profile dictionaries.
                                   No plugin, no clock, no files. Unit-testable headlessly.
-scripts/app/PlayGamesCatalog.gd   Static mapping: local achievement id -> Play achievement id,
-                                  and the two leaderboard ids. Pure data.
-scripts/autoload/PlayGames.gd     Thin autoload. Owns the plugin singleton, the sign-in state,
-                                  the pending-submission queue, and the snapshot calls.
-                                  Every method is a no-op when the plugin is absent.
+scripts/autoload/PlayGames.gd     Thin wrapper. Owns the plugin lookup, the feature client Nodes,
+                                  and the sign-in state. Every method is a no-op when the plugin
+                                  is absent.
 ```
+
+A `PlayGamesCatalog.gd` mapping local achievement ids to Play ids arrives with P3; it is not needed
+for sign-in or cloud save.
 
 Rules that keep this from infecting the rest of the codebase:
 
 - `scripts/core/` is untouched. It has no idea Play exists.
-- `PlayGames.gd` checks `Engine.has_singleton()` once at `_ready()`. On Windows, Web, in the editor,
-  and on an Android build without the plugin, `available()` is `false` and every call returns
-  immediately. **No `#if`-style platform branching anywhere else.**
-- `AppState` never calls `PlayGames` directly for gameplay. It emits what it already emits, and
-  `PlayGames` listens on `EventBus` (`reward_applied`, `achievements_unlocked`, `streak_changed`,
-  `profile_saved`). If the autoload were deleted, the game would still run.
+- `PlayGames.gd` resolves the plugin by **node path and script path**, never by `class_name`, so
+  deleting the addon leaves the file parsing and reporting unavailable rather than breaking the
+  build. **No `#if`-style platform branching anywhere else.**
+- Only `SettingsScreen` may reference the autoload, and only to offer the switch. `AppState` never
+  calls it; save and pause triggers reach `PlayGames` through `EventBus`, and the one fact it
+  publishes back the same way is `external_restore_pending`, which says a remote save could still
+  replace this device without naming who is bringing it. A provider-neutral
+  `AppState.reload_profile_from_disk()` callable refreshes runtime models after a durable merge. A test walks
+  `scripts/core/`, `scripts/app/`, `scripts/ui/` and `scenes/` and enforces this, with a second test
+  asserting that `scripts/core/` and `scripts/app/` can never be added to the exemption list.
 - **All the difficult logic lives in `CloudSaveMerge.gd`, which is pure.** That is the whole point:
   conflict resolution is the part that can silently destroy a child's progress, and it must be
   testable exhaustively without an Android device, a network, or a Google account.
-- New settings keys in `user://settings.cfg`, so they never touch the progress file:
+- The switch lives in `user://settings.cfg`, never in the progress file:
 
 ```ini
 [play_games]
-enabled=false      ; opt-in, off until a parent turns it on
-auto_sync=true
+enabled=true       ; cloud save; on unless deliberately switched off
 ```
 
 ---
@@ -430,16 +497,20 @@ The requirement is that offline is not a degraded mode, it is the normal mode.
 
 - Every game rule — questions, mastery, coins, achievements, streaks, purchases — is evaluated and
   saved locally, exactly as today. Nothing awaits a network call, ever.
-- Sign-in is attempted at most once per launch, asynchronously, after the game is already interactive.
-  Failure is silent.
+- Play Games sign-in is requested once per Android launch, asynchronously, after the game is already
+  interactive. This lets a fresh install restore without requiring the player to discover Settings.
+  Failure or refusal is silent and changes no gameplay; Settings remains the manual retry and opt-out.
 - Leaderboard and achievement submissions go into a small pending queue held in
   `user://settings.cfg`-adjacent state (not in the progress file) and are flushed on the next
   successful sign-in. The Play SDK buffers some of this itself, but do not rely on it: local values
   are absolute and re-submission is idempotent.
-- Snapshot sync is attempted on sign-in, on app pause, and after a finished round — debounced, and
-  skipped entirely when `save_counter == cloud.last_synced_counter`.
-- A signed-out or never-signed-in player sees no dialogs, no spinners, and no error toasts. Sync
-  failures are logged, not surfaced.
+- Snapshot sync is attempted on sign-in, on app pause, after a finished round, and for local changes
+  such as purchases made outside practice — debounced, and skipped entirely when
+  `save_counter == cloud.last_synced_counter`. Per-answer saves only mark work pending; no remote
+  response may write or reload the profile until the runtime session has ended.
+- A signed-out or never-signed-in player sees no Numblop error toast or blocking spinner. Google may
+  show its account/sign-in surface for the single startup request. Settings visibly reports
+  **Sign in** and offers Sign in / Turn off; fail-closed states appear on the same tile.
 - Airplane mode for a month followed by one sync must produce a correct merge. This is a required
   test case, not a hypothetical.
 
@@ -454,10 +525,14 @@ Everything below is manual, done once, and gates any device testing.
 1. Play Console → the Numblop app → *Play Games Services* → *Setup and management* →
    *Configuration*. Create a new Games Services project and link the app `cz.gutcloud.numblop`.
    Note the numeric **project id** — this is the `APP_ID` from §5.4.
-2. *Credentials* → add an **Android** credential. It needs an OAuth 2.0 client in the linked Google
-   Cloud project with the SHA-1 of **both** the upload certificate **and** the Play App Signing
-   certificate. Missing the Play App Signing SHA-1 is the classic "works from Android Studio, fails
-   from the Play track" bug.
+2. *Credentials* → add an **Android** credential backed by an Android OAuth 2.0 client in the linked
+   Google Cloud project. The Play-distributed app must use the **Play App Signing certificate**
+   SHA-1, not the upload-certificate SHA-1; Android OAuth clients bind one package/fingerprint pair,
+   so a separately signed local build needs a separate client/credential. Missing the Play App
+   Signing SHA-1 is the classic "upload succeeds, Play install gets `DEVELOPER_ERROR`" bug. Read it
+   from Play Console → *Protected with Play* → *Play app signing*. The fingerprint independently
+   extracted from the Play-installed code 16 APK is
+   `ED:48:7F:8E:CE:13:07:05:A1:6D:3E:45:70:F9:4A:B3:4F:BF:C1:B7`.
 3. Enable **Saved Games** in the project configuration. Snapshots do not work until this is on.
 4. Create the achievements — one per entry in `AchievementCatalog`. Record each generated Play id in
    `PlayGamesCatalog.gd`. Use **incremental** achievements for the tiered ones (streak, XP,
@@ -489,32 +564,178 @@ Everything below is manual, done once, and gates any device testing.
 
 Each phase ends in something shippable, and each one keeps offline play intact.
 
-**P0 — Local prerequisites (no networking at all).**
-Atomic write + backup (§3.1), save v10 with `save_counter` and the coin ledger (§3.2, §3.3), and
-`CloudSaveMerge.gd` written and unit-tested against synthetic snapshot pairs. **The entire merge is
-built and proven before any Play API is called.** Fully testable on Windows. Ships as a normal
-offline release.
+**P0 — Local prerequisites (no networking at all). ☑ Done.**
+Atomic write, backup, and recovery (§3.1); save v10 with `save_counter`, the `cloud` block, real
+migrations, and unknown-key preservation (§3.2); the coin ledger (§3.3). Ships as a normal offline
+release and is valuable on its own — it closes a real truncation risk that predates any Play work.
 
-**P1 — Plugin spike and sign-in only.**
-Console setup, plugin verified on 4.6.2, manifest and export-preset changes, `PlayGames.gd` with
-sign-in and nothing else. Success criterion: the game behaves identically for a signed-out player,
-Windows and Web builds are unaffected, and the merged manifest contains no advertising permission.
+**P0b — `CloudSaveMerge`, still with no networking. ☑ Done.**
+The merge from §7 in `scripts/app/CloudSaveMerge.gd`, pure and static, covered by
+`tests/state/test_cloud_save_merge.gd`. **The part that can silently destroy a child's progress is
+proven on a laptop before any Play API exists.**
 
-**P2 — Achievements.**
-Map the catalog, push unlocks and absolute steps on `EventBus.achievements_unlocked`, backfill
-everything already granted on first sign-in. Local stays truth; Play is a mirror.
+P2 closed its remaining integration requirement with `SaveManager.save_merged_state()`: the merged
+`save_counter` is seeded above both parents before the result reaches disk.
 
-**P3 — Cloud save.**
-Wire `CloudSaveMerge` (already proven in P0) to `SnapshotsClient`. First-sign-in handling from §7.6,
-the `.premerge` safety copy, and the schema-newer refusal from §6.2.
+**P1 — Plugin spike and sign-in only. ◐ Code complete; device confirmation outstanding.**
 
-**P4 — Leaderboards.**
-Only if position C was approved. Two leaderboards, gamer-tag identity, submissions on round end and
-sign-in.
+Done:
+- Play Console partly configured — PGS project created, testers added, and Saved Games enabled.
+  Hardware code 16 proved that the linked Android OAuth credential does not match the Play App
+  Signing SHA-1 and returns `DEVELOPER_ERROR`; replace/link the credential described in §9 before
+  retrying. **The PGS project stays in draft until sign-in and cloud save are verified on a device.**
+- Both Android presets request `INTERNET` and `ACCESS_NETWORK_STATE` and build through Gradle;
+  `test_project_contract.gd` pins that and asserts no advertising, location, camera, microphone, or
+  contacts permission.
+- `scripts/autoload/PlayGames.gd` — the only game-side file that wraps the plugin, no-op on every
+  non-Android build, and covered by `tests/state/test_play_games.gd` including a test that no
+  gameplay system may reference it.
+- `play_games/enabled` in `settings.cfg`, defaulting to on. Android startup requests Play Games
+  sign-in once; Google and Family Link own the account decision, and failure leaves play unchanged.
+- `godot-sdk-integrations/godot-play-game-services` v3.4.0 vendored unmodified at
+  `addons/GodotPlayGameServices/`. Its export plugin injects the AAR, dependencies, manifest
+  metadata, and game id `1018864218554`; the pre-spike installer script was deleted.
+- A Settings tile — a third icon tile beside Sound and Vibration, with a drawn cloud that is struck
+  through when off, visible status captions in all ten languages, and matching accessible states.
+  A signed-out press offers interactive Sign in or a persistent opt-out. It **hides itself unless a
+  usable plugin is present**, so no
+  Windows or Web player is offered a backup switch that cannot work.
 
-**P5 — Polish.**
-Settings UI for sign-in/sign-out behind a parent gate, a child-appropriate "we merged your progress"
-moment, and the account-deletion path Play requires.
+  It became a tile rather than a labelled row because the settings card was already full: a row
+  pushed *Close game* below the fold, and scrollbars are hidden, so a guardian would not have found
+  it. A third tile costs zero vertical space. The tile is lit by the **setting**, like its two
+  siblings — a light that ignored the tap would not be a switch — and whether Google actually
+  signed the device in is also carried by its visible caption and accessible name.
+
+Verified locally:
+- A fresh Godot 4.6.2 Gradle debug export links the plugin and carries exactly
+  `ACCESS_NETWORK_STATE`, `INTERNET`, and `VIBRATE`; the merged manifest has no `AD_ID` permission.
+- A second Numblop parent gate was explicitly dropped. It would be weaker than Google/Family Link
+  and would prevent the automatic backup this milestone exists to provide.
+
+Remaining:
+- Confirm a listed tester account signs in on a real Android device. The PGS project stays in draft
+  until that and P2 cloud save are verified.
+
+Success criteria: the game behaves identically for a signed-out player, Windows and Web builds are
+unaffected, and a tester account can sign in on a device.
+
+**P2 — Cloud save. ◐ Normal path complete; conflict convergence blocked upstream.**
+
+Implemented in `PlayGames.gd` and covered by fake-client tests:
+
+- fixed snapshot `numblop_profile_v1` with schema, app version, write time, device id, counter, and
+  the complete profile;
+- player-id binding, first-sign-in load, empty-side adoption, pure merge, seeded durable write, and
+  asynchronous upload on sign-in, pause, and local-save events outside practice; answer saves are
+  coalesced until the session ends, including when a snapshot response is already in flight;
+- `.premerge` recovery before every two-progress merge, refusal to touch a newer schema, generic
+  runtime reload, and exact read-back before acknowledging an upload or clearing the safety copy;
+- an empty cloud uploads the existing file without a pointless preliminary local rewrite, while
+  three consecutive read-back mismatches stop further attempts for that launch;
+- both conflict candidates are merged into the local durable save, after which uploads are blocked
+  for that launch.
+
+The last behavior is deliberately fail-closed. The plugin's GDScript and Android bridge expose the
+conflict id and candidates but no `resolveConflict` operation; current upstream has the same gap.
+The vendored addon may not be patched locally. P2 becomes complete only after an upstream release
+adds that bridge, it is replaced wholesale, and the physical two-device matrix passes. Until then,
+the unresolved server conflict returns on every launch and cloud backup is effectively unavailable
+for that player. The Settings tile exposes a fourth accessible needs-attention state and explicitly
+says that progress remains safe on the device.
+
+**P3 — Achievements. ☑ implemented, pending hardware verification.**
+Local stays truth; Play is a mirror that is only ever written to.
+
+- `scripts/autoload/PlayGamesCatalog.gd` holds the 25 opaque Console ids. It sits beside
+  `PlayGames.gd` rather than with the other catalogs because everything under `scripts/app/` is
+  forbidden from naming Play. `tests/state/test_play_games_catalog.gd` fails if the achievement
+  catalog grows an entry the table does not know — without it a new achievement would silently
+  never reach Play, failing nowhere at runtime.
+- **Completion is sent the moment an achievement finishes, mid-round included.** Unlike a snapshot
+  merge this reads nothing back and touches no local state, so there is nothing for it to disturb
+  and no reason to make a child wait for the round to end.
+- **How completion is sent depends on the Console type, and getting it wrong is silent.** Only
+  `first_steps` has `target == 1`, so it is the only standard achievement and the only one
+  `unlock()` finishes. The other twenty-four are incremental — Console is imported that way from
+  `incremental := target > 1` — and Play **ignores `unlock()` on an incremental achievement**; it
+  completes only when its steps reach the target. Shipped builds up to `0.4.6` sent `unlock()` for
+  every completed achievement, so a child who had earned tiers offline saw exactly one of them
+  appear on sign-in. A finished achievement is now published as its full absolute step count, and
+  the once-per-launch record marks both the unlock and the step value so the in-progress path can
+  never follow it with a lower number.
+- **Steps are absolute, never deltas**, refreshed on `EventBus.session_ended` and on sign-in. Play
+  keeps the higher value, so a local mastery dip or a reinstall that has not merged yet cannot move
+  a Play progress bar backwards. Per-answer pushes were rejected: 25 calls per tap is not worth the
+  precision on a child's device.
+- **Sign-in backfills everything.** A child may have played offline for months before an account
+  ever exists, and all of it has to arrive on the first sign-in. Achievements do not need the
+  snapshot clients, so the backfill does not wait on the cloud-save handshake.
+- Every call is fire-and-forget; the plugin's replies are not connected. An achievement that fails
+  to reach Play costs a child nothing. What has already been sent is remembered for the launch so
+  an unchanged achievement is not resent every round, and it is cleared on sign-out so a different
+  account is told everything from scratch.
+- `AppState` is read through `achievements_state_callable`, the same seam shape as
+  `reload_profile_callable`, which is what keeps the state provider swappable in tests and keeps
+  `AppState` itself unaware that Play exists.
+
+Artwork is already drawn for all 25, one file per `AchievementCatalog` id, in two sizes:
+
+| Where | Size | Purpose |
+|---|---|---|
+| `store/achievements/<id>.png` | 512×512 RGBA8 | uploaded in Play Console; never ships in the app |
+| `ui/achievements/<id>.png` | 192×192 RGBA8 | the `TrophyScreen` tile, 1.76 MB in the build |
+
+Console icons must be a 512×512 JPEG or a **32-bit** PNG — 32-bit meaning RGBA8, so a 24-bit file
+is rejected. `tools/resize-achievement-icons.ps1` regenerates both sets from the full-size
+originals and forces the pixel format; the originals live in `input/`, which is git-ignored and
+excluded from every export preset. `store/` carries a `.gdignore`, so the Console set is invisible
+to Godot and costs the build nothing.
+
+**Creating the 25 entries in Console** is a ZIP import rather than 250 form fields.
+`tools/export-play-achievements.ps1` writes `artifacts/play-achievements.zip` containing the three
+CSVs Console expects — no header rows, unquoted, comma-separated — plus the 25 icons:
+
+| File | Columns |
+|---|---|
+| `AchievementsMetadata.csv` | Name, Description, Incremental Value, Steps Needed, Initial State, Points, List Order |
+| `AchievementsLocalizations.csv` | Name, Localized name, Localized description, Locale |
+| `AchievementsIconsMappings.csv` | Name, icon filename |
+
+Names, descriptions and step targets are read from `AchievementCatalog` and `strings.csv`, so what
+Console shows is what the game shows, in all ten languages. English is the default locale and lives
+in the metadata file; the other nine are localization rows.
+
+**Locale codes come from the game's own language list in Play Games Services, not from the language
+tag.** A row naming a locale the game is not configured for rejects the entire import, and Console
+reports it by listing all 25 achievements rather than naming the locale — so the failure says
+nothing about where it is. Two of the nine break the `xx-YY` pattern: **Slovak is bare `sk`** and
+Norwegian is `no-NO`. `CONSOLE_LOCALES` in `tests/smoke/export_play_achievements.gd` mirrors the
+configured list and the suite fails on a code that is not in it; update both together if a language
+is added to the game in Console. Play points are the one editorial table — `POINTS` in
+`tests/smoke/export_play_achievements.gd` — spending 1075 of the 2000 a game may ever use, which
+leaves 925 for achievements added with later content. Everything is `Revealed`: nothing here is a
+spoiler. `tests/smoke/test_play_achievements_export.gd` fails if an achievement is added without a
+point value, if the budget is exceeded, or if any string in any language grows a comma.
+
+Regenerate and re-import after adding an achievement or rewording a string. Note that Console's own
+upload dialog spells the third file `AchievementsIconsMappings.csv` while Google's help page spells
+it `AchievementsIconMappings.csv`; the dialog wins, but rename it if an import is rejected.
+
+**P4 — Leaderboards. ☐**
+Total XP and best streak, gamer-tag identity, submissions on round end and sign-in. Last on purpose:
+if review objects, this phase is dropped without touching anything before it.
+
+**P5 — Polish. ☐**
+A child-appropriate "we merged your progress" moment and the account-deletion path Play requires.
+Google and Family Link remain the account gate; Numblop does not add another one.
+
+**Compliance gate — before P1 ships to any track, not after.**
+The bilingual `docs/privacy/index.md` rewrite and `docs/PLAY_CONSOLE_COMPLIANCE.md` worksheet are
+complete, and Settings links to the policy in all ten languages. The public Czech/English policy
+pages return HTTP 200, Data safety is configured, and the Families commitment is enabled. The live
+policy's analytics wording, target-audience answers, and content rating still need their final
+release check. §9 lists the specific items.
 
 ---
 
@@ -537,7 +758,7 @@ moment, and the account-deletion path Play requires.
 method is a no-op when unavailable; the pending queue survives a failed submit and flushes once; no
 gameplay path ever blocks on a call.
 
-**Existing suite:** the full 198 tests must still pass unchanged. If a Play change requires editing a
+**Existing suite:** the full 301-test baseline must still pass. If a Play change requires editing a
 test that is not about Play, that is a signal the isolation in §5.5 has leaked.
 
 **Manual device matrix** (extends the checklist in [`RELEASES.md`](RELEASES.md)):
@@ -547,7 +768,8 @@ test that is not about Play, that is a signal the isolation in §5.5 has leaked.
 | 1 | Never sign in, play a full session | Byte-for-byte the current experience; no dialogs |
 | 2 | Airplane mode from launch, full round, chest, purchase | Everything works; nothing hangs |
 | 3 | Sign in on a device with local progress, cloud empty | Local uploads, nothing changes on screen |
-| 4 | Reinstall, sign in, cloud has progress | Progress restored, tutorial does not replay |
+| 4 | Reinstall, sign in, cloud has progress | Progress restored, tutorial does not replay — no finger appears at all, not even briefly |
+| 4b | Second device, first launch, signed into the same account | Same as 4: a fresh local save is the same code path as a reinstall |
 | 5 | Two devices, both offline, different purchases, then both sync | Both items owned on both devices, coins non-negative, identical final state |
 | 6 | Sign out mid-session | Play stops, game continues, local save intact |
 | 7 | Kill the app during a snapshot write | Local profile still loads; backup used if needed |
@@ -560,15 +782,15 @@ easiest to skip. They are mandatory before the cloud-save phase leaves the inter
 
 ---
 
-## 12. Open questions to resolve before P1
+## 12. Open questions for the remaining phases
 
-1. **Leaderboard position A, B, or C** (§1). Everything else follows from this.
-2. **Community plugin or in-house Kotlin** (§5.1). Answered by the one-day spike, not by preference.
-3. **Parent gate mechanism** for enabling sign-in — Google offers no standard widget, and a simple
-   arithmetic gate is both conventional and, for a multiplication game, slightly funny.
-4. **Account deletion path.** Play provides account-level controls, but the store listing must state
+1. **Account deletion path.** Play provides account-level controls, but the store listing must state
    how a player removes their data. Decide whether "sign out and delete cloud save" lives in Settings.
-5. **Web and Windows builds** get none of this. Confirm that is acceptable, and that a child moving
+2. **Web and Windows builds** get none of this. Confirm that is acceptable, and that a child moving
    between the Web build and Android will not expect shared progress.
-6. **Whether Play achievement unlocks should be re-derived from the local granted set on every
+3. **Whether Play achievement unlocks should be re-derived from the local granted set on every
    sign-in**, or only backfilled once. Re-deriving is more robust and costs one batch call.
+
+Resolved: the community plugin is vendored; cloud defaults on; Google/Family Link own the account
+gate; leaderboard scope remains both, built last and droppable; and the coin ledger was built before
+networking rather than migrated twice.

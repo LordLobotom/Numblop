@@ -10,17 +10,20 @@ adaptive Web build that fits a phone while using a wider canvas on desktop. The 
 in ten languages.
 
 The Android package ID is permanently fixed as `cz.gutcloud.numblop`.
-Public version `0.4.1`, Play version code `13`.
+Public version `0.4.6`, Play version code `18`.
 
 ## Project status
 
-The complete game loop is playable and covered by 198 automated tests plus bilingual responsive
+The complete game loop is playable and covered by 301 automated tests plus bilingual responsive
 screenshot captures. Progression, cosmetics, achievements, and the guided tutorial are all
 implemented and persisted.
 
-What remains before the first Play release is manual, not code: generate the release keystore,
-export and verify the signed AAB, enable GitHub Pages for the privacy policy, run the physical-device
-checklist, and upload to an internal test track. See `D18` in [`docs/ROADMAP.md`](docs/ROADMAP.md).
+The first internal Play build (`0.4.0`, code `12`) is uploaded and Play App Signing is enrolled. The
+release keystore, signed-AAB workflow, and verification path are established. Before the next
+networking build reaches a Play track, GitHub Pages must serve the updated privacy policy, the
+physical-device checklist must pass, and the Play Console data-safety and Families declarations must
+be brought into line with Play Games Services. See `D18` and M5 in
+[`docs/ROADMAP.md`](docs/ROADMAP.md).
 
 ## What is playable
 
@@ -86,22 +89,29 @@ the fact that has waited longest. The complete contract is
 - Achievements pay coins once each: first round (100), streak tiers 10/20/50/100/500/1000, XP tiers
   500/1000/5000/10000, one per completed cosmetic collection, and one per fully mastered island.
 - Everything lives in one local profile at `user://profile.json`, plus device preferences in
-  `user://settings.cfg`. Loading is field-tolerant, so older saves keep working and missing data
-  falls back to safe defaults.
+  `user://settings.cfg`. Saves are written atomically with a recoverable backup, and loading is
+  field-tolerant with an explicit migration step, so older saves keep working and an interrupted
+  write cannot cost a child their progress.
 
 The full persistence contract, including every field and when each write happens, is
 [`docs/SAVE_SYSTEM.md`](docs/SAVE_SYSTEM.md).
 
 ## Offline and local by design
 
-Numblop works entirely without networking. The Android build does not even request the `INTERNET`
-permission. There are no accounts, no analytics, no advertising, no in-app purchases, no remote
-configuration, and no third-party SDKs. All coins are earned by playing.
+Numblop is fully playable offline, signed out, and with no account — that is the product promise and
+it does not expire. There are no analytics, no advertising, no in-app purchases, and no remote
+configuration. All coins are earned by playing.
 
-A Google Play Games Services integration — sign-in, cloud saves, and leaderboards — is planned and
-fully specified in [`docs/GOOGLE_PLAY_GAMES.md`](docs/GOOGLE_PLAY_GAMES.md), but **not implemented**.
-It would change the permission, privacy-policy, and data-safety position, and the document treats
-that as a deliberate, separately approved step. Offline play stays fully functional either way.
+A Google Play Games Services integration — sign-in, cloud saves, and XP/best-streak leaderboards —
+is approved and under way; the plan is [`docs/GOOGLE_PLAY_GAMES.md`](docs/GOOGLE_PLAY_GAMES.md).
+Save version 10, the cloud-save merge, Android sign-in, the normal snapshot load/merge/upload path,
+and the achievement mirror are implemented. Cloud save is on by default, and Google — with Family
+Link for supervised children — owns the account decision. Achievements are only ever pushed to
+Play: unlocks go out as they happen, progress is sent as an absolute step count that Play cannot be
+moved backwards from, and signing in for the first time backfills everything earned offline. The vendored plugin exposes conflicting snapshots but no API
+to resolve their conflict id, so Numblop preserves and merges those candidates locally and blocks
+upload for that launch instead of risking an overwrite. All Play code remains confined to one
+autoload, and a failed or refused sign-in costs a player nothing.
 
 ## Languages
 
@@ -219,7 +229,8 @@ Start with [`AGENTS.md`](AGENTS.md) for repository rules and the source-of-truth
 | [`docs/ROADMAP.md`](docs/ROADMAP.md) | Milestone status and acceptance gates |
 | [`docs/RELEASES.md`](docs/RELEASES.md) | Windows, Android, and Web delivery |
 | [`docs/DECISIONS.md`](docs/DECISIONS.md) | Accepted implementation decisions, newest first |
-| [`docs/GOOGLE_PLAY_GAMES.md`](docs/GOOGLE_PLAY_GAMES.md) | Planned Play Games Services integration (not implemented) |
+| [`docs/GOOGLE_PLAY_GAMES.md`](docs/GOOGLE_PLAY_GAMES.md) | Play Games integration, cloud-save status, and remaining device work |
+| [`docs/PLAY_CONSOLE_COMPLIANCE.md`](docs/PLAY_CONSOLE_COMPLIANCE.md) | Data safety, Families, target-audience, and content-rating worksheet |
 | [`docs/TASKS.md`](docs/TASKS.md) | Historical task ledger and remaining open work |
 
 ## Bundled assets

@@ -132,5 +132,4 @@ func _signature(questions: Array[PracticeQuestion]) -> String:
 
 
 func _remove_test_file() -> void:
-    if FileAccess.file_exists(TEST_PATH):
-        DirAccess.remove_absolute(ProjectSettings.globalize_path(TEST_PATH))
+    SaveManager.delete_profile(TEST_PATH)

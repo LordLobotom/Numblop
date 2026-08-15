@@ -86,5 +86,4 @@ func test_profile_id_is_generated_once_and_stays_stable() -> void:
 
 
 func _remove_test_file() -> void:
-    if FileAccess.file_exists(TEST_PATH):
-        DirAccess.remove_absolute(ProjectSettings.globalize_path(TEST_PATH))
+    SaveManager.delete_profile(TEST_PATH)

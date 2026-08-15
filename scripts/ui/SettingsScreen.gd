@@ -21,7 +21,11 @@ signal exit_requested
 @onready var haptics_button: IconToggle = %HapticsButton
 @onready var sound_caption: Label = %SoundCaption
 @onready var haptics_caption: Label = %HapticsCaption
+@onready var cloud_item: VBoxContainer = %CloudItem
+@onready var cloud_button: IconToggle = %CloudButton
+@onready var cloud_caption: Label = %CloudCaption
 @onready var hint_label: Label = %HintLabel
+@onready var privacy_button: Button = %PrivacyButton
 @onready var exit_button: Button = %ExitButton
 @onready var exit_dialog: Control = %ExitDialog
 @onready var exit_scrim: ColorRect = %ExitScrim
@@ -38,12 +42,19 @@ signal exit_requested
 var _syncing_controls := false
 var _flag_buttons: Dictionary = {}
 var _flag_checks: Dictionary = {}
+enum DialogMode { EXIT, CLOUD_SIGN_IN }
+var _dialog_mode := DialogMode.EXIT
 
 const COMPACT_DIALOG_WIDTH := 420.0
 const DIALOG_SIDE_MARGIN := 20.0
 const DIALOG_MAX_WIDTH := 360.0
 const VERSION_SETTING := "application/config/version"
 const VERSION_FALLBACK := "0.1.0"
+## The published policy lives on the landing site, which carries Czech and English only. Every
+## other game language opens the English page.
+const PRIVACY_POLICY_URL_TEMPLATE := "https://numblop.gutcloud.cz/%s/privacy/"
+const PRIVACY_POLICY_LANGUAGES: Array[String] = ["cs", "en"]
+const PRIVACY_POLICY_FALLBACK_LANGUAGE := "en"
 ## Ten flags wrap to 5 + 5 inside the settings card. 48 px is the touch minimum, and the flag
 ## itself is inset so the checkmark in the corner never covers it.
 const FLAG_BUTTON_SIZE := Vector2(48.0, 48.0)
@@ -57,8 +68,13 @@ func _ready() -> void:
     sfx_slider.drag_ended.connect(_on_sfx_drag_ended)
     mute_button.toggled.connect(_on_sound_toggled)
     haptics_button.toggled.connect(_on_haptics_toggled)
+    cloud_button.toggled.connect(_on_cloud_toggled)
+    PlayGames.availability_changed.connect(_on_play_games_availability_changed)
+    PlayGames.sign_in_state_changed.connect(_on_play_games_sign_in_changed)
+    PlayGames.cloud_sync_state_changed.connect(_on_cloud_sync_state_changed)
+    privacy_button.pressed.connect(_open_privacy_policy)
     exit_button.pressed.connect(show_exit_confirmation)
-    cancel_exit_button.pressed.connect(hide_exit_confirmation)
+    cancel_exit_button.pressed.connect(_on_cancel_dialog)
     confirm_exit_button.pressed.connect(_confirm_exit)
     exit_scrim.gui_input.connect(_on_exit_scrim_input)
     resized.connect(_update_exit_dialog_layout)
@@ -95,12 +111,15 @@ func _sync_controls_from_settings() -> void:
     # the two are inverses of each other and this is the one place that conversion happens.
     mute_button.button_pressed = not SettingsManager.audio_muted
     haptics_button.button_pressed = SettingsManager.haptics_enabled
+    cloud_button.button_pressed = SettingsManager.play_games_enabled
     _syncing_controls = false
     mute_button.refresh()
     haptics_button.refresh()
+    cloud_button.refresh()
     _refresh_volume_values()
     _refresh_language_selection()
     _refresh_toggle_accessibility()
+    refresh_play_games()
 
 
 func _refresh_text() -> void:
@@ -112,12 +131,11 @@ func _refresh_text() -> void:
     sfx_label.text = tr("SETTINGS_SFX")
     sound_caption.text = tr("SETTINGS_SOUND")
     haptics_caption.text = tr("SETTINGS_HAPTICS")
+    _refresh_cloud_presentation()
     _refresh_toggle_accessibility()
+    privacy_button.text = tr("SETTINGS_PRIVACY")
     exit_button.text = tr("SETTINGS_EXIT")
-    dialog_title.text = tr("SETTINGS_EXIT_TITLE")
-    dialog_message.text = tr("SETTINGS_EXIT_CONFIRM")
-    confirm_exit_button.text = tr("SETTINGS_EXIT_YES")
-    cancel_exit_button.text = tr("SETTINGS_EXIT_CANCEL")
+    _refresh_dialog_text()
     hint_label.text = tr("SETTINGS_HINT")
     for locale in _flag_buttons:
         var button: TextureButton = _flag_buttons[locale]
@@ -233,6 +251,55 @@ func _on_sound_toggled(audible: bool) -> void:
         preview_player.play()
 
 
+## Shows or hides the cloud-save tile.
+##
+## Hidden unless a usable plugin is present, which means every Windows and Web player -- and every
+## Android build without the plugin -- sees the original two tiles and nothing else. Offering a
+## backup switch that cannot work would be a promise the game has no way to keep.
+func refresh_play_games() -> void:
+    cloud_item.visible = PlayGames.available()
+    _refresh_cloud_presentation()
+
+
+func _on_play_games_availability_changed(_available: bool) -> void:
+    if is_node_ready():
+        refresh_play_games()
+
+
+func _on_play_games_sign_in_changed(_signed_in: bool) -> void:
+    if is_node_ready():
+        _refresh_cloud_presentation()
+
+
+func _on_cloud_sync_state_changed(_state: StringName) -> void:
+    if is_node_ready():
+        _refresh_cloud_presentation()
+
+
+## The tile is lit by the *setting*, exactly like the sound and vibration tiles beside it.
+##
+## Tying it to whether sign-in actually succeeded was considered and rejected: a switch whose light
+## ignores the tap is not a switch. Whether Google let the device in is reported through the
+## one-line caption and accessible name without turning the control into a status lamp.
+func _on_cloud_toggled(enabled: bool) -> void:
+    if _syncing_controls:
+        return
+    if not enabled and SettingsManager.play_games_enabled and not PlayGames.signed_in():
+        # The automatic startup check can legitimately leave the player signed out. Preserve the
+        # existing opt-out while giving the same tile an explicit route into Google's sign-in UI.
+        _syncing_controls = true
+        cloud_button.button_pressed = true
+        _syncing_controls = false
+        cloud_button.refresh()
+        _refresh_cloud_presentation()
+        show_cloud_sign_in_choice()
+        return
+    # The autoload owns both the stored preference and the session, so nothing here writes the
+    # setting itself -- otherwise the two could disagree about whether the SDK may start.
+    PlayGames.set_enabled(enabled)
+    _refresh_cloud_presentation()
+
+
 func _on_haptics_toggled(enabled: bool) -> void:
     _refresh_toggle_accessibility()
     if _syncing_controls:
@@ -255,9 +322,38 @@ func _refresh_toggle_accessibility() -> void:
         else "SETTINGS_SOUND_OFF_ACCESSIBLE"
     )
     haptics_button.tooltip_text = tr(
-        "SETTINGS_HAPTICS_ON_ACCESSIBLE" if haptics_button.button_pressed
-        else "SETTINGS_HAPTICS_OFF_ACCESSIBLE"
+        "SETTINGS_HAPTICS_OFF_ACCESSIBLE" if not haptics_button.button_pressed
+        else "SETTINGS_HAPTICS_ON_ACCESSIBLE"
     )
+    # Four states: off, on and working, on but not signed in, and on but needing attention. The
+    # fourth is essential while the upstream plugin cannot resolve a persistent server conflict.
+    var cloud_key := "SETTINGS_CLOUD_OFF_ACCESSIBLE"
+    if cloud_button.button_pressed:
+        if PlayGames.cloud_needs_attention():
+            cloud_key = "SETTINGS_CLOUD_ATTENTION_ACCESSIBLE"
+        else:
+            cloud_key = (
+                "SETTINGS_CLOUD_ON_ACCESSIBLE" if PlayGames.signed_in()
+                else "SETTINGS_CLOUD_WAITING_ACCESSIBLE"
+            )
+    cloud_button.tooltip_text = tr(cloud_key)
+
+
+func _refresh_cloud_presentation() -> void:
+    if not is_node_ready():
+        return
+    var caption_key := "SETTINGS_CLOUD_OFF"
+    if cloud_button.button_pressed:
+        if PlayGames.cloud_needs_attention():
+            caption_key = "SETTINGS_CLOUD_ATTENTION"
+        elif not PlayGames.signed_in():
+            caption_key = "SETTINGS_CLOUD_SIGN_IN"
+        elif PlayGames.sync_state() == &"syncing":
+            caption_key = "SETTINGS_CLOUD_SYNCING"
+        else:
+            caption_key = "SETTINGS_CLOUD_ON"
+    cloud_caption.text = tr(caption_key)
+    _refresh_toggle_accessibility()
 
 
 func _preview_audio_preferences() -> void:
@@ -295,16 +391,42 @@ func _request_future_feature(feature_signal: Signal) -> void:
     feature_signal.emit()
 
 
+## The policy page for a game locale. Locales arrive as "cs" or "en_US", so only the language
+## part decides, and anything the site does not publish falls back to English.
+static func privacy_policy_url(locale: String) -> String:
+    var language := locale.split("_")[0].to_lower()
+    if not PRIVACY_POLICY_LANGUAGES.has(language):
+        language = PRIVACY_POLICY_FALLBACK_LANGUAGE
+    return PRIVACY_POLICY_URL_TEMPLATE % language
+
+
+func _open_privacy_policy() -> void:
+    OS.shell_open(privacy_policy_url(TranslationServer.get_locale()))
+
+
 func show_exit_confirmation() -> void:
     _flush_audio_preferences()
+    _dialog_mode = DialogMode.EXIT
+    _refresh_dialog_text()
     _update_exit_dialog_layout()
     exit_dialog.visible = true
     cancel_exit_button.grab_focus()
 
 
+func show_cloud_sign_in_choice() -> void:
+    _dialog_mode = DialogMode.CLOUD_SIGN_IN
+    _refresh_dialog_text()
+    _update_exit_dialog_layout()
+    exit_dialog.visible = true
+    confirm_exit_button.grab_focus()
+
+
 func hide_exit_confirmation() -> void:
     exit_dialog.visible = false
-    exit_button.grab_focus()
+    if _dialog_mode == DialogMode.CLOUD_SIGN_IN:
+        cloud_button.grab_focus()
+    else:
+        exit_button.grab_focus()
 
 
 func close_exit_confirmation_if_open() -> bool:
@@ -318,6 +440,30 @@ func _update_exit_dialog_layout() -> void:
     var available_width := maxf(280.0, size.x - DIALOG_SIDE_MARGIN * 2.0)
     dialog_panel.custom_minimum_size.x = minf(DIALOG_MAX_WIDTH, available_width)
     dialog_buttons.vertical = size.x < COMPACT_DIALOG_WIDTH
+
+
+func _refresh_dialog_text() -> void:
+    if _dialog_mode == DialogMode.CLOUD_SIGN_IN:
+        dialog_title.text = tr("SETTINGS_CLOUD_DIALOG_TITLE")
+        dialog_message.text = tr("SETTINGS_CLOUD_DIALOG_MESSAGE")
+        confirm_exit_button.text = tr("SETTINGS_CLOUD_DIALOG_SIGN_IN")
+        cancel_exit_button.text = tr("SETTINGS_CLOUD_DIALOG_TURN_OFF")
+        return
+    dialog_title.text = tr("SETTINGS_EXIT_TITLE")
+    dialog_message.text = tr("SETTINGS_EXIT_CONFIRM")
+    confirm_exit_button.text = tr("SETTINGS_EXIT_YES")
+    cancel_exit_button.text = tr("SETTINGS_EXIT_CANCEL")
+
+
+func _on_cancel_dialog() -> void:
+    if _dialog_mode == DialogMode.CLOUD_SIGN_IN:
+        PlayGames.set_enabled(false)
+        _syncing_controls = true
+        cloud_button.button_pressed = false
+        _syncing_controls = false
+        cloud_button.refresh()
+        _refresh_cloud_presentation()
+    hide_exit_confirmation()
 
 
 func _on_exit_scrim_input(event: InputEvent) -> void:
@@ -338,5 +484,10 @@ func _unhandled_input(event: InputEvent) -> void:
 
 func _confirm_exit() -> void:
     _flush_audio_preferences()
+    if _dialog_mode == DialogMode.CLOUD_SIGN_IN:
+        exit_dialog.visible = false
+        PlayGames.sign_in()
+        cloud_button.grab_focus()
+        return
     exit_dialog.visible = false
     exit_requested.emit()

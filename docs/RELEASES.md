@@ -7,15 +7,20 @@
 - Windows: x86-64 centered portrait window.
 - Web: adaptive static canvas; phone view fits the available viewport and 900×900 is the wide
   desktop QA reference.
-- The public version comes from `application/config/version` (currently `0.4.1`) and stays
+- The public version comes from `application/config/version` (currently `0.4.7`) and stays
   aligned with the Android version name and the Windows product version. All three are pinned by
-  `tests/smoke/test_project_contract.gd`; bump them together.
-- The Play version code (currently `13`) is pinned by the same test but moves on its own: every
+  `tests/smoke/test_project_contract.gd`; bump them together. There is a fourth place the contract
+  also checks — `application/file_version` in the Windows preset — so a bump touches
+  `project.godot`, both Android presets, and both Windows version fields.
+- The Play version code (currently `19`) is pinned by the same test but moves on its own: every
   upload needs a higher code, including a re-upload of an unchanged version name.
 - Android SDK levels: Min SDK `24`, Target SDK `36`, pinned in the Android Release preset and by
   the same contract test.
-- Privacy policy URL for Play Console (data safety + store listing):
-  `https://lordlobotom.github.io/Numblop/privacy/` (served by GitHub Pages from `docs/`).
+- Privacy policy URL for Play Console, the store listing, and Settings:
+  `https://numblop.gutcloud.cz/en/privacy/` and `https://numblop.gutcloud.cz/cs/privacy/`, published
+  from the `numblop-landing` repository. `docs/privacy/index.md` is the bilingual source text that
+  the site content is kept in step with; it is not itself served anywhere. Both public pages must
+  return HTTP 200 before release.
 
 ## App icons
 
@@ -100,7 +105,8 @@ Complete this checklist on the phone while it remains disconnected from Wi-Fi an
 2. Select English, relaunch, then select Czech and relaunch; each remembered choice must persist.
    Spot-check German and Finnish for the longest strings overflowing a button.
 3. On a fresh install, follow the guided finger tutorial end to end; then kill the app mid-tutorial
-   and confirm it resumes on the step it stopped at, and never replays once completed.
+   and confirm it resumes on the step it stopped at, and never replays once completed. Leave the
+   shop **without buying anything** at least once and confirm the finger moves on to Home.
 4. Stroke the blob and confirm the happy face, heart, and animation respond without requiring sound.
    A plain tap must do nothing.
 5. Open Settings; switch languages, adjust both volume bars, verify mute, toggle haptics off and
@@ -137,6 +143,33 @@ Generate the production keystore once, outside the repository, and back it up se
 it can prevent updates to the published application. Do not commit its path, alias, or password.
 
 There are two ways to produce the signed bundle. Both end at `build/Numblop.aab`.
+
+### What the tools discover for themselves
+
+Only one thing genuinely has to be configured — **where the keystore is**:
+
+```powershell
+setx GODOT_ANDROID_KEYSTORE_RELEASE_PATH "C:\path\to\numblop-upload.jks"
+```
+
+It holds no secret, and `setx` only reaches processes started afterwards, so open a new shell.
+From there both scripts fill in the rest:
+
+- **The password file** is looked for at `GODOT_ANDROID_KEYSTORE_RELEASE_PASSWORD_FILE`, then
+  beside the keystore under the same base name — `numblop-upload.jks` → `numblop-upload.pwd`.
+  Finding nothing is not an error; `sign-aab.ps1` falls back to prompting exactly as before.
+- **The alias** comes from `GODOT_ANDROID_KEYSTORE_RELEASE_USER`, or is read out of the keystore
+  itself with `keytool`, which needs no configuration because a keystore knows its own alias. Only
+  when the keystore holds exactly one key — otherwise picking one is not the script's decision, and
+  it asks.
+
+So the routine case is argument-free:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File tools/export.ps1 -Target android-release
+```
+
+Every explicit parameter still wins over what would have been discovered.
 
 ### Export unsigned, then sign interactively (preferred)
 
@@ -230,15 +263,26 @@ powershell -ExecutionPolicy Bypass -File tools/verify-aab.ps1
 The tool checks the bundle structure (manifest, dex, both ABIs' native libraries), verifies the
 upload signature with `jarsigner`, and — when `NUMBLOP_BUNDLETOOL_JAR` points at a
 `bundletool-all-<version>.jar` downloaded once from `github.com/google/bundletool/releases` —
-asserts the manifest: package id, version code/name, VIBRATE present, INTERNET absent, and
-`allowBackup="true"`. Success prints `NUMBLOP_AAB_VERIFY_OK`.
+asserts the merged manifest: package id, version code/name, `VIBRATE`, `INTERNET`, and
+`ACCESS_NETWORK_STATE` present, `allowBackup="true"`, and no advertising-id, location, camera,
+microphone, or contacts permission. Success prints `NUMBLOP_AAB_VERIFY_OK`.
 
 ## Release checklist
 
 1. Full tests pass; every language column and the version values are reviewed.
 2. Windows, Web, and debug APK export without script/export errors; Web HTTP smoke passes.
 3. `tools/android-smoke.ps1` passes and the physical checklist above passes with networking disabled.
+   With networking restored, a listed Play Games tester also signs in successfully and switching
+   cloud save off returns the app to purely local behavior. On that signed-in device, finishing a
+   round unlocks First Steps in the Play Games app, and a profile with offline progress shows its
+   earned achievements after the first sign-in rather than starting from zero.
 4. Save survives pause, force-stop, relaunch, and application update.
 5. Signed AAB passes `tools/verify-aab.ps1` and is uploaded to an internal Play test track.
-6. Store listing, screenshots, content rating, data-safety answers, and privacy text match the
-   actual offline/no-data-collection behavior.
+6. Store listing, screenshots, content rating, data-safety answers, Families/target-audience answers,
+   and privacy text match the Play Games build. The policy and declarations are updated before the
+   first networking build reaches any Play track.
+7. Play Console assets in `store/` are current: `icon_512.png`, `feature_graphic_1024x500.png`,
+   `screenshots/`, `listing/`, and — once achievements are configured — the 25 icons in
+   `store/achievements/`. That folder carries a `.gdignore` and is excluded from every export
+   preset, so it is uploaded by hand and never reaches a build. Regenerate it together with
+   `ui/achievements/` through `tools/resize-achievement-icons.ps1` whenever the art is redrawn.

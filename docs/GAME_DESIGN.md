@@ -34,15 +34,23 @@ No additional game modes exist.
 
 ## First-run tutorial
 
-A new profile is walked through the loop once by a pointing finger overlay: Play, answer a question,
-open the chest, then Outfit → buy and wear a hat → Map → open an island → Home. It ends permanently
-once completed and never runs again on that profile.
+A new profile is walked through the loop once by a pointing finger overlay, across two rounds:
+
+1. Play → the correct answer → the chest → Outfit → the Buy button → Home.
+2. Play again → the Map → open an island.
+
+It ends permanently once completed and never runs again on that profile.
 
 - The finger points; it does not block. The child performs every real action themselves.
+- The first round shows where the shop and the Buy button are; **nothing has to be bought**. That
+  step ends when the child buys something or simply leaves the shop again.
 - Each step is recorded, so closing the game halfway resumes at the step it stopped on rather than
   starting over.
 - A save that predates the tutorial belongs to a child who already knows the game: it counts as
   onboarded and is never walked through the basics.
+- The same applies to a save that arrives from the cloud. A reinstall or a second device restores a
+  profile that has already been onboarded, and the tutorial stops the moment it lands. While that
+  restore is still on its way the finger waits, so a returning child never sees it at all.
 - Resetting the profile replays it, because that is a new child.
 
 ## Main screen
@@ -81,8 +89,9 @@ Trophies is a read-only screen with two parts:
   ended streak exceeds every previously ended streak, a milestone row is added with its count and the
   local date and time of the interrupting mistake. Shorter ended streaks reset the counter but add no
   row. Streaks never change mastery or rewards.
-- Achievement cards, each with an icon, title, description, progress towards its target, and its coin
-  reward.
+- Achievement cards, each with its own icon, title, description, progress towards its target, and
+  its coin reward. Every achievement has dedicated artwork — a round medallion named after the
+  achievement id — and a locked one is the same picture, dimmed.
 
 ### Outfit
 

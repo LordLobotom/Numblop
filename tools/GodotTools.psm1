@@ -191,4 +191,57 @@ function Unprotect-NumblopPassword {
     }
 }
 
-Export-ModuleMember -Function Resolve-NumblopGodot, Invoke-NumblopGodot, Initialize-NumblopProject, Resolve-NumblopJarsigner, Unprotect-NumblopPassword
+function Resolve-NumblopKeytool {
+    $command = Get-Command keytool -ErrorAction SilentlyContinue
+    if ($null -ne $command) {
+        return $command.Source
+    }
+    # keytool sits beside jarsigner in every JDK, so the search that already finds one finds both.
+    $jarsigner = Resolve-NumblopJarsigner
+    $candidate = Join-Path (Split-Path -LiteralPath $jarsigner -Parent) "keytool.exe"
+    if (-not (Test-Path -LiteralPath $candidate -PathType Leaf)) {
+        throw "keytool not found next to $jarsigner."
+    }
+    return $candidate
+}
+
+## Reads the single key alias out of a keystore.
+##
+## A keystore already knows its own alias, so nobody should have to remember or store it. Returns
+## an empty string when the keystore holds anything other than exactly one key, because guessing
+## which one to sign with is not this function's decision to make.
+function Get-NumblopKeystoreAlias {
+    param(
+        [Parameter(Mandatory)] [string]$KeystorePath,
+        [Parameter(Mandatory)] [string]$PasswordFile
+    )
+
+    $keytool = Resolve-NumblopKeytool
+    # Same discipline as signing: the password reaches keytool through a process-scoped variable
+    # rather than the command line, so it never appears in a process listing.
+    $variable = "NUMBLOP_KEYSTORE_PASSWORD_TRANSIENT"
+    try {
+        [Environment]::SetEnvironmentVariable(
+            $variable, (Unprotect-NumblopPassword -PasswordFile $PasswordFile), "Process"
+        )
+        $listing = & $keytool -list -keystore $KeystorePath -storepass:env $variable 2>$null
+        if ($LASTEXITCODE -ne 0) {
+            return ""
+        }
+    }
+    finally {
+        [Environment]::SetEnvironmentVariable($variable, $null, "Process")
+    }
+
+    # Entry lines read "<alias>, <date>, PrivateKeyEntry," and the date format is localized, so
+    # only the trailing entry type is matched.
+    $aliases = @($listing |
+        Where-Object { $_ -match "^(.+?),.*PrivateKeyEntry,?\s*$" } |
+        ForEach-Object { $Matches[1].Trim() })
+    if ($aliases.Count -ne 1) {
+        return ""
+    }
+    return $aliases[0]
+}
+
+Export-ModuleMember -Function Resolve-NumblopGodot, Invoke-NumblopGodot, Initialize-NumblopProject, Resolve-NumblopJarsigner, Unprotect-NumblopPassword, Resolve-NumblopKeytool, Get-NumblopKeystoreAlias

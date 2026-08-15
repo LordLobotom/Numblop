@@ -4,18 +4,79 @@ Status values: `TODO`, `WIP(@agent)`, `BLOCKED(reason)`, `DONE`.
 
 ## Open work
 
-Everything below this section is `DONE` and kept as a historical ledger of what each track built and
-which files it owned. Only these remain open:
+Everything below this section is kept as a historical ledger of what each track built and which
+files it owned. These release and M5 items remain open:
 
+- `B32 DONE` Ship dedicated achievement artwork at 192 px in `TrophyScreen` and 512 px RGBA8 for
+  Play Console, with the 1254 px originals kept out of git and out of every export. Adds 1.76 MB to
+  the build instead of the ~41 MB the originals would have cost. Owns:
+  `scripts/ui/TrophyScreen.gd`, `ui/achievements/`, `store/achievements/`,
+  `tools/resize-achievement-icons.ps1`, `tests/ui/test_trophy_screen.gd`.
+- `C26 DONE` P3 — push achievement unlocks and absolute step counts to Play Games, with a sign-in
+  backfill of everything earned offline. Unlocks are immediate; steps refresh at round end. All of
+  it stays inside the one autoload and a failed call costs a player nothing. Owns:
+  `scripts/autoload/PlayGamesCatalog.gd`, `scripts/autoload/PlayGames.gd`,
+  `tests/state/test_play_games.gd`, `tests/state/test_play_games_catalog.gd`.
+  Remaining: verify on hardware that the 25 achievements actually unlock in the Play Games app.
+- `D27 DONE` Generate the Play Console bulk-achievement import (three CSVs plus icons) from the
+  catalog and the ten-language string table, with the Play point budget checked in the suite. The
+  ZIP is built on demand into git-ignored `artifacts/`. Owns:
+  `tools/export-play-achievements.ps1`, `tests/smoke/export_play_achievements.gd`,
+  `tests/smoke/ExportPlayAchievements.tscn`, `tests/smoke/test_play_achievements_export.gd`.
+- `D28 TODO` Quests eligibility needs four achievements reliably reachable within an hour of play.
+  Today only First Steps, Streak 10 and Streak 20 qualify; 500 XP is roughly fifty rounds and the
+  first island needs every `2×` fact at mastery 100. Baseline achievement compliance is already met
+  (25 > the required 10), so this only gates Quests. Adding an easy fourth means a new catalog entry
+  and its coin reward, which is a learning-and-economy decision, not a packaging one.
+- `B31 DONE` Stop the guided tutorial replaying on a restored profile, and shorten its shop detour
+  to one Buy-button step that requires no purchase. The overlay now re-reads onboarding state on
+  `EventBus.profile_reloaded` and holds the finger while `EventBus.external_restore_pending` is
+  raised; the hats-tab and first-hat steps and the now-dead `CosmeticsScreen` accessors are gone.
+  Owns: `scripts/ui/OnboardingTutorial.gd`, `scripts/ui/CosmeticsScreen.gd`,
+  `scripts/autoload/EventBus.gd`, `scripts/autoload/PlayGames.gd`,
+  `tests/ui/test_onboarding_tutorial.gd`, `tests/state/test_play_games.gd`.
+- `D26 DONE` Replace/link the PGS Android OAuth credential for
+  `cz.gutcloud.numblop` using the Play App Signing SHA-1
+  `ED:48:7F:8E:CE:13:07:05:A1:6D:3E:45:70:F9:4A:B3:4F:BF:C1:B7`. After Console propagation, hardware
+  code 16 signed in and issued live snapshot load/save calls. Reinstall recovery remains part of the
+  physical-device checklist. Owns: authenticated Play/Cloud Console configuration and that evidence.
+- `C25 DONE` Keep every cloud write and runtime reload outside active practice. Per-answer saves
+  coalesce until the round settles, and a snapshot response already in flight is retried without
+  touching the local profile. Owns: `scripts/autoload/AppState.gd`, `EventBus.gd`, `PlayGames.gd`,
+  `tests/state/test_play_games.gd`.
+- `C24 DONE` Request Google Play Games sign-in automatically once per Android launch while
+  cloud backup is enabled; failure remains silent and offline play remains unchanged. Owns:
+  `scripts/autoload/PlayGames.gd`, `tests/state/test_play_games.gd`.
+- `D25 DONE` Produce and verify the automatic-sign-in Android build (`0.4.4`, code `16`).
+  Owns: version/export configuration, release documentation, and artifact verification.
+- `C23 DONE` Provide an explicit, user-initiated Play Games sign-in path after the
+  automatic session check returns signed out, without prompting during startup. Owns:
+  `scripts/autoload/PlayGames.gd`, `tests/state/test_play_games.gd`.
+- `B36 DONE` Make the cloud tile's signed-out state visible and reuse the settings dialog
+  to offer Sign in or Turn off backup without increasing the settings card height. Owns:
+  `scripts/ui/SettingsScreen.gd`, `localization/strings.csv`, `tests/ui/test_main_scene.gd`.
+- `D24 DONE` Produce and verify the signed Android fix build (`0.4.3`, code `15`). Owns:
+  version/export configuration, release documentation, and artifact verification.
 - `D2 BLOCKED(no authorized physical Android device connected)` Physical Android install/run/log
   smoke command and checklist. Depends: C3. Owns: `tools/`, `docs/RELEASES.md`, smoke tests.
-- `D18 TODO` Release execution: generate the release keystore, export and verify the signed AAB,
-  enable GitHub Pages, complete the physical-device checklist (unblocks D2), and upload to the Play
-  internal test track. Depends: D2, D14–D17. Owns: release workflow (manual steps).
+- `D18 TODO` Release execution, remaining item: complete the physical-device checklist (unblocks
+  D2). The public privacy site, keystore, signing, AAB verification, and a first internal-track
+  upload (`0.4.0` / code `12`) are all done. Depends: D2, D14–D17.
+  Owns: release workflow (manual steps).
+- `C22 BLOCKED(upstream snapshot API has no conflict-resolution call)` Finish P2 cloud convergence
+  when a release of https://github.com/godot-sdk-integrations/godot-play-game-services exposes a
+  supported `resolveConflict` bridge, then replace the addon wholesale per `VENDORED.txt` and
+  complete the physical two-device matrix. The implemented path preserves and merges both
+  candidates locally, reports that backup needs attention, and blocks upload for that launch.
+  Owns: `scripts/autoload/PlayGames.gd`, vendor replacement as a whole, and `tests/state/`.
+- `D23 TODO` Data safety is configured, the Families policy commitment is enabled, and the public
+  Czech/English privacy URLs return HTTP 200. Re-check target-audience and content-rating answers,
+  and reconcile the live policy's analytics wording with the recorded declaration before any
+  networking build reaches a track.
 
-The next milestone after those is M5, Google Play Games Services. It has no task lines yet on
-purpose: it starts from [`GOOGLE_PLAY_GAMES.md`](GOOGLE_PLAY_GAMES.md) and a decision entry, and its
-tasks are written when that phase is actually approved.
+The active milestone is M5, Google Play Games Services, specified in
+[`GOOGLE_PLAY_GAMES.md`](GOOGLE_PLAY_GAMES.md). Its offline prerequisites, sign-in code, and normal
+cloud path are implemented; `C22`, `D2`, `D18`, and `D23` are the remaining gates.
 
 **Reading this file:** it records what was built and by which track, not what the game does today.
 For current behavior use [`GAME_DESIGN.md`](GAME_DESIGN.md), [`ARCHITECTURE.md`](ARCHITECTURE.md),
@@ -187,9 +248,10 @@ that has since been superseded.
   512px store icon, 1024×500 feature graphic, 9:16 store screenshot harness
   (`tools/capture-store.ps1` → versioned `store/screenshots/`), bilingual listing texts, and the
   repository LICENSE. Owns: `store/`, `docs/index.md`, `docs/privacy/`, capture harness, LICENSE.
-- `D18 TODO` Release execution: generate the release keystore, export and verify the signed AAB,
-  enable GitHub Pages, complete the physical-device checklist (unblocks D2), and upload to the
-  Play internal test track. Depends: D2, D14–D17. Owns: release workflow (manual steps).
+- `D18 TODO` Release execution originally covered keystore generation, AAB signing/verification,
+  GitHub Pages, physical-device validation, and the first internal upload. The keystore, signing,
+  verification, and `0.4.0` / code `12` upload are done; Pages and device validation remain.
+  Depends: D2, D14–D17. Owns: release workflow (manual steps).
 - `A9 DONE` Achievement catalog (first round, four streak tiers, one full-mastery island per
   table) and per-fact session mastery gains, both pure and deterministic. Owns: achievement
   catalog, session result, core tests.
@@ -232,6 +294,55 @@ that has since been superseded.
 - `B33 DONE` Petting is a stroke across the avatar; a tap does nothing. Bilingual hint updated,
   and the reaction draws its voice from a three-clip no-repeat pool.
   Owns: `scripts/ui/BlobCharacter.gd`, blob scene audio, localization, UI tests.
+
+## M5 tasks — Google Play Games Services
+
+Phase P0 only. Everything from P1 onwards waits on `D18` and a decision entry; see
+[`GOOGLE_PLAY_GAMES.md`](GOOGLE_PLAY_GAMES.md) §10 for the phase order.
+
+- `C18 DONE` Save version 10 and the durability work cloud synchronisation needs, all offline:
+  atomic write through a temporary file with the previous save kept as a recoverable backup,
+  fall-through loading, `SaveManager.delete_profile`, an explicit `SaveMigration` step, a monotonic
+  `save_counter` with an injectable clock, unknown-field preservation, the inert `cloud` block, and
+  the `CoinLedger` buckets with a back-fill that reproduces every existing balance exactly. Owns:
+  `scripts/autoload/SaveManager.gd`, `scripts/app/CoinLedger.gd`, `scripts/app/SaveMigration.gd`,
+  `scripts/app/LocalCloudSync.gd`, `scripts/app/LocalProgress.gd`, `CosmeticCatalog.CATEGORIES`,
+  app-state save wiring, and `tests/state/`.
+- `C19 DONE` `scripts/app/CloudSaveMerge.gd`: the pure two-save merge from
+  [`GOOGLE_PLAY_GAMES.md`](GOOGLE_PLAY_GAMES.md) §7 — commutative except for this device's own
+  identity, monotonic on mastery and unlocks, unioning items, achievements and streak records, and
+  recomputing the balance through `CoinLedger`. No networking. Owns: `scripts/app/CloudSaveMerge.gd`
+  and `tests/state/test_cloud_save_merge.gd`. Depends: C18.
+- `D22 DONE` Network permissions and Gradle builds on both Android presets, the contract-test
+  rewrite that replaces the `permissions/internet=false` pin with permission assertions of its own,
+  and `tools/install-play-games-plugin.ps1` wired into `tools/export.ps1`. Owns: `export_presets.cfg`,
+  `tools/`, `tests/smoke/test_project_contract.gd`. Depends: C19.
+- `C21 DONE` `scripts/autoload/PlayGames.gd`: isolated sign-in wrapper that is a no-op on every
+  non-Android build, plus the `play_games/enabled` setting and the test that no gameplay system may
+  reference the autoload. It initially gated startup behind opt-in; the later P1 decision made cloud
+  default-on and left Google/Family Link as the account gate. Owns: `scripts/autoload/PlayGames.gd`,
+  `SettingsManager`, `project.godot` autoload list, `tests/state/test_play_games.gd`.
+- `D23 DONE` Plugin spike: `godot-sdk-integrations/godot-play-game-services` v3.4.0 vendored
+  unmodified at `addons/GodotPlayGameServices/`, the game id set as an export option on both Android
+  presets, and `tools/install-play-games-plugin.ps1` deleted as redundant and conflicting. Owns:
+  `addons/`, `export_presets.cfg`, `tools/export.ps1`. Depends: D22.
+- `B34 DONE` Cloud-save tile in Settings — a third icon tile beside Sound and Vibration with a drawn
+  cloud, hidden unless a usable plugin is present, on by default, three accessible states. Owns:
+  `scenes/screens/SettingsScreen.tscn`, `scripts/ui/SettingsScreen.gd`, `ui/icon/icon_cloud_*.svg`,
+  `localization/strings.csv`, `tests/ui/test_main_scene.gd`, the `settings_cloud` capture state.
+  Depends: C21.
+- `B35 DROPPED` Parent gate in front of the cloud-save switch. Google and Family Link already own
+  the account decision for supervised children; a second, weaker gate would be theatre and would
+  cost honest players their backup. See the 2026-08-13 decision entry.
+- `C20 DONE` Seeded cloud-merge writes above both parent counters; added the fixed-name snapshot
+  payload, normal load/merge/upload path, first-sign-in handling, pause/save triggers, newer-schema
+  refusal, account binding, `.premerge` recovery, runtime reload, and exact read-back acknowledgement.
+  A plugin-level conflict is merged durably on-device and upload is blocked because v3.4.0 exposes
+  no conflict-resolution call. Upload verification is capped after three consecutive mismatches,
+  and Settings exposes every fail-closed block as a fourth accessible state. Depends: C19, D22.
+- Compliance gate: the bilingual privacy policy and exact Console worksheet are updated; applying
+  the Data safety, Families/target-audience, and content-rating answers remains `D23` and must happen
+  before any networking build reaches a track.
 
 Claim the lowest-numbered unblocked task in your track. Only the stated owner changes the task's
 owned files; coordinate contract changes through the owning track.

@@ -5,8 +5,6 @@ const EXPECTED_SEQUENCE: Array[StringName] = [
     &"correct_answer",
     &"chest",
     &"cosmetics",
-    &"hats_tab",
-    &"first_hat",
     &"buy",
     &"home",
     &"play_again",
@@ -113,15 +111,71 @@ func test_screens_expose_the_controls_the_tutorial_points_at() -> void:
     var cosmetics: CosmeticsScreen = load(
         "res://scenes/screens/CosmeticsScreen.tscn"
     ).instantiate()
-    check(cosmetics.has_method("item_card"), "Cosmetics resolves a live catalog card")
-    check(cosmetics.has_method("previewed_item"), "Cosmetics names what Buy would act on")
+    scene_tree.root.add_child(cosmetics)
+    check(cosmetics.purchase_button != null, "The finger finds the Buy button")
+    if cosmetics.purchase_button != null:
+        check(
+            cosmetics.purchase_button.visible,
+            "Buy is always on screen, so the shop step never points at a hidden control"
+        )
     _release_audio_streams(cosmetics)
+    scene_tree.root.remove_child(cosmetics)
     cosmetics.free()
 
     var map: MapScreen = load("res://scenes/screens/MapScreen.tscn").instantiate()
     check(map.has_method("stage_button"), "Map resolves one island crest")
     check(map.stage_button(2) == null, "An unbuilt map has no crest to point at")
     map.free()
+
+
+func test_a_restored_profile_ends_or_advances_the_sequence() -> void:
+    # The reason the tutorial replayed after a reinstall: the overlay read the save once at boot,
+    # and the cloud restore arrived seconds later without it noticing.
+    var step_count := EXPECTED_SEQUENCE.size()
+    equal(
+        OnboardingTutorial.restored_step_index(0, 0, true, step_count),
+        -1,
+        "A restored save that is already onboarded ends the tutorial"
+    )
+    equal(
+        OnboardingTutorial.restored_step_index(6, 2, true, step_count),
+        -1,
+        "Completion wins over any step, however far the local sequence got"
+    )
+    equal(
+        OnboardingTutorial.restored_step_index(1, 5, false, step_count),
+        5,
+        "A further saved step moves the finger forward"
+    )
+    equal(
+        OnboardingTutorial.restored_step_index(5, 1, false, step_count),
+        5,
+        "A restore never walks a child back to a control they already used"
+    )
+    equal(
+        OnboardingTutorial.restored_step_index(0, 99, false, step_count),
+        step_count - 1,
+        "A step past the end of the sequence lands on its last step"
+    )
+
+
+func test_the_finger_waits_only_for_a_restore_that_could_still_cancel_it() -> void:
+    check(
+        OnboardingTutorial.waits_for_restore(true, 0, 0),
+        "An untouched profile with a restore in flight holds the finger back"
+    )
+    check(
+        not OnboardingTutorial.waits_for_restore(false, 0, 0),
+        "Offline, nothing is ever in flight and the finger appears at once"
+    )
+    check(
+        not OnboardingTutorial.waits_for_restore(true, 2, 0),
+        "A child already mid-sequence is not left without a finger"
+    )
+    check(
+        not OnboardingTutorial.waits_for_restore(true, 0, 3),
+        "A profile that has finished rounds is not waiting to be replaced"
+    )
 
 
 func test_app_state_owns_the_saved_tutorial_position() -> void:

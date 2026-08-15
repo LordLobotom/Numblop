@@ -39,8 +39,32 @@ if (-not (Test-Path -LiteralPath $KeystorePath -PathType Leaf)) {
     throw "Keystore not found: $KeystorePath"
 }
 
+# The encrypted password normally lives beside the keystore under the same base name, which is
+# what makes a bare `sign-aab.ps1` work. An explicit -PasswordFile still wins, and finding nothing
+# is not an error: jarsigner simply prompts, exactly as it always did.
+if ($PasswordFile -eq "") {
+    $PasswordFile = $env:GODOT_ANDROID_KEYSTORE_RELEASE_PASSWORD_FILE
+}
+if ([string]::IsNullOrWhiteSpace($PasswordFile)) {
+    $adjacentPassword = [System.IO.Path]::ChangeExtension($KeystorePath, ".pwd")
+    if (Test-Path -LiteralPath $adjacentPassword -PathType Leaf) {
+        $PasswordFile = $adjacentPassword
+    }
+    else {
+        $PasswordFile = ""
+    }
+}
+if ($PasswordFile -ne "" -and -not (Test-Path -LiteralPath $PasswordFile -PathType Leaf)) {
+    throw "Password file not found: $PasswordFile"
+}
+
 if ($Alias -eq "") {
     $Alias = $env:GODOT_ANDROID_KEYSTORE_RELEASE_USER
+}
+if ([string]::IsNullOrWhiteSpace($Alias) -and $PasswordFile -ne "") {
+    # A keystore knows its own alias, so there is no reason to make anyone remember it. This only
+    # works when the password is already available without a prompt.
+    $Alias = Get-NumblopKeystoreAlias -KeystorePath $KeystorePath -PasswordFile $PasswordFile
 }
 if ([string]::IsNullOrWhiteSpace($Alias)) {
     throw "Pass -Alias with the upload key alias, or set GODOT_ANDROID_KEYSTORE_RELEASE_USER."

@@ -47,6 +47,11 @@ function Initialize-NumblopAndroidGradle {
     # Re-applied on every export: the template is git-ignored and Godot may
     # overwrite it with its stock compile SDK, which is lower than our target.
     & (Join-Path $PSScriptRoot "patch-android-template.ps1")
+
+    # The Play Games plugin needs nothing here. It is vendored in `addons/`, which is versioned,
+    # and its own EditorExportPlugin injects the .aar, the Gradle dependencies, the manifest
+    # meta-data and `android/build/res/values/strings.xml` at export time. The game id it writes
+    # comes from `godot_play_game_services/game_id` in export_presets.cfg.
 }
 
 # Godot has no per-option command line override, so an unsigned export needs
@@ -89,6 +94,10 @@ switch ($Target) {
         )
     }
     "android-debug" {
+        # The debug preset builds through Gradle too now, because a plugin cannot be linked
+        # without it -- and a debug APK that cannot sign in is useless for testing Play Games.
+        Initialize-NumblopAndroidGradle
+
         $arguments = @(
             "--headless", "--path", $repoRoot,
             "--export-debug", "Android Debug", (Join-Path $buildRoot "Numblop-debug.apk")
@@ -102,6 +111,34 @@ switch ($Target) {
                 "GODOT_ANDROID_KEYSTORE_RELEASE_PATH", $KeystorePath, "Process"
             )
         }
+
+        # With the keystore known, the rest can be discovered rather than typed: the encrypted
+        # password normally sits beside it under the same base name, and a keystore knows its own
+        # alias. That is what lets a release export run with no arguments at all.
+        $resolvedKeystore = [Environment]::GetEnvironmentVariable(
+            "GODOT_ANDROID_KEYSTORE_RELEASE_PATH"
+        )
+        if ($PasswordFile -eq "") {
+            $PasswordFile = $env:GODOT_ANDROID_KEYSTORE_RELEASE_PASSWORD_FILE
+        }
+        if ([string]::IsNullOrWhiteSpace($PasswordFile) `
+                -and -not [string]::IsNullOrWhiteSpace($resolvedKeystore)) {
+            $adjacentPassword = [System.IO.Path]::ChangeExtension($resolvedKeystore, ".pwd")
+            if (Test-Path -LiteralPath $adjacentPassword -PathType Leaf) {
+                $PasswordFile = $adjacentPassword
+            }
+        }
+        if ([string]::IsNullOrWhiteSpace($PasswordFile)) {
+            $PasswordFile = ""
+        }
+        if ($Alias -eq "" `
+                -and [string]::IsNullOrWhiteSpace($env:GODOT_ANDROID_KEYSTORE_RELEASE_USER) `
+                -and $PasswordFile -ne "" `
+                -and -not [string]::IsNullOrWhiteSpace($resolvedKeystore)) {
+            $Alias = Get-NumblopKeystoreAlias `
+                -KeystorePath $resolvedKeystore -PasswordFile $PasswordFile
+        }
+
         if ($Alias -ne "") {
             [Environment]::SetEnvironmentVariable(
                 "GODOT_ANDROID_KEYSTORE_RELEASE_USER", $Alias, "Process"
@@ -171,7 +208,11 @@ switch ($Target) {
 $previousGradleOptions = [Environment]::GetEnvironmentVariable("GRADLE_OPTS", "Process")
 $originalPresets = $null
 try {
-    if ($Target -like "android-release*" -and $previousGradleOptions -notmatch 'org\.gradle\.daemon=false') {
+    # Applies to every Android target, not just release: the debug preset builds through Gradle too
+    # now that the Play Games plugin has to be linked, and it hits the same Windows
+    # redirected-output handle deadlock the daemon causes. A debug export that hangs for the full
+    # timeout with no output is exactly what that looks like.
+    if ($Target -like "android-*" -and $previousGradleOptions -notmatch 'org\.gradle\.daemon=false') {
         $scriptedGradleOptions = (($previousGradleOptions, "-Dorg.gradle.daemon=false") |
             Where-Object { -not [string]::IsNullOrWhiteSpace($_) }) -join " "
         [Environment]::SetEnvironmentVariable("GRADLE_OPTS", $scriptedGradleOptions, "Process")
@@ -183,7 +224,9 @@ try {
     }
     # A first Gradle run downloads the plugin and dependencies and outlasts the
     # timeout that is generous for every other target.
-    $exportTimeoutSeconds = if ($Target -like "android-release*") { 1800 } else { 600 }
+    # Every Android target builds through Gradle now that the Play Games plugin is linked, and a
+    # first build downloads play-services and its transitive dependencies.
+    $exportTimeoutSeconds = if ($Target -like "android-*") { 1800 } else { 600 }
     Invoke-NumblopGodot -Godot $godot -Arguments $arguments -TimeoutSeconds $exportTimeoutSeconds
 }
 finally {
@@ -202,5 +245,7 @@ finally {
 if ($Target -eq "android-release-unsigned") {
     Write-Host ""
     Write-Host "Unsigned bundle ready. Sign it with:" -ForegroundColor Cyan
-    Write-Host "  tools/sign-aab.ps1 -KeystorePath <keystore.jks> -Alias <alias>"
+    Write-Host "  tools/sign-aab.ps1"
+    Write-Host ("  (add -KeystorePath/-Alias/-PasswordFile only when they cannot be " +
+        "discovered; see docs/RELEASES.md)")
 }

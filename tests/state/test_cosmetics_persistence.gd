@@ -316,5 +316,4 @@ func test_legacy_save_receives_safe_default_cosmetics() -> void:
 
 
 func _remove_test_file() -> void:
-    if FileAccess.file_exists(TEST_PATH):
-        DirAccess.remove_absolute(ProjectSettings.globalize_path(TEST_PATH))
+    SaveManager.delete_profile(TEST_PATH)

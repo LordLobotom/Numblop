@@ -35,6 +35,7 @@ $expectedScreens = @(
     "map_detail",
     "map_unlock",
     "settings",
+    "settings_cloud",
     "settings_exit",
     "choice",
     "milestone",

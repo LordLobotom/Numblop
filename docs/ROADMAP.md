@@ -2,7 +2,7 @@
 
 Legend: ☐ todo · ◐ in progress · ☑ done
 
-Status reviewed against the code on 2026-08-12 at version `0.4.1` / Play version code `13`, with 198
+Status reviewed against the code on 2026-08-15 at version `0.4.6` / Play version code `18`, with 301
 tests passing.
 
 ## M0 — Foundation ☑
@@ -69,30 +69,63 @@ question for the usability pass in M2.
 
 - ☑ Final icons (adaptive foreground/background/monochrome), boot splash, store text and 9:16
   screenshots (`store/`), privacy disclosure (`docs/privacy/`).
-- ☑ Version `0.4.1` / Play version code `13`, pinned across project and both Android presets by
+- ☑ Version `0.4.6` / Play version code `18`, pinned across project and both Android presets by
   `tests/smoke/test_project_contract.gd`.
 - ☑ AAB verification tooling (`tools/verify-aab.ps1`) and an interactive signing path that never
   places the keystore password in a file, variable, or shell history.
-- ☐ **`D18` — release execution.** All remaining items are manual:
-  - generate the release keystore outside the repository and back it up securely;
-  - export and verify the signed AAB;
-  - enable GitHub Pages so the privacy-policy URL resolves;
+- ☑ Release keystore generated and stored outside the repository, with signing and
+  `tools/verify-aab.ps1` both routine. Producing a verified signed AAB is a solved, repeated step.
+- ☑ `0.4.0` / code `12` uploaded to the Play internal test track, so the app entry exists and Play
+  App Signing is enrolled — which is what later makes the Play Games credential setup possible.
+- ☐ **`D18` — remaining manual items:**
   - complete the physical-device checklist in [`RELEASES.md`](RELEASES.md), which also unblocks `D2`;
-  - upload to the Play internal test track and complete the data-safety and content-rating answers.
+  - upload the next build to the internal track when there is a reason to cut one.
 - Windows and Web builds remain convenient matching test targets.
 
 Acceptance: the internal Play build installs, updates, runs fully offline, and retains its save.
 
-## M5 — Google Play Games Services ☐
+Note: no *further* upload is required to develop or test M5. The Play Games credential needs the Play
+App Signing SHA-1, which code `12` already produced, and tester accounts cover the rest. Cutting an
+offline release purely to unblock the integration would buy nothing and would mean two rounds of
+store review — the second being the data-safety change that draws the scrutiny.
+
+## M5 — Google Play Games Services ◐
 
 Sign-in, cloud saves synchronised with the existing local save, and XP and best-streak leaderboards,
-with the game remaining fully playable offline and signed-out.
+with the game remaining fully playable offline and signed-out. Full plan, including Play Console
+setup, Families-policy and privacy consequences, and the testing strategy:
+[`GOOGLE_PLAY_GAMES.md`](GOOGLE_PLAY_GAMES.md).
 
-This milestone deliberately breaks the current "no networking" product contract, so it does not begin
-until `D18` has shipped an offline release and the change is accepted as a decision entry. The full
-technical plan — permissions, plugin, schema versioning, conflict resolution, Play Console setup,
-Families-policy and privacy consequences, phases, and testing strategy — is
-[`GOOGLE_PLAY_GAMES.md`](GOOGLE_PLAY_GAMES.md). Nothing in it is implemented.
+- ☑ **P0 — offline prerequisites (save version 10).** Atomic writes with a recoverable backup,
+  fall-through loading, an explicit migration step, a monotonic `save_counter`, unknown-field
+  preservation, the inert `cloud` block, and the coin ledger. Contains no networking and ships as a
+  normal offline release; it closes a real truncation risk that predates any Play work.
+- ☑ **P0b — `CloudSaveMerge`,** the pure two-save merge: commutative except for this device's own
+  identity, never losing mastery, an item, an achievement, or a streak record, and recomputing the
+  balance from the ledger rather than summing it. Unit-tested with no plugin, network, or device.
+- ☑ **P1 — sign-in.** Play Console configured (PGS project in draft), the community plugin
+  vendored and verified, network permissions and Gradle builds on both Android presets, the
+  `PlayGames` wrapper, and the Settings row. Cloud save is on by default and initialises
+  automatically on Android; Google and Family Link own the account decision. Still to confirm on
+  real hardware: a tester account signing in.
+- ◐ **P2 — cloud save.** The normal fixed-snapshot load/merge/upload path, first-sign-in handling,
+  `.premerge` recovery, newer-schema refusal, account binding, and read-back acknowledgement are
+  implemented. The vendored plugin emits both conflict candidates but exposes no supported way to
+  resolve the conflict id, so Numblop merges them locally and blocks upload for that launch. Cloud
+  convergence and the physical two-device matrix remain blocked on an upstream bridge plus hardware.
+- ☑ P3 — achievements mirrored to Play. Unlocks immediate, absolute steps at round end, sign-in
+  backfills what was earned offline. Hardware verification outstanding.
+- ☐ P4 — the two leaderboards. Last on purpose: if Families or privacy review objects, this phase is
+  dropped without touching anything before it.
+- ☐ P5 — merge messaging and the account-deletion path. Google and Family Link remain the account
+  gate; Numblop does not add a second one.
+
+The networking implementation is accepted in `DECISIONS.md`, but it remains outside every Play track
+until the compliance and physical-device gates below are complete.
+
+The bilingual privacy policy is public and the recorded Play Console Data safety declaration and
+Families commitment are in `PLAY_CONSOLE_COMPLIANCE.md`. Target-audience and content-rating answers
+still need their final release check **before** the first networking build reaches any track.
 
 Acceptance: a signed-out player is unaffected in every way; a signed-in player can lose their device
 and recover their progress; no conflict path can silently destroy a child's local progress.

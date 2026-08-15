@@ -23,6 +23,7 @@ scripts/autoload/       EventBus, settings, saves, and current local app state
 scripts/ui/             Scene presentation and input handling
 localization/           Source translation catalog
 ui/                     Theme, fonts, icons, branding, shaders, and UI-native assets
+addons/                 Vendored third-party plugins; never edited in place
 tests/core/             Learning rules, generator, and catalog tests
 tests/state/            Persistence, lifecycle, and app-state tests
 tests/ui/               Scene contract and interaction tests
@@ -71,6 +72,17 @@ must not live in a scene, but they do not read files or drive the frame loop eit
   is the single guard that makes a reward one-time.
 - `LocalOnboarding` holds the tutorial's `completed` flag and resumed `step`.
 - `LocalNickname` sanitises the optional nickname (control characters stripped, max 16 characters).
+- `LocalCloudSync` holds the Play Games synchronisation bookkeeping: the confirmed account binding,
+  last acknowledged local counter, and acknowledgement time.
+- `CoinLedger` is pure, static coin accounting: the two stored lifetime buckets plus achievement
+  earnings and cosmetic spending, both *derived* from sets rather than stored. A balance cannot be
+  merged between two devices; these four terms can.
+- `SaveMigration` brings a loaded save dictionary up to the current schema in memory. It exists for
+  the changes field tolerance cannot cover — a field whose value must be computed from other fields.
+- `CloudSaveMerge` reconciles two saves of the same profile into one. Pure and static, so the code
+  that could silently destroy a childhood of practice is provable without a device or a network. It
+  is commutative except for this device's own identity, monotonic on everything earned, and
+  recomputes the balance through `CoinLedger` rather than carrying it.
 - `CosmeticCatalog` defines stable local item ids, prices, display keys, palette colors, and the
   authoring rectangle each accessory is framed by.
 - `LanguageCatalog` is the single list of shipped languages, used by `SettingsManager` to validate a
@@ -85,6 +97,8 @@ must not live in a scene, but they do not read files or drive the frame loop eit
   buses, and is the only caller of `Input.vibrate_handheld`.
 - `SaveManager` owns `user://profile.json` serialization. Every write rewrites the whole file, and any
   argument a caller omits is re-read from disk first, so no save path can drop another system's data.
+  Writes go through a temporary file and two atomic renames, keeping the previous save as a backup
+  that loading falls through to; unknown fields written by a newer build are preserved.
 - `AppState` owns the loaded `LearningProfile`, the `SessionController`, and every `Local*` model. It
   chooses runtime random seeds, so the deterministic generator never has to. It projects capped
   aggregate mastery and per-fact bands into read-only map-stage progress, projects the cosmetics
@@ -95,17 +109,39 @@ must not live in a scene, but they do not read files or drive the frame loop eit
   every purchase, and every finished round; the coins are banked immediately while the celebration is
   queued for the next end-of-round page.
 
-Milestone and achievement rewards never enter the deterministic learning core.
+- `PlayGames` is the only file that knows Play Games Services exists. It wraps the vendored
+  `addons/GodotPlayGameServices` plugin, resolving it by node path and script path rather than by
+  `class_name`, so removing the addon leaves this file parsing and simply reporting unavailable.
+  Cloud save is on by default: on Android it initialises at startup and checks the existing session,
+  and Google — with Family Link for supervised children — owns the account decision rather than any
+  gate of Numblop's own. Everywhere else `available()` is false and every method returns
+  immediately. A failed or refused sign-in changes nothing about the game. A test walks
+  `scripts/core/`, `scripts/app/`, `scripts/ui/` and `scenes/` and fails if anything except the
+  Settings screen references it. On sign-in it loads the fixed `numblop_profile_v1` snapshot,
+  refuses newer schemas, writes a `.premerge` recovery copy before combining two progressed saves,
+  persists the pure `CloudSaveMerge` result, reloads `AppState` through a provider-neutral method,
+  and uploads asynchronously. A dispatched upload is acknowledged only after an exact read-back.
+  Practice is an exclusion window: per-answer local saves are coalesced, and even an in-flight
+  snapshot response is deferred before it can write or reload until the runtime session has ended.
+  Three consecutive read-back mismatches block uploads for the launch instead of retrying after
+  every answer indefinitely.
+  The current vendored plugin cannot resolve a Play conflict id; that path merges both candidates
+  locally and blocks further uploads for the launch rather than overwriting either side. Because
+  the server conflict persists, Settings exposes the blocked state instead of presenting backup as
+  healthy.
+
+Milestone and achievement rewards never enter the deterministic learning core. No game rule waits on
+a network call.
 
 ## Persistence
 
 Two files: `user://profile.json` for everything the child earned, and `user://settings.cfg` for
-device preferences. Compatibility comes from field-tolerant loaders rather than version branching,
-so an unknown field is ignored and a missing one takes a documented default.
+device preferences. Compatibility comes from field-tolerant loaders plus an explicit `SaveMigration`
+step for the fields that must be computed rather than defaulted.
 
-The current save version is `9`. **Every field, every write path, the versioning approach, and the
-known failure behaviour are documented in [`SAVE_SYSTEM.md`](SAVE_SYSTEM.md)** — that file is the
-contract; do not restate its field list here.
+The current save version is `10`. **Every field, every write path, the durability guarantees, the
+migration history, and the coin ledger are documented in [`SAVE_SYSTEM.md`](SAVE_SYSTEM.md)** — that
+file is the contract; do not restate its field list here.
 
 ## UI and display
 
@@ -149,7 +185,10 @@ contract; do not restate its field list here.
   (round, mastery bonus, achievements, total) step by step, then holds until the auto-return or a tap.
 - `OnboardingTutorial` is a sibling overlay in `Main.tscn` that drives a finger through the whole
   loop. It resolves its targets through accessors the screens expose, so it never reaches into their
-  internals, and it records its step through `AppState` so a restart resumes there.
+  internals, and it records its step through `AppState` so a restart resumes there. It re-reads that
+  state on `EventBus.profile_reloaded` rather than trusting what it read at boot, and holds the
+  finger back while `EventBus.external_restore_pending` says a remote save could still replace the
+  profile — both provider-agnostic, so the overlay never names Play Games.
 
 ## Localization
 

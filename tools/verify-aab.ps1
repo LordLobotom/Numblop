@@ -101,6 +101,8 @@ if ($env:NUMBLOP_BUNDLETOOL_JAR -and (Test-Path $env:NUMBLOP_BUNDLETOOL_JAR)) {
         @{ Pattern = "android:versionCode=`"$ExpectedVersionCode`""; Label = "versionCode $ExpectedVersionCode" },
         @{ Pattern = "android:versionName=`"$([regex]::Escape($ExpectedVersionName))`""; Label = "versionName $ExpectedVersionName" },
         @{ Pattern = 'android\.permission\.VIBRATE'; Label = "VIBRATE permission" },
+        @{ Pattern = 'android\.permission\.INTERNET'; Label = "INTERNET permission" },
+        @{ Pattern = 'android\.permission\.ACCESS_NETWORK_STATE'; Label = "ACCESS_NETWORK_STATE permission" },
         @{ Pattern = 'android:allowBackup="true"'; Label = "allowBackup enabled" }
     )
     foreach ($manifestCheck in $manifestChecks) {
@@ -109,10 +111,21 @@ if ($env:NUMBLOP_BUNDLETOOL_JAR -and (Test-Path $env:NUMBLOP_BUNDLETOOL_JAR)) {
         }
         Write-Host "OK manifest $($manifestCheck.Label)"
     }
-    if ($manifest -match 'android\.permission\.INTERNET') {
-        throw "Manifest unexpectedly requests INTERNET; Numblop must stay offline."
+    $forbiddenPermissions = @(
+        @{ Pattern = 'android\.permission\.AD_ID'; Label = "Android advertising id" },
+        @{ Pattern = 'com\.google\.android\.gms\.permission\.AD_ID'; Label = "Google advertising id" },
+        @{ Pattern = 'android\.permission\.ACCESS_FINE_LOCATION'; Label = "fine location" },
+        @{ Pattern = 'android\.permission\.ACCESS_COARSE_LOCATION'; Label = "coarse location" },
+        @{ Pattern = 'android\.permission\.CAMERA'; Label = "camera" },
+        @{ Pattern = 'android\.permission\.RECORD_AUDIO'; Label = "microphone" },
+        @{ Pattern = 'android\.permission\.READ_CONTACTS'; Label = "contacts" }
+    )
+    foreach ($forbiddenPermission in $forbiddenPermissions) {
+        if ($manifest -match $forbiddenPermission.Pattern) {
+            throw "Manifest unexpectedly requests $($forbiddenPermission.Label) permission."
+        }
+        Write-Host "OK manifest omits $($forbiddenPermission.Label) permission"
     }
-    Write-Host "OK manifest stays offline (no INTERNET)"
 }
 else {
     Write-Warning ("NUMBLOP_BUNDLETOOL_JAR is not set; skipping manifest checks. " +

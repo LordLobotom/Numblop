@@ -16,5 +16,4 @@ func test_profile_round_trip_preserves_unlocks_and_mastery() -> void:
 
 
 func _remove_test_file() -> void:
-    if FileAccess.file_exists(TEST_PATH):
-        DirAccess.remove_absolute(ProjectSettings.globalize_path(TEST_PATH))
+    SaveManager.delete_profile(TEST_PATH)

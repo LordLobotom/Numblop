@@ -1,4 +1,4 @@
-[gd_scene load_steps=24 format=3]
+[gd_scene load_steps=26 format=3]
 
 [ext_resource type="Script" path="res://scripts/ui/SettingsScreen.gd" id="1_script"]
 [ext_resource type="Texture2D" path="res://assets/backgrounds/mianscreen_background.png" id="2_background"]
@@ -14,6 +14,8 @@
 [ext_resource type="Texture2D" path="res://ui/icon/icon_sound_off.png" id="20_sound_off"]
 [ext_resource type="Texture2D" path="res://ui/icon/icon_vibration_on.png" id="21_vibration_on"]
 [ext_resource type="Texture2D" path="res://ui/icon/icon_vibration_off.png" id="22_vibration_off"]
+[ext_resource type="Texture2D" path="res://ui/icon/icon_cloud_on.svg" id="23_cloud_on"]
+[ext_resource type="Texture2D" path="res://ui/icon/icon_cloud_off.svg" id="24_cloud_off"]
 
 [sub_resource type="StyleBoxFlat" id="SliderBackground"]
 bg_color = Color(0.8, 0.82, 0.75, 1)
@@ -200,7 +202,7 @@ theme_override_constants/margin_bottom = 6
 
 [node name="SettingsContent" type="VBoxContainer" parent="SafeArea/Content/SettingsPanel/Scroll/ScrollMargin"]
 layout_mode = 2
-theme_override_constants/separation = 10
+theme_override_constants/separation = 6
 
 [node name="LanguageLabel" type="Label" parent="SafeArea/Content/SettingsPanel/Scroll/ScrollMargin/SettingsContent"]
 unique_name_in_owner = true
@@ -294,7 +296,6 @@ alignment = 1
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_constants/separation = 4
-alignment = 1
 
 [node name="MuteButton" type="Button" parent="SafeArea/Content/SettingsPanel/Scroll/ScrollMargin/SettingsContent/ToggleRow/SoundItem"]
 unique_name_in_owner = true
@@ -307,17 +308,19 @@ icon_off = ExtResource("20_sound_off")
 
 [node name="SoundCaption" type="Label" parent="SafeArea/Content/SettingsPanel/Scroll/ScrollMargin/SettingsContent/ToggleRow/SoundItem"]
 unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 40)
 layout_mode = 2
 theme_override_colors/font_color = Color(0.19, 0.34, 0.24, 1)
+theme_override_constants/line_spacing = -6
 theme_override_font_sizes/font_size = 15
 text = "SETTINGS_SOUND"
 horizontal_alignment = 1
+autowrap_mode = 2
 
 [node name="HapticsItem" type="VBoxContainer" parent="SafeArea/Content/SettingsPanel/Scroll/ScrollMargin/SettingsContent/ToggleRow"]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_constants/separation = 4
-alignment = 1
 
 [node name="HapticsButton" type="Button" parent="SafeArea/Content/SettingsPanel/Scroll/ScrollMargin/SettingsContent/ToggleRow/HapticsItem"]
 unique_name_in_owner = true
@@ -330,11 +333,41 @@ icon_off = ExtResource("22_vibration_off")
 
 [node name="HapticsCaption" type="Label" parent="SafeArea/Content/SettingsPanel/Scroll/ScrollMargin/SettingsContent/ToggleRow/HapticsItem"]
 unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 40)
 layout_mode = 2
 theme_override_colors/font_color = Color(0.19, 0.34, 0.24, 1)
+theme_override_constants/line_spacing = -6
 theme_override_font_sizes/font_size = 15
 text = "SETTINGS_HAPTICS"
 horizontal_alignment = 1
+autowrap_mode = 2
+
+[node name="CloudItem" type="VBoxContainer" parent="SafeArea/Content/SettingsPanel/Scroll/ScrollMargin/SettingsContent/ToggleRow"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 4
+
+[node name="CloudButton" type="Button" parent="SafeArea/Content/SettingsPanel/Scroll/ScrollMargin/SettingsContent/ToggleRow/CloudItem"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 88)
+layout_mode = 2
+size_flags_horizontal = 3
+script = ExtResource("18_icon_toggle")
+icon_on = ExtResource("23_cloud_on")
+icon_off = ExtResource("24_cloud_off")
+
+[node name="CloudCaption" type="Label" parent="SafeArea/Content/SettingsPanel/Scroll/ScrollMargin/SettingsContent/ToggleRow/CloudItem"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 40)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.19, 0.34, 0.24, 1)
+theme_override_constants/line_spacing = -6
+theme_override_font_sizes/font_size = 15
+text = "SETTINGS_CLOUD"
+horizontal_alignment = 1
+autowrap_mode = 2
 
 [node name="ExitButton" type="Button" parent="SafeArea/Content/SettingsPanel/Scroll/ScrollMargin/SettingsContent"]
 unique_name_in_owner = true
@@ -356,14 +389,30 @@ autowrap_mode = 2
 layout_mode = 2
 theme_override_styles/panel = ExtResource("15_header_style")
 
-[node name="VersionLabel" type="Label" parent="SafeArea/Content/VersionBar"]
+[node name="VersionRow" type="HBoxContainer" parent="SafeArea/Content/VersionBar"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="VersionLabel" type="Label" parent="SafeArea/Content/VersionBar/VersionRow"]
 unique_name_in_owner = true
 layout_mode = 2
+size_flags_horizontal = 3
 theme_override_colors/font_color = Color(0.38, 0.52, 0.41, 1)
 theme_override_font_sizes/font_size = 12
 text = "SETTINGS_VERSION"
 horizontal_alignment = 1
 vertical_alignment = 1
+
+[node name="PrivacyButton" type="Button" parent="SafeArea/Content/VersionBar/VersionRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(112, 48)
+layout_mode = 2
+mouse_default_cursor_shape = 2
+theme_override_colors/font_color = Color(0.29, 0.44, 0.32, 1)
+theme_override_colors/font_hover_color = Color(0.19, 0.34, 0.24, 1)
+theme_override_font_sizes/font_size = 15
+text = "SETTINGS_PRIVACY"
+flat = true
 
 [node name="Navigation" parent="SafeArea/Content" instance=ExtResource("14_navbar")]
 layout_mode = 2

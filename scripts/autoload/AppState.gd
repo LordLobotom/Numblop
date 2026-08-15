@@ -18,20 +18,48 @@ var _nickname := ""
 
 
 func _ready() -> void:
-    profile = SaveManager.load_profile()
-    progress = LocalProgress.new(SaveManager.load_progress())
-    cosmetics = LocalCosmetics.new(SaveManager.load_cosmetics())
-    streak = LocalStreak.new(SaveManager.load_streak())
-    achievements = LocalAchievements.new(SaveManager.load_achievements())
-    onboarding = LocalOnboarding.new(SaveManager.load_onboarding())
+    _load_runtime_state()
     _adopt_pre_tutorial_save()
-    _nickname = SaveManager.load_nickname()
     _create_session_controller()
     _achievements_loaded = true
     # Older saves predate the achievement list; award everything they already earned once, but
     # without a celebration the player never triggered.
     sync_achievements()
     _pending_achievement_unlocks.clear()
+
+
+func _load_runtime_state() -> void:
+    profile = SaveManager.load_profile()
+    progress = LocalProgress.new(SaveManager.load_progress())
+    cosmetics = LocalCosmetics.new(SaveManager.load_cosmetics())
+    streak = LocalStreak.new(SaveManager.load_streak())
+    achievements = LocalAchievements.new(SaveManager.load_achievements())
+    onboarding = LocalOnboarding.new(SaveManager.load_onboarding())
+    _nickname = SaveManager.load_nickname()
+
+
+## Rebuilds the in-memory models after a validated external save has reached disk.
+##
+## The method is provider-agnostic: it knows nothing about Play Games or networking. Keeping the
+## reload here prevents an external merge from being overwritten by the stale models that were
+## already running before the merge.
+func reload_profile_from_disk() -> void:
+    _interrupt_unfinished_session()
+    _pending_answer_milestone.clear()
+    _session_bonus_coins = 0
+    _pending_achievement_unlocks.clear()
+    _achievements_loaded = false
+    _load_runtime_state()
+    _adopt_pre_tutorial_save()
+    _create_session_controller()
+    _achievements_loaded = true
+    sync_achievements()
+    _pending_achievement_unlocks.clear()
+    EventBus.progress_changed.emit(progress.coins, progress.experience, progress.level())
+    EventBus.streak_changed.emit(streak.current_count, streak.all_time_high)
+    EventBus.cosmetics_changed.emit(cosmetics_state())
+    EventBus.nickname_changed.emit(_nickname)
+    EventBus.profile_reloaded.emit()
 
 
 ## Treats a save from before the tutorial existed as already onboarded.
@@ -85,7 +113,9 @@ func set_nickname(raw_nickname: String) -> bool:
         streak.to_dictionary(),
         sanitized,
         achievements.to_dictionary(),
-        progress.completed_sessions
+        progress.completed_sessions,
+        onboarding.to_dictionary(),
+        progress.ledger()
     )
     if save_error != OK:
         return false
@@ -130,14 +160,19 @@ func record_answer(question: PracticeQuestion, correct: bool, elapsed_seconds: f
 
 
 func abandon_session() -> void:
+    var had_session := active_session_result != null
     _session_bonus_coins = 0
     session_controller.abandon_active_session()
     active_session_result = null
     active_session.clear()
+    if had_session:
+        EventBus.session_ended.emit()
 
 
 func handle_application_paused() -> bool:
-    return _interrupt_unfinished_session()
+    var interrupted := _interrupt_unfinished_session()
+    EventBus.application_paused.emit()
+    return interrupted
 
 
 func handle_application_resumed() -> void:
@@ -182,6 +217,7 @@ func claim_completed_session_reward() -> Dictionary:
     session_controller.clear_completed_session()
     active_session_result = null
     active_session.clear()
+    EventBus.session_ended.emit()
     return reward
 
 
@@ -499,7 +535,8 @@ func _save_game_state(
         _nickname,
         achievements.to_dictionary(),
         progress.completed_sessions,
-        onboarding.to_dictionary()
+        onboarding.to_dictionary(),
+        progress.ledger()
     )
 
 
@@ -514,7 +551,8 @@ func _save_state_with_cosmetics(updated_cosmetics: LocalCosmetics, coins: int) -
         _nickname,
         achievements.to_dictionary(),
         progress.completed_sessions,
-        onboarding.to_dictionary()
+        onboarding.to_dictionary(),
+        progress.ledger()
     )
 
 

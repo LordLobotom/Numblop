@@ -164,20 +164,6 @@ func show_future_feature() -> void:
     _show_status(tr("HOME_FEATURE_LATER"))
 
 
-## The live card for one catalog item, or null while its category has not been built.
-func item_card(category: String, item_id: String) -> Control:
-    var card: Variant = _cards.get(_card_key(category, item_id))
-    return card if card is Control and is_instance_valid(card) else null
-
-
-## What the dock is previewing right now, which is what the buy button would act on.
-func previewed_item() -> Dictionary:
-    return {
-        "category": _selected_category,
-        "id": _selected_item_id,
-    }
-
-
 func preview_body_color(color_id: String) -> void:
     preview_item(CosmeticCatalog.CATEGORY_BODY_COLOR, color_id)
 

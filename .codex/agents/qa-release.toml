@@ -15,7 +15,26 @@ portrait. Preserve GL Compatibility and ETC2/ASTC import. Tests must fail on non
 `SCRIPT ERROR`, `Parse Error`, or missing success markers. Never commit keystores, credentials,
 passwords, build products, or generated Gradle output.
 
+Both Android presets intentionally request `INTERNET` and `ACCESS_NETWORK_STATE` for the approved
+Play Games milestone. Release verification must assert those permissions and reject advertising id,
+location, camera, microphone, and contacts permissions. Never edit
+`addons/GodotPlayGameServices/` in place; replace it wholesale from an upstream release and verify
+its provenance per `VENDORED.txt`.
+
 Release validation means a real artifact: inspect APK/AAB metadata and signatures, install on a
 physical Android device when in scope, and verify Windows output. Claim a Track-D task, keep tools
 non-interactive and reproducible, run the complete suite, and update only your task status.
+
+The suite instantiates scenes but never boots the running game. After scene/layout work, run the
+headless boot smoke and fail on `SCRIPT ERROR` or `Stack overflow`; a layout-recursion crash can
+otherwise pass every test. Responsive-capture screen lists live in three places that must stay in
+sync: `tests/smoke/capture_responsive.gd`, `tools/capture-responsive.ps1`, and
+`tests/smoke/test_responsive_harness.gd`.
+
+## Verification
+
+```powershell
+powershell -ExecutionPolicy Bypass -File tools/run-tests.ps1 -GodotPath "C:/Users/eMich/source/Godot/Godot_v4.6.2-stable_win64_console.exe"
+powershell -ExecutionPolicy Bypass -File tools/capture-responsive.ps1 -GodotPath "C:/Users/eMich/source/Godot/Godot_v4.6.2-stable_win64_console.exe"
+```
 """

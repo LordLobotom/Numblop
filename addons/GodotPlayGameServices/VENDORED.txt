@@ -1,0 +1,14 @@
+﻿Google Play Game Services plugin for Godot — vendored third-party code.
+
+Source:   https://github.com/godot-sdk-integrations/godot-play-game-services
+Release:  v3.4.0
+Asset:    addons.zip
+SHA-256:  3A1AF78F5B9CBF13253B6BFFB7795F0C1A9E7D1495052CD456BB6CFB1C265EDD
+Vendored: 2026-08-13, unmodified.
+License:  see LICENSE in this directory.
+
+Do not edit anything in this directory. To update, download the new release, verify
+its hash, replace this directory wholesale, and re-run the Android export check in
+docs/GOOGLE_PLAY_GAMES.md.
+
+Numblop talks to this plugin only through scripts/autoload/PlayGames.gd.
