@@ -537,6 +537,49 @@ func test_the_play_games_row_stays_hidden_until_a_plugin_can_serve_it() -> void:
     scene.free()
 
 
+func test_a_wrapping_cloud_caption_leaves_the_three_tiles_on_one_line() -> void:
+    # The reported bug, reproduced: with the tiles centred, the two-line caption that Czech,
+    # Norwegian, Finnish and Swedish all produce for "Backup on" made its own item taller than its
+    # siblings, which pushed Sound and Vibration *down* while the cloud button stayed at the top.
+    # This is the one case the responsive captures cannot show, because the tile hides itself on a
+    # build without the plugin -- so it is asserted against a real layout pass instead.
+    var scene: SettingsScreen = (
+        load("res://scenes/screens/SettingsScreen.tscn") as PackedScene
+    ).instantiate()
+    var tree := Engine.get_main_loop() as SceneTree
+    tree.root.add_child(scene)
+    scene.size = Vector2(390, 844)
+    var fake_plugin := Node.new()
+    var fake_client := Node.new()
+    PlayGames._set_plugin_for_test(fake_plugin, fake_client)
+    scene.refresh_play_games()
+
+    var caption: Label = scene.get_node("%CloudCaption")
+    # Deliberately longer than the two lines the captions reserve. Two lines alone would not prove
+    # anything -- the reserved height already makes the three items equally tall in that case, so
+    # centred items would still line up. Overflowing it is what isolates the alignment.
+    caption.text = "Sikkerhetskopien trenger tilsyn"
+    await tree.process_frame
+    await tree.process_frame
+    await tree.process_frame
+
+    check(caption.get_line_count() >= 3, "The caption really does outgrow its reserved height")
+    var tops: Array[float] = []
+    for toggle_name in ["MuteButton", "HapticsButton", "CloudButton"]:
+        tops.append((scene.get_node("%%%s" % toggle_name) as Control).global_position.y)
+    equal(
+        snappedf(tops.max() - tops.min(), 0.5),
+        0.0,
+        "All three tiles start at the same height, whatever the caption below them does"
+    )
+
+    PlayGames._set_plugin_for_test(null)
+    fake_plugin.free()
+    fake_client.free()
+    tree.root.remove_child(scene)
+    scene.free()
+
+
 func test_the_cloud_tile_is_lit_by_the_setting_and_names_the_session_separately() -> void:
     # The tile follows the switch, like the two beside it -- a light that ignored the tap would
     # not be a switch. Whether Google actually let the device in is carried by the accessible
@@ -1036,6 +1079,24 @@ func test_settings_screen_has_language_audio_mute_and_safe_exit_controls() -> vo
         check(toggle.icon_on != toggle.icon_off, "%s looks different when off" % toggle_name)
     check(scene.get_node("%SoundCaption") is Label, "Sound tile is captioned")
     check(scene.get_node("%HapticsCaption") is Label, "Vibration tile is captioned")
+    # The three tiles are one row of equals, and the tallest caption decides the row height. Centred
+    # items would float the two short captions downwards and leave the cloud tile visibly higher
+    # than its siblings the moment a language wraps "Backup on" onto two lines -- which Czech,
+    # Norwegian and Finnish all do. Top alignment plus a reserved second line keeps the icons on one
+    # line, and keeps `Close game` from moving as the cloud caption changes state.
+    var toggle_row: HBoxContainer = (
+        scene.get_node("%SoundCaption").get_parent().get_parent() as HBoxContainer
+    )
+    for item in toggle_row.get_children():
+        equal(
+            (item as VBoxContainer).alignment,
+            BoxContainer.ALIGNMENT_BEGIN,
+            "%s tops its tile out with the others" % item.name
+        )
+    for caption_name in ["SoundCaption", "HapticsCaption", "CloudCaption"]:
+        var caption: Label = scene.get_node("%%%s" % caption_name)
+        equal(caption.custom_minimum_size.y, 40.0, "%s reserves a second line" % caption_name)
+        equal(caption.autowrap_mode, TextServer.AUTOWRAP_WORD, "%s wraps" % caption_name)
     check(scene.get_node("%PrivacyButton").custom_minimum_size.y >= 48.0, "Privacy touch target")
     equal(
         SettingsScreen.privacy_policy_url("cs"),

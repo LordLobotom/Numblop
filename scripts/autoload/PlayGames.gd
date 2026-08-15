@@ -297,6 +297,11 @@ func _on_achievements_unlocked(_entries: Array) -> void:
 ## Local is the truth and Play is the mirror: this only ever pushes, never reads back and never
 ## changes anything the game owns. Every call is fire-and-forget — the plugin's replies are not even
 ## connected — because an achievement that fails to reach Play must cost a child nothing at all.
+##
+## Completion is reported the way Console defines the achievement: `unlock()` for the single
+## one-step achievement, and a full absolute step count for the twenty-four incremental ones. The
+## distinction is not cosmetic — an incremental achievement never completes from an `unlock()`, so
+## sending the wrong one loses every achievement a child earned offline.
 func publish_achievements() -> void:
     if not achievements_available() or not signed_in() or not enabled():
         return
@@ -321,14 +326,21 @@ func _publish_achievement(entry: Dictionary) -> void:
     if play_id.is_empty():
         return
 
+    var target := int(entry.get("target", 0))
     if bool(entry.get("completed", false)):
         if _published_unlocks.has(local_id):
             return
         _published_unlocks[local_id] = true
-        _achievements_client.unlock_achievement(play_id)
+        # Console makes every multi-step achievement incremental, and Play ignores `unlock()` on
+        # one of those -- it completes only when its steps reach the target. Sending the target as
+        # an absolute step count is what finishes it, and it stays idempotent on a re-send.
+        if target > 1:
+            _published_steps[local_id] = target
+            _achievements_client.set_achievement_steps(play_id, target)
+        else:
+            _achievements_client.unlock_achievement(play_id)
         return
 
-    var target := int(entry.get("target", 0))
     # A one-step achievement has no progress to report; it is either unlocked or it is not.
     if target <= 1:
         return

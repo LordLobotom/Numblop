@@ -296,7 +296,6 @@ alignment = 1
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_constants/separation = 4
-alignment = 1
 
 [node name="MuteButton" type="Button" parent="SafeArea/Content/SettingsPanel/Scroll/ScrollMargin/SettingsContent/ToggleRow/SoundItem"]
 unique_name_in_owner = true
@@ -309,17 +308,19 @@ icon_off = ExtResource("20_sound_off")
 
 [node name="SoundCaption" type="Label" parent="SafeArea/Content/SettingsPanel/Scroll/ScrollMargin/SettingsContent/ToggleRow/SoundItem"]
 unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 40)
 layout_mode = 2
 theme_override_colors/font_color = Color(0.19, 0.34, 0.24, 1)
+theme_override_constants/line_spacing = -6
 theme_override_font_sizes/font_size = 15
 text = "SETTINGS_SOUND"
 horizontal_alignment = 1
+autowrap_mode = 2
 
 [node name="HapticsItem" type="VBoxContainer" parent="SafeArea/Content/SettingsPanel/Scroll/ScrollMargin/SettingsContent/ToggleRow"]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_constants/separation = 4
-alignment = 1
 
 [node name="HapticsButton" type="Button" parent="SafeArea/Content/SettingsPanel/Scroll/ScrollMargin/SettingsContent/ToggleRow/HapticsItem"]
 unique_name_in_owner = true
@@ -332,11 +333,14 @@ icon_off = ExtResource("22_vibration_off")
 
 [node name="HapticsCaption" type="Label" parent="SafeArea/Content/SettingsPanel/Scroll/ScrollMargin/SettingsContent/ToggleRow/HapticsItem"]
 unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 40)
 layout_mode = 2
 theme_override_colors/font_color = Color(0.19, 0.34, 0.24, 1)
+theme_override_constants/line_spacing = -6
 theme_override_font_sizes/font_size = 15
 text = "SETTINGS_HAPTICS"
 horizontal_alignment = 1
+autowrap_mode = 2
 
 [node name="CloudItem" type="VBoxContainer" parent="SafeArea/Content/SettingsPanel/Scroll/ScrollMargin/SettingsContent/ToggleRow"]
 unique_name_in_owner = true
@@ -344,7 +348,6 @@ visible = false
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_constants/separation = 4
-alignment = 1
 
 [node name="CloudButton" type="Button" parent="SafeArea/Content/SettingsPanel/Scroll/ScrollMargin/SettingsContent/ToggleRow/CloudItem"]
 unique_name_in_owner = true
@@ -357,8 +360,10 @@ icon_off = ExtResource("24_cloud_off")
 
 [node name="CloudCaption" type="Label" parent="SafeArea/Content/SettingsPanel/Scroll/ScrollMargin/SettingsContent/ToggleRow/CloudItem"]
 unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 40)
 layout_mode = 2
 theme_override_colors/font_color = Color(0.19, 0.34, 0.24, 1)
+theme_override_constants/line_spacing = -6
 theme_override_font_sizes/font_size = 15
 text = "SETTINGS_CLOUD"
 horizontal_alignment = 1

@@ -664,18 +664,31 @@ func test_signing_in_backfills_everything_earned_offline() -> void:
 
     PlayGames._on_user_authenticated(true)
     var achievements: FakeAchievementsClient = state["achievements"]
-    equal(achievements.unlocked.size(), 2, "Both finished achievements are unlocked")
-    check(
-        achievements.unlocked.has(PlayGamesCatalog.achievement_id("first_steps"))
-            and achievements.unlocked.has(PlayGamesCatalog.achievement_id("island_2")),
-        "Unlocked by their Play ids, not their local ones"
+    # `first_steps` is the only achievement in the catalog with a target of one, so it is the only
+    # one Console holds as a standard achievement and the only one `unlock()` can finish. Play
+    # completes the other twenty-four when their steps reach the target and ignores `unlock()` on
+    # them entirely -- sending it would silently drop everything a child earned offline.
+    equal(achievements.unlocked.size(), 1, "Only the one-step achievement is unlocked outright")
+    equal(
+        achievements.unlocked[0],
+        PlayGamesCatalog.achievement_id("first_steps"),
+        "Unlocked by its Play id, not its local one"
     )
-    equal(achievements.steps.size(), 1, "Only the unfinished one reports progress")
+    equal(achievements.steps.size(), 2, "The finished tier reports steps like the unfinished one")
     equal(
         achievements.steps[0],
         [PlayGamesCatalog.achievement_id("streak_50"), 37],
         "Absolute step count, so Play can never be moved backwards"
     )
+    equal(
+        achievements.steps[1],
+        [PlayGamesCatalog.achievement_id("island_2"), 10],
+        "And a finished one arrives at its full target, which is what completes it"
+    )
+
+    PlayGames.publish_achievements()
+    equal(achievements.steps.size(), 2, "A backfilled achievement is not resent for the launch")
+    equal(achievements.unlocked.size(), 1, "Nor is the unlocked one")
 
     _remove_fake_plugin(state)
 
@@ -696,18 +709,21 @@ func test_an_achievement_reaches_play_without_waiting_for_the_round_to_end() -> 
     PlayGames._on_user_authenticated(true)
     var achievements: FakeAchievementsClient = state["achievements"]
     equal(achievements.unlocked.size(), 0, "Nothing is unlocked yet")
+    equal(achievements.steps.size(), 1, "Only the partial progress has gone out")
 
     EventBus.session_started.emit(10)
     live["completed"] = true
     EventBus.achievements_unlocked.emit([])
-    equal(achievements.unlocked.size(), 1, "The unlock is sent during the round")
+    equal(achievements.unlocked.size(), 0, "An incremental achievement is never `unlock()`ed")
+    equal(achievements.steps.size(), 2, "Completion is sent during the round")
     equal(
-        achievements.unlocked[0],
-        PlayGamesCatalog.achievement_id("streak_10"),
-        "And it is the right one"
+        achievements.steps[1],
+        [PlayGamesCatalog.achievement_id("streak_10"), 10],
+        "As the full step count, which is what actually finishes it on Play"
     )
 
     EventBus.session_ended.emit()
+    equal(achievements.steps.size(), 2, "And a finished achievement is not resent")
     _remove_fake_plugin(state)
 
 

@@ -652,9 +652,18 @@ Local stays truth; Play is a mirror that is only ever written to.
   forbidden from naming Play. `tests/state/test_play_games_catalog.gd` fails if the achievement
   catalog grows an entry the table does not know — without it a new achievement would silently
   never reach Play, failing nowhere at runtime.
-- **Unlocks are sent the moment an achievement completes, mid-round included.** Unlike a snapshot
+- **Completion is sent the moment an achievement finishes, mid-round included.** Unlike a snapshot
   merge this reads nothing back and touches no local state, so there is nothing for it to disturb
   and no reason to make a child wait for the round to end.
+- **How completion is sent depends on the Console type, and getting it wrong is silent.** Only
+  `first_steps` has `target == 1`, so it is the only standard achievement and the only one
+  `unlock()` finishes. The other twenty-four are incremental — Console is imported that way from
+  `incremental := target > 1` — and Play **ignores `unlock()` on an incremental achievement**; it
+  completes only when its steps reach the target. Shipped builds up to `0.4.6` sent `unlock()` for
+  every completed achievement, so a child who had earned tiers offline saw exactly one of them
+  appear on sign-in. A finished achievement is now published as its full absolute step count, and
+  the once-per-launch record marks both the unlock and the step value so the in-progress path can
+  never follow it with a lower number.
 - **Steps are absolute, never deltas**, refreshed on `EventBus.session_ended` and on sign-in. Play
   keeps the higher value, so a local mastery dip or a reinstall that has not merged yet cannot move
   a Play progress bar backwards. Per-answer pushes were rejected: 25 calls per tap is not worth the

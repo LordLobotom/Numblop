@@ -11,7 +11,7 @@ config_version=5
 [application]
 
 config/name="Numblop"
-config/version="0.4.6"
+config/version="0.4.7"
 run/main_scene="res://scenes/Main.tscn"
 config/features=PackedStringArray("4.6", "GL Compatibility")
 boot_splash/bg_color=Color(0.329412, 0.34902, 0.298039, 1)

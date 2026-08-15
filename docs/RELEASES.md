@@ -7,10 +7,12 @@
 - Windows: x86-64 centered portrait window.
 - Web: adaptive static canvas; phone view fits the available viewport and 900×900 is the wide
   desktop QA reference.
-- The public version comes from `application/config/version` (currently `0.4.6`) and stays
+- The public version comes from `application/config/version` (currently `0.4.7`) and stays
   aligned with the Android version name and the Windows product version. All three are pinned by
-  `tests/smoke/test_project_contract.gd`; bump them together.
-- The Play version code (currently `18`) is pinned by the same test but moves on its own: every
+  `tests/smoke/test_project_contract.gd`; bump them together. There is a fourth place the contract
+  also checks — `application/file_version` in the Windows preset — so a bump touches
+  `project.godot`, both Android presets, and both Windows version fields.
+- The Play version code (currently `19`) is pinned by the same test but moves on its own: every
   upload needs a higher code, including a re-upload of an unchanged version name.
 - Android SDK levels: Min SDK `24`, Target SDK `36`, pinned in the Android Release preset and by
   the same contract test.
