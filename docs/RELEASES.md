@@ -27,7 +27,7 @@
 Every launcher and application icon derives from one source pair:
 
 - `ui/branding/numblop_mascot_512.png` — the mascot, 512×512 RGBA.
-- `ui/branding/numblop_mascot_bg_512.png` — the flat plate colour behind it.
+- `ui/branding/numblop_mascot_bg_512.png` — the plate artwork behind it.
 
 Both are inputs only. Regenerate everything after changing either:
 
@@ -35,9 +35,10 @@ Both are inputs only. Regenerate everything after changing either:
 powershell -ExecutionPolicy Bypass -File tools/generate-app-icons.ps1
 ```
 
-The tool overwrites `ui/branding/numblop_ico.png` (Windows executable, editor, project icon) and
-the four `ui/branding/android/icon_*.png` layers in place, so paths, UIDs and `.import` files stay
-valid and neither `export_presets.cfg` nor the contract test changes.
+The tool overwrites `ui/branding/numblop_ico.png` (Windows executable, editor, project icon), the
+four `ui/branding/android/icon_*.png` layers and `store/icon_512.png` (the Play Console listing
+icon) in place, so paths, UIDs and `.import` files stay valid and neither `export_presets.cfg` nor
+the contract test changes.
 
 The adaptive foreground is fitted **radially**, not by bounding box: the mascot is scaled so no
 drawn pixel sits further than 132 px from the centre of the 432 px canvas, which is Android's 66/108
@@ -45,8 +46,9 @@ safe zone. A launcher mask cuts by distance from the centre, so the pixel at ris
 tip rather than a bbox corner — bounding the box alone would let a circular mask clip the mascot.
 The themed monochrome glyph is cut from that same fitted foreground, so it always tracks the icon;
 its light areas (belly, eye whites) are knocked out of the alpha because Android keeps only alpha
-and would otherwise render one featureless blob. The Windows icon bakes in its own rounded-square
-plate, since desktop applies no mask of its own.
+and would otherwise render one featureless blob. The Windows icon and the Play listing icon share
+one full-bleed composition; Windows bakes rounded corners into its copy, since desktop applies no
+mask of its own, while the listing stays square and opaque as the Console requires.
 
 Review the regenerated PNGs before committing.
 

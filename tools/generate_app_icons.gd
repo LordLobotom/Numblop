@@ -4,19 +4,20 @@ extends SceneTree
 ## Run through tools/generate-app-icons.ps1. Deterministic and idempotent: it overwrites the
 ## committed PNGs in place, so their paths, UIDs and .import files stay valid.
 ##
-## Only the two files below are inputs. Everything under ui/branding/android/ plus the desktop
-## icon is derived, which is what keeps the adaptive layers, the legacy square icon, the themed
-## glyph and the Windows icon showing the same drawing.
+## Only the two files below are inputs. Everything under ui/branding/android/, the desktop icon and
+## the Play listing icon are derived, which is what keeps the adaptive layers, the legacy square
+## icon, the themed glyph, the Windows icon and the store page showing the same drawing.
 
 ## Hand-authored, 512x512 RGBA, and the source of truth for the launcher's look.
 const MASCOT_PATH := "res://ui/branding/numblop_mascot_512.png"
 
-## Flat plate colour behind the mascot, supplied as artwork so the palette lives with the drawing.
+## The plate behind the mascot, supplied as artwork so the palette and its detail live with the
+## drawing rather than as a colour constant here.
 const BACKGROUND_PATH := "res://ui/branding/numblop_mascot_bg_512.png"
 
 const ADAPTIVE_SIZE := 432
 const LEGACY_SIZE := 192
-const DESKTOP_SIZE := 512
+const LARGE_SIZE := 512
 
 ## Android draws a 108dp canvas, cuts everything outside the centre 72dp, and only guarantees the
 ## centre 66dp survives every launcher mask. The drawing therefore has to be re-fitted rather than
@@ -28,8 +29,8 @@ const DESKTOP_SIZE := 512
 ## is 132px of 432.
 const SAFE_ZONE_RADIUS := 132.0
 
-## The desktop icon is never masked, so it can use far more of the plate.
-const DESKTOP_MASCOT_SPAN := 420
+## Neither the desktop icon nor the Play listing is masked, so both can use far more of the plate.
+const LARGE_MASCOT_SPAN := 420
 
 ## Matches the rounded-square look Windows taskbars and the Godot editor showed before.
 const DESKTOP_CORNER_RADIUS := 112
@@ -79,7 +80,9 @@ func _generate() -> void:
         _scaled(_flattened(adaptive_background, foreground), LEGACY_SIZE),
         "res://ui/branding/android/icon_main_192.png"
     )
-    _save(_desktop_icon(mascot, background), "res://ui/branding/numblop_ico.png")
+    var large := _large_icon(mascot, background)
+    _save(_rounded(large, DESKTOP_CORNER_RADIUS), "res://ui/branding/numblop_ico.png")
+    _save(large, "res://store/icon_512.png")
 
     print("NUMBLOP_ICONS_OK")
     quit()
@@ -188,11 +191,13 @@ func _flattened(background: Image, foreground: Image) -> Image:
     return image
 
 
-## Windows applies no mask of its own, so the rounded plate has to be baked in or the icon reads
-## as a bare coloured square next to every other app in the taskbar.
-func _desktop_icon(mascot: Image, background: Image) -> Image:
-    var plate := _rounded(_scaled(background, DESKTOP_SIZE), DESKTOP_CORNER_RADIUS)
-    var foreground := _fitted_to_span(mascot, DESKTOP_SIZE, DESKTOP_MASCOT_SPAN)
+## The full-bleed 512 px composition the two unmasked icons share: the whole plate with the mascot
+## filling it. Windows rounds this off, because it applies no mask of its own and the icon would
+## otherwise read as a bare coloured square next to every other app in the taskbar. The Play listing
+## takes it exactly as it is -- square, opaque, and 512x512 is what the Console asks for.
+func _large_icon(mascot: Image, background: Image) -> Image:
+    var plate := _scaled(background, LARGE_SIZE)
+    var foreground := _fitted_to_span(mascot, LARGE_SIZE, LARGE_MASCOT_SPAN)
     if foreground == null:
         return plate
     return _flattened(plate, foreground)
