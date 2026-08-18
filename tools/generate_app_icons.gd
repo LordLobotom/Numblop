@@ -1,15 +1,18 @@
 extends SceneTree
-## Regenerates every launcher and application icon from one mascot artwork.
+## Regenerates every launcher and application icon from the supplied icon artwork.
 ##
 ## Run through tools/generate-app-icons.ps1. Deterministic and idempotent: it overwrites the
 ## committed PNGs in place, so their paths, UIDs and .import files stay valid.
 ##
-## Only the two files below are inputs. Everything under ui/branding/android/, the desktop icon and
-## the Play listing icon are derived, which is what keeps the adaptive layers, the legacy square
-## icon, the themed glyph, the Windows icon and the store page showing the same drawing.
+## Only the three files below are inputs. Everything under ui/branding/android/, the desktop icon
+## and the Play listing icon are derived, which keeps the adaptive layers, the legacy square icon,
+## the themed glyph, the Windows icon and the store page showing the same drawing.
 
-## Hand-authored, 512x512 RGBA, and the source of truth for the launcher's look.
-const MASCOT_PATH := "res://ui/branding/numblop_mascot_512.png"
+## Hand-authored, opaque 512x512 composition used wherever the platform does not assemble layers.
+const FULL_ICON_PATH := "res://ui/branding/numblop_mascot_full_512.png"
+
+## Hand-authored, transparent 512x512 foreground used for Android adaptive icons.
+const FOREGROUND_PATH := "res://ui/branding/numblop_mascot_512.png"
 
 ## The plate behind the mascot, supplied as artwork so the palette and its detail live with the
 ## drawing rather than as a colour constant here.
@@ -28,9 +31,6 @@ const LARGE_SIZE := 512
 ## centre, which for this mascot is a head or foot tip, not a bbox corner. 66dp of a 108dp canvas
 ## is 132px of 432.
 const SAFE_ZONE_RADIUS := 132.0
-
-## Neither the desktop icon nor the Play listing is masked, so both can use far more of the plate.
-const LARGE_MASCOT_SPAN := 420
 
 ## Matches the rounded-square look Windows taskbars and the Godot editor showed before.
 const DESKTOP_CORNER_RADIUS := 112
@@ -61,13 +61,14 @@ func _process(_delta: float) -> bool:
 
 
 func _generate() -> void:
-    var mascot := _load(MASCOT_PATH)
+    var full_icon := _load(FULL_ICON_PATH)
+    var foreground_source := _load(FOREGROUND_PATH)
     var background := _load(BACKGROUND_PATH)
-    if mascot == null or background == null:
+    if full_icon == null or foreground_source == null or background == null:
         quit(1)
         return
 
-    var foreground := _fitted_to_radius(mascot, ADAPTIVE_SIZE, SAFE_ZONE_RADIUS)
+    var foreground := _fitted_to_radius(foreground_source, ADAPTIVE_SIZE, SAFE_ZONE_RADIUS)
     if foreground == null:
         quit(1)
         return
@@ -76,13 +77,9 @@ func _generate() -> void:
     _save(foreground, "res://ui/branding/android/icon_numblop_front.png")
     _save(adaptive_background, "res://ui/branding/android/icon_numblop_back.png")
     _save(_themed_glyph(foreground), "res://ui/branding/android/icon_monochrome_432.png")
-    _save(
-        _scaled(_flattened(adaptive_background, foreground), LEGACY_SIZE),
-        "res://ui/branding/android/icon_main_192.png"
-    )
-    var large := _large_icon(mascot, background)
-    _save(_rounded(large, DESKTOP_CORNER_RADIUS), "res://ui/branding/numblop_ico.png")
-    _save(large, "res://store/icon_512.png")
+    _save(_scaled(full_icon, LEGACY_SIZE), "res://ui/branding/android/icon_main_192.png")
+    _save(_rounded(full_icon, DESKTOP_CORNER_RADIUS), "res://ui/branding/numblop_ico.png")
+    _save(full_icon, "res://store/icon_512.png")
 
     print("NUMBLOP_ICONS_OK")
     quit()
@@ -103,27 +100,17 @@ func _scaled(source: Image, size: int) -> Image:
     return image
 
 
-## Scales the artwork so its longer drawn side is exactly `span`, then centres it. Used where
-## nothing masks the result and filling the plate is what matters.
-func _fitted_to_span(source: Image, canvas: int, span: int) -> Image:
-    var bounds := _drawn_bounds(source)
-    if bounds.size.x <= 0 or bounds.size.y <= 0:
-        push_error("%s is fully transparent" % MASCOT_PATH)
-        return null
-    return _fitted(source, bounds, canvas, float(span) / float(maxi(bounds.size.x, bounds.size.y)))
-
-
 ## Scales the artwork so no drawn pixel sits further than `radius` from the centre, then centres
 ## it. This is the fit that has to hold for the adaptive foreground: a circular launcher mask cuts
 ## by distance, so bounding the box is not the same as bounding what gets clipped.
 func _fitted_to_radius(source: Image, canvas: int, radius: float) -> Image:
     var bounds := _drawn_bounds(source)
     if bounds.size.x <= 0 or bounds.size.y <= 0:
-        push_error("%s is fully transparent" % MASCOT_PATH)
+        push_error("%s is fully transparent" % FOREGROUND_PATH)
         return null
     var drawn := _drawn_radius(source, bounds)
     if drawn <= 0.0:
-        push_error("%s has no measurable extent" % MASCOT_PATH)
+        push_error("%s has no measurable extent" % FOREGROUND_PATH)
         return null
     return _fitted(source, bounds, canvas, radius / drawn)
 
@@ -178,29 +165,6 @@ func _drawn_radius(source: Image, bounds: Rect2i) -> float:
                 continue
             radius = maxf(radius, (Vector2(x, y) + Vector2(0.5, 0.5) - centre).length())
     return radius
-
-
-## The legacy square icon is what the adaptive pair looks like with no mask applied.
-func _flattened(background: Image, foreground: Image) -> Image:
-    var image := background.duplicate() as Image
-    image.blend_rect(
-        foreground,
-        Rect2i(Vector2i.ZERO, foreground.get_size()),
-        Vector2i.ZERO
-    )
-    return image
-
-
-## The full-bleed 512 px composition the two unmasked icons share: the whole plate with the mascot
-## filling it. Windows rounds this off, because it applies no mask of its own and the icon would
-## otherwise read as a bare coloured square next to every other app in the taskbar. The Play listing
-## takes it exactly as it is -- square, opaque, and 512x512 is what the Console asks for.
-func _large_icon(mascot: Image, background: Image) -> Image:
-    var plate := _scaled(background, LARGE_SIZE)
-    var foreground := _fitted_to_span(mascot, LARGE_SIZE, LARGE_MASCOT_SPAN)
-    if foreground == null:
-        return plate
-    return _flattened(plate, foreground)
 
 
 ## Knocks the corners off a square image, antialiasing the arc so the edge does not look chewed

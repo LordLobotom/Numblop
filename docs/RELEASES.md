@@ -7,7 +7,7 @@
 - Windows: x86-64 centered portrait window.
 - Web: adaptive static canvas; phone view fits the available viewport and 900×900 is the wide
   desktop QA reference.
-- The public version comes from `application/config/version` (currently `0.4.8`) and stays
+- The public version comes from `application/config/version` (currently `0.4.9`) and stays
   aligned with the Android version name and the Windows product version. All three are pinned by
   `tests/smoke/test_project_contract.gd`; bump them together. There is a fourth place the contract
   also checks — `application/file_version` in the Windows preset — so a bump touches
@@ -24,12 +24,13 @@
 
 ## App icons
 
-Every launcher and application icon derives from one source pair:
+Every launcher and application icon derives from one source set:
 
-- `ui/branding/numblop_mascot_512.png` — the mascot, 512×512 RGBA.
+- `ui/branding/numblop_mascot_full_512.png` — the complete opaque 512×512 icon.
+- `ui/branding/numblop_mascot_512.png` — the transparent 512×512 adaptive foreground.
 - `ui/branding/numblop_mascot_bg_512.png` — the plate artwork behind it.
 
-Both are inputs only. Regenerate everything after changing either:
+All three are inputs only. Regenerate everything after changing any of them:
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File tools/generate-app-icons.ps1
@@ -46,9 +47,10 @@ safe zone. A launcher mask cuts by distance from the centre, so the pixel at ris
 tip rather than a bbox corner — bounding the box alone would let a circular mask clip the mascot.
 The themed monochrome glyph is cut from that same fitted foreground, so it always tracks the icon;
 its light areas (belly, eye whites) are knocked out of the alpha because Android keeps only alpha
-and would otherwise render one featureless blob. The Windows icon and the Play listing icon share
-one full-bleed composition; Windows bakes rounded corners into its copy, since desktop applies no
-mask of its own, while the listing stays square and opaque as the Console requires.
+and would otherwise render one featureless blob. The Windows icon, Android legacy icon, and Play
+listing icon derive directly from the supplied full composition; Windows bakes rounded corners
+into its copy, since desktop applies no mask of its own, while the listing stays square and opaque
+as the Console requires.
 
 Review the regenerated PNGs before committing.
 
