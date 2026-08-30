@@ -107,6 +107,8 @@ practice-eligible permanently after it passes the same nine-of-ten-facts-at-80 c
 final 9× completion is remembered explicitly because there is no later table unlock to preserve it.
 
 - The player chooses 10, 20, 30, 40, or 50 questions.
+- Practice setup initially selects no table, including when opened from a completed-table detail.
+  The first-use length is 10; the last chosen length is remembered as a device-only preference.
 - A non-empty table selection overrides automatic review and mixes those tables approximately
   evenly; weak facts may be prioritized inside each table.
 - No selected table means smart review across every completed table. Existing per-fact mastery is

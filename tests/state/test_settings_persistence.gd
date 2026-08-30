@@ -82,6 +82,31 @@ func test_vibration_defaults_to_on_and_survives_a_restart() -> void:
     _remove_test_file()
 
 
+func test_free_practice_length_defaults_to_ten_and_is_remembered_on_this_device() -> void:
+    var previous_question_count := SettingsManager.practice_question_count
+    _remove_test_file()
+
+    SettingsManager.load_settings(TEST_PATH)
+    equal(SettingsManager.practice_question_count, 10, "Missing preference defaults to ten")
+    equal(
+        SettingsManager.set_practice_question_count(50, TEST_PATH),
+        OK,
+        "Save free-practice length"
+    )
+    SettingsManager.practice_question_count = 10
+    SettingsManager.load_settings(TEST_PATH)
+    equal(SettingsManager.practice_question_count, 50, "Free-practice length survives restart")
+    equal(
+        SettingsManager.set_practice_question_count(12, TEST_PATH),
+        ERR_INVALID_PARAMETER,
+        "Unsupported free-practice length is rejected"
+    )
+    equal(SettingsManager.practice_question_count, 50, "Invalid choice does not replace preference")
+
+    SettingsManager.practice_question_count = previous_question_count
+    _remove_test_file()
+
+
 func test_every_haptic_pattern_is_long_enough_to_be_felt() -> void:
     equal(SettingsManager.HAPTIC_PATTERNS.size(), 3, "Three moments buzz, and no more")
     for pattern_name in SettingsManager.HAPTIC_PATTERNS:

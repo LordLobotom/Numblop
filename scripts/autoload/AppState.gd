@@ -141,18 +141,18 @@ func begin_session(seed: int = -1) -> Array[PracticeQuestion]:
     return active_session
 
 
-func practice_setup_state(preselected_table: int = 0) -> Dictionary:
+func practice_setup_state() -> Dictionary:
     var tables: Array[Dictionary] = []
     for table_value in LearningRules.TABLES:
         var practice_eligible := profile.is_table_practice_eligible(table_value)
         tables.append({
             "table": table_value,
             "practice_eligible": practice_eligible,
-            "selected": practice_eligible and table_value == preselected_table,
+            "selected": false,
         })
     return {
         "final_table_completed": profile.final_table_completed,
-        "default_question_count": LearningRules.FREE_PRACTICE_LENGTHS[0],
+        "default_question_count": SettingsManager.practice_question_count,
         "question_counts": LearningRules.FREE_PRACTICE_LENGTHS.duplicate(),
         "tables": tables,
     }

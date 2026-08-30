@@ -97,7 +97,8 @@ must not live in a scene, but they do not read files or drive the frame loop eit
 
 - `EventBus` contains cross-screen domain signals only.
 - `SettingsManager` owns `user://settings.cfg`: the language preference, music/SFX volume, global
-  mute, and the haptics toggle. It resolves `system` to the device language when Numblop ships it,
+  mute, the haptics toggle, and the last started free-practice length. It resolves `system` to the
+  device language when Numblop ships it,
   applies the locale to `TranslationServer`, applies volume through separate `Music` and `SFX` audio
   buses, and is the only caller of `Input.vibrate_handheld`.
 - `SaveManager` owns `user://profile.json` serialization. Every write rewrites the whole file, and any

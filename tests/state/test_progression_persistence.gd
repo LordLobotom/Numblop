@@ -246,17 +246,21 @@ func test_map_stage_state_exposes_progress_without_changing_learning_rules() -> 
 func test_practice_setup_state_and_empty_selection_use_completed_tables() -> void:
     var original_profile := AppState.profile
     var original_controller := AppState.session_controller
+    var original_question_count := SettingsManager.practice_question_count
     var practice_profile := LearningProfile.new()
     for table_value in [2, 3]:
         for multiplier in range(LearningRules.REQUIRED_FACTS_TO_UNLOCK):
             practice_profile.set_mastery(table_value, multiplier, LearningRules.UNLOCK_MASTERY)
     AppState.profile = practice_profile
     AppState.session_controller = SessionController.new(practice_profile)
+    SettingsManager.practice_question_count = 40
 
-    var state := AppState.practice_setup_state(3)
+    var state := AppState.practice_setup_state()
     equal(state["question_counts"], [10, 20, 30, 40, 50], "Every free-practice length")
+    equal(state["default_question_count"], 40, "Remembered device length is projected")
     check(state["tables"][0]["practice_eligible"], "2x is eligible")
-    check(state["tables"][1]["selected"], "Requested completed table is preselected")
+    for table_state in state["tables"]:
+        check(not table_state["selected"], "Practice opens with no selected table")
     check(not state["tables"][2]["practice_eligible"], "Current unfinished table is locked")
 
     var questions := AppState.begin_free_practice(10, [], 9876)
@@ -268,6 +272,7 @@ func test_practice_setup_state_and_empty_selection_use_completed_tables() -> voi
 
     AppState.profile = original_profile
     AppState.session_controller = original_controller
+    SettingsManager.practice_question_count = original_question_count
 
 
 func _completed_result(correct_answers: int = 5) -> SessionResult:

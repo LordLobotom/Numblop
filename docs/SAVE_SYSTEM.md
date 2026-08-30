@@ -5,17 +5,19 @@ This document describes what the code does today. It is written from `scripts/au
 `scripts/app/`. When this file and any other document disagree, the code wins and this file is the
 one to correct first.
 
-Current save version: **10**.
+Current save version: **11**.
 
 ## Two files, two purposes
 
 | File | Owner | Format | Contains |
 |---|---|---|---|
 | `user://profile.json` | `SaveManager` | JSON, pretty-printed | Everything the child earned: mastery, coins and the coin ledger, cosmetics, streak, achievements, tutorial state, nickname, profile id, sync bookkeeping |
-| `user://settings.cfg` | `SettingsManager` | Godot `ConfigFile` | Device preferences: language, music/SFX volume, mute, haptics |
+| `user://settings.cfg` | `SettingsManager` | Godot `ConfigFile` | Device preferences: language, music/SFX volume, mute, haptics, last free-practice length |
 
-They are deliberately separate. Language and volume are properties of the device, not of the child's
-progress, and a reset profile must not reset them.
+They are deliberately separate. Language, volume, and the last free-practice length are properties
+of the device, not of the child's progress, and a reset profile must not reset them. The practice
+length defaults to 10, accepts only 10/20/30/40/50, and is written after a valid free-practice round
+length is chosen. It is not included in Play Games cloud snapshots.
 
 Two sidecar files exist beside the profile:
 

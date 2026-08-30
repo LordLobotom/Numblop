@@ -74,7 +74,7 @@ func test_only_completed_tables_can_be_selected() -> void:
     _free_screen(scene)
 
 
-func test_table_detail_entry_is_preselected_and_can_mix_other_tables() -> void:
+func test_table_detail_entry_starts_unselected_and_can_mix_completed_tables() -> void:
     var state := _setup_state()
     state["tables"][0]["selected"] = true
     state["tables"][1]["practice_eligible"] = true
@@ -83,11 +83,15 @@ func test_table_detail_entry_is_preselected_and_can_mix_other_tables() -> void:
         return
     scene.present(state)
 
-    equal(scene.selected_tables(), [2], "Origin table is preselected")
+    equal(scene.selected_tables(), [], "Detail entry still begins without a table selection")
+    scene.table_card(2).pressed.emit()
     scene.table_card(3).pressed.emit()
-    equal(scene.selected_tables(), [2, 3], "Another completed table joins the mix")
+    equal(scene.selected_tables(), [2, 3], "Multiple completed tables can join the mix")
+    var remembered_counts: Array[int] = []
+    scene.question_count_changed.connect(func(value: int) -> void: remembered_counts.append(value))
     scene.question_card(50).pressed.emit()
     equal(scene.selected_question_count(), 50, "Fifty questions can be selected")
+    equal(remembered_counts, [50], "Changing length requests device-local persistence")
     _free_screen(scene)
 
 

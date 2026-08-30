@@ -136,6 +136,8 @@ and recover their progress; no conflict path can silently destroy a child's loca
 - Completing 9× permanently replaces Home's Play action with Practice.
 - Free practice offers 10, 20, 30, 40, or 50 questions with explicit balanced table selection or
   empty-selection smart review across all completed tables.
+- Setup starts with no selected table. Its first-use length is 10 and the last chosen length is
+  remembered only on the current device.
 - This is reinforcement inside the fixed 2×–9× material. It is not the future Endless trail and does
   not extend multiplication factors beyond 9.
 

@@ -2,6 +2,7 @@ class_name PracticeSetupScreen
 extends Control
 
 signal start_requested(question_count: int, selected_tables: Array[int])
+signal question_count_changed(question_count: int)
 signal back_requested
 signal outfit_requested
 signal map_requested
@@ -64,10 +65,6 @@ func present(state: Dictionary) -> void:
             if raw_state is not Dictionary:
                 continue
             var table_state: Dictionary = raw_state.duplicate(true)
-            var table_value := int(table_state.get("table", 0))
-            var eligible := bool(table_state.get("practice_eligible", false))
-            if eligible and bool(table_state.get("selected", false)):
-                _selected_tables[table_value] = true
             _table_states.append(table_state)
     if is_node_ready():
         _rebuild_cards()
@@ -131,6 +128,7 @@ func _on_question_count_pressed(question_count: int) -> void:
     for value in _question_cards:
         var card: PracticeOptionCard = _question_cards[value]
         card.set_selected(int(value) == _question_count)
+    question_count_changed.emit(_question_count)
 
 
 func _on_table_pressed(table_value: int) -> void:

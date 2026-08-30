@@ -16,9 +16,12 @@
 - Question construction, mastery thresholds/deltas, per-answer saves, streaks, milestones,
   achievements, and the reward chest stay canonical. Sharing those mechanics does not make free
   practice a progression mix.
-- Completing 9× permanently changes Home's action from Play to Practice. A completed island detail
-  also opens setup with its table preselected; clearing all checkmarks deliberately returns to smart
-  review and therefore never disables Start.
+- Completing 9× permanently changes Home's action from Play to Practice. Home and completed-island
+  detail entries both open with no selected table, so the initial Start action is smart review and
+  never disabled. Players may explicitly select any combination of completed tables.
+- The first-use question count is 10. Choosing a 10/20/30/40/50 length remembers it in
+  `user://settings.cfg` for later setup visits on that device. It is not profile progress,
+  cloud-save data, analytics, or additional learning history.
 - Practice setup is a linked secondary page inside the standard header/body/footer shell. It keeps
   the five shared navigation destinations but highlights none of them; Practice is not a sixth tab.
   Header Back still restores the exact origin, including an open completed-table detail.

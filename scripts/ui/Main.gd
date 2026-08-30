@@ -74,6 +74,7 @@ func _ready() -> void:
     trophy_screen.outfit_requested.connect(_on_cosmetics_requested)
     trophy_screen.settings_requested.connect(_on_settings_requested)
     practice_setup_screen.start_requested.connect(_on_free_practice_start_requested)
+    practice_setup_screen.question_count_changed.connect(_on_free_practice_question_count_changed)
     practice_setup_screen.back_requested.connect(_on_practice_setup_back_requested)
     practice_setup_screen.outfit_requested.connect(_on_cosmetics_requested)
     practice_setup_screen.map_requested.connect(_on_map_requested)
@@ -195,9 +196,9 @@ func _on_table_practice_requested(table_value: int) -> void:
     _open_practice_setup(table_value)
 
 
-func _open_practice_setup(preselected_table: int = 0) -> void:
-    _practice_setup_from_table = preselected_table
-    practice_setup_screen.present(AppState.practice_setup_state(preselected_table))
+func _open_practice_setup(origin_table: int = 0) -> void:
+    _practice_setup_from_table = origin_table
+    practice_setup_screen.present(AppState.practice_setup_state())
     home_screen.visible = false
     map_screen.visible = false
     practice_setup_screen.visible = true
@@ -214,6 +215,12 @@ func _on_free_practice_start_requested(
     _close_practice_setup()
     practice_screen.visible = true
     practice_screen.show_question(questions[0], 0, questions.size())
+
+
+func _on_free_practice_question_count_changed(question_count: int) -> void:
+    # This is a device preference, not profile progress. A failed settings write must never block
+    # navigation or an otherwise valid offline round.
+    SettingsManager.set_practice_question_count(question_count)
 
 
 func _on_practice_setup_back_requested() -> void:

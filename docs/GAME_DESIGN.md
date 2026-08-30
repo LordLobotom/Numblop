@@ -29,6 +29,8 @@ tables, or leave every table unselected for smart review across all completed ta
 feedback, mastery changes, saving, streak, and reward chest use the same play loop. Setup is a
 secondary page in the normal Numblop shell: it keeps the shared header and five-item bottom
 navigation, highlights no primary tab, and Back returns to the Home or table detail that opened it.
+Every entry starts with no table selected, including entry from a table detail. The first-use length
+is 10; choosing another length remembers it only in this device's settings.
 
 ## Starting the game
 

@@ -11,12 +11,13 @@ files it owned. These release and M5 items remain open:
   explicit tables, mastery-driven smart review, permanent completed-table eligibility, and core
   tests. Progression slot plans are unchanged. Owns: `scripts/core/`, `tests/core/`.
 - `B37 DONE` Free-practice setup with rounded checkmarked cards, active empty-selection smart review,
-  Home action replacement, completed-table detail entry, standard secondary-page header/footer shell
-  with no false active tab, ten-language text, and UI tests. Owns: `scenes/`, `scripts/ui/`,
+  no initial table preselection, Home action replacement, completed-table detail entry, standard
+  secondary-page header/footer shell with no false active tab, ten-language text, and UI tests.
+  Owns: `scenes/`, `scripts/ui/`,
   `localization/`, `tests/ui/`.
 - `C27 DONE` Free-practice AppState/session boundary plus save v11 final-table completion migration
-  and OR cloud merge, with no new mistake or analytics history. Owns: `scripts/app/`,
-  `scripts/autoload/`, `tests/state/`.
+  and OR cloud merge, plus device-only remembered question length, with no new mistake or analytics
+  history. Owns: `scripts/app/`, `scripts/autoload/`, `tests/state/`.
 - `D29 DONE` Responsive captures for the free-practice setup and a completed table detail with its
   Practice action, in both review locales and all three viewport sizes. Owns: capture harness and
   smoke tests.
