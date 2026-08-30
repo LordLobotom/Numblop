@@ -432,6 +432,7 @@ Deterministic, clock-last:
 | `mastery` (per fact) | `max` — never demote a fact a child has practised |
 | `last_practiced` (per fact) | `max` |
 | `highest_unlocked_index` | `max` — already monotonic by design |
+| `final_table_completed` | logical **or** — completing 9× is permanent earned progress |
 | `experience` | `max` |
 | `completed_sessions` | `max` |
 | `earned_rounds`, `earned_milestones` | `max` per bucket |

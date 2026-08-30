@@ -20,6 +20,7 @@ const PREMERGE_SUFFIX := ".premerge"
 const KNOWN_FIELDS: Array[String] = [
     "version",
     "highest_unlocked_index",
+    "final_table_completed",
     "mastery",
     "last_practiced",
     "coins",

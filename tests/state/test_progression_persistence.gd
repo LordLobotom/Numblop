@@ -100,6 +100,30 @@ func test_a_twelve_question_series_can_pay_twelve() -> void:
     equal(reward["coins"], 12, "Twelve correct answers pay twelve coins")
 
 
+func test_a_fifty_question_free_practice_series_can_pay_fifty() -> void:
+    var questions: Array[PracticeQuestion] = []
+    for index in 50:
+        questions.append(
+            PracticeQuestion.new(
+                2 + index % LearningRules.TABLES.size(),
+                index % LearningRules.MULTIPLIERS.size(),
+                LearningRules.QuestionMode.NUMBER_INPUT,
+                []
+            )
+        )
+    var result := SessionResult.new(questions)
+    for index in 50:
+        result.record_answer(result.current_question().answer(), 5.0, 0)
+    check(result.can_receive_reward(), "A full fifty-question practice series is rewardable")
+
+    var reward := LocalProgress.new().apply_completed_session(
+        result,
+        LearningProfile.new(),
+        Callable()
+    )
+    equal(reward["coins"], 50, "Fifty correct answers pay fifty coins")
+
+
 func test_abandoned_session_never_changes_progression() -> void:
     var profile := LearningProfile.new()
     var progress := LocalProgress.new({"coins": 5, "experience": 90})
@@ -217,6 +241,33 @@ func test_map_stage_state_exposes_progress_without_changing_learning_rules() -> 
     check(advanced_states[1]["current"], "The three-times table becomes current")
 
     AppState.profile = original_profile
+
+
+func test_practice_setup_state_and_empty_selection_use_completed_tables() -> void:
+    var original_profile := AppState.profile
+    var original_controller := AppState.session_controller
+    var practice_profile := LearningProfile.new()
+    for table_value in [2, 3]:
+        for multiplier in range(LearningRules.REQUIRED_FACTS_TO_UNLOCK):
+            practice_profile.set_mastery(table_value, multiplier, LearningRules.UNLOCK_MASTERY)
+    AppState.profile = practice_profile
+    AppState.session_controller = SessionController.new(practice_profile)
+
+    var state := AppState.practice_setup_state(3)
+    equal(state["question_counts"], [10, 20, 30, 40, 50], "Every free-practice length")
+    check(state["tables"][0]["practice_eligible"], "2x is eligible")
+    check(state["tables"][1]["selected"], "Requested completed table is preselected")
+    check(not state["tables"][2]["practice_eligible"], "Current unfinished table is locked")
+
+    var questions := AppState.begin_free_practice(10, [], 9876)
+    equal(questions.size(), 10, "Empty selection starts smart review")
+    for question in questions:
+        contains([2, 3], question.table_value, "Smart review stays in completed tables")
+    AppState.abandon_session()
+    equal(AppState.begin_free_practice(10, [9], 1), [], "Locked-only selection is rejected")
+
+    AppState.profile = original_profile
+    AppState.session_controller = original_controller
 
 
 func _completed_result(correct_answers: int = 5) -> SessionResult:

@@ -16,6 +16,22 @@ func test_controller_starts_an_exact_seeded_session() -> void:
     check(controller.current_question() != null, "Current question")
 
 
+func test_controller_starts_free_practice_without_using_the_progression_mix() -> void:
+    var profile := LearningProfile.new()
+    for table_value in [2, 3]:
+        for multiplier in range(LearningRules.REQUIRED_FACTS_TO_UNLOCK):
+            profile.set_mastery(table_value, multiplier, LearningRules.UNLOCK_MASTERY)
+    var controller := SessionController.new(profile)
+    var result := controller.begin_free_practice([2, 3], 40, 1234)
+    var counts := {2: 0, 3: 0}
+    for question in result.questions:
+        counts[question.table_value] += 1
+
+    equal(result.questions.size(), 40, "Requested free-practice length")
+    equal(counts[2], 20, "Explicit table 2 share")
+    equal(counts[3], 20, "Explicit table 3 share")
+
+
 func test_every_answer_updates_mastery_and_saves_immediately() -> void:
     _remove_test_file()
     var profile := LearningProfile.new()

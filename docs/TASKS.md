@@ -7,6 +7,20 @@ Status values: `TODO`, `WIP(@agent)`, `BLOCKED(reason)`, `DONE`.
 Everything below this section is kept as a historical ledger of what each track built and which
 files it owned. These release and M5 items remain open:
 
+- `A11 DONE` Separate deterministic free-practice generator for 10/20/30/40/50 questions, balanced
+  explicit tables, mastery-driven smart review, permanent completed-table eligibility, and core
+  tests. Progression slot plans are unchanged. Owns: `scripts/core/`, `tests/core/`.
+- `B37 DONE` Free-practice setup with rounded checkmarked cards, active empty-selection smart review,
+  Home action replacement, completed-table detail entry, standard secondary-page header/footer shell
+  with no false active tab, ten-language text, and UI tests. Owns: `scenes/`, `scripts/ui/`,
+  `localization/`, `tests/ui/`.
+- `C27 DONE` Free-practice AppState/session boundary plus save v11 final-table completion migration
+  and OR cloud merge, with no new mistake or analytics history. Owns: `scripts/app/`,
+  `scripts/autoload/`, `tests/state/`.
+- `D29 DONE` Responsive captures for the free-practice setup and a completed table detail with its
+  Practice action, in both review locales and all three viewport sizes. Owns: capture harness and
+  smoke tests.
+
 - `B32 DONE` Ship dedicated achievement artwork at 192 px in `TrophyScreen` and 512 px RGBA8 for
   Play Console, with the 1254 px originals kept out of git and out of every export. Adds 1.76 MB to
   the build instead of the ~41 MB the originals would have cost. Owns:

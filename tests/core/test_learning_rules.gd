@@ -75,3 +75,25 @@ func test_the_session_length_grows_from_the_sixth_table() -> void:
     for table_value in [6, 7, 8, 9]:
         equal(LearningRules.session_length(table_value), 12, "Table %d" % table_value)
         check(LearningRules.uses_extended_mix(table_value), "Table %d is long" % table_value)
+
+
+func test_final_table_completion_is_permanent_and_practice_eligible() -> void:
+    var profile := LearningProfile.new()
+    for table_value in LearningRules.TABLES:
+        for multiplier in range(LearningRules.REQUIRED_FACTS_TO_UNLOCK):
+            profile.set_mastery(table_value, multiplier, LearningRules.UNLOCK_MASTERY)
+
+    check(profile.final_table_completed, "Final table completion is remembered")
+    check(profile.is_table_practice_eligible(9), "Completed 9x is practice eligible")
+    profile.set_mastery(9, 0, 0)
+    check(profile.final_table_completed, "Later mastery loss cannot undo completion")
+    check(profile.is_table_practice_eligible(9), "Practice eligibility remains permanent")
+
+
+func test_only_permanently_completed_tables_are_practice_eligible() -> void:
+    var profile := LearningProfile.new()
+    check(not profile.is_table_practice_eligible(2), "Current unfinished table is not eligible")
+    for multiplier in range(LearningRules.REQUIRED_FACTS_TO_UNLOCK):
+        profile.set_mastery(2, multiplier, LearningRules.UNLOCK_MASTERY)
+    check(profile.is_table_practice_eligible(2), "Passed table is eligible")
+    check(not profile.is_table_practice_eligible(3), "New current table is not yet eligible")

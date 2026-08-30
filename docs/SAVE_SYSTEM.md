@@ -38,10 +38,11 @@ left out is re-read from disk before writing, so no save path can silently drop 
 
 ```json
 {
-  "version": 10,
+  "version": 11,
   "save_counter": 4213,
   "updated_at_unix": 1786000000,
   "highest_unlocked_index": 0,
+  "final_table_completed": false,
   "mastery": { "2_x_0": 0, "2_x_1": 0, "…": 0, "9_x_9": 0 },
   "last_practiced": { "2_x_0": 0, "…": 0, "9_x_9": 0 },
   "coins": 0,
@@ -90,6 +91,7 @@ left out is re-read from disk before writing, so no save path can silently drop 
 | `save_counter` | int ≥ 0 | `SaveManager` | Increments on **every** write and never resets. The ordering signal a wrong device clock cannot corrupt. A non-numeric value reads as `0`. |
 | `updated_at_unix` | int | `SaveManager` | Informational; only ever a tie-breaker of last resort. `SaveManager.clock_override` lets a test freeze it. |
 | `highest_unlocked_index` | int `0–7` | `LearningProfile` | Clamped to the table range, then `_advance_unlocks()` re-derives any unlock the mastery values already earn. Never decreases. |
+| `final_table_completed` | bool | `LearningProfile` | Becomes true permanently when 9× first passes the normal nine-of-ten-at-80 gate. Needed because 9× has no next unlock index. Missing legacy values are derived once from loaded mastery. Cloud merge uses logical OR. |
 | `mastery` | 80 × `"<table>_x_<multiplier>"` → int | `LearningProfile` | Only known keys are copied; each value is clamped to `0–100`. Unknown keys are dropped, missing keys stay `0`. |
 | `last_practiced` | 80 × fact key → unix seconds | `LearningProfile` | `0` means "never practised", which sorts as longest-waiting. Supplied by `SessionController`, never read from a clock inside `scripts/core/`. |
 | `coins` | int ≥ 0 | `LocalProgress` | The authoritative balance at runtime. Negative values clamp to `0`. |
@@ -214,7 +216,7 @@ Tests use it so one case cannot resurrect another's data through the backup.
 
 ## Versioning and migration
 
-`SAVE_VERSION` is `10`, defined as `SaveMigration.CURRENT_VERSION` so the two cannot drift.
+`SAVE_VERSION` is `11`, defined as `SaveMigration.CURRENT_VERSION` so the two cannot drift.
 
 Two mechanisms work together:
 
@@ -240,6 +242,7 @@ version on the way out, so a step can meet a dictionary it has already produced.
 | 8 | `achievements`, `completed_sessions` | none, beyond the `experience > 0` back-fill in `LocalProgress` |
 | 9 | `onboarding` | none — plus `AppState` adopting a save with finished rounds as onboarded |
 | 10 | `save_counter`, `updated_at_unix`, `cloud`, `earned_rounds`, `earned_milestones` | **the ledger back-fill**: `earned_rounds = max(0, coins + derived_spent − derived_achievement_coins)`, with `earned_milestones = 0` |
+| 11 | `final_table_completed` | derive from 9× meeting the normal nine-of-ten-at-80 completion gate; otherwise `false` |
 
 The v10 back-fill attributes everything not derivable to rounds. The split between rounds and
 milestones cannot be recovered after the fact, and only the sum is ever used — so the reconstructed

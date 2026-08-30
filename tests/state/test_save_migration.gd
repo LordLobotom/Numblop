@@ -1,8 +1,7 @@
 extends NumblopTestCase
 
-## Save version 10 adds the write counter, the cloud block, and the coin ledger. Existing players
-## are already carrying versions 6 to 9, so every one of those has to arrive at a correct ledger
-## without the child noticing anything.
+## Save version 10 adds the write counter, cloud block and coin ledger; version 11 remembers final
+## table completion. Existing players must arrive at both shapes without noticing a migration.
 
 const TEST_PATH := "user://numblop_migration_test.json"
 
@@ -18,6 +17,30 @@ func test_a_legacy_save_gains_a_counter_and_a_cloud_block() -> void:
     check(migrated["cloud"] is Dictionary, "The cloud block exists")
     equal(migrated["cloud"]["last_synced_counter"], 0, "Nothing has ever been synchronised")
     equal(migrated["cloud"]["player_id"], "", "No Play account is attached yet")
+
+
+func test_a_legacy_final_table_gate_becomes_permanent_completion() -> void:
+    var legacy := LearningProfile.new().to_dictionary()
+    legacy.erase("final_table_completed")
+    legacy["version"] = 10
+    legacy["highest_unlocked_index"] = LearningRules.TABLES.size() - 1
+    for multiplier in range(LearningRules.REQUIRED_FACTS_TO_UNLOCK):
+        legacy["mastery"][LearningRules.fact_key(9, multiplier)] = LearningRules.UNLOCK_MASTERY
+
+    var migrated := SaveMigration.migrate(legacy)
+    check(migrated["final_table_completed"], "The existing 9x gate is adopted")
+
+
+func test_a_legacy_incomplete_final_table_stays_ineligible() -> void:
+    var legacy := LearningProfile.new().to_dictionary()
+    legacy.erase("final_table_completed")
+    legacy["version"] = 10
+    legacy["highest_unlocked_index"] = LearningRules.TABLES.size() - 1
+    for multiplier in range(LearningRules.REQUIRED_FACTS_TO_UNLOCK - 1):
+        legacy["mastery"][LearningRules.fact_key(9, multiplier)] = LearningRules.UNLOCK_MASTERY
+
+    var migrated := SaveMigration.migrate(legacy)
+    check(not migrated["final_table_completed"], "Eight ready facts do not complete 9x")
 
 
 func test_migration_never_mutates_the_dictionary_it_was_given() -> void:

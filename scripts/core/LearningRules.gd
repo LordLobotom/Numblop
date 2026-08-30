@@ -24,6 +24,7 @@ const REVIEW_MASTERY := 100
 const EXTENDED_MIX_TABLE := 6
 const SESSION_LENGTH := 10
 const EXTENDED_SESSION_LENGTH := 12
+const FREE_PRACTICE_LENGTHS: Array[int] = [10, 20, 30, 40, 50]
 
 
 static func uses_extended_mix(table_value: int) -> bool:
@@ -32,6 +33,14 @@ static func uses_extended_mix(table_value: int) -> bool:
 
 static func session_length(table_value: int) -> int:
     return EXTENDED_SESSION_LENGTH if uses_extended_mix(table_value) else SESSION_LENGTH
+
+
+static func is_free_practice_length(question_count: int) -> bool:
+    return FREE_PRACTICE_LENGTHS.has(question_count)
+
+
+static func is_supported_result_length(question_count: int) -> bool:
+    return question_count == EXTENDED_SESSION_LENGTH or is_free_practice_length(question_count)
 
 
 static func fact_key(table_value: int, multiplier: int) -> String:

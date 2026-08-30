@@ -40,6 +40,19 @@ func begin_session(seed: int) -> SessionResult:
     return active_result
 
 
+func begin_free_practice(
+    selected_tables: Array[int],
+    question_count: int,
+    seed: int
+) -> SessionResult:
+    abandon_active_session()
+    active_result = SessionResult.new(
+        FreePracticeGenerator.generate(profile, selected_tables, question_count, seed)
+    )
+    session_started.emit(active_result.questions.size())
+    return active_result
+
+
 func current_question() -> PracticeQuestion:
     if active_result == null:
         return null

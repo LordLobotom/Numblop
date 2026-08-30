@@ -15,10 +15,11 @@ extends RefCounted
 ## a migration is a no-op. That matters because an older build round-trips a newer save (see
 ## `SaveManager` unknown-field preservation) and stamps its own version on the way out.
 
-const CURRENT_VERSION := 10
+const CURRENT_VERSION := 11
 
 ## The version that introduced the coin ledger, the monotonic write counter, and the cloud block.
 const LEDGER_VERSION := 10
+const FINAL_TABLE_COMPLETION_VERSION := 11
 
 
 static func loaded_version(data: Dictionary) -> int:
@@ -43,6 +44,8 @@ static func migrate(data: Dictionary) -> Dictionary:
     var migrated := data.duplicate(true)
     if loaded_version(migrated) <= LEDGER_VERSION:
         _migrate_to_10(migrated)
+    if loaded_version(migrated) <= FINAL_TABLE_COMPLETION_VERSION:
+        _migrate_to_11(migrated)
     return migrated
 
 
@@ -75,6 +78,14 @@ static func _migrate_to_10(data: Dictionary) -> void:
         data["updated_at_unix"] = 0
     if not data.has("cloud"):
         data["cloud"] = LocalCloudSync.new().to_dictionary()
+
+
+## Save 11 -- a permanent completion bit for the final table. Earlier tables already preserve
+## completion through highest_unlocked_index; 9x has no next index, so legacy saves derive the bit
+## once from the same nine-of-ten gate and then keep it forever.
+static func _migrate_to_11(data: Dictionary) -> void:
+    if not data.has("final_table_completed"):
+        data["final_table_completed"] = LearningProfile.from_dictionary(data).final_table_completed
 
 
 static func _loaded_number(data: Dictionary, key: String) -> int:
