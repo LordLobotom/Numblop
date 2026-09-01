@@ -10,6 +10,9 @@ var mastery: Dictionary = {}
 ## passes the time in; the rules here only ever compare these values to each other.
 var last_practiced: Dictionary = {}
 var highest_unlocked_index := 0
+## The last table has no later table whose index can remember that its gate was passed.
+## Keep that one completion separately so free practice never disappears after a mistake.
+var final_table_completed := false
 
 
 func _init() -> void:
@@ -20,6 +23,7 @@ func reset() -> void:
     mastery.clear()
     last_practiced.clear()
     highest_unlocked_index = 0
+    final_table_completed = false
     for table_value in LearningRules.TABLES:
         for multiplier in LearningRules.MULTIPLIERS:
             var key := LearningRules.fact_key(table_value, multiplier)
@@ -29,6 +33,15 @@ func reset() -> void:
 
 func current_table() -> int:
     return LearningRules.TABLES[highest_unlocked_index]
+
+
+func is_table_practice_eligible(table_value: int) -> bool:
+    var table_index := LearningRules.TABLES.find(table_value)
+    if table_index < 0:
+        return false
+    if table_index == LearningRules.TABLES.size() - 1:
+        return final_table_completed
+    return table_index < highest_unlocked_index
 
 
 func get_mastery(table_value: int, multiplier: int) -> int:
@@ -76,6 +89,7 @@ func to_dictionary() -> Dictionary:
     return {
         "version": SAVE_VERSION,
         "highest_unlocked_index": highest_unlocked_index,
+        "final_table_completed": final_table_completed,
         "mastery": mastery.duplicate(true),
         "last_practiced": last_practiced.duplicate(true),
     }
@@ -101,6 +115,10 @@ static func from_dictionary(data: Dictionary) -> LearningProfile:
         0,
         LearningRules.TABLES.size() - 1
     )
+    var saved_final_completion: Variant = data.get("final_table_completed", false)
+    profile.final_table_completed = (
+        saved_final_completion is bool and bool(saved_final_completion)
+    )
     profile._advance_unlocks()
     return profile
 
@@ -113,5 +131,18 @@ func _advance_unlocks() -> void:
             if get_mastery(table_value, multiplier) >= LearningRules.UNLOCK_MASTERY:
                 ready_facts += 1
         if ready_facts < LearningRules.REQUIRED_FACTS_TO_UNLOCK:
-            return
+            break
         highest_unlocked_index += 1
+    _remember_final_table_completion()
+
+
+func _remember_final_table_completion() -> void:
+    if final_table_completed or highest_unlocked_index < LearningRules.TABLES.size() - 1:
+        return
+    var final_table: int = LearningRules.TABLES.back()
+    var ready_facts := 0
+    for multiplier in LearningRules.MULTIPLIERS:
+        if get_mastery(final_table, multiplier) >= LearningRules.UNLOCK_MASTERY:
+            ready_facts += 1
+    if ready_facts >= LearningRules.REQUIRED_FACTS_TO_UNLOCK:
+        final_table_completed = true

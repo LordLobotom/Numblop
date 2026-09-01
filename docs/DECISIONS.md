@@ -1,5 +1,31 @@
 # Numblop Decision Log
 
+## 2026-08-30 — Completed tables open a separate permanent free-practice loop
+
+- **Table eligibility means permanently completed, not all facts saturated.** The same nine-of-ten
+  facts at 80 gate that advances progression makes that table practice-eligible forever. The stricter
+  all-ten-at-100 island achievement remains an achievement rule only.
+- Earlier completion is already represented by `highest_unlocked_index`. The final table has no next
+  index, and its map completion used to be re-derived from live mastery, so save v11 adds only
+  `final_table_completed`. It is derived for legacy saves, never cleared by mastery loss, and merged
+  with logical OR. No session setup, error counter, or analytics data is persisted.
+- **Free practice never enters `SessionGenerator`.** `FreePracticeGenerator` owns its 10, 20, 30,
+  40, and 50-question schedules. Explicit tables use seeded round-robin so no selected table
+  dominates. Empty selection is a real smart-review mode over all eligible tables, using existing
+  mastery plus repetition penalties; it creates no new weakness history.
+- Question construction, mastery thresholds/deltas, per-answer saves, streaks, milestones,
+  achievements, and the reward chest stay canonical. Sharing those mechanics does not make free
+  practice a progression mix.
+- Completing 9× permanently changes Home's action from Play to Practice. Home and completed-island
+  detail entries both open with no selected table, so the initial Start action is smart review and
+  never disabled. Players may explicitly select any combination of completed tables.
+- The first-use question count is 10. Choosing a 10/20/30/40/50 length remembers it in
+  `user://settings.cfg` for later setup visits on that device. It is not profile progress,
+  cloud-save data, analytics, or additional learning history.
+- Practice setup is a linked secondary page inside the standard header/body/footer shell. It keeps
+  the five shared navigation destinations but highlights none of them; Practice is not a sixth tab.
+  Header Back still restores the exact origin, including an open completed-table detail.
+
 ## 2026-08-15 — Play achievements are pushed, never waited on
 
 - P3 is implemented. The 25 Console ids live in `scripts/autoload/PlayGamesCatalog.gd`, on the Play

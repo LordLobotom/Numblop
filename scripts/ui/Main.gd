@@ -29,6 +29,7 @@ const MILESTONE_COIN_DELAY_SECONDS := 1.24
 @onready var settings_screen: SettingsScreen = %SettingsScreen
 @onready var cosmetics_screen: CosmeticsScreen = %CosmeticsScreen
 @onready var trophy_screen: TrophyScreen = %TrophyScreen
+@onready var practice_setup_screen: PracticeSetupScreen = %PracticeSetupScreen
 @onready var practice_screen: PracticeScreen = %PracticeScreen
 @onready var reward_screen: RewardScreen = %RewardScreen
 @onready var music_player: AudioStreamPlayer = %MusicPlayer
@@ -43,6 +44,7 @@ const MILESTONE_COIN_DELAY_SECONDS := 1.24
 var _pending_unlocked_table := 0
 var _web_audio_unlocked := false
 var _web_audio_unlock_pending := false
+var _practice_setup_from_table := 0
 
 
 func _ready() -> void:
@@ -57,6 +59,7 @@ func _ready() -> void:
     map_screen.trophy_requested.connect(_on_trophy_requested)
     map_screen.settings_requested.connect(_on_settings_requested)
     map_screen.fact_detail_opened.connect(_play_confirm_sfx)
+    map_screen.practice_requested.connect(_on_table_practice_requested)
     settings_screen.home_requested.connect(_on_settings_home_requested)
     settings_screen.map_requested.connect(_on_settings_map_requested)
     settings_screen.outfit_requested.connect(_on_cosmetics_requested)
@@ -70,6 +73,14 @@ func _ready() -> void:
     trophy_screen.map_requested.connect(_on_map_requested)
     trophy_screen.outfit_requested.connect(_on_cosmetics_requested)
     trophy_screen.settings_requested.connect(_on_settings_requested)
+    practice_setup_screen.start_requested.connect(_on_free_practice_start_requested)
+    practice_setup_screen.question_count_changed.connect(_on_free_practice_question_count_changed)
+    practice_setup_screen.back_requested.connect(_on_practice_setup_back_requested)
+    practice_setup_screen.outfit_requested.connect(_on_cosmetics_requested)
+    practice_setup_screen.map_requested.connect(_on_map_requested)
+    practice_setup_screen.home_requested.connect(_on_practice_setup_home_requested)
+    practice_setup_screen.trophy_requested.connect(_on_trophy_requested)
+    practice_setup_screen.settings_requested.connect(_on_settings_requested)
     practice_screen.answer_submitted.connect(_on_answer_submitted)
     practice_screen.exit_requested.connect(_on_practice_exit_requested)
     reward_screen.return_home_requested.connect(_on_reward_return_requested)
@@ -170,11 +181,69 @@ func _is_audio_unlock_event(event: InputEvent) -> bool:
 
 func _on_play_requested() -> void:
     _play_page_sfx()
+    if bool(AppState.practice_setup_state().get("final_table_completed", false)):
+        _open_practice_setup()
+        return
     var questions := AppState.begin_session()
     home_screen.visible = false
     trophy_screen.visible = false
     practice_screen.visible = true
     practice_screen.show_question(questions[0], 0, questions.size())
+
+
+func _on_table_practice_requested(table_value: int) -> void:
+    _play_page_sfx()
+    _open_practice_setup(table_value)
+
+
+func _open_practice_setup(origin_table: int = 0) -> void:
+    _practice_setup_from_table = origin_table
+    practice_setup_screen.present(AppState.practice_setup_state())
+    home_screen.visible = false
+    map_screen.visible = false
+    practice_setup_screen.visible = true
+
+
+func _on_free_practice_start_requested(
+    question_count: int,
+    selected_tables: Array[int]
+) -> void:
+    _play_page_sfx()
+    var questions := AppState.begin_free_practice(question_count, selected_tables)
+    if questions.is_empty():
+        return
+    _close_practice_setup()
+    practice_screen.visible = true
+    practice_screen.show_question(questions[0], 0, questions.size())
+
+
+func _on_free_practice_question_count_changed(question_count: int) -> void:
+    # This is a device preference, not profile progress. A failed settings write must never block
+    # navigation or an otherwise valid offline round.
+    SettingsManager.set_practice_question_count(question_count)
+
+
+func _on_practice_setup_back_requested() -> void:
+    _play_page_sfx()
+    var table_value := _practice_setup_from_table
+    _close_practice_setup()
+    if table_value > 0:
+        map_screen.set_stage_states(AppState.map_stage_states())
+        map_screen.visible = true
+        map_screen.show_table_details(table_value)
+        return
+    home_screen.visible = true
+
+
+func _on_practice_setup_home_requested() -> void:
+    _play_page_sfx()
+    _close_practice_setup()
+    home_screen.visible = true
+
+
+func _close_practice_setup() -> void:
+    practice_setup_screen.visible = false
+    _practice_setup_from_table = 0
 
 
 func _on_answer_submitted(value: int, elapsed_seconds: float) -> void:
@@ -247,6 +316,7 @@ func _show_pending_unlock_or_home() -> void:
 
 func _on_map_requested() -> void:
     _play_page_sfx()
+    _close_practice_setup()
     map_screen.clear_unlock_announcement()
     map_screen.set_stage_states(AppState.map_stage_states())
     home_screen.visible = false
@@ -273,7 +343,9 @@ func _on_future_feature_requested() -> void:
 
 
 func _on_back_requested() -> void:
-    if trophy_screen.visible:
+    if practice_setup_screen.visible:
+        _on_practice_setup_back_requested()
+    elif trophy_screen.visible:
         _on_trophy_home_requested()
     elif cosmetics_screen.visible:
         _on_cosmetics_home_requested()
@@ -289,6 +361,7 @@ func _on_back_requested() -> void:
 
 func _on_settings_requested() -> void:
     _play_page_sfx()
+    _close_practice_setup()
     settings_screen.refresh_from_settings()
     home_screen.visible = false
     map_screen.visible = false
@@ -315,6 +388,7 @@ func _on_settings_map_requested() -> void:
 
 func _on_cosmetics_requested() -> void:
     _play_page_sfx()
+    _close_practice_setup()
     cosmetics_screen.refresh_from_state()
     home_screen.visible = false
     map_screen.visible = false
@@ -341,6 +415,7 @@ func _on_cosmetics_map_requested() -> void:
 
 func _on_trophy_requested() -> void:
     _play_page_sfx()
+    _close_practice_setup()
     trophy_screen.refresh_from_state()
     home_screen.visible = false
     map_screen.visible = false

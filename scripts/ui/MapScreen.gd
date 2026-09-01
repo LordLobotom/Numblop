@@ -6,6 +6,7 @@ signal outfit_requested
 signal trophy_requested
 signal settings_requested
 signal fact_detail_opened
+signal practice_requested(table_value: int)
 
 const OPEN_STAGE_TEXTURE: Texture2D = preload(
     "res://ui/crests/crest_map_island_open.png"
@@ -36,6 +37,7 @@ const FACT_AUTOMATED_COLOR := Color(0.27, 0.7, 0.2)
 @onready var fact_detail_overall: Label = %FactDetailOverall
 @onready var fact_grid: GridContainer = %FactGrid
 @onready var legend_grid: GridContainer = %LegendGrid
+@onready var practice_button: Button = %PracticeButton
 @onready var navigation: NavBar = $SafeArea/Content/Navigation
 
 var _stage_states: Array[Dictionary] = []
@@ -50,6 +52,7 @@ func _ready() -> void:
     navigation.settings_requested.connect(settings_requested.emit)
     dismiss_button.pressed.connect(hide_table_details)
     fact_detail_close.pressed.connect(hide_table_details)
+    practice_button.pressed.connect(_on_practice_pressed)
     _refresh_text()
     _rebuild_stages()
 
@@ -96,6 +99,7 @@ func _refresh_text() -> void:
     else:
         feature_hint.text = tr("MAP_HINT")
     fact_detail_close.tooltip_text = tr("MAP_FACT_DETAIL_CLOSE")
+    practice_button.text = tr("MAP_FACT_DETAIL_PRACTICE")
     if fact_detail_overlay.visible and not _selected_stage_state.is_empty():
         _refresh_fact_detail()
 
@@ -262,6 +266,7 @@ func _refresh_fact_detail() -> void:
     fact_detail_overall.text = tr("MAP_FACT_DETAIL_OVERALL").format({
         "percent": progress_percent,
     })
+    practice_button.visible = bool(_selected_stage_state.get("completed", false))
     _clear_container(fact_grid)
     var raw_facts: Variant = _selected_stage_state.get("facts", [])
     if raw_facts is Array:
@@ -269,6 +274,12 @@ func _refresh_fact_detail() -> void:
             if raw_fact is Dictionary:
                 _add_fact_card(table_value, raw_fact)
     _rebuild_legend()
+
+
+func _on_practice_pressed() -> void:
+    if not bool(_selected_stage_state.get("completed", false)):
+        return
+    practice_requested.emit(int(_selected_stage_state.get("table", 0)))
 
 
 func _add_fact_card(table_value: int, fact: Dictionary) -> void:

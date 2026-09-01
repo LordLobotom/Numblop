@@ -1,0 +1,193 @@
+[gd_scene load_steps=10 format=3]
+
+[ext_resource type="Script" path="res://scripts/ui/PracticeSetupScreen.gd" id="1_script"]
+[ext_resource type="Texture2D" path="res://assets/backgrounds/mianscreen_background.png" id="2_background"]
+[ext_resource type="Script" path="res://scripts/ui/CenteredContentMargin.gd" id="3_margin"]
+[ext_resource type="StyleBox" path="res://ui/styles/header_panel.tres" id="4_header"]
+[ext_resource type="StyleBox" path="res://ui/styles/container_panel.tres" id="5_container"]
+[ext_resource type="Font" path="res://ui/fonts/Baloo2Bold.tres" id="6_bold"]
+[ext_resource type="Script" path="res://scripts/ui/TouchScrollContainer.gd" id="7_scroll"]
+[ext_resource type="PackedScene" path="res://scenes/components/NavBar.tscn" id="8_navbar"]
+
+[sub_resource type="StyleBoxFlat" id="StartStyle"]
+bg_color = Color(0.31, 0.77, 0.12, 1)
+corner_radius_top_left = 22
+corner_radius_top_right = 22
+corner_radius_bottom_right = 22
+corner_radius_bottom_left = 22
+
+[node name="PracticeSetupScreen" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_script")
+
+[node name="Background" type="TextureRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+texture = ExtResource("2_background")
+expand_mode = 1
+stretch_mode = 6
+
+[node name="SafeArea" type="MarginContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("3_margin")
+
+[node name="Content" type="VBoxContainer" parent="SafeArea"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="Header" type="PanelContainer" parent="SafeArea/Content"]
+layout_mode = 2
+theme_override_styles/panel = ExtResource("4_header")
+
+[node name="HeaderContent" type="Control" parent="SafeArea/Content/Header"]
+custom_minimum_size = Vector2(0, 32)
+layout_mode = 2
+
+[node name="BackButton" type="Button" parent="SafeArea/Content/Header/HeaderContent"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(48, 48)
+layout_mode = 1
+anchor_top = 0.5
+anchor_bottom = 0.5
+offset_top = -24.0
+offset_right = 48.0
+offset_bottom = 24.0
+grow_vertical = 2
+theme_override_colors/font_color = Color(0.19, 0.34, 0.24, 1)
+theme_override_colors/font_hover_color = Color(0.19, 0.34, 0.24, 1)
+theme_override_colors/font_pressed_color = Color(0.19, 0.34, 0.24, 1)
+theme_override_colors/font_hover_pressed_color = Color(0.19, 0.34, 0.24, 1)
+theme_override_fonts/font = ExtResource("6_bold")
+theme_override_font_sizes/font_size = 28
+text = "‹"
+flat = true
+
+[node name="TitleLabel" type="Label" parent="SafeArea/Content/Header/HeaderContent"]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_colors/font_color = Color(0.19, 0.34, 0.24, 1)
+theme_override_fonts/font = ExtResource("6_bold")
+theme_override_font_sizes/font_size = 22
+text = "PRACTICE_SETUP_TITLE"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="BodyPanel" type="PanelContainer" parent="SafeArea/Content"]
+custom_minimum_size = Vector2(336, 0)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_styles/panel = ExtResource("5_container")
+
+[node name="BodyContent" type="VBoxContainer" parent="SafeArea/Content/BodyPanel"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="Scroll" type="ScrollContainer" parent="SafeArea/Content/BodyPanel/BodyContent"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 3
+horizontal_scroll_mode = 0
+vertical_scroll_mode = 3
+script = ExtResource("7_scroll")
+
+[node name="ScrollMargin" type="MarginContainer" parent="SafeArea/Content/BodyPanel/BodyContent/Scroll"]
+custom_minimum_size = Vector2(0, 360)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 18
+theme_override_constants/margin_bottom = 4
+
+[node name="Sections" type="VBoxContainer" parent="SafeArea/Content/BodyPanel/BodyContent/Scroll/ScrollMargin"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="QuestionCountLabel" type="Label" parent="SafeArea/Content/BodyPanel/BodyContent/Scroll/ScrollMargin/Sections"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.2, 0.34, 0.23, 1)
+theme_override_fonts/font = ExtResource("6_bold")
+theme_override_font_sizes/font_size = 18
+text = "PRACTICE_SETUP_QUESTION_COUNT"
+
+[node name="QuestionGrid" type="GridContainer" parent="SafeArea/Content/BodyPanel/BodyContent/Scroll/ScrollMargin/Sections"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/h_separation = 6
+theme_override_constants/v_separation = 6
+columns = 5
+
+[node name="Divider" type="HSeparator" parent="SafeArea/Content/BodyPanel/BodyContent/Scroll/ScrollMargin/Sections"]
+layout_mode = 2
+
+[node name="TablesLabel" type="Label" parent="SafeArea/Content/BodyPanel/BodyContent/Scroll/ScrollMargin/Sections"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.2, 0.34, 0.23, 1)
+theme_override_fonts/font = ExtResource("6_bold")
+theme_override_font_sizes/font_size = 18
+text = "PRACTICE_SETUP_TABLES"
+
+[node name="TableGrid" type="GridContainer" parent="SafeArea/Content/BodyPanel/BodyContent/Scroll/ScrollMargin/Sections"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/h_separation = 8
+theme_override_constants/v_separation = 8
+columns = 4
+
+[node name="SelectionHint" type="Label" parent="SafeArea/Content/BodyPanel/BodyContent/Scroll/ScrollMargin/Sections"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 58)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.31, 0.44, 0.34, 1)
+theme_override_font_sizes/font_size = 15
+text = "PRACTICE_SETUP_SMART_HINT"
+horizontal_alignment = 1
+autowrap_mode = 2
+
+[node name="ActionMargin" type="MarginContainer" parent="SafeArea/Content/BodyPanel/BodyContent"]
+layout_mode = 2
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 2
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 10
+
+[node name="StartButton" type="Button" parent="SafeArea/Content/BodyPanel/BodyContent/ActionMargin"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 56)
+layout_mode = 2
+mouse_default_cursor_shape = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_fonts/font = ExtResource("6_bold")
+theme_override_font_sizes/font_size = 22
+theme_override_styles/normal = SubResource("StartStyle")
+theme_override_styles/hover = SubResource("StartStyle")
+theme_override_styles/pressed = SubResource("StartStyle")
+text = "PRACTICE_SETUP_START"
+
+[node name="Navigation" parent="SafeArea/Content" instance=ExtResource("8_navbar")]
+layout_mode = 2
+active_item = -1

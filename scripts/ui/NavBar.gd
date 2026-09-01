@@ -1,7 +1,8 @@
 class_name NavBar
 extends PanelContainer
 
-## The five-item footer shared by Home, Map, Cosmetics, Trophy and Settings.
+## The five-item footer shared by Home, Map, Cosmetics, Trophy and Settings, and reused by
+## secondary pages such as free-practice setup with no item highlighted.
 ##
 ## Which item is active is a single property here. Each screen used to encode it twice
 ## and by convention only -- sizing one crest 62x62 instead of 56x56, and swapping that
@@ -14,7 +15,7 @@ signal home_requested
 signal trophy_requested
 signal settings_requested
 
-enum Item {OUTFIT, MAP, HOME, TROPHY, SETTINGS}
+enum Item {NONE = -1, OUTFIT = 0, MAP = 1, HOME = 2, TROPHY = 3, SETTINGS = 4}
 
 const IDLE_CREST_SIZE := Vector2(56.0, 56.0)
 const ACTIVE_CREST_SIZE := Vector2(62.0, 62.0)

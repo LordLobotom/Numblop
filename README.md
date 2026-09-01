@@ -34,6 +34,8 @@ be brought into line with Play Games Services. See `D18` and M5 in
   chest, shop, map — and resumes at the step it was interrupted on.
 - Adaptive practice rounds of 10 or 12 questions using four choices, six choices, or an in-game
   numeric keypad.
+- Permanent free practice after completed tables: choose 10–50 questions and balanced tables, or
+  leave table selection empty for mastery-driven smart review.
 - Calm answer feedback with no visible countdown. A wrong answer shows the full correct equation and
   a domino-style dot picture of the fact, then waits for a tap with no time limit.
 - A guaranteed reward chest after every completed round, with an itemised breakdown: round reward,
@@ -104,8 +106,9 @@ configuration. All coins are earned by playing.
 
 A Google Play Games Services integration — sign-in, cloud saves, and XP/best-streak leaderboards —
 is approved and under way; the plan is [`docs/GOOGLE_PLAY_GAMES.md`](docs/GOOGLE_PLAY_GAMES.md).
-Save version 10, the cloud-save merge, Android sign-in, the normal snapshot load/merge/upload path,
-and the achievement mirror are implemented. Cloud save is on by default, and Google — with Family
+Save version 11 is current; the version-10 cloud foundation, Android sign-in, the normal snapshot
+load/merge/upload path, and the achievement mirror are implemented. Cloud save is on by default,
+and Google — with Family
 Link for supervised children — owns the account decision. Achievements are only ever pushed to
 Play: unlocks go out as they happen, progress is sent as an absolute step count that Play cannot be
 moved backwards from, and signing in for the first time backfills everything earned offline. The vendored plugin exposes conflicting snapshots but no API

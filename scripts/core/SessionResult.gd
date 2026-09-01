@@ -69,17 +69,11 @@ var status := Status.ACTIVE
 
 func _init(p_questions: Array[PracticeQuestion] = []) -> void:
     questions = p_questions.duplicate()
-    # A round is 10 questions up to the 5x table and 12 from the 6x table on, so the length
-    # is checked against the set of valid lengths rather than against one constant.
+    # Progression remains 10/12 questions. The separate free-practice path may request
+    # 10/20/30/40/50, and this result object is shared by both runtimes.
     assert(
-        [
-            LearningRules.SESSION_LENGTH,
-            LearningRules.EXTENDED_SESSION_LENGTH,
-        ].has(questions.size()),
-        "A practice session must contain %d or %d questions" % [
-            LearningRules.SESSION_LENGTH,
-            LearningRules.EXTENDED_SESSION_LENGTH,
-        ]
+        LearningRules.is_supported_result_length(questions.size()),
+        "Unsupported practice-session length: %d" % questions.size()
     )
 
 

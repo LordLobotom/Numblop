@@ -139,6 +139,7 @@ static func has_progress(data: Dictionary) -> bool:
         _number(data, "experience") > 0
         or _number(data, "completed_sessions") > 0
         or _number(data, "highest_unlocked_index") > 0
+        or _boolean(data, "final_table_completed")
     )
 
 
@@ -169,6 +170,11 @@ static func _merge_learning_profile(local: Dictionary, remote: Dictionary) -> Di
     merged_profile.highest_unlocked_index = maxi(
         merged_profile.highest_unlocked_index,
         maxi(local_profile.highest_unlocked_index, remote_profile.highest_unlocked_index)
+    )
+    merged_profile.final_table_completed = (
+        merged_profile.final_table_completed
+        or local_profile.final_table_completed
+        or remote_profile.final_table_completed
     )
     return merged_profile.to_dictionary()
 
@@ -284,6 +290,11 @@ static func _number(data: Dictionary, key: String) -> int:
     if raw is float or raw is int:
         return maxi(0, int(raw))
     return 0
+
+
+static func _boolean(data: Dictionary, key: String) -> bool:
+    var raw: Variant = data.get(key, false)
+    return bool(raw) if raw is bool else false
 
 
 static func _string(data: Dictionary, key: String) -> String:

@@ -29,6 +29,7 @@ var _experience := 0
 var _level := 1
 var _streak := 0
 var _nickname_override: Variant = null
+var _free_practice_available := false
 
 
 func _ready() -> void:
@@ -53,9 +54,12 @@ func _ready() -> void:
     EventBus.progress_changed.connect(_on_progress_changed)
     EventBus.streak_changed.connect(_on_streak_changed)
     EventBus.cosmetics_changed.connect(_on_cosmetics_changed)
+    EventBus.session_ended.connect(refresh_primary_action)
+    EventBus.profile_reloaded.connect(refresh_primary_action)
     set_streak(int(AppState.streak_state().get("current_count", 0)))
     _on_cosmetics_changed(AppState.cosmetics_state())
     _refresh_text()
+    refresh_primary_action()
 
 
 func _notification(what: int) -> void:
@@ -84,6 +88,16 @@ func show_session_ready(question_count: int) -> void:
 func celebrate_reward() -> void:
     pet_hint.text = tr("HOME_REWARD_REACTION")
     blob.react_to_pet()
+
+
+func refresh_primary_action() -> void:
+    _free_practice_available = bool(
+        AppState.practice_setup_state().get("final_table_completed", false)
+    )
+    if is_node_ready():
+        var action_key := "HOME_PRACTICE" if _free_practice_available else "HOME_PLAY"
+        play_label.text = tr(action_key)
+        play_button.tooltip_text = tr(action_key)
 
 
 func show_future_feature() -> void:
@@ -146,9 +160,8 @@ func _refresh_name_text() -> void:
 
 
 func _refresh_text() -> void:
-    play_label.text = tr("HOME_PLAY")
     pet_hint.text = tr("HOME_PET_HINT")
-    play_button.tooltip_text = tr("HOME_PLAY")
+    refresh_primary_action()
     blob.tooltip_text = tr("HOME_PET_ACCESSIBLE")
     _refresh_name_text()
     _refresh_progress_text()

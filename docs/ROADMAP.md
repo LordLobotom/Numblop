@@ -130,6 +130,17 @@ still need their final release check **before** the first networking build reach
 Acceptance: a signed-out player is unaffected in every way; a signed-in player can lose their device
 and recover their progress; no conflict path can silently destroy a child's local progress.
 
+## Completed — free practice loop
+
+- Completed tables expose Practice from their map detail.
+- Completing 9× permanently replaces Home's Play action with Practice.
+- Free practice offers 10, 20, 30, 40, or 50 questions with explicit balanced table selection or
+  empty-selection smart review across all completed tables.
+- Setup starts with no selected table. Its first-use length is 10 and the last chosen length is
+  remembered only on the current device.
+- This is reinforcement inside the fixed 2×–9× material. It is not the future Endless trail and does
+  not extend multiplication factors beyond 9.
+
 ## Future concept — Teacher / classroom mode
 
 Class join codes, a pseudonymous class leaderboard, and teacher statistics are designed in
@@ -142,4 +153,4 @@ M5 and should be re-read against it if it is ever picked up.
 - Unlock Endless mode only after the player clears every `2×` through `9×` map island.
 - Continue beyond the fixed campaign with gradually higher multiplication factors.
 - Design and test separate selection, difficulty, persistence, and child-safety rules before
-  implementation; the current adaptive algorithm and its fixed round lengths remain unchanged.
+  implementation; progression's adaptive algorithm and fixed round lengths remain unchanged.

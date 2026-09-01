@@ -23,7 +23,14 @@ Open the game → loading screen → main screen with the blob → press Play �
 adaptive questions → complete the series → tap the chest once → receive coins and experience → tap to
 continue → return to the main screen.
 
-No additional game modes exist.
+Once every table through 9× has been permanently completed, the main action becomes Practice. It
+opens free-practice setup: choose 10, 20, 30, 40, or 50 questions and any permanently completed
+tables, or leave every table unselected for smart review across all completed tables. The questions,
+feedback, mastery changes, saving, streak, and reward chest use the same play loop. Setup is a
+secondary page in the normal Numblop shell: it keeps the shared header and five-item bottom
+navigation, highlights no primary tab, and Back returns to the Home or table detail that opened it.
+Every entry starts with no table selected, including entry from a table detail. The first-use length
+is 10; choosing another length remembers it only in this device's settings.
 
 ## Starting the game
 
@@ -65,6 +72,10 @@ It ends permanently once completed and never runs again on that profile.
 - The primary action is Play. The bottom navigation uses Outfit, Map, Home, Trophies, and Settings
   crests, with Home fixed in the middle and returning directly to the blob screen. All five items
   receive equal horizontal space as the portrait window widens.
+- After 9× first passes the normal nine-of-ten completion gate, the primary action permanently reads
+  Practice and opens free-practice setup. Completion is not revoked by a later mastery decrease. The
+  setup page retains the same five navigation destinations as the primary pages; it is a linked
+  secondary destination, not a sixth tab.
 - Every scrolling screen can be dragged from anywhere, including from on top of a button or slider;
   the child's press is cancelled once the gesture is taken over. Scrollbars are hidden.
 
@@ -164,12 +175,16 @@ Notes that keep the numbers honest:
 
 ## Question series
 
-- Every completed series contains exactly **10 questions** up to the 5× table and exactly
+- Every progression series contains exactly **10 questions** up to the 5× table and exactly
   **12 questions** from the 6× table onwards.
 - Question selection, difficulty, and answer mode are adaptive and follow
   [`didactic_algorithm.md`](didactic_algorithm.md).
 - Prefer unique facts in each series. Repeat a fact only when a required adaptive review group does
   not contain enough eligible facts to fill its quota.
+- Free practice is generated separately from progression. Explicitly selected tables are mixed so
+  their counts differ by at most one; weaker facts may lead within each table. With no table selected,
+  smart review uses every completed table, favors lower mastery, penalizes repetition, and approaches
+  a balanced table mix when mastery is similar. It stores no error history beyond existing mastery.
 - Present one question at a time using four choices, six choices, or the numeric keypad.
 - A correct answer receives short positive visual/audio feedback and advances.
 - An incorrect answer shows the complete correct equation, for example `7 × 4 = 28`, using calm and

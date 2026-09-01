@@ -252,3 +252,13 @@ layout_mode = 2
 theme_override_constants/h_separation = 8
 theme_override_constants/v_separation = 2
 columns = 2
+
+[node name="PracticeButton" type="Button" parent="FactDetailOverlay/OverlayMargin/DetailCenter/FactDetailPanel/DetailContent"]
+unique_name_in_owner = true
+visible = false
+custom_minimum_size = Vector2(0, 52)
+layout_mode = 2
+mouse_default_cursor_shape = 2
+theme_override_fonts/font = ExtResource("7_bold")
+theme_override_font_sizes/font_size = 18
+text = "MAP_FACT_DETAIL_PRACTICE"

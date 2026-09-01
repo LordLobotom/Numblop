@@ -82,6 +82,16 @@ func test_an_unlocked_island_never_closes_again() -> void:
     equal(merged["highest_unlocked_index"], 1, "The unlock survives even from the losing save")
 
 
+func test_final_table_completion_survives_from_either_cloud_parent() -> void:
+    var completed := _save({"final_table_completed": true, "save_counter": 1})
+    var newer_but_incomplete := _save({"final_table_completed": false, "save_counter": 99})
+
+    var forward := CloudSaveMerge.merge(completed, newer_but_incomplete)
+    var backward := CloudSaveMerge.merge(newer_but_incomplete, completed)
+    check(forward["final_table_completed"], "Completion survives the newer incomplete parent")
+    check(backward["final_table_completed"], "Completion merge is commutative")
+
+
 func test_owned_items_from_both_devices_are_kept() -> void:
     var local := _save({
         "cosmetics": _owning([
@@ -338,6 +348,7 @@ func _save(overrides: Dictionary) -> Dictionary:
     data["nickname"] = overrides.get("nickname", "")
     data["profile_id"] = overrides.get("profile_id", "test_profile")
     data["highest_unlocked_index"] = overrides.get("highest_unlocked_index", 0)
+    data["final_table_completed"] = overrides.get("final_table_completed", false)
     data["cosmetics"] = overrides.get("cosmetics", LocalCosmetics.new().to_dictionary())
     data["achievements"] = {"granted": overrides.get("granted", [])}
     data["onboarding"] = overrides.get("onboarding", {"completed": false, "step": 0})

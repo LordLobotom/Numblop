@@ -37,14 +37,19 @@ tools/                  Repeatable QA, capture, device, and export commands
   round length. `SESSION_LENGTH` is 10 and `EXTENDED_SESSION_LENGTH` is 12 from `EXTENDED_MIX_TABLE`
   (`6`) onwards. `REVIEW_MASTERY` (100) is deliberately distinct from `AUTOMATED_MASTERY` (90): the
   first decides how often a fact comes back, the second decides how it is asked.
-- `LearningProfile` owns all 80 mastery values, all 80 `last_practiced` stamps, and the highest
-  unlocked table. Unlocking is monotonic and re-derived on load; mastery remains allowed to decrease.
+- `LearningProfile` owns all 80 mastery values, all 80 `last_practiced` stamps, the highest unlocked
+  table, and the permanent final-table completion bit. Earlier completed tables are derived from the
+  monotonic unlock index; the bit exists only because 9× has no next index. Mastery may decrease.
   The stamps are supplied by the caller, never read from a clock here.
 - `SessionGenerator` creates deterministic `PracticeQuestion` objects from a supplied seed: 10 up to
   the 5× table (7 current, 2 older weak, 1 older automated) and 12 from the 6× table onwards
   (8 current, 3 older weak, 1 older automated). Unavailable review slots fall back to the current
   table. The automated slot picks the longest-waiting fact by `last_practiced`; every other slot picks
   the lowest mastery.
+- `FreePracticeGenerator` is a second deterministic scheduler with no progression slot plan. An
+  explicit table list is seeded round-robin; an empty list performs smart review across every
+  practice-eligible table using mastery plus repetition penalties. Both schedulers share only
+  `PracticeQuestionFactory`, which applies the canonical mode and distractor rules.
 - `PracticeQuestion` is immutable-by-convention session data: fact, mode, choices, answer.
 - `SessionResult` records the round: per-answer audit records, correctness counts, and the per-fact
   mastery gains the end-of-round page presents.
@@ -60,9 +65,9 @@ tools/                  Repeatable QA, capture, device, and export commands
 These are plain `RefCounted` models and services. They own rules that are not learning rules and
 must not live in a scene, but they do not read files or drive the frame loop either.
 
-- `SessionController` runs one round on top of `SessionGenerator` and `SessionResult`, applies each
-  answer to the profile, supplies the clock value for `last_practiced`, triggers the per-answer save
-  through an injected callable, and emits table-unlock signals.
+- `SessionController` starts either progression or free-practice questions, then runs both through
+  the same `SessionResult`: it applies each answer, supplies the `last_practiced` clock value,
+  triggers the injected per-answer save, and emits progression table-unlock signals.
 - `LocalProgress` owns coins, XP, level, the completed-round counter, the completed-round reward, the
   5-coin mastery-milestone bonus, and achievement coin payouts.
 - `LocalCosmetics` validates owned and equipped items across six categories against `CosmeticCatalog`.
@@ -92,7 +97,8 @@ must not live in a scene, but they do not read files or drive the frame loop eit
 
 - `EventBus` contains cross-screen domain signals only.
 - `SettingsManager` owns `user://settings.cfg`: the language preference, music/SFX volume, global
-  mute, and the haptics toggle. It resolves `system` to the device language when Numblop ships it,
+  mute, the haptics toggle, and the last started free-practice length. It resolves `system` to the
+  device language when Numblop ships it,
   applies the locale to `TranslationServer`, applies volume through separate `Music` and `SFX` audio
   buses, and is the only caller of `Input.vibrate_handheld`.
 - `SaveManager` owns `user://profile.json` serialization. Every write rewrites the whole file, and any
@@ -102,8 +108,10 @@ must not live in a scene, but they do not read files or drive the frame loop eit
 - `AppState` owns the loaded `LearningProfile`, the `SessionController`, and every `Local*` model. It
   chooses runtime random seeds, so the deterministic generator never has to. It projects capped
   aggregate mastery and per-fact bands into read-only map-stage progress, projects the cosmetics
-  catalog and inventory for the shop, projects achievements for the Trophies screen, and forwards
-  domain events. When an answer moves a fact upward across the 60, 80, or 90 band it asks
+  catalog and inventory for the shop, projects practice eligibility/setup state, projects
+  achievements for the Trophies screen, and forwards domain events. UI requests for free practice
+  are validated here before reaching the generator. When an answer moves a fact upward across the
+  60, 80, or 90 band it asks
   `LocalProgress` for the 5-coin bonus before the normal per-answer save, then exposes a one-answer
   presentation dictionary to the practice UI. Achievement grants are evaluated after every answer,
   every purchase, and every finished round; the coins are banked immediately while the celebration is
@@ -139,7 +147,7 @@ Two files: `user://profile.json` for everything the child earned, and `user://se
 device preferences. Compatibility comes from field-tolerant loaders plus an explicit `SaveMigration`
 step for the fields that must be computed rather than defaulted.
 
-The current save version is `10`. **Every field, every write path, the durability guarantees, the
+The current save version is `11`. **Every field, every write path, the durability guarantees, the
 migration history, and the coin ledger are documented in [`SAVE_SYSTEM.md`](SAVE_SYSTEM.md)** — that
 file is the contract; do not restate its field list here.
 
@@ -161,7 +169,8 @@ file is the contract; do not restate its field list here.
 - `TouchScrollContainer` lets a drag that begins on a child control take over the gesture and scroll
   the page, cancelling the child's press. Scrollbars are hidden. The takeover distance comes from the
   project's `gui/common/default_scroll_deadzone`.
-- All four navigation screens share one header shape: a `SafeArea/Content/Header` PanelContainer on
+- All five primary navigation screens and the secondary Practice setup share one header shape: a
+  `SafeArea/Content/Header` PanelContainer on
   `ui/styles/header_panel.tres` with a 52 px title card. The headers are intentionally *not* an
   instanced component, because `unique_name_in_owner` resolves against the owner and would break.
   `tests/ui/test_main_scene.gd` pins the shared size and face instead.
@@ -169,6 +178,11 @@ file is the contract; do not restate its field list here.
   bars and an unlock event reveals the next island, without giving UI code authority over the rule.
   Unlocked islands open a localized ten-fact detail whose bands render red, purple, orange, green.
   The winding canvas stays 350 px wide inside a centering container.
+- A completed island detail exposes Practice. The setup screen consumes AppState eligibility and
+  selection dictionaries; it never derives completion or selects facts. Empty selection is a valid
+  smart-review request, so Start remains enabled whenever at least one completed table exists. It
+  reuses `NavBar` with `active_item = NONE`: all five global destinations remain available without
+  pretending that Practice is a sixth primary tab, while its header Back action restores its origin.
 - The Cosmetics screen consumes an `AppState` catalog/inventory projection across six categories. A
   palette shader recolors body, arm, and leg pixels and a second mask recolors the belly, both
   preserving facial layers and outlines. Supplied accessories keep their 768 × 768 authoring

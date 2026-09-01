@@ -20,8 +20,10 @@ const SCREENS: Array[String] = [
     "cosmetics_footwear",
     "trophy",
     "trophy_islands",
+    "practice_setup",
     "map",
     "map_detail",
+    "map_detail_completed",
     "map_unlock",
     "settings",
     "settings_cloud",
@@ -131,7 +133,9 @@ func _create_screen(screen_name: String) -> Control:
         scene_path = "res://scenes/screens/CosmeticsScreen.tscn"
     elif screen_name in ["trophy", "trophy_islands"]:
         scene_path = "res://scenes/screens/TrophyScreen.tscn"
-    elif screen_name in ["map", "map_detail", "map_unlock"]:
+    elif screen_name == "practice_setup":
+        scene_path = "res://scenes/screens/PracticeSetupScreen.tscn"
+    elif screen_name in ["map", "map_detail", "map_detail_completed", "map_unlock"]:
         scene_path = "res://scenes/screens/MapScreen.tscn"
     elif screen_name in ["settings", "settings_cloud", "settings_exit"]:
         scene_path = "res://scenes/screens/SettingsScreen.tscn"
@@ -253,10 +257,25 @@ func _configure_screen(screen: Control, screen_name: String, locale: String) -> 
             trophy_screen.set_presentation_state(
                 _trophy_capture_state(screen_name == "trophy_islands")
             )
-        "map", "map_detail", "map_unlock":
+        "practice_setup":
+            var setup_screen := screen as PracticeSetupScreen
+            var table_states: Array[Dictionary] = []
+            for table_value in LearningRules.TABLES:
+                table_states.append({
+                    "table": table_value,
+                    "practice_eligible": table_value <= 5,
+                    "selected": false,
+                })
+            setup_screen.present({
+                "default_question_count": 10,
+                "question_counts": LearningRules.FREE_PRACTICE_LENGTHS,
+                "tables": table_states,
+            })
+        "map", "map_detail", "map_detail_completed", "map_unlock":
             var map_screen := screen as MapScreen
             var stage_states: Array[Dictionary] = []
             var progress_max := LearningRules.UNLOCK_MASTERY * LearningRules.MULTIPLIERS.size()
+            var completed_detail := screen_name == "map_detail_completed"
             for index in LearningRules.TABLES.size():
                 var facts := _map_capture_facts(index)
                 var progress_points := 0
@@ -267,14 +286,17 @@ func _configure_screen(screen: Control, screen_name: String, locale: String) -> 
                         mastered_facts += 1
                 stage_states.append({
                     "table": LearningRules.TABLES[index],
-                    "unlocked": index <= 2,
-                    "current": index == 2,
-                    "completed": index < 2,
+                    "unlocked": index <= (3 if completed_detail else 2),
+                    "current": index == (3 if completed_detail else 2),
+                    "completed": index < (3 if completed_detail else 2),
                     "mastered_facts": mastered_facts,
-                    "progress_points": progress_max if index < 2 else progress_points,
+                    "progress_points": (
+                        progress_max if index < (3 if completed_detail else 2)
+                        else progress_points
+                    ),
                     "progress_max": progress_max,
                     "progress_percent": (
-                        100 if index < 2
+                        100 if index < (3 if completed_detail else 2)
                         else int(round(100.0 * progress_points / progress_max))
                     ),
                     "facts": facts,
@@ -282,7 +304,7 @@ func _configure_screen(screen: Control, screen_name: String, locale: String) -> 
             if screen_name == "map_unlock":
                 map_screen.show_table_unlocked(4)
             map_screen.set_stage_states(stage_states)
-            if screen_name == "map_detail":
+            if screen_name in ["map_detail", "map_detail_completed"]:
                 map_screen.show_table_details(4)
         "settings", "settings_cloud", "settings_exit":
             SettingsManager.locale_preference = locale

@@ -4,6 +4,7 @@ const SETTINGS_PATH := "user://settings.cfg"
 const SYSTEM_LOCALE := "system"
 const DEFAULT_MUSIC_VOLUME := 0.75
 const DEFAULT_SFX_VOLUME := 0.9
+const DEFAULT_PRACTICE_QUESTION_COUNT := 10
 
 ## The only three moments that buzz, and how hard.
 ##
@@ -27,6 +28,7 @@ var music_volume := DEFAULT_MUSIC_VOLUME
 var sfx_volume := DEFAULT_SFX_VOLUME
 var audio_muted := false
 var haptics_enabled := true
+var practice_question_count := DEFAULT_PRACTICE_QUESTION_COUNT
 
 ## Whether this device backs progress up through Play Games Services.
 ##
@@ -51,6 +53,7 @@ func load_settings(path: String = SETTINGS_PATH) -> void:
     sfx_volume = DEFAULT_SFX_VOLUME
     audio_muted = false
     haptics_enabled = true
+    practice_question_count = DEFAULT_PRACTICE_QUESTION_COUNT
     play_games_enabled = true
     var config := ConfigFile.new()
     if config.load(path) == OK:
@@ -69,6 +72,15 @@ func load_settings(path: String = SETTINGS_PATH) -> void:
         )
         audio_muted = bool(config.get_value("audio", "muted", false))
         haptics_enabled = bool(config.get_value("haptics", "enabled", true))
+        var saved_practice_count: Variant = config.get_value(
+            "practice",
+            "question_count",
+            DEFAULT_PRACTICE_QUESTION_COUNT
+        )
+        if saved_practice_count is int or saved_practice_count is float:
+            var candidate := int(saved_practice_count)
+            if LearningRules.is_free_practice_length(candidate):
+                practice_question_count = candidate
         play_games_enabled = bool(config.get_value("play_games", "enabled", true))
 
 
@@ -119,6 +131,16 @@ func audio_preferences() -> Dictionary:
 
 func set_haptics_enabled(enabled: bool, path: String = SETTINGS_PATH) -> Error:
     haptics_enabled = enabled
+    return _save_settings(path)
+
+
+func set_practice_question_count(
+    question_count: int,
+    path: String = SETTINGS_PATH
+) -> Error:
+    if not LearningRules.is_free_practice_length(question_count):
+        return ERR_INVALID_PARAMETER
+    practice_question_count = question_count
     return _save_settings(path)
 
 
@@ -182,5 +204,6 @@ func _save_settings(path: String) -> Error:
     config.set_value("audio", "sfx_volume", sfx_volume)
     config.set_value("audio", "muted", audio_muted)
     config.set_value("haptics", "enabled", haptics_enabled)
+    config.set_value("practice", "question_count", practice_question_count)
     config.set_value("play_games", "enabled", play_games_enabled)
     return config.save(path)

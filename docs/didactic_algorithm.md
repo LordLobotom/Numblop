@@ -83,7 +83,7 @@ scoring for the answer has already completed before the correction is shown.
 
 ## 5. One Game
 
-Game length and mix depend on how far the child has come.
+Progression-game length and mix depend on how far the child has come.
 
 Up to and including the **5× table**, one game contains **10 questions**:
 
@@ -99,6 +99,23 @@ From the **6× table** onwards, one game contains **12 questions**:
 
 The later tables carry more history behind them, so both extra questions go to review rather
 than to new material.
+
+### Free Practice After a Completed Table
+
+Free practice is a separate generator and never changes the progression quotas above. A table is
+practice-eligible permanently after it passes the same nine-of-ten-facts-at-80 completion gate. The
+final 9× completion is remembered explicitly because there is no later table unlock to preserve it.
+
+- The player chooses 10, 20, 30, 40, or 50 questions.
+- Practice setup initially selects no table, including when opened from a completed-table detail.
+  The first-use length is 10; the last chosen length is remembered as a device-only preference.
+- A non-empty table selection overrides automatic review and mixes those tables approximately
+  evenly; weak facts may be prioritized inside each table.
+- No selected table means smart review across every completed table. Existing per-fact mastery is
+  the only weakness signal; repeated facts and tables receive a fairness penalty so similar tables
+  settle into a balanced mix.
+- Question type, scoring, `last_practiced`, mastery changes, and immediate saving remain the rules in
+  this document. No separate mistake history or error counter is introduced.
 
 ### Automated and Not Yet Automated
 

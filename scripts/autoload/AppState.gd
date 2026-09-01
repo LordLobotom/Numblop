@@ -135,13 +135,61 @@ func _notification(what: int) -> void:
 
 
 func begin_session(seed: int = -1) -> Array[PracticeQuestion]:
-    var actual_seed := seed
-    if actual_seed < 0:
-        actual_seed = int(Time.get_ticks_usec() & 0x7FFFFFFF)
     _session_bonus_coins = 0
-    active_session_result = session_controller.begin_session(actual_seed)
+    active_session_result = session_controller.begin_session(_resolved_seed(seed))
     active_session = active_session_result.questions.duplicate()
     return active_session
+
+
+func practice_setup_state() -> Dictionary:
+    var tables: Array[Dictionary] = []
+    for table_value in LearningRules.TABLES:
+        var practice_eligible := profile.is_table_practice_eligible(table_value)
+        tables.append({
+            "table": table_value,
+            "practice_eligible": practice_eligible,
+            "selected": false,
+        })
+    return {
+        "final_table_completed": profile.final_table_completed,
+        "default_question_count": SettingsManager.practice_question_count,
+        "question_counts": LearningRules.FREE_PRACTICE_LENGTHS.duplicate(),
+        "tables": tables,
+    }
+
+
+func begin_free_practice(
+    question_count: int,
+    requested_tables: Array[int],
+    seed: int = -1
+) -> Array[PracticeQuestion]:
+    if not LearningRules.is_free_practice_length(question_count):
+        return []
+    var selected_tables: Array[int] = []
+    for table_value in LearningRules.TABLES:
+        if requested_tables.has(table_value) and profile.is_table_practice_eligible(table_value):
+            selected_tables.append(table_value)
+    # Empty input deliberately means smart review. Non-empty input that contains no eligible
+    # table is invalid and must not silently broaden itself to every completed table.
+    if not requested_tables.is_empty() and selected_tables.is_empty():
+        return []
+    if requested_tables.is_empty() and FreePracticeGenerator.eligible_tables(profile).is_empty():
+        return []
+
+    _session_bonus_coins = 0
+    active_session_result = session_controller.begin_free_practice(
+        selected_tables,
+        question_count,
+        _resolved_seed(seed)
+    )
+    active_session = active_session_result.questions.duplicate()
+    return active_session
+
+
+func _resolved_seed(seed: int) -> int:
+    if seed >= 0:
+        return seed
+    return int(Time.get_ticks_usec() & 0x7FFFFFFF)
 
 
 func submit_answer(
@@ -417,8 +465,7 @@ func map_stage_states() -> Array[Dictionary]:
                 "status": _fact_mastery_status(mastery),
             })
         var final_stage_complete := (
-            index == LearningRules.TABLES.size() - 1
-            and mastered_facts >= LearningRules.REQUIRED_FACTS_TO_UNLOCK
+            index == LearningRules.TABLES.size() - 1 and profile.final_table_completed
         )
         var completed := index < profile.highest_unlocked_index or final_stage_complete
         if completed:
@@ -466,6 +513,7 @@ func reset_local_profile() -> void:
     _save_game_state(profile, progress.coins, progress.experience)
     _create_session_controller()
     EventBus.nickname_changed.emit(_nickname)
+    EventBus.profile_reloaded.emit()
 
 
 func _create_session_controller() -> void:

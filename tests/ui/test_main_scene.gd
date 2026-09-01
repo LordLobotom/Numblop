@@ -43,6 +43,7 @@ func test_main_scene_has_touch_ready_portrait_controls() -> void:
     check(scene.has_node("SettingsScreen"), "Main scene must contain settings")
     check(scene.has_node("CosmeticsScreen"), "Main scene must contain cosmetics")
     check(scene.has_node("TrophyScreen"), "Main scene must contain streak records")
+    check(scene.has_node("PracticeSetupScreen"), "Main scene must contain free-practice setup")
     check(scene.has_node("OpeningScreen"), "Main scene must start with the opening overlay")
     scene.free()
 
@@ -129,6 +130,7 @@ func test_bottom_navigation_spreads_five_items_evenly_at_wider_sizes() -> void:
         "res://scenes/screens/SettingsScreen.tscn",
         "res://scenes/screens/CosmeticsScreen.tscn",
         "res://scenes/screens/TrophyScreen.tscn",
+        "res://scenes/screens/PracticeSetupScreen.tscn",
     ]:
         var packed: PackedScene = load(scene_path)
         check(packed != null, "Navigation scene loads: %s" % scene_path)
@@ -195,6 +197,7 @@ func test_title_headers_share_one_stylebox() -> void:
         "res://scenes/screens/CosmeticsScreen.tscn",
         "res://scenes/screens/TrophyScreen.tscn",
         "res://scenes/screens/SettingsScreen.tscn",
+        "res://scenes/screens/PracticeSetupScreen.tscn",
     ]:
         var packed: PackedScene = load(scene_path)
         check(packed != null, "Screen loads: %s" % scene_path)
@@ -221,6 +224,7 @@ func test_screen_titles_share_one_size_and_face() -> void:
         "res://scenes/screens/CosmeticsScreen.tscn",
         "res://scenes/screens/TrophyScreen.tscn",
         "res://scenes/screens/SettingsScreen.tscn",
+        "res://scenes/screens/PracticeSetupScreen.tscn",
     ]:
         var packed: PackedScene = load(scene_path)
         check(packed != null, "Screen loads: %s" % scene_path)
@@ -297,6 +301,7 @@ func test_navigation_screens_center_a_540_pixel_column_on_wide_displays() -> voi
         "res://scenes/screens/CosmeticsScreen.tscn",
         "res://scenes/screens/TrophyScreen.tscn",
         "res://scenes/screens/SettingsScreen.tscn",
+        "res://scenes/screens/PracticeSetupScreen.tscn",
     ]:
         var packed: PackedScene = load(scene_path)
         check(packed != null, "Responsive scene loads: %s" % scene_path)
@@ -411,6 +416,7 @@ func test_every_screen_keeps_its_content_off_the_display_edge() -> void:
         "res://scenes/screens/CosmeticsScreen.tscn": Vector2i(20, 16),
         "res://scenes/screens/TrophyScreen.tscn": Vector2i(20, 16),
         "res://scenes/screens/SettingsScreen.tscn": Vector2i(20, 16),
+        "res://scenes/screens/PracticeSetupScreen.tscn": Vector2i(20, 16),
         "res://scenes/screens/PracticeScreen.tscn": Vector2i(24, 24),
         "res://scenes/screens/RewardScreen.tscn": Vector2i(34, 28),
         "res://scenes/screens/OpeningScreen.tscn": Vector2i(36, 36),
@@ -488,6 +494,7 @@ func test_nav_screens_leave_room_for_the_device_safe_area() -> void:
         "res://scenes/screens/TrophyScreen.tscn",
         "res://scenes/screens/CosmeticsScreen.tscn",
         "res://scenes/screens/SettingsScreen.tscn",
+        "res://scenes/screens/PracticeSetupScreen.tscn",
     ]:
         var scene := (load(scene_path) as PackedScene).instantiate()
         var tree := Engine.get_main_loop() as SceneTree
@@ -707,6 +714,7 @@ func test_body_panels_sit_outside_their_scroll_container() -> void:
         ["res://scenes/screens/TrophyScreen.tscn", "SafeArea/Content/AchievementsPanel"],
         ["res://scenes/screens/CosmeticsScreen.tscn", "SafeArea/Content/CosmeticsPanel"],
         ["res://scenes/screens/SettingsScreen.tscn", "SafeArea/Content/SettingsPanel"],
+        ["res://scenes/screens/PracticeSetupScreen.tscn", "SafeArea/Content/BodyPanel"],
     ]:
         var packed: PackedScene = load(entry[0])
         check(packed != null, "Screen loads: %s" % entry[0])
@@ -735,6 +743,7 @@ func test_body_panels_share_one_container_style() -> void:
         ["res://scenes/screens/TrophyScreen.tscn", "SafeArea/Content/AchievementsPanel"],
         ["res://scenes/screens/CosmeticsScreen.tscn", "SafeArea/Content/CosmeticsPanel"],
         ["res://scenes/screens/SettingsScreen.tscn", "SafeArea/Content/SettingsPanel"],
+        ["res://scenes/screens/PracticeSetupScreen.tscn", "SafeArea/Content/BodyPanel"],
     ]:
         var scene := (load(entry[0]) as PackedScene).instantiate()
         var panel: PanelContainer = scene.get_node(entry[1])
@@ -756,6 +765,7 @@ func test_scrollable_screens_can_steal_a_touch_drag_from_their_children() -> voi
     for scene_path in [
         "res://scenes/screens/MapScreen.tscn",
         "res://scenes/screens/TrophyScreen.tscn",
+        "res://scenes/screens/PracticeSetupScreen.tscn",
         "res://scenes/screens/SettingsScreen.tscn",
         "res://scenes/screens/CosmeticsScreen.tscn",
         "res://scenes/screens/RewardScreen.tscn",
