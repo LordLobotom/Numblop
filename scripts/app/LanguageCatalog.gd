@@ -13,7 +13,8 @@ extends RefCounted
 const FLAG_DIRECTORY := "res://ui/buttons/"
 
 ## English first because it is the opening-screen language, then Czech and Slovak as the
-## home markets; the rest alphabetically by their own name.
+## home markets. The original languages keep their familiar order and later additions follow in
+## the order in which they shipped.
 const LANGUAGES: Array[Dictionary] = [
     {"locale": "en", "flag": "button_language_english.png", "name_key": "LANGUAGE_ENGLISH"},
     {"locale": "cs", "flag": "button_language_czech.png", "name_key": "LANGUAGE_CZECH"},
@@ -25,6 +26,32 @@ const LANGUAGES: Array[Dictionary] = [
     {"locale": "nb", "flag": "button_language_norway.png", "name_key": "LANGUAGE_NORWEGIAN"},
     {"locale": "pl", "flag": "button_language_poland.png", "name_key": "LANGUAGE_POLISH"},
     {"locale": "sv", "flag": "button_language_sweden.png", "name_key": "LANGUAGE_SWEDISH"},
+    {
+        "locale": "pt_BR",
+        "flag": "button_language_brazil.png",
+        "name_key": "LANGUAGE_PORTUGUESE_BRAZIL",
+    },
+    {
+        "locale": "pt_PT",
+        "flag": "button_language_portugal.png",
+        "name_key": "LANGUAGE_PORTUGUESE_PORTUGAL",
+    },
+    {"locale": "it", "flag": "button_language_italy.png", "name_key": "LANGUAGE_ITALIAN"},
+    {
+        "locale": "da",
+        "flag": "button_language_denmark.png",
+        "name_key": "LANGUAGE_DANISH",
+    },
+    {"locale": "nl", "flag": "button_language_netherlands.png", "name_key": "LANGUAGE_DUTCH"},
+    {"locale": "ja", "flag": "button_language_japan.png", "name_key": "LANGUAGE_JAPANESE"},
+    {"locale": "ko", "flag": "button_language_south-korea.png", "name_key": "LANGUAGE_KOREAN"},
+    {"locale": "tr", "flag": "button_language_turkey.png", "name_key": "LANGUAGE_TURKISH"},
+    {"locale": "vi", "flag": "button_language_vietnam.png", "name_key": "LANGUAGE_VIETNAMESE"},
+    {
+        "locale": "id",
+        "flag": "button_language_indonesia.png",
+        "name_key": "LANGUAGE_INDONESIAN",
+    },
 ]
 
 
@@ -54,3 +81,20 @@ static func name_key(locale: String) -> String:
         if String(language["locale"]) == locale:
             return String(language["name_key"])
     return ""
+
+
+## Turns a device locale such as `pt-BR`, `ja_JP`, or legacy Norwegian `no` into a locale the
+## catalog ships. Region-specific Portuguese stays distinct; other regional tags fold to their
+## language-only catalog entry. A device language Numblop does not ship resolves to English.
+static func resolve_device_locale(reported_locale: String) -> String:
+    var normalized := reported_locale.replace("-", "_")
+    normalized = normalized.split(".")[0].split("@")[0]
+    for locale in locales():
+        if locale.to_lower() == normalized.to_lower():
+            return locale
+    var language := normalized.split("_")[0].to_lower()
+    if language == "no" or language == "nn":
+        return "nb"
+    if language == "pt":
+        return "pt_BR"
+    return language if has_locale(language) else "en"

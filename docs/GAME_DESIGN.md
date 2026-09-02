@@ -9,7 +9,7 @@
 - Web platform: an adaptive canvas that fits the available phone viewport and uses a wider
   presentation on desktop without stretching portrait-focused content.
 - The game is offline and uses one local child profile with an optional nickname.
-- The interface ships in ten languages; see [`LOCALIZATION.md`](LOCALIZATION.md).
+- The interface ships in twenty languages; see [`LOCALIZATION.md`](LOCALIZATION.md).
 
 ## Player promise
 

@@ -4,7 +4,7 @@ param([string]$GodotPath = "")
 # Builds the ZIP that Play Console imports to create all 25 achievements at once.
 #
 # The three CSVs are generated from `AchievementCatalog` and `localization/strings.csv`, so the
-# names and descriptions in Console are the ones the game shows, in all ten languages. Re-run this
+# names and descriptions in Console are the ones the game shows, in all shipped languages. Re-run this
 # whenever an achievement is added or a string is reworded, then re-import.
 
 Set-StrictMode -Version Latest

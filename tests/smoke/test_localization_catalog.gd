@@ -3,7 +3,10 @@ extends NumblopTestCase
 ## Every column in `localization/strings.csv` is a language the game ships. A blank cell is not
 ## a gap a player forgives: Godot falls back to the raw key, so the screen reads "MAP_TITLE".
 
-const EXPECTED_HEADER := ["keys", "en", "cs", "sk", "de", "es", "fi", "fr", "nb", "pl", "sv"]
+const EXPECTED_HEADER := [
+    "keys", "en", "cs", "sk", "de", "es", "fi", "fr", "nb", "pl", "sv",
+    "pt_BR", "pt_PT", "it", "da", "nl", "ja", "ko", "tr", "vi", "id",
+]
 
 
 func test_catalog_contains_every_shipped_language_for_every_key() -> void:
@@ -80,6 +83,16 @@ func test_runtime_catalog_switches_between_the_shipped_languages() -> void:
         "nb": "Spill",
         "pl": "Graj",
         "sv": "Spela",
+        "pt_BR": "Jogar",
+        "pt_PT": "Jogar",
+        "it": "Gioca",
+        "da": "Spil",
+        "nl": "Spelen",
+        "ja": "プレイ",
+        "ko": "플레이",
+        "tr": "Oyna",
+        "vi": "Chơi",
+        "id": "Main",
     }
     for locale in expected_play:
         TranslationServer.set_locale(String(locale))
@@ -89,6 +102,16 @@ func test_runtime_catalog_switches_between_the_shipped_languages() -> void:
             "%s runtime translation" % locale
         )
     TranslationServer.set_locale(previous_locale)
+
+
+func test_device_locales_resolve_to_the_right_catalog_column() -> void:
+    equal(LanguageCatalog.resolve_device_locale("pt_BR"), "pt_BR", "Brazilian Portuguese")
+    equal(LanguageCatalog.resolve_device_locale("pt-PT"), "pt_PT", "European Portuguese")
+    equal(LanguageCatalog.resolve_device_locale("pt"), "pt_BR", "Generic Portuguese default")
+    equal(LanguageCatalog.resolve_device_locale("ja_JP"), "ja", "Japanese region folds")
+    equal(LanguageCatalog.resolve_device_locale("ko-KR"), "ko", "Korean region folds")
+    equal(LanguageCatalog.resolve_device_locale("no_NO"), "nb", "Legacy Norwegian folds")
+    equal(LanguageCatalog.resolve_device_locale("zh_CN"), "en", "Unsupported locale falls back")
 
 
 func test_czech_mastery_band_names_match_the_learning_language() -> void:

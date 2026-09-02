@@ -7,7 +7,7 @@
 Numblop is a friendly, offline multiplication-practice game for children, built with Godot 4.6.2 and
 GDScript. It is portrait-first on Android, runs in a centered portrait window on Windows, and has an
 adaptive Web build that fits a phone while using a wider canvas on desktop. The whole interface ships
-in ten languages.
+in twenty languages.
 
 The Android package ID is permanently fixed as `cz.gutcloud.numblop`.
 Public version `0.4.6`, Play version code `18`.
@@ -27,7 +27,7 @@ be brought into line with Play Games Services. See `D18` and M5 in
 
 ## What is playable
 
-- Opening screen with a ten-language flag picker; the choice is remembered for later launches.
+- Opening screen with a twenty-language flag picker; the choice is remembered for later launches.
 - Portrait home screen with an interactive Numblop that reacts to being stroked, plus one shared bar
   showing coins, XP, level, and the current correct-answer streak.
 - A one-time guided finger tutorial that walks a new child through the whole loop — play, answer,
@@ -205,7 +205,7 @@ scripts/core/           Pure deterministic learning rules, session generation, a
 scripts/app/            Application services and persisted models, without scene ownership
 scripts/autoload/       Local saves, settings, events, and runtime coordination
 scripts/ui/             UI presentation and input handling
-localization/           Ten-language source catalog
+localization/           Twenty-language source catalog
 assets/                 Character, background, VFX, and cosmetics artwork
 ui/                     Theme, fonts, crests, branding, icons, and UI shaders
 audio/                  Music, SFX, and provenance notes
@@ -228,7 +228,7 @@ Start with [`AGENTS.md`](AGENTS.md) for repository rules and the source-of-truth
 | [`docs/didactic_algorithm.md`](docs/didactic_algorithm.md) | Canonical learning rules and mastery algorithm |
 | [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) | Technical boundaries, modules, and data flow |
 | [`docs/SAVE_SYSTEM.md`](docs/SAVE_SYSTEM.md) | Save files, every persisted field, versioning, failure behaviour |
-| [`docs/LOCALIZATION.md`](docs/LOCALIZATION.md) | Ten-language text contract |
+| [`docs/LOCALIZATION.md`](docs/LOCALIZATION.md) | Twenty-language text contract |
 | [`docs/ROADMAP.md`](docs/ROADMAP.md) | Milestone status and acceptance gates |
 | [`docs/RELEASES.md`](docs/RELEASES.md) | Windows, Android, and Web delivery |
 | [`docs/DECISIONS.md`](docs/DECISIONS.md) | Accepted implementation decisions, newest first |

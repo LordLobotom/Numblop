@@ -17,7 +17,7 @@ Primary touch controls are >=64 px high and all touch targets >=48 px. Support s
 keyboard focus on desktop, Czech diacritics, text wrapping, and reduced-pressure feedback. Never
 show a response countdown. Use a custom numeric keypad rather than the platform keyboard.
 
-Every user-facing phrase is a semantic translation key with non-empty text in all ten shipped
+Every user-facing phrase is a semantic translation key with non-empty text in all twenty shipped
 language columns in the same change. Test both English and Czech layouts; the localization smoke
 test covers every language and placeholder. Code-built text must re-render on
 `NOTIFICATION_TRANSLATION_CHANGED`. Claim a Track-B task, implement its smallest complete slice,

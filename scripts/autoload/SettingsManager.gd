@@ -165,16 +165,12 @@ func play_haptic(pattern_name: String) -> void:
 
 ## The locale actually in use: an explicit choice, or the device language when it is one we ship.
 ##
-## `OS.get_locale_language()` returns a bare two-letter code, so Norwegian arrives as `nb` on
-## Bokmal devices but as `no` on the handful that still report the macrolanguage. Both mean the
-## same catalog column here.
+## The full device locale keeps Brazilian and European Portuguese distinct. The catalog resolver
+## folds region tags for language-only translations and handles legacy Norwegian aliases.
 func effective_locale() -> String:
     if locale_preference != SYSTEM_LOCALE:
         return locale_preference
-    var system_locale := OS.get_locale_language()
-    if system_locale == "no" or system_locale == "nn":
-        return "nb"
-    return system_locale if LanguageCatalog.has_locale(system_locale) else "en"
+    return LanguageCatalog.resolve_device_locale(OS.get_locale())
 
 
 func apply_locale() -> void:

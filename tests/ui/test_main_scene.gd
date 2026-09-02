@@ -1580,7 +1580,7 @@ func test_theme_bundles_baloo2_with_czech_glyphs() -> void:
     check(theme.default_font != null, "Baloo 2 must be the default font")
     if theme.default_font == null:
         return
-    # Every letter the ten shipped languages need beyond plain ASCII. Baloo 2 does not carry
+    # Every letter the shipped Latin-script languages need beyond plain ASCII. Baloo 2 does not carry
     # them all on its own -- Baloo2WithCzechFallback puts Noto Sans behind it for the rest.
     var required_glyphs := {
         "Czech": "áčďéěíňóřšťúůýž",
@@ -1592,6 +1592,13 @@ func test_theme_bundles_baloo2_with_czech_glyphs() -> void:
         "Norwegian": "æøå",
         "Polish": "ąćęłńóśźż",
         "Swedish": "åäö",
+        "Portuguese": "áâãàçéêíóôõú",
+        "Italian": "àèéìòù",
+        "Danish": "æøå",
+        "Dutch": "ëï",
+        "Turkish": "çğıİöşü",
+        "Vietnamese": "ăâđêôơưáàảãạấầẩẫậắằẳẵặéèẻẽẹếềểễệíìỉĩịóòỏõọốồổỗộớờởỡợúùủũụứừửữựýỳỷỹỵ",
+        "Indonesian": "é",
     }
     for language in required_glyphs:
         var glyphs := String(required_glyphs[language])
@@ -1603,6 +1610,52 @@ func test_theme_bundles_baloo2_with_czech_glyphs() -> void:
             )
 
 
+func test_theme_font_covers_every_character_in_the_localization_catalog() -> void:
+    var theme: Theme = load("res://ui/theme.tres")
+    check(theme != null and theme.default_font != null, "Localization font must load")
+    if theme == null or theme.default_font == null:
+        return
+    var file := FileAccess.open("res://localization/strings.csv", FileAccess.READ)
+    check(file != null, "Localization catalog must open for its glyph audit")
+    if file == null:
+        return
+    var header := file.get_csv_line()
+    var required: Dictionary = {}
+    while file.get_position() < file.get_length():
+        var row := file.get_csv_line()
+        if row.size() != header.size():
+            continue
+        for column in range(1, row.size()):
+            var text := String(row[column])
+            for index in text.length():
+                var codepoint := text.unicode_at(index)
+                if codepoint > 32 and not required.has(codepoint):
+                    required[codepoint] = "%s [%s]" % [row[0], header[column]]
+    for codepoint in required:
+        check(
+            theme.default_font.has_char(int(codepoint)),
+            "Font is missing '%s' used by %s" % [char(int(codepoint)), required[codepoint]]
+        )
+
+
+func test_cjk_fallbacks_use_explicit_bold_rendering() -> void:
+    var font := load("res://ui/fonts/Baloo2WithCzechFallback.tres") as FontVariation
+    check(font != null, "Shared localization font must load")
+    if font == null:
+        return
+    equal(font.fallbacks.size(), 3, "Latin, Japanese, and Korean fallbacks are bundled")
+    if font.fallbacks.size() != 3:
+        return
+    for index in [1, 2]:
+        var cjk_font := font.fallbacks[index] as FontVariation
+        check(cjk_font != null, "CJK fallback %d is a variable font" % index)
+        if cjk_font != null:
+            check(
+                is_equal_approx(cjk_font.variation_embolden, 0.8),
+                "CJK fallback %d is emboldened" % index
+            )
+
+
 func test_opening_screen_uses_wordmark_and_touch_ready_language_choices() -> void:
     var packed: PackedScene = load("res://scenes/screens/OpeningScreen.tscn")
     check(packed != null, "Opening scene must load")
@@ -1611,6 +1664,9 @@ func test_opening_screen_uses_wordmark_and_touch_ready_language_choices() -> voi
     var scene := packed.instantiate()
     var tree := Engine.get_main_loop() as SceneTree
     tree.root.add_child(scene)
+    scene.set_anchors_preset(Control.PRESET_TOP_LEFT)
+    scene.size = Vector2(390.0, 844.0)
+    await tree.process_frame
     var logo: TextureRect = scene.get_node("%Logo")
     equal(scene.OPENING_LOCALE, "en", "Opening screen language")
     check(logo.texture != null, "Opening screen must show the Numblop wordmark")
@@ -1620,14 +1676,15 @@ func test_opening_screen_uses_wordmark_and_touch_ready_language_choices() -> voi
             "res://ui/branding/numblop_wordmark.png",
             "Opening wordmark path"
         )
-    # Ten flags cannot sit in one row at 390 px, so they wrap. Whatever the arrangement, the
-    # very first screen a child touches must not offer anything under the touch minimum.
-    var buttons: HFlowContainer = scene.get_node("%LanguageButtons")
+    # Twenty flags form four predictable rows at 390 px. The fixed grid avoids an HFlowContainer
+    # retaining a transient twenty-row minimum height after the selected-language label changes.
+    var buttons: GridContainer = scene.get_node("%LanguageButtons")
     equal(
         buttons.get_child_count(),
         LanguageCatalog.LANGUAGES.size(),
         "Every shipped language is offered on first launch"
     )
+    equal(buttons.columns, 5, "The opening picker keeps five flags in every row")
     for language in LanguageCatalog.LANGUAGES:
         var locale := String(language["locale"])
         var flag_button: TextureButton = scene.language_button(locale)
@@ -1647,8 +1704,7 @@ func test_opening_screen_uses_wordmark_and_touch_ready_language_choices() -> voi
         )
         check(flag_button.get_node("Check") is CheckmarkIcon, "%s drawn checkmark" % locale)
         check(flag_button.disabled, "%s waits for the panel to be revealed" % locale)
-    # Ten flags read as 5 + 5. They first shipped at a 76 px pitch, which overflowed the column
-    # by ten pixels and silently rearranged itself into a lopsided 4 + 4 + 2.
+    # Five touch targets plus their gaps must stay inside the narrow content column.
     var flags_per_row := 5
     var separation := float(buttons.get_theme_constant("h_separation"))
     var flag_width: float = (scene.FLAG_SIZE as Vector2).x
@@ -1678,15 +1734,62 @@ func test_opening_screen_uses_wordmark_and_touch_ready_language_choices() -> voi
         "Panel reads flags, then the chosen name, then Continue"
     )
     # Selecting no longer writes a save file, so the round trip is safe to exercise here.
+    scene.reveal_language_choices_now()
     scene._on_language_selected("cs")
+    await tree.process_frame
+    await tree.process_frame
     check(scene.language_button("cs").get_node("Check").visible, "Chosen flag is marked")
     check(not scene.language_button("de").get_node("Check").visible, "Other flags are unmarked")
     check(not continue_button.disabled, "Continue wakes up once a language is chosen")
     equal(selected_label.text, "Čeština", "The chosen language names itself")
     equal(continue_button.text, "Pokračovat", "Continue speaks the chosen language")
+    check(logo.global_position.y >= 0.0, "Selecting a language keeps the logo on screen")
+    check(scene.get_node("%LanguagePrompt").global_position.y >= 0.0, "Prompt stays on screen")
+    check(
+        continue_button.get_global_rect().end.y <= scene.size.y,
+        "Selecting a language keeps Continue on screen"
+    )
     TranslationServer.set_locale("en")
     tree.root.remove_child(scene)
     scene.free()
+
+
+func test_selected_opening_layout_stays_inside_a_phone_subviewport() -> void:
+    var viewport := SubViewport.new()
+    viewport.size = Vector2i(390, 844)
+    var tree := Engine.get_main_loop() as SceneTree
+    tree.root.add_child(viewport)
+    var scene: OpeningScreen = (
+        load("res://scenes/screens/OpeningScreen.tscn") as PackedScene
+    ).instantiate()
+    scene.theme = load("res://ui/theme.tres")
+    viewport.add_child(scene)
+    scene.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+    await tree.process_frame
+    scene.reveal_language_choices_now()
+    scene.language_button("en").pressed.emit()
+    for frame in 5:
+        await tree.process_frame
+    RenderingServer.force_draw()
+    await tree.process_frame
+    var logo: TextureRect = scene.get_node("%Logo")
+    var prompt: Label = scene.get_node("%LanguagePrompt")
+    var continue_button: Button = scene.get_node("%ContinueButton")
+    check(
+        logo.get_global_rect().position.y >= 0.0,
+        "Selected opening logo stays visible: %s" % logo.get_global_rect()
+    )
+    check(
+        prompt.get_global_rect().position.y >= 0.0,
+        "Selected opening prompt stays visible: %s" % prompt.get_global_rect()
+    )
+    check(
+        continue_button.get_global_rect().end.y <= viewport.size.y,
+        "Selected opening action stays visible: %s" % continue_button.get_global_rect()
+    )
+    viewport.queue_free()
+    await tree.process_frame
+    TranslationServer.set_locale("en")
 
 
 func test_every_shipped_language_has_a_flag_and_a_registered_catalog() -> void:

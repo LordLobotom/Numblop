@@ -1,7 +1,7 @@
 # Numblop — Claude Code guide
 
-Godot 4.6.2 + GDScript offline multiplication game for children. Portrait 390x844, ten languages
-(en, cs, sk, de, es, fi, fr, nb, pl, sv).
+Godot 4.6.2 + GDScript offline multiplication game for children. Portrait 390x844, twenty languages
+(en, cs, sk, de, es, fi, fr, nb, pl, sv, pt_BR, pt_PT, it, da, nl, ja, ko, tr, vi, id).
 
 **Read `AGENTS.md` first** — it is the source-of-truth hierarchy, engineering rules, and the
 Track A–D ownership split. Track-scoped subagents live in `.claude/agents/` (learning-core,
@@ -10,7 +10,7 @@ ui-localization, app-state, qa-release); delegate to them for work confined to o
 ## Commands
 
 ```powershell
-# Full test suite (301 tests). -GodotPath is required from a .claude/worktrees/ checkout.
+# Full test suite (329 tests). -GodotPath is required from a .claude/worktrees/ checkout.
 powershell -ExecutionPolicy Bypass -File tools/run-tests.ps1 -GodotPath "C:\Users\eMich\source\Godot\Godot_v4.6.2-stable_win64_console.exe"
 
 # Bilingual responsive screenshots -> artifacts/responsive/

@@ -24,7 +24,7 @@
 - **Before any networking build reaches a Play track**, `docs/privacy/index.md`, the Play Console
   data-safety declaration, and the Families/target-audience answers must be updated in the same
   change. Today's published policy still says the app cannot send anything off the device.
-- All ten shipped languages are required for every user-facing string. Never place
+- All twenty shipped languages are required for every user-facing string. Never place
   user-facing prose directly in GDScript.
 - The canonical learning behavior is `docs/didactic_algorithm.md`, including its confirmed
   implementation decisions. Do not change learning thresholds or scoring incidentally.
@@ -38,7 +38,7 @@
 3. `docs/didactic_algorithm.md` — learning rules and mastery algorithm.
 4. `docs/ARCHITECTURE.md` — technical boundaries and data flow.
 5. `docs/SAVE_SYSTEM.md` — save files, persisted fields, and versioning.
-6. `docs/LOCALIZATION.md` — ten-language text contract.
+6. `docs/LOCALIZATION.md` — twenty-language text contract.
 7. `docs/ROADMAP.md` — milestone order and acceptance gates.
 8. `docs/DECISIONS.md` — accepted decisions that extend the documents above.
 9. `docs/RELEASES.md` — Windows, Android, and Web delivery process.
@@ -51,7 +51,7 @@ If documents conflict, use the highest applicable source and record the resoluti
 
 - Engine: Godot `4.6.2`, GDScript, GL Compatibility renderer.
 - Run: `C:\Users\eMich\source\Godot\Godot_v4.6.2-stable_win64.exe --path .`.
-- Test: `powershell -ExecutionPolicy Bypass -File tools/run-tests.ps1` (301 tests).
+- Test: `powershell -ExecutionPolicy Bypass -File tools/run-tests.ps1` (329 tests).
 - Boot smoke after any scene or layout change:
   `Godot_v4.6.2-stable_win64_console.exe --headless --path . --quit-after 120`. Tests instantiate
   scenes but never run a real layout pass, so a recursion crash passes the suite undetected.

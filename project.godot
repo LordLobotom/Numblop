@@ -48,7 +48,7 @@ common/default_scroll_deadzone=12
 
 [internationalization]
 
-locale/translations=PackedStringArray("res://localization/strings.en.translation", "res://localization/strings.cs.translation", "res://localization/strings.sk.translation", "res://localization/strings.de.translation", "res://localization/strings.es.translation", "res://localization/strings.fi.translation", "res://localization/strings.fr.translation", "res://localization/strings.nb.translation", "res://localization/strings.pl.translation", "res://localization/strings.sv.translation")
+locale/translations=PackedStringArray("res://localization/strings.en.translation", "res://localization/strings.cs.translation", "res://localization/strings.sk.translation", "res://localization/strings.de.translation", "res://localization/strings.es.translation", "res://localization/strings.fi.translation", "res://localization/strings.fr.translation", "res://localization/strings.nb.translation", "res://localization/strings.pl.translation", "res://localization/strings.sv.translation", "res://localization/strings.pt_BR.translation", "res://localization/strings.pt_PT.translation", "res://localization/strings.it.translation", "res://localization/strings.da.translation", "res://localization/strings.nl.translation", "res://localization/strings.ja.translation", "res://localization/strings.ko.translation", "res://localization/strings.tr.translation", "res://localization/strings.vi.translation", "res://localization/strings.id.translation")
 
 [rendering]
 

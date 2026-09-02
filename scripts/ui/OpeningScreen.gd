@@ -6,21 +6,20 @@ signal opening_finished
 const FIRST_LAUNCH_LOCALE := "system"
 const OPENING_LOCALE := "en"
 
-## Ten flags will not fit across 390 px in one row, so they wrap to 5 + 5. The narrowest column
-## the safe area leaves is 358 px, and five of these plus four gaps come to 340 -- comfortably
-## inside it, while still well past the 48 px touch minimum. Growing either number past 65 px
-## of pitch drops the row to four flags and the layout breaks into 4 + 4 + 2.
-const FLAG_SIZE := Vector2(60.0, 60.0)
+## The flags wrap to five per row at 390 px. The narrowest column the safe area leaves is 358 px,
+## and five of these plus four gaps come to 300 -- comfortably inside it, while preserving the
+## 48 px touch minimum. Six would need 362 px, so the twenty choices form four even rows.
+const FLAG_SIZE := Vector2(52.0, 52.0)
 
 ## The picture is drawn smaller than the button it sits in, so the checkmark can claim the corner
 ## without covering the flag -- the same split the settings screen uses at 48/38.
-const FLAG_IMAGE_SIZE := Vector2(48.0, 48.0)
+const FLAG_IMAGE_SIZE := Vector2(44.0, 44.0)
 
 @onready var logo: TextureRect = %Logo
 @onready var loading_label: Label = %LoadingLabel
 @onready var language_panel: VBoxContainer = %LanguagePanel
 @onready var language_prompt: Label = %LanguagePrompt
-@onready var language_buttons: HFlowContainer = %LanguageButtons
+@onready var language_buttons: GridContainer = %LanguageButtons
 @onready var selected_language_label: Label = %SelectedLanguageLabel
 @onready var continue_button: Button = %ContinueButton
 @onready var select_player: AudioStreamPlayer = %SelectPlayer
@@ -120,6 +119,13 @@ func _refresh_text() -> void:
     for locale in _flag_buttons:
         var button: TextureButton = _flag_buttons[locale]
         button.tooltip_text = tr(LanguageCatalog.name_key(String(locale)))
+    # Selecting English does not emit NOTIFICATION_TRANSLATION_CHANGED because the opening already
+    # uses English. Explicitly invalidate the containers after the formerly empty name label gains
+    # text, so the phone-sized first frame cannot retain the hidden panel's stale geometry.
+    selected_language_label.update_minimum_size()
+    language_buttons.queue_sort()
+    language_panel.queue_sort()
+    (language_panel.get_parent() as VBoxContainer).queue_sort()
 
 
 func _force_opening_locale() -> void:
@@ -201,7 +207,7 @@ func _set_buttons_disabled(disabled: bool) -> void:
 
 
 ## Tapping a flag only marks the choice -- nothing is saved and nothing closes until Continue.
-## With ten languages on the very first screen a child sees, the first tap must be undoable.
+## With many languages on the very first screen a child sees, the first tap must be undoable.
 func _on_language_selected(locale: String) -> void:
     if _is_finishing:
         return

@@ -1,5 +1,21 @@
 # Numblop Decision Log
 
+## 2026-09-02 — Twenty complete interface languages with offline CJK coverage
+
+- The language catalog adds Brazilian Portuguese (`pt_BR`), European Portuguese (`pt_PT`),
+  Italian, Danish, Dutch, Japanese, Korean, Turkish, Vietnamese, and Indonesian. The original ten
+  flags keep their established order; the ten additions follow in the order in which they shipped.
+- Portuguese keeps two independent columns because its regional wording differs. A full device tag
+  selects the matching column; a regionless `pt` defaults to Brazilian Portuguese. All other new
+  regional device tags fold to their language-only column, and unsupported languages still fall
+  back to English.
+- Complete means every catalog key, including accessible labels and offline/cloud-failure states,
+  not only the main play loop. The Play achievement exporter uses the same twenty-language source.
+- Japanese and Korean must remain fully offline on every platform, including Web. Noto Sans JP and
+  KR therefore join the bundled font fallback chain under the SIL OFL with explicit 0.8 outline
+  emboldening, which Godot renders reliably and better matches Baloo 2; tests check every catalog
+  character and pin that CJK rendering setting.
+
 ## 2026-08-30 — Completed tables open a separate permanent free-practice loop
 
 - **Table eligibility means permanently completed, not all facts saturated.** The same nine-of-ten

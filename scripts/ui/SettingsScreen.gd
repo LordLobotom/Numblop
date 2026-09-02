@@ -55,7 +55,7 @@ const VERSION_FALLBACK := "0.1.0"
 const PRIVACY_POLICY_URL_TEMPLATE := "https://numblop.gutcloud.cz/%s/privacy/"
 const PRIVACY_POLICY_LANGUAGES: Array[String] = ["cs", "en"]
 const PRIVACY_POLICY_FALLBACK_LANGUAGE := "en"
-## Ten flags wrap to 5 + 5 inside the settings card. 48 px is the touch minimum, and the flag
+## Flags wrap to five per row inside the settings card. 48 px is the touch minimum, and the flag
 ## itself is inset so the checkmark in the corner never covers it.
 const FLAG_BUTTON_SIZE := Vector2(48.0, 48.0)
 const FLAG_IMAGE_SIZE := Vector2(38.0, 38.0)

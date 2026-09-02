@@ -1,8 +1,18 @@
-[gd_resource type="FontVariation" load_steps=3 format=3]
+[gd_resource type="FontVariation" format=3 uid="uid://syqfxtsrptg2"]
 
-[ext_resource type="FontFile" path="res://ui/fonts/Baloo2-Variable.ttf" id="1_baloo2"]
-[ext_resource type="FontFile" path="res://ui/fonts/NotoSans-Variable.ttf" id="2_noto_sans"]
+[ext_resource type="FontFile" uid="uid://cc0ah1yq1kw7p" path="res://ui/fonts/Baloo2-Variable.ttf" id="1_baloo2"]
+[ext_resource type="FontFile" uid="uid://dqvcr377haxye" path="res://ui/fonts/NotoSans-Variable.ttf" id="2_noto_sans"]
+[ext_resource type="FontFile" uid="uid://4yo4e4y1b7h1" path="res://ui/fonts/NotoSansJP-Variable.ttf" id="3_noto_sans_jp"]
+[ext_resource type="FontFile" uid="uid://df0i765dnaoh4" path="res://ui/fonts/NotoSansKR-Variable.ttf" id="4_noto_sans_kr"]
+
+[sub_resource type="FontVariation" id="FontVariation_noto_sans_jp_bold"]
+base_font = ExtResource("3_noto_sans_jp")
+variation_embolden = 0.8
+
+[sub_resource type="FontVariation" id="FontVariation_noto_sans_kr_bold"]
+base_font = ExtResource("4_noto_sans_kr")
+variation_embolden = 0.8
 
 [resource]
+fallbacks = Array[Font]([ExtResource("2_noto_sans"), SubResource("FontVariation_noto_sans_jp_bold"), SubResource("FontVariation_noto_sans_kr_bold")])
 base_font = ExtResource("1_baloo2")
-fallbacks = Array[Font]([ExtResource("2_noto_sans")])

@@ -2,7 +2,7 @@ extends Node
 
 ## Writes the Play Console bulk-achievement import from the game's own catalog.
 ##
-## Console offers a ZIP import instead of typing 25 achievements into a web form ten times over.
+## Console offers a ZIP import instead of typing 25 achievements into a web form twenty times over.
 ## The names, descriptions and step targets in that ZIP must be the ones the game actually shows,
 ## so they are read from `AchievementCatalog` and `localization/strings.csv` rather than retyped:
 ## anything retyped drifts the first time a string is reworded.
@@ -16,12 +16,12 @@ const ICON_SOURCE_DIRECTORY := "res://store/achievements"
 ## localization row that repeats it.
 const DEFAULT_LOCALE := "en"
 
-## Play Console locale codes for the ten shipped languages.
+## Play Console locale codes for the shipped languages.
 ##
 ## Console rejects the whole import if one row names a locale the game is not configured for, and
 ## it then lists every achievement rather than the offending locale, so these are copied from the
 ## game's own language list in Console rather than guessed from the language tag. Two do not follow
-## the `xx-YY` pattern that the other seven do: **Slovak is bare `sk`** with no region, and
+## the usual `xx-YY` pattern: **Slovak is bare `sk`** with no region, and
 ## Norwegian is `no-NO` rather than `nb-NO`.
 const PLAY_LOCALES: Dictionary = {
     "cs": "cs-CZ",
@@ -33,6 +33,16 @@ const PLAY_LOCALES: Dictionary = {
     "nb": "no-NO",
     "pl": "pl-PL",
     "sv": "sv-SE",
+    "pt_BR": "pt-BR",
+    "pt_PT": "pt-PT",
+    "it": "it-IT",
+    "da": "da-DK",
+    "nl": "nl-NL",
+    "ja": "ja-JP",
+    "ko": "ko-KR",
+    "tr": "tr-TR",
+    "vi": "vi-VN",
+    "id": "id-ID",
 }
 
 ## Every locale the game is configured for in Play Games Services, as shown in Console. A
@@ -41,7 +51,8 @@ const PLAY_LOCALES: Dictionary = {
 const CONSOLE_LOCALES: Array[String] = [
     "en-US", "en-AU", "en-CA", "en-GB", "en-IN", "en-SG", "en-ZA",
     "fi-FI", "fr-FR", "fr-CA", "no-NO", "de-DE", "pl-PL", "sk", "cs-CZ",
-    "es-419", "es-US", "es-ES", "sv-SE",
+    "es-419", "es-US", "es-ES", "sv-SE", "pt-BR", "pt-PT", "it-IT", "da-DK",
+    "nl-NL", "ja-JP", "ko-KR", "tr-TR", "vi-VN", "id-ID",
 ]
 
 ## Play XP is `100 * points`, a game may spend 2000 points in total, each value is a multiple of 5,

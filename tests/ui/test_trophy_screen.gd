@@ -2,7 +2,7 @@ extends NumblopTestCase
 
 ## Every achievement must ship its own artwork, at the one size the trophy tile needs.
 ##
-## The same shape of contract as "every string in all ten languages": the catalog is the source of
+## The same shape of contract as "every string in all shipped languages": the catalog is the source of
 ## truth, and art that is missing or oversized is a failure here rather than a surprise on a phone.
 
 const ICON_DIRECTORY := "res://ui/achievements"

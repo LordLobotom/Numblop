@@ -21,6 +21,11 @@ files it owned. These release and M5 items remain open:
 - `D29 DONE` Responsive captures for the free-practice setup and a completed table detail with its
   Practice action, in both review locales and all three viewport sizes. Owns: capture harness and
   smoke tests.
+- `B38 DONE` Add Brazilian and European Portuguese, Italian, Danish, Dutch, Japanese, Korean,
+  Turkish, Vietnamese, and Indonesian to both language pickers, with complete translations,
+  region-aware system locale resolution, supplied flags, offline CJK fonts, and catalog tests.
+  Owns: language catalog, settings locale resolution, UI presentation, localization, fonts,
+  project translation registration, release-localization export, tests, and localization docs.
 
 - `B32 DONE` Ship dedicated achievement artwork at 192 px in `TrophyScreen` and 512 px RGBA8 for
   Play Console, with the 1254 px originals kept out of git and out of every export. Adds 1.76 MB to
