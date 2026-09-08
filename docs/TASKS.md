@@ -21,6 +21,10 @@ files it owned. These release and M5 items remain open:
 - `D29 DONE` Responsive captures for the free-practice setup and a completed table detail with its
   Practice action, in both review locales and all three viewport sizes. Owns: capture harness and
   smoke tests.
+- `D30 DONE` Bump the complete Hungarian build to public version `0.5.3` / Play code `25`, produce
+  the signed release AAB, and verify its signature, manifest, ABIs, permissions, and packaged
+  Hungarian resources. Owns: version/export configuration, release documentation, and artifact
+  verification.
 - `B38 DONE` Add Brazilian and European Portuguese, Italian, Danish, Dutch, Japanese, Korean,
   Turkish, Vietnamese, and Indonesian to both language pickers, with complete translations,
   region-aware system locale resolution, supplied flags, offline CJK fonts, and catalog tests.

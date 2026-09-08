@@ -10,7 +10,7 @@ adaptive Web build that fits a phone while using a wider canvas on desktop. The 
 in twenty-one languages.
 
 The Android package ID is permanently fixed as `cz.gutcloud.numblop`.
-Public version `0.5.2`, Play version code `24`.
+Public version `0.5.3`, Play version code `25`.
 
 ## Project status
 
