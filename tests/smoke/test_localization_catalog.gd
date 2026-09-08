@@ -5,7 +5,7 @@ extends NumblopTestCase
 
 const EXPECTED_HEADER := [
     "keys", "en", "cs", "sk", "de", "es", "fi", "fr", "nb", "pl", "sv",
-    "pt_BR", "pt_PT", "it", "da", "nl", "ja", "ko", "tr", "vi", "id",
+    "pt_BR", "pt_PT", "it", "da", "nl", "ja", "ko", "tr", "vi", "id", "hu",
 ]
 
 
@@ -93,6 +93,7 @@ func test_runtime_catalog_switches_between_the_shipped_languages() -> void:
         "tr": "Oyna",
         "vi": "Chơi",
         "id": "Main",
+        "hu": "Játék",
     }
     for locale in expected_play:
         TranslationServer.set_locale(String(locale))
@@ -110,6 +111,7 @@ func test_device_locales_resolve_to_the_right_catalog_column() -> void:
     equal(LanguageCatalog.resolve_device_locale("pt"), "pt_BR", "Generic Portuguese default")
     equal(LanguageCatalog.resolve_device_locale("ja_JP"), "ja", "Japanese region folds")
     equal(LanguageCatalog.resolve_device_locale("ko-KR"), "ko", "Korean region folds")
+    equal(LanguageCatalog.resolve_device_locale("hu-HU"), "hu", "Hungarian region folds")
     equal(LanguageCatalog.resolve_device_locale("no_NO"), "nb", "Legacy Norwegian folds")
     equal(LanguageCatalog.resolve_device_locale("zh_CN"), "en", "Unsupported locale falls back")
 

@@ -52,6 +52,11 @@ const LANGUAGES: Array[Dictionary] = [
         "flag": "button_language_indonesia.png",
         "name_key": "LANGUAGE_INDONESIAN",
     },
+    {
+        "locale": "hu",
+        "flag": "button_language_hungary.png",
+        "name_key": "LANGUAGE_HUNGARIAN",
+    },
 ]
 
 

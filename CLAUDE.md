@@ -1,6 +1,6 @@
 # Numblop — Claude Code guide
 
-Godot 4.6.2 + GDScript offline multiplication game for children. Portrait 390x844, twenty languages
+Godot 4.6.2 + GDScript offline multiplication game for children. Portrait 390x844, twenty-one languages
 (en, cs, sk, de, es, fi, fr, nb, pl, sv, pt_BR, pt_PT, it, da, nl, ja, ko, tr, vi, id).
 
 **Read `AGENTS.md` first** — it is the source-of-truth hierarchy, engineering rules, and the

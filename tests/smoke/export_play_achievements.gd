@@ -2,7 +2,7 @@ extends Node
 
 ## Writes the Play Console bulk-achievement import from the game's own catalog.
 ##
-## Console offers a ZIP import instead of typing 25 achievements into a web form twenty times over.
+## Console offers a ZIP import instead of typing 25 achievements into a web form for every locale.
 ## The names, descriptions and step targets in that ZIP must be the ones the game actually shows,
 ## so they are read from `AchievementCatalog` and `localization/strings.csv` rather than retyped:
 ## anything retyped drifts the first time a string is reworded.
@@ -43,6 +43,7 @@ const PLAY_LOCALES: Dictionary = {
     "tr": "tr-TR",
     "vi": "vi-VN",
     "id": "id-ID",
+    "hu": "hu-HU",
 }
 
 ## Every locale the game is configured for in Play Games Services, as shown in Console. A
@@ -52,7 +53,7 @@ const CONSOLE_LOCALES: Array[String] = [
     "en-US", "en-AU", "en-CA", "en-GB", "en-IN", "en-SG", "en-ZA",
     "fi-FI", "fr-FR", "fr-CA", "no-NO", "de-DE", "pl-PL", "sk", "cs-CZ",
     "es-419", "es-US", "es-ES", "sv-SE", "pt-BR", "pt-PT", "it-IT", "da-DK",
-    "nl-NL", "ja-JP", "ko-KR", "tr-TR", "vi-VN", "id-ID",
+    "nl-NL", "ja-JP", "ko-KR", "tr-TR", "vi-VN", "id-ID", "hu-HU",
 ]
 
 ## Play XP is `100 * points`, a game may spend 2000 points in total, each value is a multiple of 5,

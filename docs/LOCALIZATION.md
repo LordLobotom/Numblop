@@ -2,7 +2,7 @@
 
 ## Shipped languages
 
-Twenty languages, in the order their flags appear:
+Twenty-one languages, in the order their flags appear:
 
 | Locale | Language | Locale | Language |
 |---|---|---|---|
@@ -16,6 +16,7 @@ Twenty languages, in the order their flags appear:
 | `nl` | Dutch | `ja` | Japanese |
 | `ko` | Korean | `tr` | Turkish |
 | `vi` | Vietnamese | `id` | Indonesian |
+| `hu` | Hungarian | | |
 
 A saved preference of `system` resolves to the device language when Numblop ships it, and to English
 otherwise. Devices reporting `no` or `nn` are folded to `nb`; full `pt_BR` and `pt_PT` tags remain
@@ -27,7 +28,7 @@ distinct, and a generic `pt` tag defaults to Brazilian Portuguese.
   `SettingsManager` validates a saved preference against it, and both the opening screen and the
   settings screen build their flag buttons from it.
 - `localization/strings.csv` — one column per language, header
-  `keys,en,cs,sk,de,es,fi,fr,nb,pl,sv,pt_BR,pt_PT,it,da,nl,ja,ko,tr,vi,id`.
+  `keys,en,cs,sk,de,es,fi,fr,nb,pl,sv,pt_BR,pt_PT,it,da,nl,ja,ko,tr,vi,id,hu`.
 
 **Adding a language is one row plus one column, and a flag PNG in `ui/buttons/`.** No scene edits.
 The two lists must stay in step: a language in the catalog without a CSV column shows a flag that
@@ -75,7 +76,7 @@ rather than a score, and it is pinned by test:
 - the Czech band names are the agreed ones.
 
 Responsive captures run in English and Czech only. Those two are the deepest-tested layouts; the
-other eighteen are covered by the catalog and glyph tests plus editorial review, not screenshots.
+other nineteen are covered by the catalog and glyph tests plus editorial review, not screenshots.
 
 Language choice is local device configuration, stored in `user://settings.cfg`, separately from
 mastery. See [`SAVE_SYSTEM.md`](SAVE_SYSTEM.md).

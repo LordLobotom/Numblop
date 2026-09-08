@@ -8,7 +8,7 @@ const OPENING_LOCALE := "en"
 
 ## The flags wrap to five per row at 390 px. The narrowest column the safe area leaves is 358 px,
 ## and five of these plus four gaps come to 300 -- comfortably inside it, while preserving the
-## 48 px touch minimum. Six would need 362 px, so the twenty choices form four even rows.
+## 48 px touch minimum. Six would need 362 px, so the choices use five columns.
 const FLAG_SIZE := Vector2(52.0, 52.0)
 
 ## The picture is drawn smaller than the button it sits in, so the checkmark can claim the corner

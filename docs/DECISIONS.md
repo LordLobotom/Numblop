@@ -1,5 +1,11 @@
 # Numblop Decision Log
 
+## 2026-09-08 — Hungarian joins the complete offline language catalog
+
+- Hungarian (`hu`) is the twenty-first interface language and uses the supplied Hungarian flag.
+- Every interface and accessibility string is translated, `hu-HU` device locales fold to `hu`, and
+  the Play achievement export uses the matching `hu-HU` Console locale.
+
 ## 2026-09-02 — Twenty complete interface languages with offline CJK coverage
 
 - The language catalog adds Brazilian Portuguese (`pt_BR`), European Portuguese (`pt_PT`),

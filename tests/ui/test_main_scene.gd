@@ -1676,8 +1676,8 @@ func test_opening_screen_uses_wordmark_and_touch_ready_language_choices() -> voi
             "res://ui/branding/numblop_wordmark.png",
             "Opening wordmark path"
         )
-    # Twenty flags form four predictable rows at 390 px. The fixed grid avoids an HFlowContainer
-    # retaining a transient twenty-row minimum height after the selected-language label changes.
+    # The fixed five-column grid avoids an HFlowContainer retaining a transient one-item-per-row
+    # minimum height after the selected-language label changes.
     var buttons: GridContainer = scene.get_node("%LanguageButtons")
     equal(
         buttons.get_child_count(),

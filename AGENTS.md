@@ -24,7 +24,7 @@
 - **Before any networking build reaches a Play track**, `docs/privacy/index.md`, the Play Console
   data-safety declaration, and the Families/target-audience answers must be updated in the same
   change. Today's published policy still says the app cannot send anything off the device.
-- All twenty shipped languages are required for every user-facing string. Never place
+- All twenty-one shipped languages are required for every user-facing string. Never place
   user-facing prose directly in GDScript.
 - The canonical learning behavior is `docs/didactic_algorithm.md`, including its confirmed
   implementation decisions. Do not change learning thresholds or scoring incidentally.
@@ -38,7 +38,7 @@
 3. `docs/didactic_algorithm.md` — learning rules and mastery algorithm.
 4. `docs/ARCHITECTURE.md` — technical boundaries and data flow.
 5. `docs/SAVE_SYSTEM.md` — save files, persisted fields, and versioning.
-6. `docs/LOCALIZATION.md` — twenty-language text contract.
+6. `docs/LOCALIZATION.md` — twenty-one-language text contract.
 7. `docs/ROADMAP.md` — milestone order and acceptance gates.
 8. `docs/DECISIONS.md` — accepted decisions that extend the documents above.
 9. `docs/RELEASES.md` — Windows, Android, and Web delivery process.

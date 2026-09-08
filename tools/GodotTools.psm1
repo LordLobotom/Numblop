@@ -100,15 +100,16 @@ function Initialize-NumblopProject {
 
     $translationOutputs = @(
         (Join-Path $RepoRoot "localization\strings.en.translation"),
-        (Join-Path $RepoRoot "localization\strings.cs.translation")
+        (Join-Path $RepoRoot "localization\strings.cs.translation"),
+        (Join-Path $RepoRoot "localization\strings.hu.translation")
     )
     $missingTranslations = @($translationOutputs | Where-Object { -not (Test-Path -LiteralPath $_) })
     if ($missingTranslations.Count -gt 0) {
         Invoke-NumblopGodot -Godot $Godot -Arguments @(
             "--headless", "--path", $RepoRoot, "--import"
         ) -AllowedErrorPatterns @(
-            "Cannot open file 'res://localization/strings\.(en|cs)\.translation'",
-            "Failed loading resource: res://localization/strings\.(en|cs)\.translation"
+            "Cannot open file 'res://localization/strings\.(en|cs|hu)\.translation'",
+            "Failed loading resource: res://localization/strings\.(en|cs|hu)\.translation"
         )
         foreach ($path in $translationOutputs) {
             if (-not (Test-Path -LiteralPath $path -PathType Leaf)) {

@@ -542,7 +542,7 @@ Everything below is manual, done once, and gates any device testing.
    reinstall cannot double-count.
 5. Create the two leaderboards, if position C in §1 is approved: **Total XP** and **Best streak**,
    both larger-is-better, integer.
-6. Every achievement and leaderboard needs a name, description, and icon **in all twenty shipped
+6. Every achievement and leaderboard needs a name, description, and icon **in all twenty-one shipped
    languages**. Play Console localisation is separate from `strings.csv`; budget real time for this
    and keep the source text in the repository so it can be reviewed like any other copy.
 7. Add tester accounts. Games Services must be **published** separately from the app before
@@ -704,7 +704,7 @@ CSVs Console expects — no header rows, unquoted, comma-separated — plus the 
 | `AchievementsIconsMappings.csv` | Name, icon filename |
 
 Names, descriptions and step targets are read from `AchievementCatalog` and `strings.csv`, so what
-Console shows is what the game shows, in all twenty languages. English is the default locale and
+Console shows is what the game shows, in all twenty-one languages. English is the default locale and
 lives in the metadata file; the other nineteen are localization rows.
 
 **Locale codes come from the game's own language list in Play Games Services, not from the language

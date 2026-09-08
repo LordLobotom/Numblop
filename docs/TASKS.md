@@ -26,6 +26,10 @@ files it owned. These release and M5 items remain open:
   region-aware system locale resolution, supplied flags, offline CJK fonts, and catalog tests.
   Owns: language catalog, settings locale resolution, UI presentation, localization, fonts,
   project translation registration, release-localization export, tests, and localization docs.
+- `B39 DONE` Add Hungarian to both language pickers using the supplied flag, with a complete
+  Hungarian interface translation, device-locale resolution, Play achievement export mapping,
+  catalog tests, and current language-count documentation. Owns: language catalog, localization,
+  project translation registration and bootstrap import, locale/export tests, and localization docs.
 
 - `B32 DONE` Ship dedicated achievement artwork at 192 px in `TrophyScreen` and 512 px RGBA8 for
   Play Console, with the 1254 px originals kept out of git and out of every export. Adds 1.76 MB to
