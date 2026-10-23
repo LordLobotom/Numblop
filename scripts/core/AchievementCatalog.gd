@@ -31,10 +31,10 @@ const COLLECTION_REWARD_COINS := 50
 const COLLECTION_TARGETS: Dictionary = {
     "body_color": 5,
     "belly_color": 6,
-    "hat": 6,
-    "glasses": 5,
-    "necklace": 5,
-    "footwear": 5,
+    "hat": 7,
+    "glasses": 6,
+    "necklace": 6,
+    "footwear": 6,
 }
 const ISLAND_ID_PREFIX := "island_"
 const ISLAND_REWARD_COINS := 50

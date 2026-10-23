@@ -34,6 +34,14 @@ files it owned. These release and M5 items remain open:
   Hungarian interface translation, device-locale resolution, Play achievement export mapping,
   catalog tests, and current language-count documentation. Owns: language catalog, localization,
   project translation registration and bootstrap import, locale/export tests, and localization docs.
+- `B40 DONE` Add the supplied Halloween hat, glasses, necklace, and footwear to the 100-coin
+  cosmetic store, with clean preview framing, all-language names, updated collection-achievement
+  targets, and catalog tests. Owns: cosmetic catalog, localization, achievement targets, and state
+  tests.
+- `D31 DONE` Bump the Halloween-cosmetics build to public version `0.5.4` / Play code `26`,
+  produce the signed release AAB, and verify its signature, manifest, ABIs, permissions, and
+  packaged resources. Owns: version/export configuration, release documentation, and artifact
+  verification.
 
 - `B32 DONE` Ship dedicated achievement artwork at 192 px in `TrophyScreen` and 512 px RGBA8 for
   Play Console, with the 1254 px originals kept out of git and out of every export. Adds 1.76 MB to

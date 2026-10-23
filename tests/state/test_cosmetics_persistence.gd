@@ -72,13 +72,13 @@ func test_legacy_save_defaults_to_the_cream_belly() -> void:
     )
 
 
-func test_supplied_accessory_catalog_has_free_empty_slots_and_thirteen_paid_items() -> void:
+func test_supplied_accessory_catalog_has_free_empty_slots_and_halloween_items() -> void:
     var hats := CosmeticCatalog.hats()
     var glasses := CosmeticCatalog.glasses()
     var necklaces := CosmeticCatalog.necklaces()
-    equal(hats.size(), 7, "Empty slot plus six hats")
-    equal(glasses.size(), 6, "Empty slot plus five glasses")
-    equal(necklaces.size(), 6, "Empty slot plus five necklaces")
+    equal(hats.size(), 8, "Empty slot plus seven hats")
+    equal(glasses.size(), 7, "Empty slot plus six glasses")
+    equal(necklaces.size(), 7, "Empty slot plus six necklaces")
     equal(hats[0]["price"], 0, "No-hat slot is free")
     equal(glasses[0]["price"], 0, "No-glasses slot is free")
     equal(necklaces[0]["price"], 0, "No-necklace slot is free")
@@ -88,16 +88,37 @@ func test_supplied_accessory_catalog_has_free_empty_slots_and_thirteen_paid_item
     equal(hats[4]["id"], "hat_duck", "Duck cap joins the hat catalog")
     equal(hats[5]["id"], "hat_dino", "Dino hat joins the hat catalog")
     equal(hats[6]["id"], "hat_pirat", "Pirate hat joins the hat catalog")
+    equal(hats[7]["id"], "hat_halloween", "Halloween hat joins the hat catalog")
     equal(glasses[4]["id"], "glasses_pirat", "Pirate eye patch joins the glasses catalog")
     equal(glasses[5]["id"], "glasses_star", "Star glasses join the glasses catalog")
+    equal(
+        glasses[6]["id"],
+        "glasses_halloween",
+        "Halloween glasses join the glasses catalog"
+    )
     equal(necklaces[4]["id"], "necklace_bow_tie", "Bow tie joins the necklace catalog")
     equal(necklaces[5]["id"], "necklace_skarf", "Scarf joins the necklace catalog")
+    equal(
+        necklaces[6]["id"],
+        "necklace_halloween",
+        "Halloween necklace joins the necklace catalog"
+    )
     var footwear := CosmeticCatalog.footwear()
-    equal(footwear.size(), 6, "Empty slot plus five footwear")
+    equal(footwear.size(), 7, "Empty slot plus six footwear")
     equal(footwear[0]["price"], 0, "Bare feet stay free")
     for item in footwear.slice(1):
         equal(item["price"], 100, "Supplied footwear price")
         check(ResourceLoader.exists(String(item["texture_path"])), "Footwear asset exists")
+    equal(
+        footwear[6]["id"],
+        "footwear_halloween",
+        "Halloween footwear joins the footwear catalog"
+    )
+    equal(
+        footwear[6]["display_region"],
+        Rect2(208.0, 557.0, 354.0, 112.0),
+        "Halloween footwear preview follows the resized artwork"
+    )
     equal(
         necklaces[2]["display_region"],
         Rect2(227.0, 404.0, 320.0, 136.0),

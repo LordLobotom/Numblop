@@ -108,6 +108,13 @@ static func hats() -> Array[Dictionary]:
             Rect2(193.0, 88.0, 433.0, 312.0),
             ACCESSORY_PRICE
         ),
+        _accessory(
+            "hat_halloween",
+            "COSMETICS_HAT_HALLOWEEN",
+            "res://assets/cosmetics/hats/hat_halloween.png",
+            Rect2(161.0, 49.0, 463.0, 304.0),
+            ACCESSORY_PRICE
+        ),
     ]
 
 
@@ -147,6 +154,13 @@ static func glasses() -> Array[Dictionary]:
             "COSMETICS_GLASSES_STAR",
             "res://assets/cosmetics/glasses/glasses_star.png",
             Rect2(236.0, 296.0, 304.0, 123.0),
+            ACCESSORY_PRICE
+        ),
+        _accessory(
+            "glasses_halloween",
+            "COSMETICS_GLASSES_HALLOWEEN",
+            "res://assets/cosmetics/glasses/glasses_halloween.png",
+            Rect2(188.0, 282.0, 402.0, 146.0),
             ACCESSORY_PRICE
         ),
     ]
@@ -190,6 +204,13 @@ static func necklaces() -> Array[Dictionary]:
             Rect2(240.0, 391.0, 293.0, 195.0),
             ACCESSORY_PRICE
         ),
+        _accessory(
+            "necklace_halloween",
+            "COSMETICS_NECKLACE_HALLOWEEN",
+            "res://assets/cosmetics/necklaces/necklace_halloween.png",
+            Rect2(215.0, 394.0, 337.0, 171.0),
+            ACCESSORY_PRICE
+        ),
     ]
 
 
@@ -231,6 +252,13 @@ static func footwear() -> Array[Dictionary]:
             "COSMETICS_FOOTWEAR_STAR",
             "res://assets/cosmetics/footwear/footwear_star.png",
             Rect2(219.0, 533.0, 338.0, 124.0),
+            ACCESSORY_PRICE
+        ),
+        _accessory(
+            "footwear_halloween",
+            "COSMETICS_FOOTWEAR_HALLOWEEN",
+            "res://assets/cosmetics/footwear/footwear_halloween.png",
+            Rect2(208.0, 557.0, 354.0, 112.0),
             ACCESSORY_PRICE
         ),
     ]
